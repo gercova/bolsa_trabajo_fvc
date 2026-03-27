@@ -1,7 +1,5 @@
 @extends('layouts.app')
-
 @section('title', 'Buscar Ofertas - Bolsa de Trabajo')
-
 @section('content')
     <div class="container mx-auto px-4 py-8">
         <!-- Filtros -->
@@ -12,9 +10,7 @@
             </h2>
             
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <input type="text" 
-                       placeholder="Palabra clave" 
-                       class="px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-600">
+                <input type="text" placeholder="Palabra clave" class="px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-600">
                 
                 <select class="px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-600">
                     <option value="">Categoría</option>

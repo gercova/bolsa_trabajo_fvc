@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Bolsa de Trabajo - Instituto Francisco Vigo Caballero')</title>
     
     <!-- Tailwind CSS -->
@@ -27,6 +27,8 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
     </style>
+    
+    @stack('styles')
 </head>
 <body class="bg-gray-50">
     <!-- Header -->
@@ -35,22 +37,22 @@
             <div class="flex justify-between items-center">
                 <!-- Logo y menú izquierda -->
                 <div class="flex items-center space-x-8">
-                    <a href="/" class="flex items-center space-x-2">
+                    <a href="{{ route('inicio') }}" class="flex items-center space-x-2">
                         <i class="bi bi-mortarboard text-3xl text-purple-600"></i>
                         <span class="font-bold text-xl text-gray-800 hidden sm:block">Instituto Francisco Vigo Caballero</span>
                     </a>
                     
                     <!-- Menú desktop -->
                     <div class="hidden md:flex space-x-6">
-                        <a href="/" class="text-gray-700 hover:text-purple-600 transition flex items-center space-x-1">
+                        <a href="{{ route('inicio') }}" class="text-gray-700 hover:text-purple-600 transition flex items-center space-x-1">
                             <i class="bi bi-house-door"></i>
                             <span>Inicio</span>
                         </a>
-                        <a href="/ofertas" class="text-gray-700 hover:text-purple-600 transition flex items-center space-x-1">
+                        <a href="{{ route('ofertas') }}" class="text-gray-700 hover:text-purple-600 transition flex items-center space-x-1">
                             <i class="bi bi-briefcase"></i>
                             <span>Buscar Ofertas</span>
                         </a>
-                        <a href="/nosotros" class="text-gray-700 hover:text-purple-600 transition flex items-center space-x-1">
+                        <a href="{{ route('nosotros') }}" class="text-gray-700 hover:text-purple-600 transition flex items-center space-x-1">
                             <i class="bi bi-info-circle"></i>
                             <span>Nosotros</span>
                         </a>
@@ -59,14 +61,37 @@
                 
                 <!-- Menú derecha desktop -->
                 <div class="hidden md:flex items-center space-x-4">
-                    <a href="/login" class="px-4 py-2 text-gray-700 hover:text-purple-600 transition flex items-center space-x-1">
-                        <i class="bi bi-box-arrow-in-right"></i>
-                        <span>Iniciar Sesión</span>
-                    </a>
-                    <a href="/register" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center space-x-1">
-                        <i class="bi bi-person-plus"></i>
-                        <span>Registrarse</span>
-                    </a>
+                    @auth
+                        <div class="relative group">
+                            <button class="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition">
+                                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <i class="bi bi-person-circle text-xl"></i>
+                                </div>
+                                <span>{{ Auth::user()->name }}</span>
+                                <i class="bi bi-chevron-down text-sm"></i>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition">
+                                    <i class="bi bi-person mr-2"></i> Mi Perfil
+                                </a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition">
+                                        <i class="bi bi-box-arrow-right mr-2"></i> Cerrar Sesión
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @else
+                        <a href="{{ route('login') }}" class="px-4 py-2 text-gray-700 hover:text-purple-600 transition flex items-center space-x-1">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            <span>Iniciar Sesión</span>
+                        </a>
+                        <a href="{{ route('register') }}" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center space-x-1">
+                            <i class="bi bi-person-plus"></i>
+                            <span>Registrarse</span>
+                        </a>
+                    @endauth
                 </div>
                 
                 <!-- Botón menú móvil -->
@@ -78,34 +103,62 @@
             <!-- Menú móvil desplegable -->
             <div class="md:hidden hidden mt-4 pb-4" id="mobileMenu">
                 <div class="flex flex-col space-y-3">
-                    <a href="/" class="text-gray-700 hover:text-purple-600 transition flex items-center space-x-2 py-2">
+                    <a href="{{ route('inicio') }}" class="text-gray-700 hover:text-purple-600 transition flex items-center space-x-2 py-2">
                         <i class="bi bi-house-door w-6"></i>
                         <span>Inicio</span>
                     </a>
-                    <a href="/ofertas" class="text-gray-700 hover:text-purple-600 transition flex items-center space-x-2 py-2">
+                    <a href="{{ route('ofertas') }}" class="text-gray-700 hover:text-purple-600 transition flex items-center space-x-2 py-2">
                         <i class="bi bi-briefcase w-6"></i>
                         <span>Buscar Ofertas</span>
                     </a>
-                    <a href="/nosotros" class="text-gray-700 hover:text-purple-600 transition flex items-center space-x-2 py-2">
+                    <a href="{{ route('nosotros') }}" class="text-gray-700 hover:text-purple-600 transition flex items-center space-x-2 py-2">
                         <i class="bi bi-info-circle w-6"></i>
                         <span>Nosotros</span>
                     </a>
                     <hr class="border-gray-200">
-                    <a href="/login" class="text-gray-700 hover:text-purple-600 transition flex items-center space-x-2 py-2">
-                        <i class="bi bi-box-arrow-in-right w-6"></i>
-                        <span>Iniciar Sesión</span>
-                    </a>
-                    <a href="/register" class="text-purple-600 hover:text-purple-700 transition flex items-center space-x-2 py-2">
-                        <i class="bi bi-person-plus w-6"></i>
-                        <span>Registrarse</span>
-                    </a>
+                    
+                    @auth
+                        <div class="px-2 py-2">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <i class="bi bi-person-circle text-xl"></i>
+                                </div>
+                                <div>
+                                    <p class="font-semibold">{{ Auth::user()->name }}</p>
+                                    <p class="text-sm text-gray-600">{{ Auth::user()->email }}</p>
+                                </div>
+                            </div>
+                            <a href="#" class="block py-2 text-gray-700 hover:text-purple-600 transition">
+                                <i class="bi bi-person mr-2"></i> Mi Perfil
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="w-full text-left py-2 text-gray-700 hover:text-purple-600 transition">
+                                    <i class="bi bi-box-arrow-right mr-2"></i> Cerrar Sesión
+                                </button>
+                            </form>
+                        </div>
+                    @else
+                        <a href="{{ route('login') }}" class="text-gray-700 hover:text-purple-600 transition flex items-center space-x-2 py-2">
+                            <i class="bi bi-box-arrow-in-right w-6"></i>
+                            <span>Iniciar Sesión</span>
+                        </a>
+                        <a href="{{ route('register') }}" class="text-purple-600 hover:text-purple-700 transition flex items-center space-x-2 py-2">
+                            <i class="bi bi-person-plus w-6"></i>
+                            <span>Registrarse</span>
+                        </a>
+                    @endauth
                 </div>
             </div>
         </nav>
     </header>
-
     <!-- Contenido principal -->
-    <main class="pt-20 min-h-screen">
+    {{-- <main class="pt-20 min-h-screen">
+        @yield('content')
+    </main> --}}
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <main id="main-content" class="pt-20 min-h-screen">
         @yield('content')
     </main>
 
@@ -123,9 +176,9 @@
                 <div>
                     <h4 class="font-bold mb-4">Enlaces rápidos</h4>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a href="/" class="hover:text-white transition">Inicio</a></li>
-                        <li><a href="/ofertas" class="hover:text-white transition">Ofertas de empleo</a></li>
-                        <li><a href="/nosotros" class="hover:text-white transition">Sobre nosotros</a></li>
+                        <li><a href="{{ route('inicio') }}" class="hover:text-white transition">Inicio</a></li>
+                        <li><a href="{{ route('ofertas') }}" class="hover:text-white transition">Ofertas de empleo</a></li>
+                        <li><a href="{{ route('nosotros') }}" class="hover:text-white transition">Sobre nosotros</a></li>
                     </ul>
                 </div>
                 <div>
@@ -171,7 +224,7 @@
         });
 
         // Cerrar menú móvil al hacer click en un enlace
-        document.querySelectorAll('#mobileMenu a').forEach(link => {
+        document.querySelectorAll('#mobileMenu a, #mobileMenu button').forEach(link => {
             link.addEventListener('click', () => {
                 document.getElementById('mobileMenu').classList.add('hidden');
                 const menuBtn = document.getElementById('menuBtn').querySelector('i');
@@ -181,6 +234,6 @@
         });
     </script>
     
-    @yield('scripts')
+    @stack('scripts')
 </body>
 </html>

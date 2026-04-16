@@ -6,7 +6,11 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EnterpriseController;
+use App\Http\Controllers\JobController;
+use App\Http\Controllers\PartnersController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/',         [AppController::class, 'index'])->name('inicio');
@@ -31,6 +35,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile',      [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile',    [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile',   [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/trabajos',         [JobController::class, 'index'])->name('admin.trabajos');
+    Route::get('/internal-calls',   [JobController::class, 'internalCalls'])->name('admin.convocatorias-internas');
+    
+    Route::get('/usuarios',         [UsersController::class, 'index'])->name('admin.usuarios');
+
+    // Rutas para gestión de empresa
+    Route::get('/enterprise',       [EnterpriseController::class, 'edit'])->name('admin.enterprise.edit');
+    Route::put('/enterprise',       [EnterpriseController::class, 'update'])->name('admin.enterprise.update');
+
+    Route::get('/partners',         [PartnersController::class, 'index'])->name('admin.partners.index');
+    
 });
 
 require __DIR__.'/auth.php';

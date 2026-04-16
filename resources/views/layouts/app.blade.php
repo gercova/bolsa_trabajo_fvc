@@ -39,7 +39,8 @@
                 <div class="flex items-center space-x-8">
                     <a href="{{ route('inicio') }}" class="flex items-center space-x-2">
                         <i class="bi bi-mortarboard text-3xl text-purple-600"></i>
-                        <span class="font-bold text-xl text-gray-800 hidden sm:block">Instituto Francisco Vigo Caballero</span>
+                        {{-- <span class="font-bold text-xl text-gray-800 hidden sm:block">Instituto Francisco Vigo Caballero</span> --}}
+                        <span class="font-bold text-xl text-gray-800 hidden sm:block">{{ $enterprise->trade_name ?? 'Instituto Francisco Vigo Caballero' }}</span>
                     </a>
                     
                     <!-- Menú desktop -->
@@ -171,7 +172,7 @@
                         <i class="bi bi-mortarboard mr-2"></i>
                         Instituto Francisco Vigo Caballero
                     </h3>
-                    <p class="text-gray-400">Formando profesionales para el futuro</p>
+                    <p class="text-gray-400">Formando profesionales para el futuro, estudia en nuestro Instituto y elige entre 5 Carreras Profesionales técnicas. En solo 3 años recibirás una formación 100 % práctica y obtendrás tu título de Técnico a Nombre de la Nación, preparándote para el mercado laboral.</p>
                 </div>
                 <div>
                     <h4 class="font-bold mb-4">Enlaces rápidos</h4>

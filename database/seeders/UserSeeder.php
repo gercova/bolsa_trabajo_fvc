@@ -19,13 +19,8 @@ class UserSeeder extends Seeder
             'names'         => 'Administrador del Sistema',
             'email'         => 'admin@example.com',
             'password'      => Hash::make('password'),
-            'country_code'  => '+51',
-            'phone'         => '987654321',
-            'nationality'   => 'Peruana',
-            'ubigeo'        => '150101',
-            'address'       => 'Av. Principal 123, Lima',
-            'profession'    => 'Administrador',
-            'role'          => 'admin',
+            'job_position'  => 'Administrador',
+            'role'          => 'Admin',
             'email_verified_at' => now(),
         ]);
     }

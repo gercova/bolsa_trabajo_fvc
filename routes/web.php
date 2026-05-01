@@ -32,21 +32,32 @@ Route::post('reset-password',               [PasswordResetLinkController::class,
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard',    [DashboardController::class, 'index'])->name('dashboard');
     
-    Route::get('/profile',      [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile',    [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile',   [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile/{user}',   [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile',        [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile',       [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/trabajos',         [JobController::class, 'index'])->name('admin.trabajos');
     Route::get('/internal-calls',   [JobController::class, 'internalCalls'])->name('admin.convocatorias-internas');
     
-    Route::get('/usuarios',         [UsersController::class, 'index'])->name('admin.usuarios');
+    Route::get('/usuarios',                         [UsersController::class, 'index'])->name('admin.usuarios');
+    Route::get('/usuarios/create',                  [UsersController::class, 'create'])->name('admin.usuarios.create');
+    Route::get('/usuarios/{user}/edit/',            [UsersController::class, 'edit'])->name('admin.usuarios.edit');
+    Route::post('/usuarios',                        [UsersController::class, 'store'])->name('admin.usuarios.store');
+    Route::put('/usuarios/{user}',                  [UsersController::class, 'update'])->name('admin.usuarios.update');
+    Route::post('/usuarios/toggleStatus/{user}',    [UsersController::class, 'toggleStatus'])->name('admin.usuarios.toggle-status');
+    Route::delete('/usuarios/{user}',               [UsersController::class, 'destroy'])->name('admin.usuarios.destroy');
+
+    // Rutas para gestión de partners
+    Route::get('/partners',                 [PartnersController::class, 'index'])->name('admin.partners.index');
+    Route::get('/partners/create',          [PartnersController::class, 'create'])->name('admin.partners.create');
+    Route::get('/partners/{partner}/edit',  [PartnersController::class, 'edit'])->name('admin.partners.edit');
+    Route::put('/partners/{partner}',       [PartnersController::class, 'update'])->name('admin.partners.update');
+    Route::post('/partners/toggleStatus/{user}',    [PartnersController::class, 'toggleStatus'])->name('admin.partners.toggle-status');
+    Route::delete('/partners/{user}',               [PartnersController::class, 'destroy'])->name('admin.partners.destroy');
 
     // Rutas para gestión de empresa
     Route::get('/enterprise',       [EnterpriseController::class, 'edit'])->name('admin.enterprise.edit');
     Route::put('/enterprise',       [EnterpriseController::class, 'update'])->name('admin.enterprise.update');
-
-    Route::get('/partners',         [PartnersController::class, 'index'])->name('admin.partners.index');
-    
 });
 
 require __DIR__.'/auth.php';

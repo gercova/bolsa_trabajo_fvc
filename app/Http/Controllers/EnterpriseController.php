@@ -29,38 +29,12 @@ class EnterpriseController extends Controller {
      * Update the enterprise information.
      */
     public function update(EnterpriseValidate $request) {
+        $validated  = $request->validated();
         $enterprise = Enterprise::first();
         
         if (!$enterprise) {
             $enterprise = new Enterprise();
         }
-
-        $validated = $request->validated();
-        
-        // $validated = $request->validate([
-        //     'ruc' => 'nullable|string|max:20',
-        //     'company_name' => 'required|string|max:255',
-        //     'trade_name' => 'nullable|string|max:255',
-        //     'legal_representative_dni' => 'nullable|string|max:20',
-        //     'legal_representative' => 'nullable|string|max:255',
-        //     'address' => 'nullable|string|max:500',
-        //     'city' => 'nullable|string|max:100',
-        //     'business_sector' => 'nullable|string|max:100',
-        //     'phrase' => 'nullable|string|max:500',
-        //     'description' => 'nullable|string',
-        //     'vision' => 'nullable|string',
-        //     'mission' => 'nullable|string',
-        //     'phone_number_1' => 'nullable|string|max:20',
-        //     'phone_number_2' => 'nullable|string|max:20',
-        //     'email' => 'nullable|email|max:255',
-        //     'facebook_link' => 'nullable|url|max:255',
-        //     'linkedin_link' => 'nullable|url|max:255',
-        //     'twitter_link' => 'nullable|url|max:255',
-        //     'instagram_link' => 'nullable|url|max:255',
-        //     'whatsapp_link' => 'nullable|url|max:255',
-        //     'logo_path' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
-        //     'favicon_path' => 'nullable|image|mimes:ico,png,jpg,svg|max:1024',
-        // ]);
         
         // Manejar carga de logo
         if ($request->hasFile('logo_path')) {

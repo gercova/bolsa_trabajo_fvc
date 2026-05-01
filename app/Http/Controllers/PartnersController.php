@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Partner;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,8 +11,14 @@ class PartnersController extends Controller {
     /**
      * Display a listing of the resource.
      */
-    public function index(): View {
-        //
+    public function index(Request $request): View {
+        $search     = $request->input('search');
+        $partners   = Partner::when($search, function ($query) use ($search) {
+            $query->where('names', 'LIKE', "%{$search}%")
+                ->orWhere('email', 'LIKE', "%{$search}%");
+        })->paginate(10);
+
+        return view('admin.partners.index', compact('partners'));
     }
 
     /**

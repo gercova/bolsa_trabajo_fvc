@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('photo_profile')->nullable();
             $table->string('cv_file')->nullable();
-            $table->enum('role', ['admin', 'student', 'partner'])->default('student');
+            $table->enum('role', ['Admin', 'Administrativo', 'Reclutador', 'Solicitante'])->default('Solicitante');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

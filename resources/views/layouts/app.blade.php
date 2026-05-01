@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    {{-- <link rel="icon" type="image/png" sizes="16x16" href="{{ $enterprise->favicon_path }}"> --}}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Bolsa de Trabajo — Instituto Francisco Vigo Caballero')</title>
@@ -586,6 +587,16 @@
                                 <i class="bi bi-bookmark" style="font-size:16px;color:var(--ink-muted)"></i>
                                 Guardados
                             </a>
+                            <a href="#" class="dropdown-item" role="menuitem">
+                                <i class="bi bi-bookmark" style="font-size:16px;color:var(--ink-muted)"></i>
+                                Gestionar puesto
+                            </a>
+                            <a href="{{ route('admin.enterprise.edit') }}" class="dropdown-item" role="menuitem">
+                                <i class="bi bi-buildings"></i> Datos de empresa
+                            </a>
+                            <a href="{{ route('admin.usuarios') }}" class="dropdown-item" role="menuitem">
+                                <i class="bi bi-people"></i> Usuarios
+                            </a>
                             <div class="dropdown-divider"></div>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
@@ -639,15 +650,25 @@
                 <div class="mobile-user-card">
                     <div class="mobile-avatar">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
                     <div>
-                        <p class="mobile-user-name">{{ Auth::user()->name }}</p>
+                        <p class="mobile-user-name">{{ Auth::user()->names }}</p>
                         <p class="mobile-user-email">{{ Auth::user()->email }}</p>
                     </div>
                 </div>
-                <a href="#" class="mobile-link">
+                {{-- <a href="{{ route('mi-perfil', auth()->user()) }}" class="mobile-link"> --}}
+                <a href="{{ route('profile.edit', auth()->user()) }}" class="mobile-link">
                     <i class="bi bi-person-circle"></i> Mi Perfil
                 </a>
                 <a href="#" class="mobile-link">
                     <i class="bi bi-bookmark"></i> Ofertas Guardadas
+                </a>
+                <a href="#" class="mobile-link">
+                    <i class="bi bi-bookmark"></i> Ofertas Guardadas
+                </a>
+                <a href="#" class="mobile-link">
+                    <i class="bi bi-bookmark"></i> Ofertas Guardadas
+                </a>
+                <a href="{{ route('admin.usuarios') }}" class="mobile-link">
+                    <i class="bi bi-people"></i> Usuarios
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
@@ -686,7 +707,7 @@
                 <div class="footer-brand-badge">
                     <div class="footer-icon"><i class="bi bi-mortarboard-fill"></i></div>
                     <div class="footer-title">
-                        IESTP<br><em>Francisco Vigo</em>
+                        IESTP<br><em>Francisco Vigo Caballero</em>
                     </div>
                 </div>
                 <p class="footer-desc">
@@ -768,7 +789,7 @@
         <div class="footer-bottom">
             <div class="footer-bottom-inner">
                 <p class="footer-copy">
-                    &copy; {{ date('Y') }} Instituto Francisco Vigo Caballero · Todos los derechos reservados.
+                    &copy; {{ date('Y') }} IESTP Francisco Vigo Caballero · Todos los derechos reservados.
                 </p>
                 <div class="footer-legal">
                     <a href="#">Privacidad</a>

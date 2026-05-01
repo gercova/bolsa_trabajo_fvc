@@ -5,16 +5,15 @@
     <section class="hero-gradient text-white py-20">
         <div class="container mx-auto px-4 text-center">
             <h1 class="text-4xl md:text-5xl font-bold mb-6 animate-bounce">
-                ¡Bienvenido a la Bolsa de Trabajo!
+                Bienvenido a la Bolsa de Trabajo del<br>
+                <em>IESTP Francisco Vigo Caballero</em>
             </h1>
             <p class="text-xl mb-8">Encuentra las mejores oportunidades laborales para estudiantes y egresados</p>
             
             <!-- Buscador rápido -->
             <div class="max-w-2xl mx-auto">
                 <div class="flex flex-col md:flex-row gap-4">
-                    <input type="text" 
-                           placeholder="Buscar por palabra clave..." 
-                           class="flex-1 px-6 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-300">
+                    <input type="text" placeholder="Buscar por palabra clave..." class="flex-1 px-6 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-300">
                     <button class="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition flex items-center justify-center gap-2">
                         <i class="bi bi-search"></i>
                         Buscar

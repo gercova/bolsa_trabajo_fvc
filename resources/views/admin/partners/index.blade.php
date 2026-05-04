@@ -46,7 +46,7 @@
                             class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition-colors">
                         <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     </form>
-                    <a href="{{ route('') }}" class="w-full sm:w-auto bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700 transition flex items-center justify-center gap-2 shadow-sm font-medium">
+                    <a href="{{ route('admin.partners.create') }}" class="w-full sm:w-auto bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700 transition flex items-center justify-center gap-2 shadow-sm font-medium">
                         <i class="bi bi-plus-lg"></i> Nuevo Partner
                     </a>
                 </div>

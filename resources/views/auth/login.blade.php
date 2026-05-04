@@ -1,112 +1,94 @@
 @extends('layouts.app')
-@section('title', 'Iniciar Sesión - Bolsa de Trabajo')
+
+@section('title', 'Iniciar Sesión — Bolsa de Trabajo')
+
 @section('content')
-<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
-        <div>
-            <div class="flex justify-center">
-                <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center">
-                    <i class="bi bi-box-arrow-in-right text-4xl text-purple-600"></i>
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" style="background-color: var(--sand);">
+    <div class="w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl shadow-[rgba(15,23,42,.06)] p-8 md:p-10 border" style="border-color: var(--border);">
+
+            {{-- Icono --}}
+            <div class="flex justify-center mb-6">
+                <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background-color: var(--ink);">
+                    <i class="bi bi-box-arrow-in-right text-3xl" style="color: var(--gold-vivid);"></i>
                 </div>
             </div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+
+            {{-- Encabezado --}}
+            <h2 class="text-center text-3xl font-bold mb-2" style="font-family: 'DM Serif Display', serif; color: var(--ink);">
                 Iniciar Sesión
             </h2>
-            <p class="mt-2 text-center text-sm text-gray-600">
+            <p class="text-center text-sm mb-8" style="color: var(--ink-muted);">
                 ¿No tienes una cuenta?
-                <a href="{{ route('register') }}" class="font-medium text-purple-600 hover:text-purple-500">
+                <a href="{{ route('register') }}" class="font-medium underline decoration-1 underline-offset-2 transition-colors hover:text-[#0F172A]" style="color: var(--gold-vivid);">
                     Regístrate aquí
                 </a>
             </p>
-        </div>
-        
-        <form class="mt-8 space-y-6" method="POST" action="{{ route('login') }}">
-            @csrf
-            
-            <div class="space-y-4">
+
+            {{-- Formulario --}}
+            <form method="POST" action="{{ route('login') }}" class="space-y-5">
+                @csrf
+
+                {{-- Correo --}}
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
-                        Correo Electrónico
-                    </label>
+                    <label for="email" class="block text-sm font-medium mb-1.5" style="color: var(--ink);">Correo Electrónico</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="bi bi-envelope text-gray-400"></i>
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i class="bi bi-envelope text-lg" style="color: var(--ink-muted);"></i>
                         </div>
-                        <input id="email" name="email" type="email" autocomplete="email" required class="appearance-none rounded-lg relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm @error('email') border-red-500 @enderror" placeholder="correo@ejemplo.com" value="{{ old('email') }}">
+                        <input id="email" name="email" type="email" value="{{ old('email') }}" required
+                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm transition-all duration-200 outline-none
+                            @error('email') border-red-300 ring-2 ring-red-100 @else border-[#E2E0DA] focus:ring-2 focus:ring-[#FEF3C7] focus:border-[#B45309] @enderror"
+                            style="background: var(--white); color: var(--ink);"
+                            placeholder="correo@ejemplo.com">
                     </div>
-                    @error('email')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                    @error('email')<p class="mt-1.5 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
-                
+
+                {{-- Contraseña --}}
                 <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-                        Contraseña
-                    </label>
+                    <label for="password" class="block text-sm font-medium mb-1.5" style="color: var(--ink);">Contraseña</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="bi bi-lock text-gray-400"></i>
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i class="bi bi-lock text-lg" style="color: var(--ink-muted);"></i>
                         </div>
-                        <input id="password" name="password" type="password" autocomplete="current-password" required class="appearance-none rounded-lg relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm @error('password') border-red-500 @enderror" placeholder="••••••••">
+                        <input id="password" name="password" type="password" required
+                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm transition-all duration-200 outline-none
+                            @error('password') border-red-300 ring-2 ring-red-100 @else border-[#E2E0DA] focus:ring-2 focus:ring-[#FEF3C7] focus:border-[#B45309] @enderror"
+                            style="background: var(--white); color: var(--ink);"
+                            placeholder="••••••••">
                     </div>
-                    @error('password')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                    @error('password')<p class="mt-1.5 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
-            </div>
-            
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <input id="remember_me" name="remember" type="checkbox"
-                           class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-                    <label for="remember_me" class="ml-2 block text-sm text-gray-900">
-                        Recordarme
+
+                {{-- Recordarme + Olvidé contraseña --}}
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                        <input type="checkbox" name="remember" id="remember_me"
+                            class="w-4 h-4 rounded border-gray-300 text-[#B45309] focus:ring-[#FEF3C7] focus:ring-offset-0">
+                        <span class="text-sm" style="color: var(--ink-muted);">Recordarme</span>
                     </label>
-                </div>
-                
-                @if (Route::has('password.request'))
-                    <div class="text-sm">
-                        <a href="{{ route('password.request') }}" class="font-medium text-purple-600 hover:text-purple-500">
+
+                    @if (Route::has('password.request'))
+                        <a href="{{ route('password.request') }}" class="text-sm font-medium underline decoration-1 underline-offset-2 transition-colors hover:text-[#0F172A]" style="color: var(--gold-vivid);">
                             ¿Olvidaste tu contraseña?
                         </a>
-                    </div>
-                @endif
-            </div>
-            
-            <div>
-                <button type="submit"
-                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition">
-                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                        <i class="bi bi-box-arrow-in-right"></i>
-                    </span>
+                    @endif
+                </div>
+
+                {{-- Botón --}}
+                <button type="submit" class="w-full flex items-center justify-center gap-2 py-3 px-6 text-sm font-semibold rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                    style="background: var(--ink); color: var(--white);">
+                    <i class="bi bi-box-arrow-in-right"></i>
                     Iniciar Sesión
                 </button>
-            </div>
-        </form>
-        
-        {{-- <div class="mt-6">
-            <div class="relative">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-gray-300"></div>
-                </div>
-                <div class="relative flex justify-center text-sm">
-                    <span class="px-2 bg-white text-gray-500">
-                        O continúa con
-                    </span>
-                </div>
-            </div>
-            
-            <div class="mt-6 grid grid-cols-2 gap-3">
-                <button class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition">
-                    <i class="bi bi-github text-xl"></i>
-                    <span class="ml-2">GitHub</span>
-                </button>
-                <button class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition">
-                    <i class="bi bi-google text-xl"></i>
-                    <span class="ml-2">Google</span>
-                </button>
-            </div>
-        </div> --}}
+            </form>
+        </div>
+
+        <p class="text-center mt-6 text-xs" style="color: var(--ink-muted);">
+            Al iniciar sesión aceptas nuestros
+            <a href="#" class="underline decoration-1 underline-offset-2 transition-colors hover:text-[#0F172A]" style="color: var(--ink-muted);">Términos y Condiciones</a>
+        </p>
     </div>
 </div>
 @endsection

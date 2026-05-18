@@ -32,7 +32,7 @@ class PartnersController extends Controller {
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): JsonResponse {
+    public function store(PartnerValidate $request): JsonResponse {
         $validated  = $request->validated();
         $partner    = Partner::create($validated);
 

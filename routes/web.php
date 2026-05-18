@@ -50,6 +50,7 @@ Route::middleware(['auth'])->group(function () {
     // Rutas para gestión de partners
     Route::get('/partners',                 [PartnersController::class, 'index'])->name('admin.partners.index');
     Route::get('/partners/create',          [PartnersController::class, 'create'])->name('admin.partners.create');
+    Route::post('/partners/store',          [PartnersController::class, 'store'])->name('admin.partners.store');
     Route::get('/partners/{partner}/edit',  [PartnersController::class, 'edit'])->name('admin.partners.edit');
     Route::put('/partners/{partner}',       [PartnersController::class, 'update'])->name('admin.partners.update');
     Route::post('/partners/toggleStatus/{user}',    [PartnersController::class, 'toggleStatus'])->name('admin.partners.toggle-status');

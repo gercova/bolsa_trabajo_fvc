@@ -112,7 +112,8 @@
 @push('scripts')
 <script>
     document.addEventListener('alpine:init', () => {
-        Alpine.data('enterpriseApp', () => ({
+        // Cambiamos 'enterpriseApp' por 'dashboardApp' para que coincida con el x-data de tus vistas
+        Alpine.data('dashboardApp', () => ({
             sidebarOpen: window.innerWidth >= 1024,
             toggleSidebar() {
                 this.sidebarOpen = !this.sidebarOpen;

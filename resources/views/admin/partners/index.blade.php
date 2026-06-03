@@ -84,20 +84,30 @@
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 @forelse($partners as $partner)
-                                    {{-- Asignamos un estado independiente 'isActive' a cada fila --}}
                                     <tr class="hover:bg-gray-50/50 transition-colors" x-data="{ isActive: {{ $partner->is_active ? 'true' : 'false' }} }">
                                         <td class="p-4">
                                             <div class="flex items-center space-x-3">
-                                                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold flex-shrink-0">
-                                                    {{ strtoupper(substr($partner->company, 0, 1)) }}
-                                                </div>
+                                                
+                                                {{-- LÓGICA DE MINIATURA / INICIAL --}}
+                                                @if($partner->image_url)
+                                                    <div class="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0 p-1 shadow-sm">
+                                                        <img src="{{ asset('storage/' . $partner->image_url) }}" 
+                                                             alt="{{ $partner->company }}" 
+                                                             class="max-w-full max-h-full object-contain"
+                                                             onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-full h-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold uppercase\'>{{ strtoupper(substr($partner->company, 0, 1)) }}</div>';">
+                                                    </div>
+                                                @else
+                                                    <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600 font-bold flex-shrink-0 uppercase shadow-sm">
+                                                        {{ strtoupper(substr($partner->company, 0, 1)) }}
+                                                    </div>
+                                                @endif
+
                                                 <div>
                                                     <p class="text-sm font-semibold text-gray-900">{{ $partner->company }}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="p-4">
-                                            {{-- El badge cambia dinámicamente según la variable isActive --}}
                                             <span :class="isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-200">
                                                 <span :class="isActive ? 'bg-green-500' : 'bg-red-500'" class="w-2 h-2 mr-1.5 rounded-full transition-colors duration-200"></span>
                                                 <span x-text="isActive ? 'Activo' : 'Inactivo'"></span>
@@ -238,7 +248,7 @@
                 showModal: false,
                 selectedUserId: null,
                 selectedUserName: '',
-                toasts: [], // Manejo local de notificaciones
+                toasts: [],
                 
                 openPwdModal(id, name) {
                     this.selectedUserId = id;
@@ -249,7 +259,6 @@
                 showToast(message, type = 'success') {
                     const id = Date.now();
                     this.toasts.push({ id, message, type });
-                    // Desaparece automáticamente a los 3.5 segundos
                     setTimeout(() => {
                         this.toasts = this.toasts.filter(t => t.id !== id);
                     }, 3500);
@@ -269,7 +278,6 @@
                         const data = await response.json();
 
                         if (response.ok && data.success) {
-                            // Cambia reactivamente el valor de isActive de la fila gracias a pasarle $data
                             rowScope.isActive = !rowScope.isActive;
                             this.showToast(data.message || 'Estado actualizado.', 'success');
                         } else {

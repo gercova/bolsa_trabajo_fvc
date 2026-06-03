@@ -121,7 +121,6 @@
             }
         }));
 
-        // Lógica de control reactivo del listado
         Alpine.data('jobsList', (initialJobs) => ({
             jobs: initialJobs,
             search: '',
@@ -130,8 +129,8 @@
                 if (this.search.trim() === '') return this.jobs;
                 return this.jobs.filter(job => {
                     return job.title.toLowerCase().includes(this.search.toLowerCase()) ||
-                           job.company.toLowerCase().includes(this.search.toLowerCase()) ||
-                           job.location.toLowerCase().includes(this.search.toLowerCase());
+                        job.company.toLowerCase().includes(this.search.toLowerCase()) ||
+                        job.location.toLowerCase().includes(this.search.toLowerCase());
                 });
             },
 

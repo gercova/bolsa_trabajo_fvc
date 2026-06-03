@@ -27,39 +27,51 @@
                     <form @submit.prevent="submitForm" class="space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="md:col-span-2">
-                                <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Título del Puesto <span class="text-red-500">*</span></label>
-                                <input type="text" id="title" x-model="form.title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
-                                <p x-show="errors.title" x-text="errors.title" class="mt-1 text-sm text-red-600" x-cloak></p>
+                                <label for="title" class="block text-sm font-medium mb-1" :class="errors.title ? 'text-red-600' : 'text-gray-700'">Título del Puesto <span class="text-red-500">*</span></label>
+                                <input type="text" id="title" x-model="form.title" 
+                                    class="w-full px-4 py-2 border rounded-lg transition-colors"
+                                    :class="errors.title ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-red-50' : 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500'">
+                                <p x-show="errors.title" x-text="errors.title" class="mt-1 text-sm text-red-600 font-medium" x-cloak></p>
                             </div>
 
                             <div>
-                                <label for="company" class="block text-sm font-medium text-gray-700 mb-1">Empresa contratante <span class="text-red-500">*</span></label>
-                                <input type="text" id="company" x-model="form.company" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
-                                <p x-show="errors.company" x-text="errors.company" class="mt-1 text-sm text-red-600" x-cloak></p>
+                                <label for="company" class="block text-sm font-medium mb-1" :class="errors.company ? 'text-red-600' : 'text-gray-700'">Empresa contratante <span class="text-red-500">*</span></label>
+                                <input type="text" id="company" x-model="form.company" 
+                                    class="w-full px-4 py-2 border rounded-lg transition-colors"
+                                    :class="errors.company ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-red-50' : 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500'">
+                                <p x-show="errors.company" x-text="errors.company" class="mt-1 text-sm text-red-600 font-medium" x-cloak></p>
                             </div>
 
                             <div>
-                                <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Ubicación <span class="text-red-500">*</span></label>
-                                <input type="text" id="location" x-model="form.location" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
-                                <p x-show="errors.location" x-text="errors.location" class="mt-1 text-sm text-red-600" x-cloak></p>
+                                <label for="location" class="block text-sm font-medium mb-1" :class="errors.location ? 'text-red-600' : 'text-gray-700'">Ubicación <span class="text-red-500">*</span></label>
+                                <input type="text" id="location" x-model="form.location" 
+                                    class="w-full px-4 py-2 border rounded-lg transition-colors"
+                                    :class="errors.location ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-red-50' : 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500'">
+                                <p x-show="errors.location" x-text="errors.location" class="mt-1 text-sm text-red-600 font-medium" x-cloak></p>
                             </div>
 
                             <div>
-                                <label for="url" class="block text-sm font-medium text-gray-700 mb-1">Enlace / URL de Postulación</label>
-                                <input type="url" id="url" x-model="form.url" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
-                                <p x-show="errors.url" x-text="errors.url" class="mt-1 text-sm text-red-600" x-cloak></p>
+                                <label for="url" class="block text-sm font-medium mb-1" :class="errors.url ? 'text-red-600' : 'text-gray-700'">Enlace / URL de Postulación</label>
+                                <input type="url" id="url" x-model="form.url" 
+                                    class="w-full px-4 py-2 border rounded-lg transition-colors"
+                                    :class="errors.url ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-red-50' : 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500'">
+                                <p x-show="errors.url" x-text="errors.url" class="mt-1 text-sm text-red-600 font-medium" x-cloak></p>
                             </div>
 
                             <div>
-                                <label for="source" class="block text-sm font-medium text-gray-700 mb-1">Fuente del empleo</label>
-                                <input type="text" id="source" x-model="form.source" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
-                                <p x-show="errors.source" x-text="errors.source" class="mt-1 text-sm text-red-600" x-cloak></p>
+                                <label for="source" class="block text-sm font-medium mb-1" :class="errors.source ? 'text-red-600' : 'text-gray-700'">Fuente del empleo</label>
+                                <input type="text" id="source" x-model="form.source" 
+                                    class="w-full px-4 py-2 border rounded-lg transition-colors"
+                                    :class="errors.source ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-red-50' : 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500'">
+                                <p x-show="errors.source" x-text="errors.source" class="mt-1 text-sm text-red-600 font-medium" x-cloak></p>
                             </div>
 
                             <div class="md:col-span-2">
-                                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Descripción del Puesto <span class="text-red-500">*</span></label>
-                                <textarea id="description" x-model="form.description" rows="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"></textarea>
-                                <p x-show="errors.description" x-text="errors.description" class="mt-1 text-sm text-red-600" x-cloak></p>
+                                <label for="description" class="block text-sm font-medium mb-1" :class="errors.description ? 'text-red-600' : 'text-gray-700'">Descripción del Puesto <span class="text-red-500">*</span></label>
+                                <textarea id="description" x-model="form.description" rows="5" 
+                                    class="w-full px-4 py-2 border rounded-lg transition-colors"
+                                    :class="errors.description ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-red-50' : 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500'"></textarea>
+                                <p x-show="errors.description" x-text="errors.description" class="mt-1 text-sm text-red-600 font-medium" x-cloak></p>
                             </div>
                         </div>
 
@@ -88,7 +100,20 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    });
+
     document.addEventListener('alpine:init', () => {
         Alpine.data('jobEditForm', () => ({
             form: {
@@ -108,7 +133,6 @@
                 this.errors = {};
 
                 try {
-                    // Al ser un JSON payload síncrono, mandamos PUT sin problemas nativamente
                     const response = await fetch('{{ route("admin.trabajos.update", $offer->id) }}', {
                         method: 'PUT',
                         headers: {
@@ -122,19 +146,38 @@
                     const data = await response.json();
 
                     if (!response.ok) {
-                        if (data.errors) {
+                        if (response.status === 422 && data.errors) {
                             Object.keys(data.errors).forEach(key => {
                                 this.errors[key] = data.errors[key][0];
                             });
+                            
+                            Toast.fire({
+                                icon: 'warning',
+                                title: 'Revisa los campos marcados en rojo'
+                            });
+
                             throw new Error('Errores de validación.');
                         }
+                        
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Error de comunicación con el servidor.'
+                        });
                         throw new Error('Error de comunicación con el servidor.');
                     }
 
-                    window.location.href = '{{ route("admin.trabajos") }}';
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Oferta actualizada con éxito.'
+                    });
+
+                    setTimeout(() => {
+                        window.location.href = '{{ route("admin.trabajos") }}';
+                    }, 1500);
+
                 } catch (error) {
-                    if (!this.errors || Object.keys(this.errors).length === 0) {
-                        alert('Ocurrió un error inesperado al actualizar la oferta.');
+                    if (Object.keys(this.errors).length === 0) {
+                        console.error(error);
                     }
                 } finally {
                     this.loading = false;

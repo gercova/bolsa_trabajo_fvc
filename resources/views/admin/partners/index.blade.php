@@ -56,7 +56,6 @@
                             <thead>
                                 <tr class="bg-gray-50 border-b border-gray-200 text-xs uppercase tracking-wider text-gray-500 font-semibold">
                                     <th class="p-4">Partner</th>
-                                    
                                     <th class="p-4">Estado</th>
                                     <th class="p-4 text-center">Acciones</th>
                                 </tr>
@@ -96,24 +95,23 @@
                                                 <template x-teleport="body">
                                                     <div x-show="open" @click.outside="open = false" @keydown.escape.window="open = false" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" :style="`top: ${posTop}px; left: ${posLeft}px`" class="fixed z-[60] w-48 bg-white rounded-md shadow-xl border border-gray-100 py-1 ring-1 ring-black/5" role="menu" aria-orientation="vertical" x-cloak>
                                                         <!-- Actualizar Clave -->
-                                                        <button @click="openPwdModal({{ $partner->id }}, '{{ $partner->company }}'); open = false" type="button" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 flex items-center transition-colors" role="menuitem">
-                                                            <i class="bi bi-key mr-2"></i> Actualizar Clave
-                                                        </button>
+                                                        <a href="{{ route('admin.partners.edit', $partner->id) }}" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 flex items-center transition-colors">
+                                                            <i class="bi bi-pencil-square mr-2"></i> Actualizar datos
+                                                        </a>
 
-                                                        <!-- Activar/Desactivar -->
-                                                        <form action="#" method="POST" class="m-0">
+                                                        <!-- Activar/Desactivar (ruta toggleStatus) -->
+                                                        <form action="{{ route('admin.partners.toggle-status', $partner->id) }}" method="POST" class="m-0">
                                                             @csrf
-                                                            @method('PATCH')
                                                             <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 flex items-center transition-colors" role="menuitem">
-                                                                <i class="bi {{ $partner->is_active ? 'bi-person-dash' : 'bi-person-check' }} mr-2"></i> 
+                                                                <i class="bi {{ $partner->is_active ? 'bi bi-toggle-off' : 'bi bi-toggle-off' }} mr-2"></i> 
                                                                 {{ $partner->is_active ? 'Desactivar' : 'Activar' }}
                                                             </button>
                                                         </form>
 
                                                         <div class="border-t border-gray-100 my-1"></div>
 
-                                                        <!-- Eliminar -->
-                                                        <form action="#" method="POST" class="m-0" onsubmit="return confirm('¿Estás seguro de eliminar este ítem?');">
+                                                        <!-- Eliminar (ruta destroy) -->
+                                                        <form action="{{ route('admin.partners.destroy', $partner->id) }}" method="POST" class="m-0" onsubmit="return confirm('¿Estás seguro de eliminar este ítem?');">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center transition-colors" role="menuitem">
@@ -127,7 +125,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="p-8 text-center text-gray-500">
+                                        <td colspan="3" class="p-8 text-center text-gray-500">
                                             <div class="flex flex-col items-center justify-center">
                                                 <i class="bi bi-inbox text-4xl mb-3 text-gray-300"></i>
                                                 <p>No se encontraron socios registrados.</p>
@@ -146,14 +144,12 @@
                     @endif
                 </div>
 
+                <!-- Modal actualizar contraseña (sin cambios, ya que no hay ruta definida) -->
                 <div x-show="showModal" class="fixed inset-0 z-[60] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" x-cloak>
                     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                         <div x-show="showModal"  x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm transition-opacity" aria-hidden="true" @click="showModal = false"></div>
-
                         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
                         <div x-show="showModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
-                            
                             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-100">
                                 <div class="sm:flex sm:items-start">
                                     <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 sm:mx-0 sm:h-10 sm:w-10">
@@ -170,7 +166,8 @@
                                 </div>
                             </div>
 
-                            <form :action="'/admin/usuarios/' + selectedUserId + '/password'" method="POST">
+                            <!-- Nota: esta ruta '/admin/partners/{id}/password' no existe en web.php. Se debe implementar. -->
+                            <form :action="'/admin/partners/' + selectedUserId + '/password'" method="POST">
                                 @csrf
                                 @method('PATCH')
                                 <div class="px-4 py-5 sm:p-6 space-y-4">
@@ -201,47 +198,47 @@
 </div>
 
 @push('styles')
-<style>
-    [x-cloak] { display: none !important; }
-    
-    .custom-scrollbar::-webkit-scrollbar { height: 8px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    
-    @keyframes fade-in {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .animate-fade-in { animation: fade-in 0.3s ease-out; }
-</style>
+    <style>
+        [x-cloak] { display: none !important; }
+        
+        .custom-scrollbar::-webkit-scrollbar { height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in { animation: fade-in 0.3s ease-out; }
+    </style>
 @endpush
 
 @push('scripts')
-<script>
-    document.addEventListener('alpine:init', () => {
-        // Asegúrate de que enterpriseApp exista en caso de que no esté cargado desde aside
-        if (!Alpine.data('enterpriseApp')) {
-            Alpine.data('enterpriseApp', () => ({
-                sidebarOpen: window.innerWidth >= 1024,
-                toggleSidebar() { this.sidebarOpen = !this.sidebarOpen; }
-            }));
-        }
-
-        Alpine.data('userManagement', () => ({
-            showModal: false,
-            selectedUserId: null,
-            selectedUserName: '',
-            
-            openPwdModal(id, name) {
-                this.selectedUserId = id;
-                this.selectedUserName = name;
-                this.showModal = true;
+    <script>
+        document.addEventListener('alpine:init', () => {
+            // Asegúrate de que enterpriseApp exista en caso de que no esté cargado desde aside
+            if (!Alpine.data('enterpriseApp')) {
+                Alpine.data('enterpriseApp', () => ({
+                    sidebarOpen: window.innerWidth >= 1024,
+                    toggleSidebar() { this.sidebarOpen = !this.sidebarOpen; }
+                }));
             }
-        }));
-    })
-</script>
+
+            Alpine.data('userManagement', () => ({
+                showModal: false,
+                selectedUserId: null,
+                selectedUserName: '',
+                
+                openPwdModal(id, name) {
+                    this.selectedUserId = id;
+                    this.selectedUserName = name;
+                    this.showModal = true;
+                }
+            }));
+        })
+    </script>
 @endpush
 
 @endsection

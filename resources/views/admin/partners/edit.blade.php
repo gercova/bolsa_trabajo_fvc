@@ -18,49 +18,102 @@
                 <div class="hidden sm:flex items-center text-sm font-medium text-gray-500">
                     <a href="{{ route('admin.partners.index') }}" class="hover:text-purple-600 transition">Socios</a>
                     <i class="bi bi-chevron-right mx-2 text-xs text-gray-400"></i>
-                    <span class="text-purple-600">{{ $partner->company }}</span>
+                    <span class="text-purple-600">{{ $partner->name }}</span>
                 </div>
             </div>
         </header>
 
         <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden" x-data="partnerForm({
-            company: '{{ $partner->company }}',
-            image_url: '{{ $partner->image_url }}',
+            name: '{{ addslashes($partner->name) }}',
+            slug: '{{ addslashes($partner->slug) }}',
+            description: '{{ addslashes($partner->description) }}',
+            image_url: '{{ addslashes($partner->image_url) }}',
+            link: '{{ addslashes($partner->link) }}',
             is_active: {{ $partner->is_active ? 'true' : 'false' }}
         })">
-            <div class="max-w-2xl mx-auto">
+            <div class="max-w-4xl mx-auto">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
                     <h2 class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
-                        <i class="bi bi-pencil-square text-purple-600"></i> Actualizar Partner
+                        <i class="bi bi-pencil-square text-purple-600"></i> Actualizar Información del Partner
                     </h2>
 
                     <form @submit.prevent="submitForm" class="space-y-6">
                         @csrf
                         @method('PUT')
 
-                        {{-- Company --}}
-                        <div>
-                            <label for="company" class="block text-sm font-medium text-gray-700 mb-1">Empresa <span class="text-red-500">*</span></label>
-                            <input type="text" id="company" x-model="form.company" 
-                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
-                                   placeholder="Nombre de la empresa">
-                            <p x-show="errors.company" x-text="errors.company" class="mt-1 text-sm text-red-600"></p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {{-- Name --}}
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nombre del Partner <span class="text-red-500">*</span></label>
+                                <input type="text" id="name" x-model="form.name" @input="updateSlug"
+                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                                       placeholder="Nombre de la empresa u organización">
+                                <p x-show="errors.name" x-text="errors.name" class="mt-1 text-sm text-red-600"></p>
+                            </div>
+
+                            {{-- Slug --}}
+                            <div>
+                                <label for="slug" class="block text-sm font-medium text-gray-700 mb-1">Slug (URL amigable) <span class="text-red-500">*</span></label>
+                                <input type="text" id="slug" x-model="form.slug" @input="slugManual = true"
+                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                                       placeholder="identificador-url">
+                                <p x-show="errors.slug" x-text="errors.slug" class="mt-1 text-sm text-red-600"></p>
+                            </div>
                         </div>
 
-                        {{-- Image URL --}}
+                        {{-- Description --}}
                         <div>
-                            <label for="image_url" class="block text-sm font-medium text-gray-700 mb-1">URL de la imagen</label>
-                            <input type="url" id="image_url" x-model="form.image_url" 
-                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
-                                   placeholder="https://ejemplo.com/logo.png">
-                            <p x-show="errors.image_url" x-text="errors.image_url" class="mt-1 text-sm text-red-600"></p>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Descripción / Detalles del Convenio <span class="text-red-500">*</span></label>
+                            <textarea id="description" x-model="form.description" rows="4"
+                                      class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                                      placeholder="Detalles sobre el acuerdo institucional..."></textarea>
+                            <p x-show="errors.description" x-text="errors.description" class="mt-1 text-sm text-red-600"></p>
                         </div>
 
-                        {{-- Active --}}
-                        <div class="flex items-center gap-3">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {{-- Link Web --}}
+                            <div>
+                                <label for="link" class="block text-sm font-medium text-gray-700 mb-1">Enlace Web Institucional <span class="text-red-500">*</span></label>
+                                <input type="url" id="link" x-model="form.link" 
+                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                                       placeholder="https://ejemplo.com">
+                                <p x-show="errors.link" x-text="errors.link" class="mt-1 text-sm text-red-600"></p>
+                            </div>
+
+                            {{-- Image URL --}}
+                            <div>
+                                <label for="image_url" class="block text-sm font-medium text-gray-700 mb-1">Ruta o URL del Logo/Imagen <span class="text-red-500">*</span></label>
+                                <input type="text" id="image_url" x-model="form.image_url" 
+                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                                       placeholder="storage/partners/logo.png">
+                                <p x-show="errors.image_url" x-text="errors.image_url" class="mt-1 text-sm text-red-600"></p>
+                            </div>
+                        </div>
+
+                        {{-- Image Preview Area --}}
+                        <div class="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center min-h-[140px]">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Vista previa actual del Logo</span>
+                            <template x-if="form.image_url">
+                                <img :src="form.image_url.startsWith('http') ? form.image_url : '/' + form.image_url" 
+                                     @@error="$el.src='https://placehold.co/200x100?text=No+Encontrado'"
+                                     class="max-h-24 object-contain rounded p-1 bg-white shadow-sm transition-all">
+                            </template>
+                            <template x-if="!form.image_url">
+                                <div class="text-center text-gray-400">
+                                    <i class="bi bi-image text-3xl mb-1 block"></i>
+                                    <p class="text-xs">Inserta una ruta de imagen para visualizarla</p>
+                                </div>
+                            </template>
+                        </div>
+
+                        {{-- Active Status --}}
+                        <div class="flex items-center gap-3 bg-purple-50/50 p-4 rounded-lg border border-purple-100">
                             <input type="checkbox" id="is_active" x-model="form.is_active" 
-                                   class="h-5 w-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
-                            <label for="is_active" class="text-sm font-medium text-gray-700">Partner activo</label>
+                                   class="h-5 w-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer">
+                            <div>
+                                <label for="is_active" class="text-sm font-semibold text-gray-800 cursor-pointer">Partner activo en la plataforma</label>
+                                <p class="text-xs text-gray-500">Si se desmarca, este socio no se mostrará públicamente en el sitio del instituto.</p>
+                            </div>
                         </div>
 
                         {{-- Buttons --}}
@@ -74,7 +127,7 @@
                                     class="px-5 py-2.5 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
                                 <i class="bi bi-save"></i>
                                 <span x-show="!loading">Actualizar Partner</span>
-                                <span x-show="loading" class="flex items-center gap-1">
+                                <span x-show="loading" class="flex items-center gap-1" x-cloak>
                                     <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -89,7 +142,7 @@
         </main>
     </div>
 </div>
-
+@endsection
 @push('scripts')
 <script>
     document.addEventListener('alpine:init', () => {
@@ -97,19 +150,33 @@
             form: { ...initialData },
             errors: {},
             loading: false,
+            slugManual: true, // En edición suele ser manual por defecto para no destruir SEO previo
+
+            updateSlug() {
+                if (!this.slugManual) {
+                    this.form.slug = this.form.name
+                        .toLowerCase()
+                        .normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')
+                        .replace(/[^a-z0-9\s-]/g, '')
+                        .replace(/\s+/g, '-')
+                        .replace(/-+/g, '-');
+                }
+            },
 
             validate() {
                 this.errors = {};
-                if (!this.form.company.trim()) {
-                    this.errors.company = 'El nombre de la empresa es obligatorio.';
+                if (!this.form.name.trim()) this.errors.name = 'El nombre del partner es obligatorio.';
+                if (!this.form.slug.trim()) this.errors.slug = 'El slug es obligatorio.';
+                if (!this.form.description.trim()) this.errors.description = 'Ingresa los detalles del partner.';
+                if (!this.form.image_url.trim()) this.errors.image_url = 'La ruta o URL de la imagen es requerida.';
+                
+                if (!this.form.link.trim()) {
+                    this.errors.link = 'El enlace web es obligatorio.';
+                } else {
+                    try { new URL(this.form.link); } catch (_) { this.errors.link = 'Ingresa una URL completa y válida.'; }
                 }
-                if (this.form.image_url.trim() !== '') {
-                    try {
-                        new URL(this.form.image_url);
-                    } catch (_) {
-                        this.errors.image_url = 'Ingresa una URL válida (ej. https://...).';
-                    }
-                }
+
                 return Object.keys(this.errors).length === 0;
             },
 
@@ -119,7 +186,7 @@
                 this.loading = true;
                 try {
                     const response = await fetch('{{ route("admin.partners.update", $partner) }}', {
-                        method: 'POST',
+                        method: 'POST', // Spoofing mediante el cuerpo JSON
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -127,26 +194,26 @@
                         },
                         body: JSON.stringify({
                             ...this.form,
-                            _method: 'PUT'  // Spoof method for Laravel
+                            _method: 'PUT'
                         })
                     });
 
+                    const data = await response.json();
+
                     if (!response.ok) {
-                        const data = await response.json();
                         if (data.errors) {
                             Object.keys(data.errors).forEach(key => {
                                 this.errors[key] = data.errors[key][0];
                             });
                             throw new Error('Errores de validación');
                         }
-                        throw new Error('Error del servidor');
+                        throw new Error('Error de servidor');
                     }
 
-                    // Success
                     window.location.href = '{{ route("admin.partners.index") }}';
                 } catch (error) {
-                    if (error.message !== 'Error del servidor' && error.message !== 'Errores de validación') {
-                        alert('Ocurrió un error inesperado.');
+                    if (!error.message.includes('validación')) {
+                        alert('Ocurrió un error inesperado en la actualización.');
                     }
                 } finally {
                     this.loading = false;
@@ -156,4 +223,3 @@
     });
 </script>
 @endpush
-@endsection

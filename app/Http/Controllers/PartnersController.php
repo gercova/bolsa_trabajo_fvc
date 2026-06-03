@@ -73,6 +73,12 @@ class PartnersController extends Controller {
         ]);
     }
 
+    public function toggleStatus(Partner $partner): JsonResponse {
+        $partner->is_active = !$partner->is_active;
+        $partner->save();
+        return response()->json(['success' => true, 'message' => 'Estado actualizado.']);
+    }
+
     /**
      * Remove the specified resource from storage.
      */

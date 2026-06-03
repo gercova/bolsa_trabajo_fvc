@@ -10,10 +10,9 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Fonts: DM Serif Display + Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -545,7 +544,6 @@
     ═══════════════════════════════════════ -->
     <header id="site-header">
         <div class="nav-inner">
-
             <!-- Logo -->
             <a href="{{ route('inicio') }}" class="nav-logo">
                 <div class="logo-badge">
@@ -559,13 +557,22 @@
             <!-- Desktop Nav Links -->
             <nav class="nav-links">
                 <a href="{{ route('inicio') }}"   class="nav-link {{ request()->routeIs('inicio')   ? 'active' : '' }}">
-                    <i class="bi bi-house-door"></i> Inicio
+                    Inicio
                 </a>
                 <a href="{{ route('ofertas') }}"  class="nav-link {{ request()->routeIs('ofertas')  ? 'active' : '' }}">
-                    <i class="bi bi-briefcase"></i> Ofertas
+                    Programas de Estudio
+                </a>
+                <a href="{{ route('ofertas') }}"  class="nav-link {{ request()->routeIs('ofertas')  ? 'active' : '' }}">
+                    Admisión y Matrículas
+                </a>
+                <a href="{{ route('ofertas') }}"  class="nav-link {{ request()->routeIs('ofertas')  ? 'active' : '' }}">
+                    Transparencia
                 </a>
                 <a href="{{ route('nosotros') }}" class="nav-link {{ request()->routeIs('nosotros') ? 'active' : '' }}">
-                    <i class="bi bi-info-circle"></i> Nosotros
+                    Trámites
+                </a>
+                <a href="{{ route('nosotros') }}" class="nav-link {{ request()->routeIs('nosotros') ? 'active' : '' }}">
+                    Nosotros
                 </a>
             </nav>
 

@@ -15,15 +15,19 @@ class JobController extends Controller
         return view('admin.jobs.index', compact('jobs'));
     }
 
-    public function store(): JsonResponse {
+    public function internalCalls(): View {
+        return view('admin.jobs.index');
+    }
 
+    public function store(): JsonResponse {
+        return response()->json();
     }
 
     public function update(): JsonResponse {
-
+        return response()->json();
     }
 
     public function destroy(): JsonResponse {
-
+        return response()->json();
     }
 }

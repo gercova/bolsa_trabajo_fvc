@@ -2,39 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\PartnerValidate;
 use App\Models\Partner;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PartnersController extends Controller {
-    /**
-     * Display a listing of the resource.
-     */
+    
     public function index(Request $request): View {
-        $search     = $request->input('search');
-        $partners   = Partner::when($search, function ($query) use ($search) {
-            $query->where('names', 'LIKE', "%{$search}%")
-                ->orWhere('email', 'LIKE', "%{$search}%");
+        $search = $request->input('search');
+        $partners = Partner::when($search, function ($query) use ($search) {
+            $query->where('company', 'LIKE', "%{$search}%");
         })->paginate(10);
 
         return view('admin.partners.index', compact('partners'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(): View {
         return view('admin.partners.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(PartnerValidate $request): JsonResponse {
-        $validated  = $request->validated();
-        $partner    = Partner::create($validated);
+    public function store(Request $request): JsonResponse {
+        $validated = $request->validate([
+            'company'   => 'required|string|max:255',
+            'image'     => 'required|image|mimes:png,jpg,jpeg,gif,webp|max:2048', // Validación de imagen
+            'is_active' => 'boolean'
+        ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('partners', 'public');
+            $validated['image_url'] = $path;
+        }
+
+        $partner = Partner::create($validated);
 
         return response()->json([
             'success' => true,
@@ -43,29 +44,32 @@ class PartnersController extends Controller {
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Partner $partner): JsonResponse {
-        return response()->json([
-            'success'   => true,
-            'data'      => $partner,
-        ]);
+        return response()->json(['success' => true, 'data' => $partner]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Partner $partner): View {
         return view('admin.partners.edit', compact('partner'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(PartnerValidate $request, Partner $partner): JsonResponse {
-        $validated = $request->validated();
+    public function update(Request $request, Partner $partner): JsonResponse {
+        $validated = $request->validate([
+            'company'   => 'required|string|max:255',
+            'image'     => 'nullable|image|mimes:png,jpg,jpeg,gif,webp|max:2048',
+            'is_active' => 'boolean'
+        ]);
+
+        if ($request->hasFile('image')) {
+            // Eliminar imagen anterior si existe
+            if ($partner->image_url && Storage::disk('public')->exists($partner->image_url)) {
+                Storage::disk('public')->delete($partner->image_url);
+            }
+            $path = $request->file('image')->store('partners', 'public');
+            $validated['image_url'] = $path;
+        }
+
         $partner->update($validated);
+
         return response()->json([
             'success' => true,
             'message' => 'Partner actualizado correctamente.',
@@ -79,11 +83,13 @@ class PartnersController extends Controller {
         return response()->json(['success' => true, 'message' => 'Estado actualizado.']);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Partner $partner): JsonResponse {
+        // Eliminar la imagen asociada al borrar el registro
+        if ($partner->image_url && Storage::disk('public')->exists($partner->image_url)) {
+            Storage::disk('public')->delete($partner->image_url);
+        }
         $partner->delete();
+
         return response()->json([
             'success' => true,
             'message' => 'El Partner fue eliminado correctamente'

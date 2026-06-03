@@ -27,6 +27,28 @@
         <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden" x-data="userManagement()">
             <div class="max-w-7xl mx-auto space-y-6">
                 
+                {{-- Contenedor de Toasts Flotantes Dinámicos --}}
+                <div class="fixed bottom-5 right-5 z-[100] space-y-3 w-full max-w-sm">
+                    <template x-for="toast in toasts" :key="toast.id">
+                        <div x-transition:enter="transition ease-out duration-300"
+                             x-transition:enter-start="opacity-0 translate-y-2 sm:translate-y-0 sm:translate-x-2"
+                             x-transition:enter-end="opacity-100 translate-y-0 sm:translate-x-0"
+                             x-transition:leave="transition ease-in duration-200"
+                             x-transition:leave-start="opacity-100"
+                             x-transition:leave-end="opacity-0"
+                             :class="toast.type === 'success' ? 'bg-emerald-600' : 'bg-red-600'"
+                             class="text-white px-4 py-3 rounded-xl shadow-lg flex items-center justify-between gap-3 border border-white/10">
+                            <div class="flex items-center gap-2.5">
+                                <i :class="toast.type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'" class="bi text-base"></i>
+                                <p class="text-sm font-semibold tracking-wide" x-text="toast.message"></p>
+                            </div>
+                            <button type="button" @click="toasts = toasts.filter(t => t.id !== toast.id)" class="text-white/80 hover:text-white transition-colors p-1">
+                                <i class="bi bi-x-lg text-xs"></i>
+                            </button>
+                        </div>
+                    </template>
+                </div>
+
                 @if(session('success'))
                     <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg shadow-sm animate-fade-in">
                         <div class="flex items-center">
@@ -62,7 +84,8 @@
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 @forelse($partners as $partner)
-                                    <tr class="hover:bg-gray-50/50 transition-colors">
+                                    {{-- Asignamos un estado independiente 'isActive' a cada fila --}}
+                                    <tr class="hover:bg-gray-50/50 transition-colors" x-data="{ isActive: {{ $partner->is_active ? 'true' : 'false' }} }">
                                         <td class="p-4">
                                             <div class="flex items-center space-x-3">
                                                 <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold flex-shrink-0">
@@ -74,43 +97,32 @@
                                             </div>
                                         </td>
                                         <td class="p-4">
-                                            @if($partner->is_active)
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                    <span class="w-2 h-2 mr-1.5 bg-green-500 rounded-full"></span> Activo
-                                                </span>
-                                            @else
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                    <span class="w-2 h-2 mr-1.5 bg-red-500 rounded-full"></span> Inactivo
-                                                </span>
-                                            @endif
+                                            {{-- El badge cambia dinámicamente según la variable isActive --}}
+                                            <span :class="isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-200">
+                                                <span :class="isActive ? 'bg-green-500' : 'bg-red-500'" class="w-2 h-2 mr-1.5 rounded-full transition-colors duration-200"></span>
+                                                <span x-text="isActive ? 'Activo' : 'Inactivo'"></span>
+                                            </span>
                                         </td>
                                         <td class="p-4 text-center">
                                             <div class="inline-block" x-data="{ open: false, posTop: 0, posLeft: 0 }">
-                                                <!-- Botón disparador -->
                                                 <button x-ref="trigger" type="button" @click="open = !open; if(open) { const r = $refs.trigger.getBoundingClientRect(); posTop = r.bottom + 6; posLeft = r.right - 192; }" @scroll.window="open = false" class="inline-flex items-center justify-center p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/50" :aria-expanded="open" aria-haspopup="true">
                                                     <i class="bi bi-three-dots-vertical text-lg"></i>
                                                 </button>
 
-                                                <!-- Menú teleportado al body para evitar overflow de la tabla -->
                                                 <template x-teleport="body">
                                                     <div x-show="open" @click.outside="open = false" @keydown.escape.window="open = false" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" :style="`top: ${posTop}px; left: ${posLeft}px`" class="fixed z-[60] w-48 bg-white rounded-md shadow-xl border border-gray-100 py-1 ring-1 ring-black/5" role="menu" aria-orientation="vertical" x-cloak>
-                                                        <!-- Actualizar Clave -->
+                                                        
                                                         <a href="{{ route('admin.partners.edit', $partner->id) }}" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 flex items-center transition-colors">
                                                             <i class="bi bi-pencil-square mr-2"></i> Actualizar datos
                                                         </a>
 
-                                                        <!-- Activar/Desactivar (ruta toggleStatus) -->
-                                                        <form action="{{ route('admin.partners.toggle-status', $partner->id) }}" method="POST" class="m-0">
-                                                            @csrf
-                                                            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 flex items-center transition-colors" role="menuitem">
-                                                                <i class="bi {{ $partner->is_active ? 'bi bi-toggle-off' : 'bi bi-toggle-off' }} mr-2"></i> 
-                                                                {{ $partner->is_active ? 'Desactivar' : 'Activar' }}
-                                                            </button>
-                                                        </form>
+                                                        <button type="button" @click="togglePartnerStatus({{ $partner->id }}, $data); open = false" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 flex items-center transition-colors" role="menuitem">
+                                                            <i class="bi mr-2 transition-colors duration-200" :class="isActive ? 'bi-toggle-on text-green-600' : 'bi-toggle-off text-gray-400'"></i> 
+                                                            <span x-text="isActive ? 'Desactivar' : 'Activar'"></span>
+                                                        </button>
 
                                                         <div class="border-t border-gray-100 my-1"></div>
 
-                                                        <!-- Eliminar (ruta destroy) -->
                                                         <form action="{{ route('admin.partners.destroy', $partner->id) }}" method="POST" class="m-0" onsubmit="return confirm('¿Estás seguro de eliminar este ítem?');">
                                                             @csrf
                                                             @method('DELETE')
@@ -144,7 +156,6 @@
                     @endif
                 </div>
 
-                <!-- Modal actualizar contraseña (sin cambios, ya que no hay ruta definida) -->
                 <div x-show="showModal" class="fixed inset-0 z-[60] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" x-cloak>
                     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                         <div x-show="showModal"  x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm transition-opacity" aria-hidden="true" @click="showModal = false"></div>
@@ -165,8 +176,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Nota: esta ruta '/admin/partners/{id}/password' no existe en web.php. Se debe implementar. -->
                             <form :action="'/admin/partners/' + selectedUserId + '/password'" method="POST">
                                 @csrf
                                 @method('PATCH')
@@ -218,7 +227,6 @@
 @push('scripts')
     <script>
         document.addEventListener('alpine:init', () => {
-            // Asegúrate de que enterpriseApp exista en caso de que no esté cargado desde aside
             if (!Alpine.data('enterpriseApp')) {
                 Alpine.data('enterpriseApp', () => ({
                     sidebarOpen: window.innerWidth >= 1024,
@@ -230,15 +238,49 @@
                 showModal: false,
                 selectedUserId: null,
                 selectedUserName: '',
+                toasts: [], // Manejo local de notificaciones
                 
                 openPwdModal(id, name) {
                     this.selectedUserId = id;
                     this.selectedUserName = name;
                     this.showModal = true;
+                },
+
+                showToast(message, type = 'success') {
+                    const id = Date.now();
+                    this.toasts.push({ id, message, type });
+                    // Desaparece automáticamente a los 3.5 segundos
+                    setTimeout(() => {
+                        this.toasts = this.toasts.filter(t => t.id !== id);
+                    }, 3500);
+                },
+
+                async togglePartnerStatus(id, rowScope) {
+                    try {
+                        const response = await fetch(`/socios/cambiar-estado/${id}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
+                            // Cambia reactivamente el valor de isActive de la fila gracias a pasarle $data
+                            rowScope.isActive = !rowScope.isActive;
+                            this.showToast(data.message || 'Estado actualizado.', 'success');
+                        } else {
+                            this.showToast(data.message || 'No se pudo actualizar el estado.', 'error');
+                        }
+                    } catch (error) {
+                        this.showToast('Ocurrió un error inesperado en el servidor.', 'error');
+                    }
                 }
             }));
         })
     </script>
 @endpush
-
 @endsection

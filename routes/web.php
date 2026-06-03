@@ -17,6 +17,7 @@ Route::get('/',         [AppController::class, 'index'])->name('inicio');
 Route::get('/ofertas',  [AppController::class, 'offers'])->name('ofertas');
 Route::get('/nosotros', [AppController::class, 'aboutus'])->name('nosotros');
 
+
 Route::get('/register',                     [RegisteredUserController::class, 'create'])->name('register');
 Route::post('/register',                    [RegisteredUserController::class, 'store']);
 Route::get('/login',                        [AuthenticatedSessionController::class, 'create'])->name('login')->middleware('guest');
@@ -32,30 +33,30 @@ Route::post('reset-password',               [PasswordResetLinkController::class,
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard',    [DashboardController::class, 'index'])->name('dashboard');
     
-    Route::get('/profile/{user}',   [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile',        [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile',       [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/perfil/{user}',   [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/perfil',        [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/perfil',       [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/trabajos',                         [JobController::class, 'index'])->name('admin.trabajos');
-    Route::get('/trabajos/convocatorias internas',  [JobController::class, 'internalCalls'])->name('admin.convocatorias-internas');
+    Route::get('/trabajos/convocatorias-internas',  [JobController::class, 'internalCalls'])->name('admin.convocatorias-internas');
     Route::post('/trabajos/');
     
     Route::get('/usuarios',                         [UsersController::class, 'index'])->name('admin.usuarios');
     Route::get('/usuarios/crear',                   [UsersController::class, 'create'])->name('admin.usuarios.create');
-    Route::get('/usuarios/{user}/editar/',            [UsersController::class, 'edit'])->name('admin.usuarios.edit');
+    Route::get('/usuarios/{user}/editar/',          [UsersController::class, 'edit'])->name('admin.usuarios.edit');
     Route::post('/usuarios',                        [UsersController::class, 'store'])->name('admin.usuarios.store');
     Route::put('/usuarios/{user}',                  [UsersController::class, 'update'])->name('admin.usuarios.update');
     Route::post('/usuarios/cambiar-estado/{user}',  [UsersController::class, 'toggleStatus'])->name('admin.usuarios.toggle-status');
     Route::delete('/usuarios/{user}',               [UsersController::class, 'destroy'])->name('admin.usuarios.destroy');
 
     // Rutas para gestión de partners
-    Route::get('/socios',                 [PartnersController::class, 'index'])->name('admin.partners.index');
-    Route::get('/socios/create',          [PartnersController::class, 'create'])->name('admin.partners.create');
-    Route::post('/socios/store',          [PartnersController::class, 'store'])->name('admin.partners.store');
-    Route::get('/socios/{partner}/edit',  [PartnersController::class, 'edit'])->name('admin.partners.edit');
-    Route::put('/socios/{partner}',       [PartnersController::class, 'update'])->name('admin.partners.update');
-    Route::post('/socios/toggleStatus/{user}',    [PartnersController::class, 'toggleStatus'])->name('admin.partners.toggle-status');
-    Route::delete('/socios/{user}',               [PartnersController::class, 'destroy'])->name('admin.partners.destroy');
+    Route::get('/socios',                           [PartnersController::class, 'index'])->name('admin.partners.index');
+    Route::get('/socios/crear',                     [PartnersController::class, 'create'])->name('admin.partners.create');
+    Route::post('/socios/guardar',                  [PartnersController::class, 'store'])->name('admin.partners.store');
+    Route::get('/socios/{partner}/editar',          [PartnersController::class, 'edit'])->name('admin.partners.edit');
+    Route::put('/socios/{partner}',                 [PartnersController::class, 'update'])->name('admin.partners.update');
+    Route::post('/socios/cambiar-estado/{partner}', [PartnersController::class, 'toggleStatus'])->name('admin.partners.toggle-status');
+    Route::delete('/socios/{partner}',              [PartnersController::class, 'destroy'])->name('admin.partners.destroy');
 
     // Rutas para gestión de empresa
     Route::get('/enterprise',       [EnterpriseController::class, 'edit'])->name('admin.enterprise.edit');

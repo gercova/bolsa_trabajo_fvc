@@ -7,7 +7,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnterpriseController;
-use App\Http\Controllers\JobController;
+use App\Http\Controllers\JobsController;
 use App\Http\Controllers\PartnersController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsersController;
@@ -37,9 +37,13 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/perfil',        [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/perfil',       [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/trabajos',                         [JobController::class, 'index'])->name('admin.trabajos');
-    Route::get('/trabajos/convocatorias-internas',  [JobController::class, 'internalCalls'])->name('admin.convocatorias-internas');
-    Route::post('/trabajos/');
+    Route::get('/trabajos',                         [JobsController::class, 'index'])->name('admin.trabajos');
+    Route::get('/trabajos/convocatorias-internas',  [JobsController::class, 'internalCalls'])->name('admin.convocatorias-internas');
+    Route::get('/trabajos/crear-oferta',            [JobsController::class, 'create'])->name('admin.trabajos.create');
+    Route::post('/trabajos/guardar',                [JobsController::class, 'store'])->name('admin.trabajos.store');
+    Route::get('/trabajos/{offer}/editar-oferta',   [JobsController::class, 'edit'])->name('admin.trabajos.edit');
+    Route::put('/trabajos/{offer}',                 [JobsController::class, 'update'])->name('admin.trabajos.update');
+    Route::delete('/trabajos/{offer}',              [JobsController::class, 'destroy'])->name('admin.trabajos.destroy');
     
     Route::get('/usuarios',                         [UsersController::class, 'index'])->name('admin.usuarios');
     Route::get('/usuarios/crear',                   [UsersController::class, 'create'])->name('admin.usuarios.create');

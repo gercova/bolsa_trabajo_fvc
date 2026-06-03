@@ -1,100 +1,165 @@
 @extends('layouts.app')
-@section('title', 'Dashboard - Panel de Usuario')
+@section('title', 'Gestión de Trabajos - Panel Administrativo')
+
 @section('content')
 <div id="dashboard-container" class="flex w-full bg-gray-50 font-sans text-gray-900 min-h-[calc(100vh-64px)]" x-data="dashboardApp()">
-    <div x-show="sidebarOpen" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-900/80 backdrop-blur-sm z-[40] lg:hidden" @click="sidebarOpen = false" x-cloak></div>
-
-    <aside class="bg-slate-900 shadow-2xl transition-all duration-300 ease-in-out flex-shrink-0 fixed lg:relative inset-y-0 left-0 z-[45] lg:z-[40] top-[64px] lg:top-0" :class="sidebarOpen ? 'w-72 translate-x-0' : 'w-0 -translate-x-full lg:translate-x-0 lg:w-20'">
-        <div class="flex flex-col h-full lg:h-[calc(100vh-64px)] lg:sticky lg:top-[64px] overflow-hidden">
-
-            @include('admin.components.aside')
-
-            <div class="p-4 border-t border-slate-700/50" x-show="sidebarOpen" x-transition.opacity>
-                <div class="bg-slate-800 rounded-xl p-4 flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                        <i class="bi bi-person-circle text-2xl text-purple-600"></i>
-                    </div>
-                    <div class="overflow-hidden">
-                        <p class="text-sm font-medium text-white truncate">{{ Auth::user()->names }}</p>
-                        <p class="text-xs text-slate-400 truncate">En línea</p>
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-    </aside>
+    @include('admin.components.aside')
 
     <div class="flex-1 flex flex-col min-w-0 bg-gray-50/50 relative">
-
         <header class="bg-white border-b border-gray-200 sticky top-[64px] lg:top-0 z-[30] shadow-sm backdrop-blur-md bg-white/90">
             <div class="px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center">
                     <button @click="toggleSidebar()" class="mr-4 text-gray-500 hover:text-purple-600 hover:bg-purple-50 p-2 rounded-lg transition-colors lg:hidden">
                         <i class="bi bi-list text-2xl"></i>
                     </button>
-                    <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">
-                        @yield('dashboard_title', 'Panel de Control')
-                    </h1>
+                    <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Bolsa de Trabajo</h1>
                 </div>
-
-                <div class="hidden sm:flex items-center text-sm font-medium text-gray-500">
-                    <i class="bi bi-house-door mr-1"></i> Inicio
-                    <i class="bi bi-chevron-right mx-2 text-xs text-gray-400"></i>
-                    <span class="text-purple-600">
-                        @yield('dashboard_title', 'Panel de Control')
-                    </span>
-                </div>
+                <a href="{{ route('admin.trabajos.create') }}" class="px-4 py-2.5 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition flex items-center gap-2 shadow-sm text-sm">
+                    <i class="bi bi-plus-circle"></i> Nueva Oferta
+                </a>
             </div>
         </header>
 
-        <main class="flex-1 p-6 lg:p-8 overflow-x-hidden">
+        <main class="flex-1 p-6 lg:p-8" x-data="jobsList({{ json_encode($jobs) }})">
             <div class="max-w-7xl mx-auto space-y-6">
-                @yield('dashboard_content')
+                
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col sm:flex-row gap-4 justify-between items-center">
+                    <div class="relative w-full sm:w-96">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" x-model="search" 
+                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-sm" 
+                               placeholder="Buscar por título, empresa o ubicación...">
+                    </div>
+                    <div class="text-sm text-gray-500 font-medium">
+                        Mostrando <span class="text-purple-600" x-text="filteredJobs.length"></span> ofertas
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-500">
+                                    <th class="px-6 py-4">Oferta / Empresa</th>
+                                    <th class="px-6 py-4">Ubicación</th>
+                                    <th class="px-6 py-4">Fuente</th>
+                                    <th class="px-6 py-4">Estado</th>
+                                    <th class="px-6 py-4 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-sm">
+                                <template x-for="job in filteredJobs" :key="job.id">
+                                    <tr class="hover:bg-gray-50/70 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="font-semibold text-gray-900" x-text="job.title"></div>
+                                            <div class="text-xs text-gray-500" x-text="job.company"></div>
+                                        </td>
+                                        <td class="px-6 py-4 text-gray-600">
+                                            <i class="bi bi-geo-alt text-gray-400 mr-1"></i>
+                                            <span x-text="job.location"></span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-md" x-text="job.source || 'No especificada'"></span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <template x-if="job.is_active">
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Activo
+                                                </span>
+                                            </template>
+                                            <template x-if="!job.is_active">
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> Inactivo
+                                                </span>
+                                            </template>
+                                        </td>
+                                        <td class="px-6 py-4 text-right space-x-2">
+                                            <a :href="`{{ route('admin.trabajos') }}/${job.id}/editar-oferta`" 
+                                               class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition inline-block" title="Editar">
+                                                <i class="bi bi-pencil-square text-lg"></i>
+                                            </a>
+                                            <button @click="deleteJob(job.id)" 
+                                                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Eliminar">
+                                                <i class="bi bi-trash3 text-lg"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                                
+                                <template x-if="filteredJobs.length === 0">
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+                                            <i class="bi bi-briefcase-slash text-4xl block mb-2"></i>
+                                            <p class="text-base font-medium">No se encontraron ofertas de trabajo</p>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
 </div>
-
-@push('styles')
-<style>
-    [x-cloak] { display: none !important; }
-
-    /* Ajustes para el navbar principal de tu app.blade */
-    #main-content { 
-        padding-top: 64px !important; 
-    }
-    
-    footer { 
-        margin-top: 0 !important; 
-    }
-
-    /* Scrollbar elegante para el sidebar */
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 20px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
-</style>
-@endpush
+@endsection
 
 @push('scripts')
 <script>
     document.addEventListener('alpine:init', () => {
+        // Inicializador del layout base del dashboard
         Alpine.data('dashboardApp', () => ({
             sidebarOpen: window.innerWidth >= 1024,
-            toggleSidebar() {
-                this.sidebarOpen = !this.sidebarOpen;
-            },
+            toggleSidebar() { this.sidebarOpen = !this.sidebarOpen; },
             init() {
                 window.addEventListener('resize', () => {
-                    if (window.innerWidth >= 1024) {
-                        this.sidebarOpen = true;
-                    } else {
-                        this.sidebarOpen = false;
-                    }
+                    this.sidebarOpen = window.innerWidth >= 1024;
                 });
             }
-        }))
-    })
+        }));
+
+        // Lógica de control reactivo del listado
+        Alpine.data('jobsList', (initialJobs) => ({
+            jobs: initialJobs,
+            search: '',
+
+            get filteredJobs() {
+                if (this.search.trim() === '') return this.jobs;
+                return this.jobs.filter(job => {
+                    return job.title.toLowerCase().includes(this.search.toLowerCase()) ||
+                           job.company.toLowerCase().includes(this.search.toLowerCase()) ||
+                           job.location.toLowerCase().includes(this.search.toLowerCase());
+                });
+            },
+
+            async deleteJob(id) {
+                if (!confirm('¿Estás completamente seguro de eliminar esta oferta laboral? Esta acción no se puede deshacer.')) return;
+
+                try {
+                    const response = await fetch(`{{ route('admin.trabajos') }}/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        // Filtramos el array localmente para removerlo del DOM instantáneamente sin recargar
+                        this.jobs = this.jobs.filter(job => job.id !== id);
+                    } else {
+                        alert(data.message || 'Error al intentar eliminar el registro.');
+                    }
+                } catch (error) {
+                    alert('Ocurrió un error de red o de servidor al procesar la eliminación.');
+                }
+            }
+        }));
+    });
 </script>
 @endpush
-@endsection

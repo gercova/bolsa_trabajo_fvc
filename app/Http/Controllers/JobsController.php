@@ -7,6 +7,7 @@ use App\Http\Requests\JobValidate;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class JobsController extends Controller
 {
@@ -18,8 +19,7 @@ class JobsController extends Controller
     }
 
     // Convocatorias internas (reutiliza o personaliza según tu lógica)
-    public function internalCalls(): View 
-    {
+    public function internalCalls(): View {
         $jobs = JobOffer::where('source', 'Interna')->orderBy('created_at', 'desc')->get();
         return view('admin.jobs.index', compact('jobs'));
     }
@@ -31,9 +31,11 @@ class JobsController extends Controller
 
     // Guardar nueva oferta
     public function store(JobValidate $request): JsonResponse {
+        $validated = $request->validated();
+        
         try {
-            $validated = $request->validated();
-            $validated['is_active'] = $request->has('is_active') ? (bool)$request->is_active : false;
+            // Usamos boolean() de Laravel, es más limpio y no falla con JSON
+            $validated['is_active'] = $request->boolean('is_active');
 
             $job = JobOffer::create($validated);
 
@@ -43,9 +45,13 @@ class JobsController extends Controller
                 'data'    => $job
             ], 201);
         } catch (\Exception $e) {
+            // \Illuminate\Support\Facades\Log::error('Error creando trabajo: ' . $e->getMessage());
+            Log::error('Error creando trabajo: ' . $e->getMessage());
+
+            // Devolvemos el error real a la consola de tu navegador
             return response()->json([
                 'success' => false,
-                'message' => 'Ocurrió un error al guardar la oferta.'
+                'message' => 'Error en el servidor: ' . $e->getMessage() // ¡Aquí veremos la magia!
             ], 500);
         }
     }

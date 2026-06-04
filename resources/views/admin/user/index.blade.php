@@ -68,11 +68,7 @@
                             
                             <!-- Filtro por estado -->
                             <div class="relative">
-                                <select 
-                                    name="status" 
-                                    class="appearance-none w-full sm:w-40 pl-3 pr-8 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm bg-white"
-                                    onchange="this.form.submit()"
-                                >
+                                <select name="status" class="appearance-none w-full sm:w-40 pl-3 pr-8 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm bg-white" onchange="this.form.submit()">
                                     <option value="">Todos los estados</option>
                                     <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Activos</option>
                                     <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactivos</option>

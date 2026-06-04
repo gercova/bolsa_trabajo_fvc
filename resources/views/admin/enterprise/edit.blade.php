@@ -459,24 +459,38 @@
 </div>
 
 @push('styles')
-<style>
-    [x-cloak] { display: none !important; }
-    
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 20px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
-    
-    @keyframes fade-in {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .animate-fade-in {
-        animation: fade-in 0.3s ease-out;
-    }
-</style>
+    <style>
+        [x-cloak] { display: none !important; }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 20px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fade-in 0.3s ease-out;
+        }
+    </style>
 @endpush
-
-
 @endsection
+@push('scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        // Inicializador del layout base del dashboard
+        Alpine.data('enterpriseApp', () => ({
+            sidebarOpen: window.innerWidth >= 1024,
+            toggleSidebar() { this.sidebarOpen = !this.sidebarOpen; },
+            init() {
+                window.addEventListener('resize', () => {
+                    this.sidebarOpen = window.innerWidth >= 1024;
+                });
+            }
+        }));
+    });
+</script>
+@endpush

@@ -98,6 +98,17 @@
 @push('scripts')
 <script>
     document.addEventListener('alpine:init', () => {
+        // Inicializador del layout base del dashboard
+        Alpine.data('enterpriseApp', () => ({
+            sidebarOpen: window.innerWidth >= 1024,
+            toggleSidebar() { this.sidebarOpen = !this.sidebarOpen; },
+            init() {
+                window.addEventListener('resize', () => {
+                    this.sidebarOpen = window.innerWidth >= 1024;
+                });
+            }
+        }));
+        // Inicializador del formulario
         Alpine.data('partnerForm', () => ({
             form: {
                 company: '{{ addslashes($partner->company) }}',

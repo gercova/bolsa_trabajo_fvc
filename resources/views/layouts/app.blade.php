@@ -556,7 +556,6 @@
     ═══════════════════════════════════════ -->
     <footer id="site-footer">
         <div class="footer-grid">
-
             <!-- Col 1: Brand -->
             <div>
                 <div class="footer-brand-badge">
@@ -659,46 +658,46 @@
         SCRIPTS
     ═══════════════════════════════════════ -->
     <script>
-    /* ── Navbar scroll effect ──────────────────────────── */
-    const header = document.getElementById('site-header');
-    const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 10);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+        /* ── Navbar scroll effect ──────────────────────────── */
+        const header = document.getElementById('site-header');
+        const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 10);
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
 
-    /* ── Mobile menu toggle ────────────────────────────── */
-    const hamburger    = document.getElementById('hamburgerBtn');
-    const mobileMenu   = document.getElementById('mobile-menu');
-    const hamburgerIcon = document.getElementById('hamburgerIcon');
+        /* ── Mobile menu toggle ────────────────────────────── */
+        const hamburger    = document.getElementById('hamburgerBtn');
+        const mobileMenu   = document.getElementById('mobile-menu');
+        const hamburgerIcon = document.getElementById('hamburgerIcon');
 
-    hamburger.addEventListener('click', () => {
-        const isOpen = mobileMenu.classList.toggle('open');
-        hamburger.setAttribute('aria-expanded', isOpen);
-        mobileMenu.setAttribute('aria-hidden', !isOpen);
-        hamburgerIcon.className = isOpen ? 'bi bi-x' : 'bi bi-list';
-        document.body.style.overflow = isOpen ? 'hidden' : '';
-    });
-
-    /* Close mobile menu on link/button click */
-    mobileMenu.querySelectorAll('a, button').forEach(el => {
-        el.addEventListener('click', () => {
-            mobileMenu.classList.remove('open');
-            hamburger.setAttribute('aria-expanded', 'false');
-            mobileMenu.setAttribute('aria-hidden', 'true');
-            hamburgerIcon.className = 'bi bi-list';
-            document.body.style.overflow = '';
+        hamburger.addEventListener('click', () => {
+            const isOpen = mobileMenu.classList.toggle('open');
+            hamburger.setAttribute('aria-expanded', isOpen);
+            mobileMenu.setAttribute('aria-hidden', !isOpen);
+            hamburgerIcon.className = isOpen ? 'bi bi-x' : 'bi bi-list';
+            document.body.style.overflow = isOpen ? 'hidden' : '';
         });
-    });
 
-    /* Close on outside click */
-    document.addEventListener('click', e => {
-        if (!header.contains(e.target) && !mobileMenu.contains(e.target)) {
-            mobileMenu.classList.remove('open');
-            hamburger.setAttribute('aria-expanded', 'false');
-            mobileMenu.setAttribute('aria-hidden', 'true');
-            hamburgerIcon.className = 'bi bi-list';
-            document.body.style.overflow = '';
-        }
-    });
+        /* Close mobile menu on link/button click */
+        mobileMenu.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                hamburger.setAttribute('aria-expanded', 'false');
+                mobileMenu.setAttribute('aria-hidden', 'true');
+                hamburgerIcon.className = 'bi bi-list';
+                document.body.style.overflow = '';
+            });
+        });
+
+        /* Close on outside click */
+        document.addEventListener('click', e => {
+            if (!header.contains(e.target) && !mobileMenu.contains(e.target)) {
+                mobileMenu.classList.remove('open');
+                hamburger.setAttribute('aria-expanded', 'false');
+                mobileMenu.setAttribute('aria-hidden', 'true');
+                hamburgerIcon.className = 'bi bi-list';
+                document.body.style.overflow = '';
+            }
+        });
     </script>
 
     @stack('scripts')

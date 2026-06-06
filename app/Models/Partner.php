@@ -11,6 +11,7 @@ class Partner extends Model {
     protected $keyType      = 'int';
     protected $fillable     = [
         'company',
+        'link',
         'image_url',
         'is_active',
     ];

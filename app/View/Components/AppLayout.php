@@ -12,7 +12,7 @@ class AppLayout extends Component
      * Get the view / contents that represents the component.
      */
     public function render(): View {
-        $enterprise = Enterprise::first();
+        $enterprise = Enterprise::getDefault();
         return view('layouts.app', compact('enterprise'));
     }
 }

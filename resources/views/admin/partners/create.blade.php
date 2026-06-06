@@ -37,17 +37,20 @@
                             {{-- Company --}}
                             <div class="md:col-span-2">
                                 <label for="company" class="block text-sm font-medium text-gray-700 mb-1">Empresa / Partner <span class="text-red-500">*</span></label>
-                                <input type="text" id="company" x-model="form.company"
-                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
-                                       placeholder="Ej. Microsoft Perú">
+                                <input type="text" id="company" x-model="form.company" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" placeholder="Ej. Microsoft Perú">
                                 <p x-show="errors.company" x-text="errors.company" class="mt-1 text-sm text-red-600"></p>
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label for="link" class="block text-sm font-medium text-gray-700 mb-1">Enlace / Link <span class="text-red-500">*</span></label>    
+                                <input type="text" id="link" x-model="form.link" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" placeholder="Ej. https://miempresa.com">
+                                <p x-show="errors.link" x-text="errors.link" class="mt-1 text-sm text-red-600"></p>
                             </div>
 
                             {{-- File Upload --}}
                             <div>
                                 <label for="image" class="block text-sm font-medium text-gray-700 mb-1">Logo del Partner <span class="text-red-500">*</span></label>
-                                <input type="file" id="image" x-ref="imageInput" @change="previewFile" accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer">
+                                <input type="file" id="image" x-ref="imageInput" @change="previewFile" accept="image/png, image/jpeg, image/jpg, image/gif, image/webp" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer">
                                 <p class="text-xs text-gray-500 mt-1">Formatos: PNG, JPG, JPEG, GIF, WEBP. Max: 2MB.</p>
                                 <p x-show="errors.image" x-text="errors.image" class="mt-1 text-sm text-red-600"></p>
                             </div>
@@ -69,8 +72,7 @@
 
                         {{-- Active Status --}}
                         <div class="flex items-center gap-3 bg-purple-50/50 p-4 rounded-lg border border-purple-100">
-                            <input type="checkbox" id="is_active" x-model="form.is_active" 
-                                   class="h-5 w-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer">
+                            <input type="checkbox" id="is_active" x-model="form.is_active" class="h-5 w-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer">
                             <div>
                                 <label for="is_active" class="text-sm font-semibold text-gray-800 cursor-pointer">Partner activo en la plataforma</label>
                                 <p class="text-xs text-gray-500">Si se desmarca, este socio no se mostrará públicamente.</p>
@@ -79,13 +81,10 @@
 
                         {{-- Buttons --}}
                         <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                            <a href="{{ route('admin.partners.index') }}" 
-                               class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            <a href="{{ route('admin.partners.index') }}" class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                                 Cancelar
                             </a>
-                            <button type="submit" 
-                                    :disabled="loading"
-                                    class="px-5 py-2.5 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
+                            <button type="submit" :disabled="loading" class="px-5 py-2.5 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
                                 <i class="bi bi-save"></i>
                                 <span x-show="!loading">Guardar Partner</span>
                                 <span x-show="loading" class="flex items-center gap-1" x-cloak>
@@ -121,6 +120,7 @@
         Alpine.data('partnerForm', () => ({
             form: {
                 company: '',
+                link: '',
                 is_active: true
             },
             imagePreview: null,
@@ -139,6 +139,7 @@
             validate() {
                 this.errors = {};
                 if (!this.form.company.trim()) this.errors.company = 'El nombre de la empresa es obligatorio.';
+                // if (!this.form.link.trim()) this.errors.link = 'El enlace de la empresa es obligatorio.';
                 if (!this.$refs.imageInput.files[0]) this.errors.image = 'Debes subir un logo de partner.';
                 return Object.keys(this.errors).length === 0;
             },
@@ -150,6 +151,7 @@
                 // Usamos FormData para poder enviar el archivo adjunto
                 let formData = new FormData();
                 formData.append('company', this.form.company);
+                formData.append('link', this.form.link);
                 formData.append('is_active', this.form.is_active ? 1 : 0);
                 formData.append('image', this.$refs.imageInput.files[0]);
 
@@ -159,7 +161,6 @@
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Accept': 'application/json'
-                            // No enviamos Content-Type, el navegador lo genera con el boundary correcto para FormData
                         },
                         body: formData
                     });

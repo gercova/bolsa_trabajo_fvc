@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void {
         View::composer(['layouts.app'], function ($view) {
-            $view->with('enterprise', Enterprise::first());
+            $view->with('enterprise', Enterprise::getDefault());
         });
     }
 }

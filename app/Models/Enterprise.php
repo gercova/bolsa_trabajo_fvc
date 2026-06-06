@@ -41,20 +41,38 @@ class Enterprise extends Model
         'updated_at' => 'datetime',
     ];
 
+    public static function getDefault() {
+        $enterprise = self::first();
+        
+        if (!$enterprise) {
+            $enterprise = new self();
+            
+            $enterprise->logo_path      = 'enterprise/logo-iestpfvc.png';
+            $enterprise->favicon_path   = 'enterprise/favicon-iestpfvc.png';
+            $enterprise->company_name   = 'IESTP Francisco Vigo Caballero';
+            $enterprise->address        = 'Av. Principal 123';
+            $enterprise->city           = 'Uchiza';
+            $enterprise->phone_number_1 = '+51 123 456 789';
+            $enterprise->email          = 'info@fvigo.edu';
+        }
+        
+        return $enterprise;
+    }
+
     // Accessors para cada campo de imagen
     protected function logoPath(): Attribute {
-        return $this->imageAttribute($this->attributes['logo_path'] ?? null);
+        return $this->imageAttribute($this->attributes['logo_path'] ?? 'enterprise/favicons/logo-iestpfvc.png');
     }
 
     protected function faviconPath(): Attribute {
-        return $this->imageAttribute($this->attributes['favicon_path'] ?? null);
+        return $this->imageAttribute($this->attributes['favicon_path'] ?? 'enterprise/favicons/logo-iestpfvc.png');
     }
 
     // Método reutilizable para la lógica de imágenes
     private function imageAttribute(?string $value): Attribute {
         return Attribute::make(
             get: fn () => match (true) {
-                empty($value) => asset('storage/photos/ipf-logo.png'),
+                empty($value) => Storage::url('enterprise/favicons/logo-iestpfvc.png'),
                 Str::startsWith($value, ['http://', 'https://']) => $value,
                 default => Storage::url($value),
             }

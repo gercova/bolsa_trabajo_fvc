@@ -10,6 +10,8 @@ use App\Http\Controllers\EnterpriseController;
 use App\Http\Controllers\JobsController;
 use App\Http\Controllers\PartnersController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StudyPrograms;
+use App\Http\Controllers\StudyProgramsController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +38,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/perfil/{user}',   [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/perfil',        [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/perfil',       [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/programas',                    [StudyProgramsController::class, 'index'])->name('admin.programas');
+    Route::get('/programas/crear-programa',     [StudyProgramsController::class, 'create'])->name('admin.programas.create');
+    Route::get('/programas/guardar',            [StudyProgramsController::class, 'store'])->name('admin.programas.store');
+    Route::get('/programas/editar-programa',    [StudyProgramsController::class, 'edit'])->name('admin.programas.edit');
+    Route::get('/programas/{program}',          [StudyProgramsController::class, 'update'])->name('admin.programas.update');
+    Route::get('/programas/{program}',          [StudyProgramsController::class, 'destroy'])->name('admin.programas.destroy');
 
     Route::get('/trabajos',                         [JobsController::class, 'index'])->name('admin.trabajos');
     Route::get('/trabajos/convocatorias-internas',  [JobsController::class, 'internalCalls'])->name('admin.convocatorias-internas');

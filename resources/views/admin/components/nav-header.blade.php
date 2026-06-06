@@ -40,8 +40,8 @@
             @auth
                 <div class="dropdown-wrap">
                     <button class="user-trigger" type="button" aria-haspopup="true">
-                        <div class="user-avatar">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
-                        <span class="user-name">{{ Auth::user()->name }}</span>
+                        <div class="user-avatar">{{ strtoupper(substr(Auth::user()->names, 0, 1)) }}</div>
+                        <span class="user-name">{{ Auth::user()->names }}</span>
                         <i class="bi bi-chevron-down user-chevron"></i>
                     </button>
                     <div class="dropdown-menu" role="menu">

@@ -10,16 +10,27 @@ use App\Http\Controllers\EnterpriseController;
 use App\Http\Controllers\JobsController;
 use App\Http\Controllers\PartnersController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\StudyPrograms;
 use App\Http\Controllers\StudyProgramsController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/',         [AppController::class, 'index'])->name('inicio');
-Route::get('/ofertas',  [AppController::class, 'offers'])->name('ofertas');
-Route::get('/nosotros', [AppController::class, 'aboutus'])->name('nosotros');
 
+// programas de estudio
+Route::get('/programas-de-estudios', [AppController::class, 'studyPrograms'])->name('programas-de-estudio');
 
+// Nosotros
+Route::get('/nosotros/quienes-somos',               [AppController::class, 'aboutus'])->name('quienes-somos');
+Route::get('/nosotros/organigrama-institucional',   [AppController::class, 'institutionalOrganizationChart'])->name('organigrama-institucional');
+Route::get('/nosotros/plana-jerarquica',            [AppController::class, 'teachersStaff'])->name('plana-jerarquica');
+Route::get('/nosotros/plana-de-docentes',           [AppController::class, 'teachersStaff'])->name('plana-de-docentes');
+Route::get('/nosotros/plana-administrativa',        [AppController::class, 'administrativeStaff'])->name('plana-administrativa');
+Route::get('/nosotros/consejo-de-estudiantes',      [AppController::class, 'studentCouncil'])->name('consejo-de-estudiantes');
+
+// servicios
+Route::get('/servicios/ofertas',  [AppController::class, 'offers'])->name('servicios.ofertas');
+
+// login y registro
 Route::get('/register',                     [RegisteredUserController::class, 'create'])->name('register');
 Route::post('/register',                    [RegisteredUserController::class, 'store']);
 Route::get('/login',                        [AuthenticatedSessionController::class, 'create'])->name('login')->middleware('guest');

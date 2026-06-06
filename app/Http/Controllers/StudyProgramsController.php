@@ -13,7 +13,7 @@ class StudyProgramsController extends Controller {
      */
     public function index(): View {
         $programs = StudyProgram::where('is_active', true)->get();
-        return view('', compact('programs'));
+        return view('admin.programs.index', compact('programs'));
     }
 
     /**
@@ -21,7 +21,7 @@ class StudyProgramsController extends Controller {
      */
     public function create(): View {
         //
-        return view('');
+        return view('admin.programs.create');
     }
 
     /**
@@ -47,7 +47,7 @@ class StudyProgramsController extends Controller {
      */
     public function edit(string $id): View {
         //
-        return view('');
+        return view('admin.programs.edit');
     }
 
     /**

@@ -6,20 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Bolsa de Trabajo — Instituto Francisco Vigo Caballero')</title>
-
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
     <style>
         /* ═══════════════════════════════════════════
            DESIGN TOKENS
@@ -534,25 +529,20 @@
         }
         .nav-inner { animation: fadeUp .5s ease both; }
     </style>
-
     @stack('styles')
-
     <!-- Alpine.js -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body>
-
     @include('admin.components.nav-header')
-
     <!-- ═══════════════════════════════════════
         MAIN CONTENT
     ═══════════════════════════════════════ -->
     <main id="main-content">
         @yield('content')
     </main>
-
     <!-- ═══════════════════════════════════════
-         FOOTER
+        FOOTER
     ═══════════════════════════════════════ -->
     <footer id="site-footer">
         <div class="footer-grid">
@@ -572,39 +562,33 @@
                     Institución en proceso de licenciamiento
                 </div>
             </div>
-
             <!-- Col 2: Quick links -->
             <div>
                 <p class="footer-col-title">Navegación</p>
                 <a href="{{ route('inicio') }}"   class="footer-link"> Inicio</a>
-                <a href="{{ route('ofertas') }}"  class="footer-link"> Ofertas de empleo</a>
-                <a href="{{ route('nosotros') }}" class="footer-link"> Sobre nosotros</a>
+                <a href="{{ route('servicios.ofertas') }}"  class="footer-link"> Ofertas de empleo</a>
+                <a href="{{ route('quienes-somos') }}" class="footer-link"> Sobre nosotros</a>
                 @guest
                     <a href="{{ route('login') }}"    class="footer-link"> Iniciar sesión</a>
                     <a href="{{ route('register') }}" class="footer-link"> Registrarse</a>
                 @endguest
             </div>
-
             <!-- Col 3: Contact -->
             <div>
                 <p class="footer-col-title">Contacto</p>
-
                 <div class="footer-contact-item">
                     <div class="footer-contact-icon"><i class="bi bi-geo-alt-fill"></i></div>
                     <span>{{ $enterprise->address ?? 'Av. Principal 123' }}, {{ $enterprise->city ?? 'Trujillo' }}</span>
                 </div>
-
                 <div class="footer-contact-item" style="margin-top:10px;">
                     <div class="footer-contact-icon"><i class="bi bi-telephone-fill"></i></div>
                     <span>{{ $enterprise->phone_number_1 ?? '+51 123 456 789' }}</span>
                 </div>
-
                 <div class="footer-contact-item" style="margin-top:10px;">
                     <div class="footer-contact-icon"><i class="bi bi-envelope-fill"></i></div>
                     <span>{{ $enterprise->email ?? 'info@fvigo.edu' }}</span>
                 </div>
             </div>
-
             <!-- Col 4: Social -->
             <div>
                 <p class="footer-col-title">Síguenos</p>
@@ -636,9 +620,7 @@
                     </p>
                 </div>
             </div>
-
         </div><!-- /footer-grid -->
-
         <!-- Bottom bar -->
         <div class="footer-bottom">
             <div class="footer-bottom-inner">
@@ -653,7 +635,6 @@
             </div>
         </div>
     </footer>
-
     <!-- ═══════════════════════════════════════
         SCRIPTS
     ═══════════════════════════════════════ -->
@@ -699,7 +680,6 @@
             }
         });
     </script>
-
     @stack('scripts')
 </body>
 </html>

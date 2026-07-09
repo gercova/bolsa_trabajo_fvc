@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Image;
 use App\Models\StudyProgram;
 use App\Models\ModularCertification;
 use Illuminate\Database\Seeder;
@@ -13,7 +14,7 @@ class StudyProgramSeeder extends Seeder
         // Limpiar registros existentes para evitar duplicaciones
         ModularCertification::where('model_type', StudyProgram::class)->delete();
         StudyProgram::query()->delete();
-        \App\Models\Image::where('imageable_type', StudyProgram::class)->delete();
+        Image::where('imageable_type', StudyProgram::class)->delete();
 
         $programsData = [
             [

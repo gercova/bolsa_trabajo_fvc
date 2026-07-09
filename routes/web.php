@@ -16,23 +16,36 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/',         [AppController::class, 'index'])->name('inicio');
 
-// programas de estudio
-Route::get('/programas-de-estudios',                [AppController::class, 'studyPrograms'])->name('programas-de-estudio');
-Route::get('/programas-de-estudios/{program:slug}', [AppController::class, 'program']);
-
 // Admisión y matrícula
 Route::get('/admision-y-matricula/cepre-fvc',           [AppController::class, 'ceprefvc'])->name('cepre-fvc');
 Route::get('/admision-y-matricula/examen-de-admision',  [AppController::class, 'admissionExam'])->name('examen-de-admision');
 Route::get('/admision-y-matricula/matriculas',          [AppController::class, 'enrollments'])->name('matriculas');
 Route::get('/admision-y-matriculas/becas-y-creditos',   [AppController::class, 'scholarshipsAndCredits'])->name('becas-y-creditos');
 
+// programas de estudio
+Route::get('/programas-de-estudios',                [AppController::class, 'studyPrograms'])->name('programas-de-estudio');
+Route::get('/programas-de-estudios/{program:slug}', [AppController::class, 'program']);
+
+// Transparencia
+Route::get('/transparencia/documentos-de-gestion',    [AppController::class, 'documentsManagement'])->name('documents-management');
+Route::get('/transparencia/estadisticas',             [AppController::class, 'statistics'])->name('statistics');
+Route::get('/transparencia/inversion-y-gestion',      [AppController::class, 'managementReports'])->name('management-reports');
+Route::get('/transparencia/licenciamiento',           [AppController::class, 'licensment'])->name('licensment');
+Route::get('/transparencia/libro-de-reclamaciones',   [AppController::class, 'complaintsBook'])->name('complaints-book');
+
+// Trámites
+Route::get('/tramites/mesa-de-partes',                [AppController::class, 'partsTable'])->name('mesa-de-partes');
+Route::get('/tramites/tupa',                          [AppController::class, 'tupa'])->name('tupa');
+
 // Nosotros
 Route::get('/nosotros/quienes-somos',               [AppController::class, 'aboutus'])->name('quienes-somos');
+Route::get('/nosotros/historia',                    [AppController::class, 'history'])->name('historia');
 Route::get('/nosotros/organigrama-institucional',   [AppController::class, 'institutionalOrganizationChart'])->name('organigrama-institucional');
 Route::get('/nosotros/plana-jerarquica',            [AppController::class, 'teachersStaff'])->name('plana-jerarquica');
 Route::get('/nosotros/plana-de-docentes',           [AppController::class, 'teachersStaff'])->name('plana-de-docentes');
 Route::get('/nosotros/plana-administrativa',        [AppController::class, 'administrativeStaff'])->name('plana-administrativa');
 Route::get('/nosotros/consejo-de-estudiantes',      [AppController::class, 'studentCouncil'])->name('consejo-de-estudiantes');
+Route::get('/nosotros/locales',                     [AppController::class, 'locales'])->name('locales');
 
 // servicios
 Route::get('/servicios/ofertas',            [AppController::class, 'offers'])->name('servicios.ofertas');

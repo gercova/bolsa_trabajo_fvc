@@ -18,6 +18,13 @@ Route::get('/',         [AppController::class, 'index'])->name('inicio');
 
 // programas de estudio
 Route::get('/programas-de-estudios', [AppController::class, 'studyPrograms'])->name('programas-de-estudio');
+Route::get('/programas-de-estudios/{program}', [AppController::class, 'program']);
+
+// Admisión y matrícula
+Route::get('/admision-y-matricula/cepre-fvc',           [AppController::class, 'ceprefvc'])->name('cepre-fvc');
+Route::get('/admision-y-matricula/examen-de-admision',  [AppController::class, 'admissionExam'])->name('examen-de-admision');
+Route::get('/admision-y-matricula/matriculas',          [AppController::class, 'enrollments'])->name('matriculas');
+Route::get('/admision-y-matriculas/becas-y-creditos',   [AppController::class, 'scholarshipsAndCredits'])->name('becas-y-creditos');
 
 // Nosotros
 Route::get('/nosotros/quienes-somos',               [AppController::class, 'aboutus'])->name('quienes-somos');
@@ -28,7 +35,7 @@ Route::get('/nosotros/plana-administrativa',        [AppController::class, 'admi
 Route::get('/nosotros/consejo-de-estudiantes',      [AppController::class, 'studentCouncil'])->name('consejo-de-estudiantes');
 
 // servicios
-Route::get('/servicios/ofertas',  [AppController::class, 'offers'])->name('servicios.ofertas');
+Route::get('/servicios/ofertas',            [AppController::class, 'offers'])->name('servicios.ofertas');
 
 // login y registro
 Route::get('/register',                     [RegisteredUserController::class, 'create'])->name('register');
@@ -44,47 +51,61 @@ Route::get('reset-password/{token}',        [PasswordResetLinkController::class,
 Route::post('reset-password',               [PasswordResetLinkController::class, 'reset'])->name('password.update');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard',    [DashboardController::class, 'index'])->name('dashboard');
+    Route::prefix('admin-dashboard')->name('admin.dashboard.')->group(function () {
+        Route::get('/',    [DashboardController::class, 'index'])->name('index');
+    });
+
+    Route::prefix('admin-perfil')->name('admin.profile.')->group(function () {
+        Route::get('/{user}',   [ProfileController::class, 'edit'])->name('edit');
+        Route::patch('/',       [ProfileController::class, 'update'])->name('update');
+        Route::delete('/',      [ProfileController::class, 'destroy'])->name('destroy');    
+    });
+
+    Route::prefix('admin-programas')->name('admin.programs.')->group(function () {
+        Route::get('/',                             [StudyProgramsController::class, 'index'])->name('index');
+        Route::get('/crear-programa',               [StudyProgramsController::class, 'create'])->name('create');
+        Route::post('/guardar',                     [StudyProgramsController::class, 'store'])->name('store');
+        Route::get('/editar-programa/{program}',    [StudyProgramsController::class, 'edit'])->name('edit');
+        Route::get('/{program}',                    [StudyProgramsController::class, 'update'])->name('update');
+        Route::post('/estado/{program}',            [StudyProgramsController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/{program}',                    [StudyProgramsController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('admin-trabajos')->name('admin.works.')->group(function () {
+        Route::get('/',                         [JobsController::class, 'index'])->name('index');
+        Route::get('/convocatorias-internas',  [JobsController::class, 'internalCalls'])->name('internal-calls');
+        Route::get('/crear-oferta',            [JobsController::class, 'create'])->name('create');
+        Route::post('/guardar',                [JobsController::class, 'store'])->name('store');
+        Route::get('/{offer}/editar-oferta',   [JobsController::class, 'edit'])->name('edit');
+        Route::put('/{offer}',                 [JobsController::class, 'update'])->name('update');
+        Route::delete('/{offer}',              [JobsController::class, 'destroy'])->name('destroy');
+    });
     
-    Route::get('/perfil/{user}',   [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/perfil',        [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/perfil',       [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::prefix('admin-usuarios')->name('admin.users.')->group(function () {
+        Route::get('/',                 [UsersController::class, 'index'])->name('index');
+        Route::get('/crear',            [UsersController::class, 'create'])->name('create');
+        Route::get('/{user}/editar/',   [UsersController::class, 'edit'])->name('edit');
+        Route::post('/',                [UsersController::class, 'store'])->name('store');
+        Route::put('/{user}',           [UsersController::class, 'update'])->name('update');
+        Route::post('/estado/{user}',   [UsersController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{user}',        [UsersController::class, 'destroy'])->name('destroy');
+    });
 
-    Route::get('/programas',                    [StudyProgramsController::class, 'index'])->name('admin.programas');
-    Route::get('/programas/crear-programa',     [StudyProgramsController::class, 'create'])->name('admin.programas.create');
-    Route::get('/programas/guardar',            [StudyProgramsController::class, 'store'])->name('admin.programas.store');
-    Route::get('/programas/editar-programa',    [StudyProgramsController::class, 'edit'])->name('admin.programas.edit');
-    Route::get('/programas/{program}',          [StudyProgramsController::class, 'update'])->name('admin.programas.update');
-    Route::get('/programas/{program}',          [StudyProgramsController::class, 'destroy'])->name('admin.programas.destroy');
-
-    Route::get('/trabajos',                         [JobsController::class, 'index'])->name('admin.trabajos');
-    Route::get('/trabajos/convocatorias-internas',  [JobsController::class, 'internalCalls'])->name('admin.convocatorias-internas');
-    Route::get('/trabajos/crear-oferta',            [JobsController::class, 'create'])->name('admin.trabajos.create');
-    Route::post('/trabajos/guardar',                [JobsController::class, 'store'])->name('admin.trabajos.store');
-    Route::get('/trabajos/{offer}/editar-oferta',   [JobsController::class, 'edit'])->name('admin.trabajos.edit');
-    Route::put('/trabajos/{offer}',                 [JobsController::class, 'update'])->name('admin.trabajos.update');
-    Route::delete('/trabajos/{offer}',              [JobsController::class, 'destroy'])->name('admin.trabajos.destroy');
-    
-    Route::get('/usuarios',                         [UsersController::class, 'index'])->name('admin.usuarios');
-    Route::get('/usuarios/crear',                   [UsersController::class, 'create'])->name('admin.usuarios.create');
-    Route::get('/usuarios/{user}/editar/',          [UsersController::class, 'edit'])->name('admin.usuarios.edit');
-    Route::post('/usuarios',                        [UsersController::class, 'store'])->name('admin.usuarios.store');
-    Route::put('/usuarios/{user}',                  [UsersController::class, 'update'])->name('admin.usuarios.update');
-    Route::post('/usuarios/cambiar-estado/{user}',  [UsersController::class, 'toggleStatus'])->name('admin.usuarios.toggle-status');
-    Route::delete('/usuarios/{user}',               [UsersController::class, 'destroy'])->name('admin.usuarios.destroy');
-
-    // Rutas para gestión de partners
-    Route::get('/socios',                           [PartnersController::class, 'index'])->name('admin.partners.index');
-    Route::get('/socios/crear',                     [PartnersController::class, 'create'])->name('admin.partners.create');
-    Route::post('/socios/guardar',                  [PartnersController::class, 'store'])->name('admin.partners.store');
-    Route::get('/socios/{partner}/editar',          [PartnersController::class, 'edit'])->name('admin.partners.edit');
-    Route::put('/socios/{partner}',                 [PartnersController::class, 'update'])->name('admin.partners.update');
-    Route::post('/socios/cambiar-estado/{partner}', [PartnersController::class, 'toggleStatus'])->name('admin.partners.toggle-status');
-    Route::delete('/socios/{partner}',              [PartnersController::class, 'destroy'])->name('admin.partners.destroy');
+    Route::prefix('admin-socios')->name('admin.partners.')->group(function () {
+        Route::get('/',                 [PartnersController::class, 'index'])->name('index');
+        Route::get('/crear',            [PartnersController::class, 'create'])->name('create');
+        Route::post('/guardar',         [PartnersController::class, 'store'])->name('store');
+        Route::get('/{partner}/editar', [PartnersController::class, 'edit'])->name('edit');
+        Route::put('/{partner}',        [PartnersController::class, 'update'])->name('update');
+        Route::post('/estado/{partner}', [PartnersController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{partner}',     [PartnersController::class, 'destroy'])->name('destroy');
+    });
 
     // Rutas para gestión de empresa
-    Route::get('/enterprise',       [EnterpriseController::class, 'edit'])->name('admin.enterprise.edit');
-    Route::put('/enterprise',       [EnterpriseController::class, 'update'])->name('admin.enterprise.update');
+    Route::prefix('admin-empresa')->name('admin.enterprise.')->group(function () {
+        Route::get('/editar',       [EnterpriseController::class, 'edit'])->name('edit');
+        Route::put('/{enterprise}',       [EnterpriseController::class, 'update'])->name('update');
+    });
 });
 
 require __DIR__.'/auth.php';

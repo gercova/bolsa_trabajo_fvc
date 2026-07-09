@@ -12,15 +12,39 @@ use Illuminate\Http\Request;
 class AppController extends Controller {
 
     public function index(): View {
+        $programs   = StudyProgram::where('is_active', true)->get();
         $partners   = Partner::where('is_active', true)->get();
         $jobOffers  = JobOffer::where('is_active', true)->get();
         $users      = User::where('is_active', true)->get();
-        return view('home', compact('partners', 'jobOffers', 'users'));
+        return view('home', compact('partners', 'jobOffers', 'users', 'programs'));
+    }
+
+    // cepre fvc
+    public function ceprefvc(): View {
+        return view('cepre-fvc');
+    }
+    
+    // examen de admisión
+    public function admissionExam(): View {
+        return view('admission-exam');
+    }
+
+    // becas y créditos
+    public function scholarshipsAndCredits(): View {
+        return view('scholarships-and-credits');
+    }
+
+    public function enrollments(): View {
+        return view('enrollments');
     }
 
     public function studyPrograms(): View {
         $programs = StudyProgram::get();
-        return view('studyprograms', compact('programs'));
+        return view('study-programs', compact('programs'));
+    }
+
+    public function program(StudyProgram $program): View {
+        return view('study-program', compact('program'));
     }
 
     public function offers(): View {
@@ -46,16 +70,19 @@ class AppController extends Controller {
 
     // plana de docentes
     public function teachersStaff(): View {
-        return view('');
+        return view('teachers-staff');
     }
 
     // plana administrativa
     public function administrativeStaff(): View {
-        return view('');
+        $teachers = User::get();
+        return view('administrative-staff', compact('teachers'));
+    }
+    
+    // consejo de estudiantes
+    public function studentCouncil(): View {
+        return view('student-council');
     }
 
-    public function studentCouncil(): View {
-        
-    }
 
 }

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('study_programs', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->string('logo_path');
+            $table->string('logo_path')->nullable();
             $table->text('description');
             $table->text('details');
             $table->boolean('is_active')->default(1);

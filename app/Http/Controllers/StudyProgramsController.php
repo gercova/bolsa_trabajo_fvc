@@ -7,12 +7,37 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class StudyProgramsController extends Controller {
+class StudyProgramsController extends Controller
+{
     /**
      * Display a listing of the resource.
      */
-    public function index(): View {
-        $programs = StudyProgram::where('is_active', true)->get();
+    public function index(Request $request): View
+    {
+        $query = StudyProgram::query();
+
+        // Search
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where('name', 'ILIKE', "%$search%")
+                ->orWhere('description', 'ILIKE', "%$search%");
+        }
+
+        // Status filter
+        if ($request->has('status') && $request->status != '') {
+            $status = $request->status === 'active';
+            $query->where('is_active', $status);
+        }
+
+        // Sorting
+        if ($request->has('sort_by') && $request->has('sort_order')) {
+            $query->orderBy($request->sort_by, $request->sort_order);
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $programs = $query->paginate($request->per_page ?? 10);
+
         return view('admin.programs.index', compact('programs'));
     }
 

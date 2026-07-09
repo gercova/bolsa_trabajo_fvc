@@ -44,7 +44,7 @@
                 <!-- Panel de búsqueda y filtros -->
                 <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
                     <!-- Barra de búsqueda principal -->
-                    <form action="{{ route('admin.usuarios') }}" method="GET" id="searchForm" class="w-full">
+                    <form action="{{ route('admin.users.index') }}" method="GET" id="searchForm" class="w-full">
                         <div class="flex flex-col sm:flex-row gap-3">
                             <div class="flex-1 relative">
                                 <input 
@@ -58,7 +58,7 @@
                                 @if(request('search'))
                                 <button 
                                     type="button" 
-                                    onclick="window.location.href='{{ route('admin.usuarios') }}'"
+                                    onclick="window.location.href='{{ route('admin.users.index') }}'"
                                     class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                                 >
                                     <i class="bi bi-x-circle"></i>
@@ -123,7 +123,7 @@
                                 de <span class="font-semibold text-gray-900">{{ $users->total() }}</span> usuarios
                                 @if(request('search') || request('status') || request('role'))
                                     <button 
-                                        onclick="window.location.href='{{ route('admin.usuarios') }}'"
+                                        onclick="window.location.href='{{ route('admin.users.index') }}'"
                                         class="ml-2 text-purple-600 hover:text-purple-800 underline"
                                     >
                                         Limpiar filtros
@@ -132,14 +132,14 @@
                             @else
                                 No se encontraron usuarios
                                 <button 
-                                    onclick="window.location.href='{{ route('admin.usuarios') }}'"
+                                    onclick="window.location.href='{{ route('admin.users.index') }}'"
                                     class="ml-2 text-purple-600 hover:text-purple-800 underline"
                                 >
                                     Limpiar filtros
                                 </button>
                             @endif
                         </div>
-                        <a href="{{ route('admin.usuarios.create') }}" 
+                        <a href="{{ route('admin.users.create') }}" 
                            class="w-full sm:w-auto bg-purple-600 text-white px-5 py-2.5 rounded-lg hover:bg-purple-700 transition flex items-center justify-center gap-2 shadow-sm font-medium text-sm">
                             <i class="bi bi-plus-lg"></i> Nuevo Usuario
                         </a>
@@ -153,7 +153,7 @@
                             <thead>
                                 <tr class="bg-gray-50 border-b border-gray-200 text-xs uppercase tracking-wider text-gray-500 font-semibold">
                                     <th class="p-4">
-                                        <a href="{{ route('admin.usuarios', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'names', 'sort_order' => request('sort_by') === 'names' && request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}" 
+                                        <a href="{{ route('admin.users.index', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'names', 'sort_order' => request('sort_by') === 'names' && request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}" 
                                            class="flex items-center gap-1 hover:text-purple-600 transition-colors">
                                             Usuario
                                             @if(request('sort_by') === 'names')
@@ -162,7 +162,7 @@
                                         </a>
                                     </th>
                                     <th class="p-4">
-                                        <a href="{{ route('admin.usuarios', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'dni', 'sort_order' => request('sort_by') === 'dni' && request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}"
+                                        <a href="{{ route('admin.users.index', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'dni', 'sort_order' => request('sort_by') === 'dni' && request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}"
                                            class="flex items-center gap-1 hover:text-purple-600 transition-colors">
                                             Documento (DNI)
                                             @if(request('sort_by') === 'dni')
@@ -171,7 +171,7 @@
                                         </a>
                                     </th>
                                     <th class="p-4">
-                                        <a href="{{ route('admin.usuarios', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'job_position', 'sort_order' => request('sort_by') === 'job_position' && request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}"
+                                        <a href="{{ route('admin.users.index', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'job_position', 'sort_order' => request('sort_by') === 'job_position' && request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}"
                                            class="flex items-center gap-1 hover:text-purple-600 transition-colors">
                                             Puesto / Rol
                                             @if(request('sort_by') === 'job_position')
@@ -180,7 +180,7 @@
                                         </a>
                                     </th>
                                     <th class="p-4">
-                                        <a href="{{ route('admin.usuarios', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'is_active', 'sort_order' => request('sort_by') === 'is_active' && request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}"
+                                        <a href="{{ route('admin.users.index', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'is_active', 'sort_order' => request('sort_by') === 'is_active' && request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}"
                                            class="flex items-center gap-1 hover:text-purple-600 transition-colors">
                                             Estado
                                             @if(request('sort_by') === 'is_active')
@@ -267,7 +267,7 @@
                                                 >
                                                     <div class="py-1">
                                                         <!-- Botón Actualizar - NUEVO -->
-                                                        <a href="{{ route('admin.usuarios.edit', $user) }}" class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 flex items-center transition-colors" role="menuitem">
+                                                        <a href="{{ route('admin.users.edit', $user) }}" class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 flex items-center transition-colors" role="menuitem">
                                                             <i class="bi bi-pencil-square mr-2.5 text-purple-500"></i> Actualizar Datos
                                                         </a>
 
@@ -280,7 +280,7 @@
                                                         <div class="my-1 border-t border-gray-100"></div>
 
                                                         <!-- Botón Activar/Desactivar -->
-                                                        <form action="{{ route('admin.usuarios.toggle-status', $user) }}" method="POST" class="m-0">
+                                                        <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST" class="m-0">
                                                             @csrf
                                                             @method('PATCH')
                                                             <button type="submit" class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 flex items-center transition-colors" role="menuitem">
@@ -293,7 +293,7 @@
                                                         <div class="my-1 border-t border-gray-100"></div>
 
                                                         <!-- Botón Eliminar -->
-                                                        <form action="{{ route('admin.usuarios.destroy', $user) }}" method="POST" class="m-0" onsubmit="return confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.');">
+                                                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="m-0" onsubmit="return confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.');">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center transition-colors" role="menuitem">

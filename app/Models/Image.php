@@ -16,6 +16,12 @@ class Image extends Model
         'imageable_type'
     ];
 
+    protected $casts = [
+        'is_main'       => 'boolean',
+        'created_at'    => 'datetime',
+        'updated_at'    => 'datetime',
+    ];
+
     /**
      * Obtener el modelo al que pertenece la imagen (Producto,etcccc, etc.)
      */

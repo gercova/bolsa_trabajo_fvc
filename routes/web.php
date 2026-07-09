@@ -17,8 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/',         [AppController::class, 'index'])->name('inicio');
 
 // programas de estudio
-Route::get('/programas-de-estudios', [AppController::class, 'studyPrograms'])->name('programas-de-estudio');
-Route::get('/programas-de-estudios/{program}', [AppController::class, 'program']);
+Route::get('/programas-de-estudios',                [AppController::class, 'studyPrograms'])->name('programas-de-estudio');
+Route::get('/programas-de-estudios/{program:slug}', [AppController::class, 'program']);
 
 // Admisión y matrícula
 Route::get('/admision-y-matricula/cepre-fvc',           [AppController::class, 'ceprefvc'])->name('cepre-fvc');

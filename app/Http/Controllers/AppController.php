@@ -39,11 +39,12 @@ class AppController extends Controller {
     }
 
     public function studyPrograms(): View {
-        $programs = StudyProgram::get();
+        $programs = StudyProgram::where('is_active', true)->with('modules')->get();
         return view('study-programs', compact('programs'));
     }
 
     public function program(StudyProgram $program): View {
+        $program->load(['images', 'modules']);
         return view('study-program', compact('program'));
     }
 

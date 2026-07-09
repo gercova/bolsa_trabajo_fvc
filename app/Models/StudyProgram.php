@@ -27,4 +27,9 @@ class StudyProgram extends Model
     {
         return $this->morphMany(ModularCertification::class, 'model_type', 'model_type', 'program_id');
     }
+
+    public function images(): MorphMany
+    {
+        return $this->morphMany(Image::class, 'imageable', 'imageable_type', 'imageable_id');
+    }
 }

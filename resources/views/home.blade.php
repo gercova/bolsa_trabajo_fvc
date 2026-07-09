@@ -40,7 +40,7 @@
                 Bienvenido a la Bolsa de Trabajo del<br>
                 <em>IESTP Francisco Vigo Caballero</em>
             </h1>
-            <p class="text-xl mb-8">Encuentra las mejores oportunidades laborales para estudiantes y egresados</p>
+            <p class="text-xl mb-8">La llave de tu futuro está en tus manos</p>
 
             <div class="max-w-2xl mx-auto">
                 <form action="{{ route('servicios.ofertas') }}" method="GET" class="flex flex-col md:flex-row gap-4">
@@ -80,68 +80,74 @@
 
     {{-- ===== PROGRAMAS DE ESTUDIO ===== --}}
     @if ($programs->isNotEmpty())
-    <section class="py-16 bg-gradient-to-b from-gray-50 to-white">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-12">
-                <span class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-4 py-1 rounded-full uppercase tracking-widest mb-3">Oferta Académica</span>
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-800">Nuestros Programas de Estudio</h2>
-                <p class="text-gray-500 mt-3 max-w-xl mx-auto">Formación técnica de calidad para el mundo laboral. Elige el programa que impulsará tu carrera profesional.</p>
-            </div>
+        <section class="py-16 bg-gradient-to-b from-gray-50 to-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <span
+                        class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-4 py-1 rounded-full uppercase tracking-widest mb-3">Oferta
+                        Académica</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800">Nuestros Programas de Estudio</h2>
+                    <p class="text-gray-500 mt-3 max-w-xl mx-auto">Formación técnica de calidad para el mundo laboral. Elige
+                        el programa que impulsará tu carrera profesional.</p>
+                </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                @foreach ($programs as $program)
-                    <a href="/programas-de-estudios/{{ $program->id }}"
-                       class="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    @foreach ($programs as $program)
+                        <a href="/programas-de-estudios/{{ $program->id }}"
+                            class="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col">
 
-                        {{-- Header con gradiente e ícono/logo --}}
-                        <div class="h-32 bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center p-4 relative overflow-hidden">
-                            {{-- Círculo decorativo de fondo --}}
-                            <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-white/10 rounded-full"></div>
-                            <div class="absolute -top-4 -left-4 w-16 h-16 bg-white/10 rounded-full"></div>
+                            {{-- Header con gradiente e ícono/logo --}}
+                            <div
+                                class="h-32 bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center p-4 relative overflow-hidden">
+                                {{-- Círculo decorativo de fondo --}}
+                                <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-white/10 rounded-full"></div>
+                                <div class="absolute -top-4 -left-4 w-16 h-16 bg-white/10 rounded-full"></div>
 
-                            @if ($program->logo_path)
-                                <img src="{{ Storage::url($program->logo_path) }}"
-                                     alt="{{ $program->name }}"
-                                     class="h-20 w-20 object-contain drop-shadow-lg z-10">
-                            @else
-                                <div class="z-10 text-center">
-                                    <i class="bi bi-mortarboard-fill text-5xl text-white/90"></i>
-                                </div>
-                            @endif
-                        </div>
-
-                        {{-- Cuerpo de la tarjeta --}}
-                        <div class="p-5 flex flex-col flex-grow">
-                            <h3 class="font-bold text-gray-800 text-base leading-snug mb-2 group-hover:text-purple-700 transition-colors">
-                                {{ $program->name }}
-                            </h3>
-
-                            @if ($program->description)
-                                <p class="text-gray-500 text-sm line-clamp-3 flex-grow">
-                                    {{ $program->description }}
-                                </p>
-                            @else
-                                <p class="text-gray-400 text-sm italic flex-grow">Sin descripción disponible.</p>
-                            @endif
-
-                            <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-                                <span class="text-xs text-purple-600 font-semibold uppercase tracking-wide">Ver programa</span>
-                                <i class="bi bi-arrow-right text-purple-500 group-hover:translate-x-1 transition-transform"></i>
+                                @if ($program->logo_path)
+                                    <img src="{{ Storage::url($program->logo_path) }}" alt="{{ $program->name }}"
+                                        class="h-20 w-20 object-contain drop-shadow-lg z-10">
+                                @else
+                                    <div class="z-10 text-center">
+                                        <i class="bi bi-mortarboard-fill text-5xl text-white/90"></i>
+                                    </div>
+                                @endif
                             </div>
-                        </div>
-                    </a>
-                @endforeach
-            </div>
 
-            <div class="text-center mt-10">
-                <a href="{{ route('programas-de-estudio') }}"
-                   class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold px-7 py-3 rounded-xl transition-colors shadow-md hover:shadow-lg">
-                    <i class="bi bi-grid-3x3-gap"></i>
-                    Ver todos los programas
-                </a>
+                            {{-- Cuerpo de la tarjeta --}}
+                            <div class="p-5 flex flex-col flex-grow">
+                                <h3
+                                    class="font-bold text-gray-800 text-base leading-snug mb-2 group-hover:text-purple-700 transition-colors">
+                                    {{ $program->name }}
+                                </h3>
+
+                                @if ($program->description)
+                                    <p class="text-gray-500 text-sm line-clamp-3 flex-grow">
+                                        {{ $program->description }}
+                                    </p>
+                                @else
+                                    <p class="text-gray-400 text-sm italic flex-grow">Sin descripción disponible.</p>
+                                @endif
+
+                                <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                                    <span class="text-xs text-purple-600 font-semibold uppercase tracking-wide">Ver
+                                        programa</span>
+                                    <i
+                                        class="bi bi-arrow-right text-purple-500 group-hover:translate-x-1 transition-transform"></i>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+
+                <div class="text-center mt-10">
+                    <a href="{{ route('programas-de-estudio') }}"
+                        class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold px-7 py-3 rounded-xl transition-colors shadow-md hover:shadow-lg">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                        Ver todos los programas
+                    </a>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
     @endif
 
     <section class="py-16">

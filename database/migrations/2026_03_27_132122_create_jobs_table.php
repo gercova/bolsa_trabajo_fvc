@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('company');
             $table->string('location')->nullable();
             $table->text('description')->nullable();
-            $table->string('url')->unique(); // Vital para evitar duplicados
+            $table->string('url'); // Vital para evitar duplicados
             $table->string('source'); // Para saber de qué página lo sacamos
             $table->boolean('is_active')->default(true);
             $table->timestamps();

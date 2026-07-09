@@ -15,12 +15,20 @@ return new class extends Migration
             $table->id();
             $table->string('dni', 8)->unique();
             $table->string('names');
+            $table->string('phone', 20)->nullable();
+            $table->string('address')->nullable();
+
+            $table->string('ubigeo', 6)->nullable()->collation('utf8mb4_general_ci');
+            $table->foreign('ubigeo')->references('id')->on('ubigeo_district');
+            
             $table->string('email')->unique();
             $table->string('photo_profile')->nullable();
             $table->string('cv_file')->nullable();
-            $table->enum('role', ['Admin', 'Administrativo', 'Reclutador', 'Solicitante'])->default('Solicitante');
+            $table->enum('role', ['Admin', 'Administrativo', 'Docente', 'Reclutador', 'Solicitante'])->default('Solicitante')->nullable();
+            $table->string('job_position')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
             $table->rememberToken();
             $table->boolean('is_active')->default(true);
             $table->timestamps();

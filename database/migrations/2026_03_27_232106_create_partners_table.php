@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('partners', function (Blueprint $table) {
             $table->id();
             $table->string('company', 100);
+            $table->string('link')->nullable();
             $table->string('image_url');
             $table->boolean('is_active');
             $table->timestamps();

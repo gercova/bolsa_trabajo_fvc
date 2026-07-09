@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class StudyProgram extends Model
 {
@@ -21,4 +22,9 @@ class StudyProgram extends Model
         'created_at'    => 'datetime',
         'updated_at'    => 'datetime',
     ];
+
+    public function modules(): MorphMany
+    {
+        return $this->morphMany(ModularCertification::class, 'model_type', 'model_type', 'program_id');
+    }
 }

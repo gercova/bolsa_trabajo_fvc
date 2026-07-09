@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HistoricalReview;
 use App\Models\JobOffer;
 use App\Models\Partner;
 use App\Models\StudyProgram;
@@ -48,25 +49,49 @@ class AppController extends Controller {
         return view('study-program', compact('program'));
     }
 
-    public function offers(): View {
-        return view('ofertas.index');
+    // transparencia
+    public function documentsManagement(): View {
+        return view('transparencia.documentos-de-gestion');
+    }
+    public function statistics(): View {
+        return view('transparencia.estadisticas');
+    }
+    public function managementReports(): View {
+        return view('transparencia.inversion-y-gestion');
+    }
+    public function licensment(): View {
+        return view('transparencia.licenciamiento');
+    }
+    public function complaintsBook(): View {
+        return view('transparencia.libro-de-reclamaciones');
+    }
+
+    // Trámites
+    public function partsTable(): View {
+        return view('tramites.mesa-de-partes');
+    }
+    public function tupa(): View {
+        return view('tramites.tupa');
     }
 
     public function aboutus(): View {
-        $director   = User::where('id', 2)->first();
-        $jua        = User::where('id', 3)->first();
-        $be         = User::where('id', 4)->first();
-        $partners   = Partner::where('is_active', true)->get();
-        return view('aboutus', compact('partners', 'director', 'jua', 'be'));
+        return view('aboutus');
     }
 
+    // historia
+    public function history(): View {
+        $histories = HistoricalReview::where('is_active', true)->orderBy('order', 'asc')->get();
+        return view('aboutus.history', compact('histories'));
+    }
+
+    // organigrama institucional
     public function institutionalOrganizationChart(): View {
-        return view('');
+        return view('nosotros.organigrama-institucional');
     }
 
     // plana jerarquica
     public function hierarchicalFlat(): View {
-        return view('');
+        return view('hierarchical-flat');
     }
 
     // plana de docentes
@@ -85,5 +110,7 @@ class AppController extends Controller {
         return view('student-council');
     }
 
-
+    public function offers(): View {
+        return view('ofertas.index');
+    }
 }

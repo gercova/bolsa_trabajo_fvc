@@ -66,13 +66,14 @@
                     Nosotros <i class="bi bi-chevron-down text-[10px]"></i>
                 </button>
                 <div class="dropdown-menu !top-[80%] !left-0 !right-auto w-[240px]">
-                    <a href="{{ route('quienes-somos') }}" class="dropdown-item">Reseña Histórica</a>
-                    <a href="#" class="dropdown-item">Organigrama Institucional</a>
-                    <a href="#" class="dropdown-item">Plana Jerárquica</a>
-                    <a href="#" class="dropdown-item">Plana Docente</a>
-                    <a href="#" class="dropdown-item">Plana Administrativa</a>
-                    <a href="#" class="dropdown-item">Consejo de Estudiantes</a>
-                    <a href="#" class="dropdown-item">Locales</a>
+                    <a href="{{ route('quienes-somos') }}" class="dropdown-item">¿Quiénes somos?</a>
+                    <a href="{{ route('historia') }}" class="dropdown-item">Reseña Histórica</a>
+                    <a href="{{ route('organigrama-institucional') }}" class="dropdown-item">Organigrama Institucional</a>
+                    <a href="{{ route('plana-jerarquica') }}" class="dropdown-item">Plana Jerárquica</a>
+                    <a href="{{ route('plana-de-docentes') }}" class="dropdown-item">Plana Docente</a>
+                    <a href="{{ route('plana-administrativa') }}" class="dropdown-item">Plana Administrativa</a>
+                    <a href="{{ route('consejo-de-estudiantes') }}" class="dropdown-item">Consejo de Estudiantes</a>
+                    <a href="{{ route('locales') }}" class="dropdown-item">Locales</a>
                 </div>
             </div>
 
@@ -226,16 +227,16 @@
                     :class="open ? 'rotate-180' : ''"></i>
             </button>
             <div x-show="open" style="display: none;" class="pl-[46px] pr-4 py-2 flex flex-col gap-3">
-                <a href="{{ route('quienes-somos') }}"
+                <a href="{{ route('historia') }}"
                     class="text-[14px] font-medium text-[var(--ink-muted)] hover:text-[var(--ink)] transition-colors">Reseña
                     Histórica</a>
-                <a href="#"
+                <a href="{{ route('organigrama-institucional') }}"
                     class="text-[14px] font-medium text-[var(--ink-muted)] hover:text-[var(--ink)] transition-colors">Organigrama
                     Institucional</a>
-                <a href="#"
+                <a href="{{ route('plana-jerarquica') }}"
                     class="text-[14px] font-medium text-[var(--ink-muted)] hover:text-[var(--ink)] transition-colors">Plana
                     Jerárquica</a>
-                <a href="#"
+                <a href="{{ route('plana-de-docentes') }}"
                     class="text-[14px] font-medium text-[var(--ink-muted)] hover:text-[var(--ink)] transition-colors">Plana
                     Docente</a>
                 <a href="#"

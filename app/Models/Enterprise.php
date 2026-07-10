@@ -32,6 +32,9 @@ class Enterprise extends Model
         'twitter_link',
         'instagram_link',
         'whatsapp_link',
+        'principles',
+        'values',
+        'color',
         'logo_path',
         'favicon_path',
     ];

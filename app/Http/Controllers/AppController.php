@@ -70,7 +70,7 @@ class AppController extends Controller {
 
     // Trámites
     public function partsTable(): View {
-        $enterprise = Enterprise::get();
+        $enterprise = Enterprise::first();
         return view('procedures.parts-table', compact('enterprise'));
     }
 

@@ -135,32 +135,70 @@
                         </div>
                     </div>
 
-                    <!-- Misión y Visión -->
+                    <!-- Filosofía Institucional -->
                     <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="px-4 sm:px-6 py-4 bg-gradient-to-r from-blue-50 to-cyan-50 border-b border-gray-100">
                             <h2 class="text-base sm:text-lg font-bold text-gray-800 flex items-center">
                                 <i class="bi bi-eye-fill mr-2 text-blue-600"></i>
-                                Misión y Visión
+                                Filosofía Institucional (Misión, Visión, Principios y Valores)
                             </h2>
                         </div>
                         
                         <div class="p-4 sm:p-6 space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    <i class="bi bi-flag-fill mr-1"></i>Misión
-                                </label>
-                                <textarea name="mission" 
-                                          rows="3"
-                                          class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">{{ old('mission', $enterprise->mission) }}</textarea>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="bi bi-flag-fill mr-1"></i>Misión
+                                    </label>
+                                    <textarea name="mission" 
+                                              rows="4"
+                                              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition @error('mission') border-red-500 @enderror"
+                                              placeholder="Ej: Somos una institución dedicada a... ">{{ old('mission', $enterprise->mission) }}</textarea>
+                                    @error('mission')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="bi bi-star-fill mr-1"></i>Visión
+                                    </label>
+                                    <textarea name="vision" 
+                                              rows="4"
+                                              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition @error('vision') border-red-500 @enderror"
+                                              placeholder="Ej: Ser líderes al año 2029 en... ">{{ old('vision', $enterprise->vision) }}</textarea>
+                                    @error('vision')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    <i class="bi bi-star-fill mr-1"></i>Visión
-                                </label>
-                                <textarea name="vision" 
-                                          rows="3"
-                                          class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">{{ old('vision', $enterprise->vision) }}</textarea>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 pt-2">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="bi bi-shield-check mr-1"></i>Principios Institucionales <span class="text-xs text-gray-400 font-normal">(Separados por comas)</span>
+                                    </label>
+                                    <textarea name="principles" 
+                                              rows="3"
+                                              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition @error('principles') border-red-500 @enderror"
+                                              placeholder="Ej: Calidad, Transparencia, Inclusión, Innovación">{{ old('principles', $enterprise->principles) }}</textarea>
+                                    @error('principles')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="bi bi-heart-fill mr-1"></i>Valores Institucionales <span class="text-xs text-gray-400 font-normal">(Separados por comas)</span>
+                                    </label>
+                                    <textarea name="values" 
+                                              rows="3"
+                                              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition @error('values') border-red-500 @enderror"
+                                              placeholder="Ej: Responsabilidad, Respeto, Solidaridad, Honestidad">{{ old('values', $enterprise->values) }}</textarea>
+                                    @error('values')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -368,6 +406,118 @@
                         </div>
                     </div>
 
+                     <!-- Identidad Visual y Color del Tema -->
+                    <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="px-4 sm:px-6 py-4 bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-gray-100">
+                            <h2 class="text-base sm:text-lg font-bold text-gray-800 flex items-center">
+                                <i class="bi bi-palette-fill mr-2 text-purple-600"></i>
+                                Color del Tema de la Institución
+                            </h2>
+                        </div>
+                        
+                        <div class="p-4 sm:p-6 space-y-4">
+                            <p class="text-xs text-gray-500">
+                                Selecciona el color principal que identificará a la institución. Este color se aplicará de forma dinámica en las páginas públicas como la Mesa de Partes Virtual, banner decorativo, etc.
+                            </p>
+                            
+                            <!-- Input oculto para enviar al backend -->
+                            <input type="hidden" name="color" :value="selectedColor">
+                            
+                            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
+                                <!-- Azul (bg-blue-500) -->
+                                <button type="button" 
+                                        @click="selectedColor = 'bg-blue-500'"
+                                        class="flex flex-col items-center p-3 rounded-xl border transition-all duration-200"
+                                        :class="selectedColor === 'bg-blue-500' ? 'border-purple-600 bg-purple-50/50 shadow-sm ring-1 ring-purple-600' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'">
+                                    <span class="w-8 h-8 rounded-full bg-blue-500 shadow-sm mb-2 flex items-center justify-center text-white">
+                                        <template x-if="selectedColor === 'bg-blue-500'">
+                                            <i class="bi bi-check-lg text-sm"></i>
+                                        </template>
+                                    </span>
+                                    <span class="text-xs font-semibold text-gray-700">Azul</span>
+                                </button>
+
+                                <!-- Índigo (bg-indigo-500) -->
+                                <button type="button" 
+                                        @click="selectedColor = 'bg-indigo-500'"
+                                        class="flex flex-col items-center p-3 rounded-xl border transition-all duration-200"
+                                        :class="selectedColor === 'bg-indigo-500' ? 'border-purple-600 bg-purple-50/50 shadow-sm ring-1 ring-purple-600' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'">
+                                    <span class="w-8 h-8 rounded-full bg-indigo-500 shadow-sm mb-2 flex items-center justify-center text-white">
+                                        <template x-if="selectedColor === 'bg-indigo-500'">
+                                            <i class="bi bi-check-lg text-sm"></i>
+                                        </template>
+                                    </span>
+                                    <span class="text-xs font-semibold text-gray-700">Índigo</span>
+                                </button>
+
+                                <!-- Ámbar (bg-amber-500) -->
+                                <button type="button" 
+                                        @click="selectedColor = 'bg-amber-500'"
+                                        class="flex flex-col items-center p-3 rounded-xl border transition-all duration-200"
+                                        :class="selectedColor === 'bg-amber-500' ? 'border-purple-600 bg-purple-50/50 shadow-sm ring-1 ring-purple-600' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'">
+                                    <span class="w-8 h-8 rounded-full bg-amber-500 shadow-sm mb-2 flex items-center justify-center text-white">
+                                        <template x-if="selectedColor === 'bg-amber-500'">
+                                            <i class="bi bi-check-lg text-sm"></i>
+                                        </template>
+                                    </span>
+                                    <span class="text-xs font-semibold text-gray-700">Ámbar</span>
+                                </button>
+
+                                <!-- Esmeralda (bg-emerald-500) -->
+                                <button type="button" 
+                                        @click="selectedColor = 'bg-emerald-500'"
+                                        class="flex flex-col items-center p-3 rounded-xl border transition-all duration-200"
+                                        :class="selectedColor === 'bg-emerald-500' ? 'border-purple-600 bg-purple-50/50 shadow-sm ring-1 ring-purple-600' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'">
+                                    <span class="w-8 h-8 rounded-full bg-emerald-500 shadow-sm mb-2 flex items-center justify-center text-white">
+                                        <template x-if="selectedColor === 'bg-emerald-500'">
+                                            <i class="bi bi-check-lg text-sm"></i>
+                                        </template>
+                                    </span>
+                                    <span class="text-xs font-semibold text-gray-700">Esmeralda</span>
+                                </button>
+
+                                <!-- Violeta (bg-violet-500) -->
+                                <button type="button" 
+                                        @click="selectedColor = 'bg-violet-500'"
+                                        class="flex flex-col items-center p-3 rounded-xl border transition-all duration-200"
+                                        :class="selectedColor === 'bg-violet-500' ? 'border-purple-600 bg-purple-50/50 shadow-sm ring-1 ring-purple-600' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'">
+                                    <span class="w-8 h-8 rounded-full bg-violet-500 shadow-sm mb-2 flex items-center justify-center text-white">
+                                        <template x-if="selectedColor === 'bg-violet-500'">
+                                            <i class="bi bi-check-lg text-sm"></i>
+                                        </template>
+                                    </span>
+                                    <span class="text-xs font-semibold text-gray-700">Violeta</span>
+                                </button>
+
+                                <!-- Rosa (bg-rose-500) -->
+                                <button type="button" 
+                                        @click="selectedColor = 'bg-rose-500'"
+                                        class="flex flex-col items-center p-3 rounded-xl border transition-all duration-200"
+                                        :class="selectedColor === 'bg-rose-500' ? 'border-purple-600 bg-purple-50/50 shadow-sm ring-1 ring-purple-600' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'">
+                                    <span class="w-8 h-8 rounded-full bg-rose-500 shadow-sm mb-2 flex items-center justify-center text-white">
+                                        <template x-if="selectedColor === 'bg-rose-500'">
+                                            <i class="bi bi-check-lg text-sm"></i>
+                                        </template>
+                                    </span>
+                                    <span class="text-xs font-semibold text-gray-700">Rosa</span>
+                                </button>
+
+                                <!-- Pizarra/Slate (bg-slate-500) -->
+                                <button type="button" 
+                                        @click="selectedColor = 'bg-slate-500'"
+                                        class="flex flex-col items-center p-3 rounded-xl border transition-all duration-200"
+                                        :class="selectedColor === 'bg-slate-500' ? 'border-purple-600 bg-purple-50/50 shadow-sm ring-1 ring-purple-600' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'">
+                                    <span class="w-8 h-8 rounded-full bg-slate-500 shadow-sm mb-2 flex items-center justify-center text-white">
+                                        <template x-if="selectedColor === 'bg-slate-500'">
+                                            <i class="bi bi-check-lg text-sm"></i>
+                                        </template>
+                                    </span>
+                                    <span class="text-xs font-semibold text-gray-700">Pizarra</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Imágenes -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -379,13 +529,19 @@
                             </div>
                             
                             <div class="p-4 sm:p-6 space-y-4">
-                                @if($enterprise->logo_path)
-                                <div class="flex justify-center p-4 bg-gray-50 rounded-lg">
-                                    <img src="{{ $enterprise->logo_path }}" 
-                                         alt="Logo actual" 
-                                         class="h-32 object-contain">
+                                <div class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200 min-h-[160px]">
+                                    <template x-if="logoPreview">
+                                        <img :src="logoPreview" 
+                                             alt="Vista previa del Logo" 
+                                             class="h-32 object-contain transition-all duration-300 rounded-lg shadow-sm">
+                                    </template>
+                                    <template x-if="!logoPreview">
+                                        <div class="flex flex-col items-center justify-center text-gray-400">
+                                            <i class="bi bi-image text-4xl mb-2"></i>
+                                            <span class="text-xs">Sin logo cargado</span>
+                                        </div>
+                                    </template>
                                 </div>
-                                @endif
                                 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -393,6 +549,7 @@
                                     </label>
                                     <input type="file" 
                                            name="logo_path" 
+                                           @change="handleLogoChange($event)"
                                            accept="image/jpeg,image/png,image/jpg,image/svg"
                                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition @error('logo_path') border-red-500 @enderror">
                                     <p class="mt-2 text-xs text-gray-500">
@@ -414,13 +571,19 @@
                             </div>
                             
                             <div class="p-4 sm:p-6 space-y-4">
-                                @if($enterprise->favicon_path)
-                                <div class="flex justify-center p-4 bg-gray-50 rounded-lg">
-                                    <img src="{{ $enterprise->favicon_path }}" 
-                                         alt="Favicon actual" 
-                                         class="h-16 w-16 object-contain">
+                                <div class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200 min-h-[160px]">
+                                    <template x-if="faviconPreview">
+                                        <img :src="faviconPreview" 
+                                             alt="Vista previa del Favicon" 
+                                             class="h-16 w-16 object-contain transition-all duration-300 rounded-lg shadow-sm">
+                                    </template>
+                                    <template x-if="!faviconPreview">
+                                        <div class="flex flex-col items-center justify-center text-gray-400">
+                                            <i class="bi bi-image text-2xl mb-1"></i>
+                                            <span class="text-[10px]">Sin favicon</span>
+                                        </div>
+                                    </template>
                                 </div>
-                                @endif
                                 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -428,6 +591,7 @@
                                     </label>
                                     <input type="file" 
                                            name="favicon_path" 
+                                           @change="handleFaviconChange($event)"
                                            accept="image/x-icon,image/png,image/jpeg,image/jpg,image/svg"
                                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition @error('favicon_path') border-red-500 @enderror">
                                     <p class="mt-2 text-xs text-gray-500">
@@ -485,10 +649,32 @@
         Alpine.data('enterpriseApp', () => ({
             sidebarOpen: window.innerWidth >= 1024,
             toggleSidebar() { this.sidebarOpen = !this.sidebarOpen; },
+            
+            // Preview properties
+            logoPreview: '{{ $enterprise->logo_path }}',
+            faviconPreview: '{{ $enterprise->favicon_path }}',
+            
+            // Selected color theme
+            selectedColor: '{{ old('color', $enterprise->color ?? 'bg-blue-500') }}',
+            
             init() {
                 window.addEventListener('resize', () => {
                     this.sidebarOpen = window.innerWidth >= 1024;
                 });
+            },
+            
+            handleLogoChange(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.logoPreview = URL.createObjectURL(file);
+                }
+            },
+            
+            handleFaviconChange(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.faviconPreview = URL.createObjectURL(file);
+                }
             }
         }));
     });

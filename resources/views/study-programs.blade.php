@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('title', 'Programas de Estudio — IESTP Francisco Vigo Caballero')
-
 @push('styles')
     <style>
         /* Sutiles animaciones y mejoras de visualización */
@@ -151,8 +150,7 @@
                         <div
                             class="group bg-white rounded-3xl border border-gray-100 shadow-sm hover-card overflow-hidden flex flex-col h-full">
                             {{-- Header con gradiente e ícono/logo --}}
-                            <div
-                                class="h-40 bg-gradient-to-br {{ $meta['gradient'] }} flex items-center justify-center p-6 relative overflow-hidden">
+                            <div class="h-40 bg-gradient-to-br {{ $meta['gradient'] }} flex items-center justify-center p-6 relative overflow-hidden">
                                 {{-- Círculos decorativos traslúcidos --}}
                                 <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-sm"></div>
                                 <div class="absolute -top-6 -left-6 w-20 h-20 bg-white/10 rounded-full blur-sm"></div>
@@ -186,7 +184,7 @@
 
                                 @if ($program->description)
                                     <p class="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-4 flex-grow">
-                                        {{ $program->description }}
+                                        {!! Str::limit($program->description, 225, '...') !!}
                                     </p>
                                 @else
                                     <p class="text-gray-400 text-sm italic mb-6 flex-grow">Sin descripción disponible.</p>

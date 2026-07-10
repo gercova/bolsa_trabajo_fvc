@@ -23,10 +23,10 @@
                     Admisión y Matrícula <i class="bi bi-chevron-down text-[10px]"></i>
                 </button>
                 <div class="dropdown-menu !top-[80%] !left-0 !right-auto w-[220px]">
-                    <a href="#" class="dropdown-item">CEPRE FVC</a>
-                    <a href="#" class="dropdown-item">Examen de Admisión</a>
-                    <a href="#" class="dropdown-item">Matrículas</a>
-                    <a href="#" class="dropdown-item">Becas y Créditos</a>
+                    <a href="{{ route('cepre-fvc') }}" class="dropdown-item">CEPRE FVC</a>
+                    <a href="{{ route('examen-de-admision') }}" class="dropdown-item">Examen de Admisión</a>
+                    <a href="{{ route('matriculas') }}" class="dropdown-item">Matrículas</a>
+                    <a href="{{ route('becas-y-creditos') }}" class="dropdown-item">Becas y Créditos</a>
                 </div>
             </div>
 
@@ -41,11 +41,11 @@
                     Transparencia <i class="bi bi-chevron-down text-[10px]"></i>
                 </button>
                 <div class="dropdown-menu !top-[80%] !left-0 !right-auto w-[240px]">
-                    <a href="#" class="dropdown-item">Documentos de gestión</a>
-                    <a href="#" class="dropdown-item">Estadísticas</a>
-                    <a href="#" class="dropdown-item">Inversión y gestión</a>
-                    <a href="#" class="dropdown-item">Licenciamiento</a>
-                    <a href="#" class="dropdown-item">Libro de reclamaciones</a>
+                    <a href="{{ route('documentos-de-gestion') }}" class="dropdown-item">Documentos de gestión</a>
+                    <a href="{{ route('estadisticas') }}" class="dropdown-item">Estadísticas</a>
+                    <a href="{{ route('inversion-y-gestion') }}" class="dropdown-item">Inversión y gestión</a>
+                    <a href="{{ route('licenciamiento') }}" class="dropdown-item">Licenciamiento</a>
+                    <a href="{{ route('libro-de-reclamaciones') }}" class="dropdown-item">Libro de reclamaciones</a>
                 </div>
             </div>
 
@@ -55,8 +55,8 @@
                     Trámites <i class="bi bi-chevron-down text-[10px]"></i>
                 </button>
                 <div class="dropdown-menu !top-[80%] !left-0 !right-auto w-[200px]">
-                    <a href="#" class="dropdown-item">Mesa de Partes</a>
-                    <a href="#" class="dropdown-item">TUPA</a>
+                    <a href="{{ route('mesa-de-partes') }}" class="dropdown-item">Mesa de Partes</a>
+                    <a href="{{ route('tupa') }}" class="dropdown-item">TUPA</a>
                 </div>
             </div>
 
@@ -68,7 +68,8 @@
                 <div class="dropdown-menu !top-[80%] !left-0 !right-auto w-[240px]">
                     <a href="{{ route('quienes-somos') }}" class="dropdown-item">¿Quiénes somos?</a>
                     <a href="{{ route('historia') }}" class="dropdown-item">Reseña Histórica</a>
-                    <a href="{{ route('organigrama-institucional') }}" class="dropdown-item">Organigrama Institucional</a>
+                    <a href="{{ route('organigrama-institucional') }}" class="dropdown-item">Organigrama
+                        Institucional</a>
                     <a href="{{ route('plana-jerarquica') }}" class="dropdown-item">Plana Jerárquica</a>
                     <a href="{{ route('plana-de-docentes') }}" class="dropdown-item">Plana Docente</a>
                     <a href="{{ route('plana-administrativa') }}" class="dropdown-item">Plana Administrativa</a>
@@ -85,7 +86,7 @@
                 <div class="dropdown-menu !top-[80%] !left-0 !right-auto w-[240px]">
                     <a href="https://iestpfranciscovigocaballero.bibliotecalatina.com/login" target="_blank"
                         class="dropdown-item">Biblioteca Virtual</a>
-                    <a href="{{ route('servicios.ofertas') }}" class="dropdown-item">Bolsa de Trabajo</a>
+                    <a href="{{ route('bolsa-de-trabajo') }}" class="dropdown-item">Bolsa de Trabajo</a>
                 </div>
             </div>
         </nav>

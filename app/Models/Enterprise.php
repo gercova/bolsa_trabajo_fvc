@@ -64,15 +64,15 @@ class Enterprise extends Model
 
     // Accessors para cada campo de imagen
     protected function logoPath(): Attribute {
-        return $this->imageAttribute($this->attributes['logo_path'] ?? 'enterprise/favicons/logo-iestpfvc.png');
+        return $this->resolveImageUrl($this->attributes['logo_path'] ?? 'enterprise/favicons/logo-iestpfvc.png');
     }
 
     protected function faviconPath(): Attribute {
-        return $this->imageAttribute($this->attributes['favicon_path'] ?? 'enterprise/favicons/logo-iestpfvc.png');
+        return $this->resolveImageUrl($this->attributes['favicon_path'] ?? 'enterprise/favicons/logo-iestpfvc.png');
     }
 
     // Método reutilizable para la lógica de imágenes
-    private function imageAttribute(?string $value): Attribute {
+    private function resolveImageUrl(?string $value) {
         return Attribute::make(
             get: fn () => match (true) {
                 empty($value) => Storage::url('enterprise/favicons/logo-iestpfvc.png'),

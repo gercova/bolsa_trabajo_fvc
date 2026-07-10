@@ -33,13 +33,16 @@
 @endpush
 
 @section('content')
+    @php
+        $colorName = str_replace('bg-', '', $enterprise->color ?? 'blue-500');
+    @endphp
+
     {{-- ===== HERO SECTION ===== --}}
     <section class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950 text-white py-20 overflow-hidden">
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px]">
         </div>
-        <div class="absolute -top-32 -right-32 w-80 h-80 bg-amber-500/20 rounded-full blur-3xl"></div>
+        <div class="absolute -top-32 -right-32 w-80 h-80 bg-{{ $colorName }}/20 rounded-full blur-3xl"></div>
         <div class="absolute -bottom-32 -left-32 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl"></div>
-
         <div class="container mx-auto px-6 relative z-10 text-center max-w-4xl">
             <h1 class="text-4xl md:text-5xl font-black mb-6 tracking-tight leading-tight">
                 Mesa de Partes Virtual
@@ -63,7 +66,7 @@
                     <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm">
                         <div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
                             <h2 class="text-xl font-extrabold text-slate-900 flex items-center gap-3">
-                                <span class="w-2 h-7 bg-amber-500 rounded-full"></span>
+                                <span class="w-2 h-7 bg-{{ $colorName }} rounded-full"></span>
                                 Formulario de Envío Digital
                             </h2>
                             <span
@@ -74,7 +77,6 @@
 
                         {{-- Form Content --}}
                         <form @submit.prevent="submitForm()" class="space-y-6">
-
                             {{-- Step 1: Select Office --}}
                             <div>
                                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
@@ -83,11 +85,11 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <template x-for="office in offices" :key="office.id">
                                         <div @click="selectedOffice = office"
-                                            class="office-card p-4 border border-slate-200 rounded-2xl cursor-pointer flex gap-4 items-center hover:border-amber-500/50 hover:bg-slate-50/50"
+                                            class="office-card p-4 border border-slate-200 rounded-2xl cursor-pointer flex gap-4 items-center hover:border-{{ $colorName }}/50 hover:bg-slate-50/50"
                                             :class="selectedOffice.id === office.id ? 'active' : ''">
                                             <div class="w-10 h-10 rounded-xl flex items-center justify-center border shrink-0"
                                                 :class="selectedOffice.id === office.id ?
-                                                    'bg-amber-50 border-amber-200 text-amber-600' :
+                                                    'bg-{{ $colorName }}/10 border-{{ $colorName }}/20 text-{{ $colorName }}/80 font-bold' :
                                                     'bg-slate-50 border-slate-100 text-slate-500'">
                                                 <i class="bi" :class="office.icon + ' text-lg'"></i>
                                             </div>
@@ -310,7 +312,7 @@
 
                     {{-- Download FUT Card --}}
                     {{-- <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl"></div>
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-{{ $colorName }}/5 rounded-full blur-xl"></div>
                         <h3 class="text-base font-extrabold text-slate-900 mb-4 flex items-center gap-2.5">
                             <i class="bi bi-cloud-download text-amber-500 text-lg"></i>
                             Descarga el Formato FUT

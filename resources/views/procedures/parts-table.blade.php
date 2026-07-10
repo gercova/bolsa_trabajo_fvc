@@ -194,7 +194,7 @@
                                 </div>
 
                                 {{-- Document Attachment --}}
-                                {{-- <div>
+                                <div>
                                     <label class="block text-xs font-bold text-slate-700 mb-1.5">Adjuntar Documentos (FUT o
                                         Solicitud en PDF)</label>
                                     <div
@@ -214,7 +214,7 @@
                                             <p class="text-[10px] text-slate-400">Solo archivos PDF o Word (Máx. 10MB)</p>
                                         </div>
                                     </div>
-                                    
+
                                     <template x-if="uploadedFile">
                                         <div
                                             class="mt-3 p-3 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between">
@@ -233,7 +233,7 @@
                                             </button>
                                         </div>
                                     </template>
-                                </div> --}}
+                                </div>
                             </div>
 
                             {{-- Action buttons --}}
@@ -309,7 +309,7 @@
                     </div>
 
                     {{-- Download FUT Card --}}
-                    <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
+                    {{-- <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl"></div>
                         <h3 class="text-base font-extrabold text-slate-900 mb-4 flex items-center gap-2.5">
                             <i class="bi bi-cloud-download text-amber-500 text-lg"></i>
@@ -338,7 +338,7 @@
                                 <i class="bi bi-arrow-right-short text-lg"></i>
                             </a>
                         </div>
-                    </div>
+                    </div> --}}
 
                     {{-- General Instructions --}}
                     <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">

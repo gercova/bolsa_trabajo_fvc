@@ -33,6 +33,8 @@ return new class extends Migration
             $table->string('twitter_link');
             $table->string('instagram_link');
             $table->string('whatsapp_link');
+            $table->text('principles')->nullable();
+            $table->text('values')->nullable();
             $table->string('logo_path')->nullable();
             $table->string('favicon_path')->nullable();
             $table->timestamps();

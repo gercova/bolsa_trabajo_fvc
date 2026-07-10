@@ -43,7 +43,7 @@
             <p class="text-xl mb-8">La llave de tu futuro está en tus manos</p>
 
             <div class="max-w-2xl mx-auto">
-                <form action="{{ route('servicios.ofertas') }}" method="GET" class="flex flex-col md:flex-row gap-4">
+                <form action="{{ route('bolsa-de-trabajo') }}" method="GET" class="flex flex-col md:flex-row gap-4">
                     <input type="text" name="search" placeholder="Buscar por palabra clave..."
                         class="flex-1 px-6 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-300">
                     <button type="submit"
@@ -206,8 +206,7 @@
 
             @if ($jobOffers->count() > 6)
                 <div class="text-center mt-12">
-                    <a href="{{ route('servicios.ofertas') }}"
-                        class="inline-flex items-center gap-2 text-purple-600 hover:text-purple-800 font-bold transition-colors">
+                    <a href="{{ route('bolsa-de-trabajo') }}" class="inline-flex items-center gap-2 text-purple-600 hover:text-purple-800 font-bold transition-colors">
                         Ver todas las ofertas ({{ $jobOffers->count() }})
                         <i class="bi bi-arrow-right"></i>
                     </a>

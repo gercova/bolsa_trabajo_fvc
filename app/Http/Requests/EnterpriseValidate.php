@@ -34,6 +34,9 @@ class EnterpriseValidate extends FormRequest
             'whatsapp_link'             => 'nullable|url|max:255',
             'logo_path'                 => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
             'favicon_path'              => 'nullable|image|mimes:ico,png,jpg,svg|max:2024',
+            'principles'                => 'nullable|string',
+            'values'                    => 'nullable|string',
+            'color'                     => 'nullable|string|max:100',
         ];
     }
 
@@ -84,6 +87,10 @@ class EnterpriseValidate extends FormRequest
             'favicon_path.image'    => 'El favicon debe ser una imagen válida.',
             'favicon_path.mimes'    => 'El favicon debe tener un formato: ico, png, jpg o svg.',
             'favicon_path.max'      => 'El favicon no debe superar los 1 MB.',
+            'principles.string'     => 'Los principios deben ser un texto válido.',
+            'values.string'         => 'Los valores deben ser un texto válido.',
+            'color.string'          => 'El color del tema debe ser un texto válido.',
+            'color.max'             => 'El color del tema no debe exceder los 100 caracteres.',
         ];
     }
 

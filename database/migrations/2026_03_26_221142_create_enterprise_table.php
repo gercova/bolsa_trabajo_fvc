@@ -35,7 +35,7 @@ return new class extends Migration
             $table->string('whatsapp_link')->nullable();
             $table->text('principles')->nullable();
             $table->text('values')->nullable();
-            $table->string('color')->default('bg-amber-500');
+            $table->string('color')->default('bg-blue-500');
             $table->string('logo_path')->nullable();
             $table->string('favicon_path')->nullable();
             $table->timestamps();

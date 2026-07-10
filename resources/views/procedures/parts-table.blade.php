@@ -194,7 +194,7 @@
                                 </div>
 
                                 {{-- Document Attachment --}}
-                                <div>
+                                {{-- <div>
                                     <label class="block text-xs font-bold text-slate-700 mb-1.5">Adjuntar Documentos (FUT o
                                         Solicitud en PDF)</label>
                                     <div
@@ -214,8 +214,7 @@
                                             <p class="text-[10px] text-slate-400">Solo archivos PDF o Word (Máx. 10MB)</p>
                                         </div>
                                     </div>
-
-                                    {{-- Uploaded File Preview --}}
+                                    
                                     <template x-if="uploadedFile">
                                         <div
                                             class="mt-3 p-3 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between">
@@ -234,7 +233,7 @@
                                             </button>
                                         </div>
                                     </template>
-                                </div>
+                                </div> --}}
                             </div>
 
                             {{-- Action buttons --}}

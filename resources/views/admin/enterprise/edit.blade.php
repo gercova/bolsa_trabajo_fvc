@@ -46,7 +46,7 @@
                 </div>
                 @endif
 
-                <form action="{{ route('admin.enterprise.update') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                <form action="{{ route('admin.enterprise.update', $enterprise) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                     @csrf
                     @method('PUT')
 

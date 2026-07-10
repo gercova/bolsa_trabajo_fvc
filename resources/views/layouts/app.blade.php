@@ -86,23 +86,31 @@
             <div>
                 <p class="footer-col-title">Síguenos</p>
                 <div class="social-grid">
-                    <a href="{{ $enterprise->facebook_link ?? '#' }}" class="social-btn fb" target="_blank"
-                        rel="noopener" aria-label="Facebook">
-                        <i class="bi bi-facebook"></i>
-                    </a>
-                    <a href="{{ $enterprise->twitter_link ?? '#' }}" class="social-btn tw" target="_blank"
-                        rel="noopener" aria-label="Twitter/X">
-                        <i class="bi bi-twitter-x"></i>
-                    </a>
-                    <a href="{{ $enterprise->linkedin_link ?? '#' }}" class="social-btn li" target="_blank"
-                        rel="noopener" aria-label="LinkedIn">
-                        <i class="bi bi-linkedin"></i>
-                    </a>
-                    <a href="{{ $enterprise->instagram_link ?? '#' }}" class="social-btn ig" target="_blank"
-                        rel="noopener" aria-label="Instagram">
-                        <i class="bi bi-instagram"></i>
-                    </a>
-                    @if ($enterprise->whatsapp_link ?? false)
+                    @if ($enterprise->facebook_link)
+                        <a href="{{ $enterprise->facebook_link }}" class="social-btn fb" target="_blank"
+                            rel="noopener" aria-label="Facebook">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+                    @endif
+                    @if ($enterprise->twitter_link)
+                        <a href="{{ $enterprise->twitter_link }}" class="social-btn tw" target="_blank"
+                            rel="noopener" aria-label="Twitter/X">
+                            <i class="bi bi-twitter-x"></i>
+                        </a>
+                    @endif
+                    @if ($enterprise->linkedin_link)
+                        <a href="{{ $enterprise->linkedin_link }}" class="social-btn li" target="_blank"
+                            rel="noopener" aria-label="LinkedIn">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                    @endif
+                    @if ($enterprise->instagram_link)
+                        <a href="{{ $enterprise->instagram_link }}" class="social-btn ig" target="_blank"
+                            rel="noopener" aria-label="Instagram">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                    @endif
+                    @if ($enterprise->whatsapp_link)
                         <a href="{{ $enterprise->whatsapp_link }}" class="social-btn wa" target="_blank" rel="noopener"
                             aria-label="WhatsApp">
                             <i class="bi bi-whatsapp"></i>

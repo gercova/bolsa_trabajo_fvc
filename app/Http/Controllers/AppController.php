@@ -70,7 +70,8 @@ class AppController extends Controller {
 
     // Trámites
     public function partsTable(): View {
-        return view('procedures.parts-table');
+        $enterprise = Enterprise::get();
+        return view('procedures.parts-table', compact('enterprise'));
     }
 
     public function tupa(): View {
@@ -101,13 +102,14 @@ class AppController extends Controller {
 
     // plana de docentes
     public function teachersStaff(): View {
-        return view('aboutus.teachers-staff');
+        $teachers = User::where('role', 'Docente')->get();
+        return view('aboutus.teachers-staff', compact('teachers'));
     }
 
     // plana administrativa
     public function administrativeStaff(): View {
-        $teachers = User::get();
-        return view('aboutus.administrative-staff', compact('teachers'));
+        $staffs = User::where('role', 'Administrativo')->get();
+        return view('aboutus.administrative-staff', compact('staffs'));
     }
     
     // consejo de estudiantes
@@ -116,6 +118,7 @@ class AppController extends Controller {
     }
 
     public function offers(): View {
-        return view('ofertas.index');
+        $jobs = JobOffer::where('is_active', true)->get();
+        return view('job-board.index', compact('jobs'));
     }
 }

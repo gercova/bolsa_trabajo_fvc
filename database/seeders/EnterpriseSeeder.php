@@ -3,15 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\Enterprise;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class EnterpriseSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void {
+    public function run(): void
+    {
         Enterprise::create([
             'ruc'                       => '20000000000',
             'company_name'              => 'IESTP Francisco Vigo Caballero',
@@ -23,8 +20,12 @@ class EnterpriseSeeder extends Seeder
             'business_sector'           => 'Educación',
             'phrase'                    => 'Somos tu llave para triunfar',
             'description'               => 'Somos el Instituto de Educación Superior Tecnológico Público Francisco Vigo Caballero, pioneros en la educación de la juventud uchicina en la zona del bajo Huallaga',
-            'vision'                    => 'Ser el instituto tecnológico público lider en la educación superior técnica te toda la zona del Bajo Huallaga garantizando la educación técnica de calidad de nuestros jóvenes en todos los programas de estudios.',
-            'mission'                   => 'Para este 2026 conseguir el licenciamiento institucional por el MINEDU garantizando las condiciones básicas de calidad para nuestra juventud uchicina y toda la zona del Bajo Huallaga.',
+
+            // Visión y misión actualizadas según el PDF
+            'vision'                    => 'Al 2029 ser un IES Licenciado con excelente servicio educativo, referente en la formación de profesionales técnicos competitivos, basados en conocimientos científicos, tecnológicos, humanísticos y con conciencia ambiental, que aportan al desarrollo local, regional y nacional.',
+
+            'mission'                   => 'Somos un Instituto de Educación Superior Tecnológica de gestión pública, revalidado por el MINEDU, que brinda un servicio educativo de calidad orientado a formar profesionales técnicos en Producción Agropecuaria, Enfermería Técnica, Administración de Redes y Comunicaciones, Asistencia Administrativa y Medio Ambiente y Recursos Naturales, con docentes idóneos aplicando principios éticos y morales.',
+
             'phone_number_1'            => '942131215',
             'phone_number_2'            => '',
             'email'                     => 'secretariageneral@franciscovigocaballero.edu.pe',
@@ -33,6 +34,11 @@ class EnterpriseSeeder extends Seeder
             'twitter_link'              => '',
             'instagram_link'            => '',
             'whatsapp_link'             => 'https://wa.me/51942131215',
+
+            // Principios y valores extraídos del PDF
+            'principles'                => 'Calidad, Transparencia, Inclusión, Trabajo colaborativo, Interculturalidad, Innovación',
+            'values'                    => 'Responsabilidad, Orden, Disciplina, Solidaridad, Honestidad, Respeto',
+
             'logo_path'                 => 'enterprise/favicons/logo-iestpfvc.png',
             'favicon_path'              => 'enterprise/favicons/logo-iestpfvc.png',
         ]);

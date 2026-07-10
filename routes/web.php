@@ -27,18 +27,18 @@ Route::get('/programas-de-estudios',                [AppController::class, 'stud
 Route::get('/programas-de-estudios/{program:slug}', [AppController::class, 'program']);
 
 // Transparencia
-Route::get('/transparencia/documentos-de-gestion',    [AppController::class, 'documentsManagement'])->name('documents-management');
-Route::get('/transparencia/estadisticas',             [AppController::class, 'statistics'])->name('statistics');
-Route::get('/transparencia/inversion-y-gestion',      [AppController::class, 'managementReports'])->name('management-reports');
-Route::get('/transparencia/licenciamiento',           [AppController::class, 'licensment'])->name('licensment');
-Route::get('/transparencia/libro-de-reclamaciones',   [AppController::class, 'complaintsBook'])->name('complaints-book');
+Route::get('/transparencia/documentos-de-gestion',    [AppController::class, 'documentsManagement'])->name('documentos-de-gestion');
+Route::get('/transparencia/estadisticas',             [AppController::class, 'statistics'])->name('estadisticas');
+Route::get('/transparencia/inversion-y-gestion',      [AppController::class, 'managementReports'])->name('inversion-y-gestion');
+Route::get('/transparencia/licenciamiento',           [AppController::class, 'licensment'])->name('licenciamiento');
+Route::get('/transparencia/libro-de-reclamaciones',   [AppController::class, 'complaintsBook'])->name('libro-de-reclamaciones');
 
 // Trámites
 Route::get('/tramites/mesa-de-partes',                [AppController::class, 'partsTable'])->name('mesa-de-partes');
 Route::get('/tramites/tupa',                          [AppController::class, 'tupa'])->name('tupa');
 
 // Nosotros
-Route::get('/nosotros/quienes-somos',               [AppController::class, 'aboutus'])->name('quienes-somos');
+Route::get('/nosotros/quienes-somos',               [AppController::class, 'whoWeAre'])->name('quienes-somos');
 Route::get('/nosotros/historia',                    [AppController::class, 'history'])->name('historia');
 Route::get('/nosotros/organigrama-institucional',   [AppController::class, 'institutionalOrganizationChart'])->name('organigrama-institucional');
 Route::get('/nosotros/plana-jerarquica',            [AppController::class, 'teachersStaff'])->name('plana-jerarquica');
@@ -48,7 +48,7 @@ Route::get('/nosotros/consejo-de-estudiantes',      [AppController::class, 'stud
 Route::get('/nosotros/locales',                     [AppController::class, 'locales'])->name('locales');
 
 // servicios
-Route::get('/servicios/ofertas',            [AppController::class, 'offers'])->name('servicios.ofertas');
+Route::get('/servicios/bolsa-de-trabajo',   [AppController::class, 'offers'])->name('bolsa-de-trabajo');
 
 // login y registro
 Route::get('/register',                     [RegisteredUserController::class, 'create'])->name('register');
@@ -86,12 +86,12 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('admin-trabajos')->name('admin.works.')->group(function () {
         Route::get('/',                         [JobsController::class, 'index'])->name('index');
-        Route::get('/convocatorias-internas',  [JobsController::class, 'internalCalls'])->name('internal-calls');
-        Route::get('/crear-oferta',            [JobsController::class, 'create'])->name('create');
-        Route::post('/guardar',                [JobsController::class, 'store'])->name('store');
-        Route::get('/{offer}/editar-oferta',   [JobsController::class, 'edit'])->name('edit');
-        Route::put('/{offer}',                 [JobsController::class, 'update'])->name('update');
-        Route::delete('/{offer}',              [JobsController::class, 'destroy'])->name('destroy');
+        Route::get('/convocatorias-internas',   [JobsController::class, 'internalCalls'])->name('internal-calls');
+        Route::get('/crear-oferta',             [JobsController::class, 'create'])->name('create');
+        Route::post('/guardar',                 [JobsController::class, 'store'])->name('store');
+        Route::get('/{offer}/editar-oferta',    [JobsController::class, 'edit'])->name('edit');
+        Route::put('/{offer}',                  [JobsController::class, 'update'])->name('update');
+        Route::delete('/{offer}',               [JobsController::class, 'destroy'])->name('destroy');
     });
     
     Route::prefix('admin-usuarios')->name('admin.users.')->group(function () {
@@ -117,7 +117,7 @@ Route::middleware(['auth'])->group(function () {
     // Rutas para gestión de empresa
     Route::prefix('admin-empresa')->name('admin.enterprise.')->group(function () {
         Route::get('/editar',       [EnterpriseController::class, 'edit'])->name('edit');
-        Route::put('/{enterprise}',       [EnterpriseController::class, 'update'])->name('update');
+        Route::put('/{enterprise}', [EnterpriseController::class, 'update'])->name('update');
     });
 });
 

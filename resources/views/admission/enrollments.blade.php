@@ -1,3 +1,6 @@
-<div>
-    <!-- Waste no more time arguing what a good man should be, be one. - Marcus Aurelius -->
-</div>
+@extends('layouts.app')
+@section('title', 'Matrículas — IESTP Francisco Vigo Caballero')
+@push('styles')
+@endpush
+@section('content')
+@endsection

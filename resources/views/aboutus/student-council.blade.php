@@ -1,3 +1,6 @@
-<div>
-    <!-- Very little is needed to make a happy life. - Marcus Aurelius -->
-</div>
+@extends('layouts.app')
+@section('title', 'Consejo Estudiantil — IESTP Francisco Vigo Caballero')
+@push('styles')
+@endpush
+@section('content')
+@endsection

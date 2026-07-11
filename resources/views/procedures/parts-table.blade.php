@@ -38,7 +38,7 @@
     @endphp
 
     {{-- ===== HERO SECTION ===== --}}
-    <section class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950 text-white py-20 overflow-hidden">
+    <section class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white py-20 overflow-hidden">
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px]">
         </div>
         <div class="absolute -top-32 -right-32 w-80 h-80 bg-{{ $colorName }}/20 rounded-full blur-3xl"></div>
@@ -210,7 +210,7 @@
                                                 <i class="bi bi-cloud-arrow-up text-xl"></i>
                                             </div>
                                             <div class="text-xs">
-                                                <span class="font-bold text-amber-600 hover:text-amber-700">Haz clic para
+                                                <span class="font-bold text-blue-600 hover:text-blue-700">Haz clic para
                                                     cargar</span> o arrastra tu archivo aquí
                                             </div>
                                             <p class="text-[10px] text-slate-400">Solo archivos PDF o Word (Máx. 10MB)</p>
@@ -256,7 +256,7 @@
 
                                 {{-- Main Submit Button --}}
                                 <button type="submit"
-                                    class="px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 shadow-sm shadow-amber-500/10 transition-all">
+                                    class="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 shadow-sm shadow-blue-500/10 transition-all">
                                     <i class="bi bi-send"></i>
                                     Enviar Trámite
                                 </button>
@@ -274,14 +274,14 @@
                     <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
                         <h3
                             class="text-base font-extrabold text-slate-900 mb-5 pb-3 border-b border-slate-100 flex items-center gap-2.5">
-                            <i class="bi bi-building text-amber-500 text-lg"></i>
+                            <i class="bi bi-building text-blue-500 text-lg"></i>
                             Oficina de Destino Seleccionada
                         </h3>
 
                         <div class="space-y-4">
                             <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3">
                                 <div
-                                    class="w-10 h-10 rounded-xl bg-white border flex items-center justify-center text-amber-600 shrink-0">
+                                    class="w-10 h-10 rounded-xl bg-white border flex items-center justify-center text-blue-600 shrink-0">
                                     <i class="bi" :class="selectedOffice.icon + ' text-lg'"></i>
                                 </div>
                                 <div>
@@ -298,7 +298,7 @@
                                 <div class="flex justify-between py-1 border-b border-slate-50">
                                     <span class="text-slate-400">Correo Directo</span>
                                     <a :href="'mailto:' + selectedOffice.email"
-                                        class="font-bold text-amber-600 hover:underline"
+                                        class="font-bold text-blue-600 hover:underline"
                                         x-text="selectedOffice.email"></a>
                                 </div>
                                 <div class="flex justify-between py-1 border-b border-slate-50">
@@ -310,58 +310,26 @@
                         </div>
                     </div>
 
-                    {{-- Download FUT Card --}}
-                    {{-- <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-{{ $colorName }}/5 rounded-full blur-xl"></div>
-                        <h3 class="text-base font-extrabold text-slate-900 mb-4 flex items-center gap-2.5">
-                            <i class="bi bi-cloud-download text-amber-500 text-lg"></i>
-                            Descarga el Formato FUT
-                        </h3>
-                        <p class="text-xs text-slate-500 leading-relaxed mb-5">
-                            Para realizar solicitudes formales de forma correcta, descarga el Formulario Único de Trámite
-                            (FUT), llénalo, fírmalo y adjúntalo a tu envío.
-                        </p>
-
-                        <div class="space-y-2.5">
-                            <a href="#"
-                                class="w-full p-3 bg-amber-50 hover:bg-amber-100/70 border border-amber-100 rounded-xl flex items-center justify-between text-xs font-bold text-amber-800 transition-colors">
-                                <span class="flex items-center gap-2.5">
-                                    <i class="bi bi-file-earmark-word-fill text-blue-600 text-base"></i>
-                                    Formato FUT (.docx)
-                                </span>
-                                <i class="bi bi-arrow-right-short text-lg"></i>
-                            </a>
-                            <a href="#"
-                                class="w-full p-3 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl flex items-center justify-between text-xs font-bold text-slate-700 transition-colors">
-                                <span class="flex items-center gap-2.5">
-                                    <i class="bi bi-file-earmark-pdf-fill text-rose-500 text-base"></i>
-                                    Formato FUT (.pdf)
-                                </span>
-                                <i class="bi bi-arrow-right-short text-lg"></i>
-                            </a>
-                        </div>
-                    </div> --}}
-
                     {{-- General Instructions --}}
                     <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
                         <h3 class="text-base font-extrabold text-slate-900 mb-4 flex items-center gap-2.5">
-                            <i class="bi bi-info-circle text-amber-500 text-lg"></i>
+                            <i class="bi bi-info-circle text-blue-500 text-lg"></i>
                             Pautas Generales
                         </h3>
 
                         <ul class="space-y-3.5 text-xs text-slate-600">
                             <li class="flex items-start gap-2.5">
-                                <i class="bi bi-1-circle-fill text-amber-500 text-sm mt-0.5 shrink-0"></i>
+                                <i class="bi bi-1-circle-fill text-blue-500 text-sm mt-0.5 shrink-0"></i>
                                 <span>Los trámites virtuales ingresados fuera de horario se registrarán en el siguiente día
                                     hábil.</span>
                             </li>
                             <li class="flex items-start gap-2.5">
-                                <i class="bi bi-2-circle-fill text-amber-500 text-sm mt-0.5 shrink-0"></i>
+                                <i class="bi bi-2-circle-fill text-blue-500 text-sm mt-0.5 shrink-0"></i>
                                 <span>Asegúrate de que tus documentos adjuntos contengan tu firma y huella digital (si
                                     aplica).</span>
                             </li>
                             <li class="flex items-start gap-2.5">
-                                <i class="bi bi-3-circle-fill text-amber-500 text-sm mt-0.5 shrink-0"></i>
+                                <i class="bi bi-3-circle-fill text-blue-500 text-sm mt-0.5 shrink-0"></i>
                                 <span>El tiempo aproximado de respuesta institucional es de 3 a 5 días hábiles según la
                                     carga administrativa.</span>
                             </li>
@@ -404,7 +372,7 @@
                     <div class="flex justify-between"><span class="font-bold">Trámite:</span> <span
                             x-text="formData.type"></span></div>
                     <div class="flex justify-between"><span class="font-bold">Código de Registro:</span> <span
-                            class="font-mono text-amber-600 font-bold" x-text="generationCode"></span></div>
+                            class="font-mono text-blue-600 font-bold" x-text="generationCode"></span></div>
                     <div class="flex justify-between"><span class="font-bold">Destinatario:</span> <span
                             x-text="selectedOffice.name"></span></div>
                 </div>

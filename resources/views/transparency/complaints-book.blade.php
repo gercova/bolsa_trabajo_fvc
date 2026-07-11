@@ -1,3 +1,6 @@
-<div>
-    <!-- It is never too late to be what you might have been. - George Eliot -->
-</div>
+@extends('layouts.app')
+@section('title', 'Libro de Reclamaciones — IESTP Francisco Vigo Caballero')
+@push('styles')
+@endpush
+@section('content')
+@endsection

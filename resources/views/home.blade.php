@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Inicio')
+@section('title', 'Inicio - IESTP Francisco Vigo Caballero')
 @push('styles')
     <style>
         /* Animación nativa para el carrusel infinito sin JS */
@@ -206,7 +206,8 @@
 
             @if ($jobOffers->count() > 6)
                 <div class="text-center mt-12">
-                    <a href="{{ route('bolsa-de-trabajo') }}" class="inline-flex items-center gap-2 text-purple-600 hover:text-purple-800 font-bold transition-colors">
+                    <a href="{{ route('bolsa-de-trabajo') }}"
+                        class="inline-flex items-center gap-2 text-purple-600 hover:text-purple-800 font-bold transition-colors">
                         Ver todas las ofertas ({{ $jobOffers->count() }})
                         <i class="bi bi-arrow-right"></i>
                     </a>

@@ -518,8 +518,8 @@
                         </div>
                     </div>
 
-                    <!-- Imágenes -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Archivos e Imágenes -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                             <div class="px-4 sm:px-6 py-4 bg-gradient-to-r from-purple-50 to-violet-50 border-b border-gray-100">
                                 <h2 class="text-base sm:text-lg font-bold text-gray-800 flex items-center">
@@ -603,6 +603,63 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div class="px-4 sm:px-6 py-4 bg-gradient-to-r from-red-50 to-rose-50 border-b border-gray-100">
+                                <h2 class="text-base sm:text-lg font-bold text-gray-800 flex items-center">
+                                    <i class="bi bi-file-earmark-pdf-fill mr-2 text-red-600"></i>
+                                    Libro de Reclamaciones (PDF)
+                                </h2>
+                            </div>
+                            
+                            <div class="p-4 sm:p-6 space-y-4">
+                                <div class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200 min-h-[160px]">
+                                    <!-- Si ya hay un PDF guardado y no se ha seleccionado uno nuevo -->
+                                    <template x-if="complaintsBookPreview && !complaintsBookName">
+                                        <div class="flex flex-col items-center justify-center text-center">
+                                            <i class="bi bi-file-earmark-pdf-fill text-red-500 text-5xl mb-2"></i>
+                                            <a :href="complaintsBookPreview" target="_blank" class="text-xs font-semibold text-purple-600 hover:text-purple-700 underline flex items-center gap-1">
+                                                <i class="bi bi-eye"></i> Ver archivo actual
+                                            </a>
+                                        </div>
+                                    </template>
+                                    
+                                    <!-- Si se ha seleccionado un nuevo archivo PDF -->
+                                    <template x-if="complaintsBookName">
+                                        <div class="flex flex-col items-center justify-center text-center">
+                                            <i class="bi bi-file-earmark-pdf-fill text-red-500 text-5xl mb-2"></i>
+                                            <span class="text-xs font-bold text-gray-700 truncate max-w-[180px]" x-text="complaintsBookName"></span>
+                                            <span class="text-[10px] text-gray-400" x-text="complaintsBookSize"></span>
+                                        </div>
+                                    </template>
+
+                                    <!-- Si no hay archivo anterior ni nuevo -->
+                                    <template x-if="!complaintsBookPreview && !complaintsBookName">
+                                        <div class="flex flex-col items-center justify-center text-gray-400 text-center">
+                                            <i class="bi bi-file-earmark-pdf text-4xl mb-2"></i>
+                                            <span class="text-xs">Sin archivo cargado</span>
+                                        </div>
+                                    </template>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="bi bi-upload mr-1"></i>Subir nuevo archivo
+                                    </label>
+                                    <input type="file" 
+                                           name="complaints_book_path" 
+                                           @change="handleComplaintsBookChange($event)"
+                                           accept="application/pdf"
+                                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition @error('complaints_book_path') border-red-500 @enderror">
+                                    <p class="mt-2 text-xs text-gray-500">
+                                        Formatos permitidos: PDF. Tamaño máximo: 5MB
+                                    </p>
+                                    @error('complaints_book_path')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Botones de acción -->
@@ -653,6 +710,9 @@
             // Preview properties
             logoPreview: '{{ $enterprise->logo_path }}',
             faviconPreview: '{{ $enterprise->favicon_path }}',
+            complaintsBookPreview: '{{ $enterprise->complaints_book_path }}',
+            complaintsBookName: '',
+            complaintsBookSize: '',
             
             // Selected color theme
             selectedColor: '{{ old('color', $enterprise->color ?? 'bg-blue-500') }}',
@@ -674,6 +734,15 @@
                 const file = event.target.files[0];
                 if (file) {
                     this.faviconPreview = URL.createObjectURL(file);
+                }
+            },
+            
+            handleComplaintsBookChange(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.complaintsBookName = file.name;
+                    this.complaintsBookSize = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+                    this.complaintsBookPreview = URL.createObjectURL(file);
                 }
             }
         }));

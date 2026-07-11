@@ -64,6 +64,20 @@ class EnterpriseController extends Controller {
             $validated['favicon_path'] = $faviconPath;
         }
         
+        // Manejar carga de libro de reclamaciones (PDF)
+        if ($request->hasFile('complaints_book_path')) {
+            // Eliminar libro anterior si existe
+            if ($enterprise->complaints_book_path && !Str::startsWith($enterprise->complaints_book_path, ['http://', 'https://'])) {
+                $oldPath = str_replace('/storage/', '', $enterprise->complaints_book_path);
+                if (Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
+                }
+            }
+            
+            $complaintsBookPath = $request->file('complaints_book_path')->store('enterprise/complaints', 'public');
+            $validated['complaints_book_path'] = $complaintsBookPath;
+        }
+        
         $enterprise->fill($validated);
         $enterprise->save();
         

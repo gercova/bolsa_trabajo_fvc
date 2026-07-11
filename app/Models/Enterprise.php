@@ -37,6 +37,7 @@ class Enterprise extends Model
         'color',
         'logo_path',
         'favicon_path',
+        'complaints_book_path',
     ];
 
     protected $casts = [
@@ -62,13 +63,23 @@ class Enterprise extends Model
         return $enterprise;
     }
 
-    // Accessors para cada campo de imagen
+    // Accessors para cada campo de imagen o archivo
     protected function logoPath(): Attribute {
         return $this->resolveImageUrl($this->attributes['logo_path'] ?? 'enterprise/favicons/logo-iestpfvc.png');
     }
 
     protected function faviconPath(): Attribute {
         return $this->resolveImageUrl($this->attributes['favicon_path'] ?? 'enterprise/favicons/logo-iestpfvc.png');
+    }
+
+    protected function complaintsBookPath(): Attribute {
+        return Attribute::make(
+            get: fn (?string $value) => match (true) {
+                empty($value) => null,
+                Str::startsWith($value, ['http://', 'https://']) => $value,
+                default => Storage::url($value),
+            }
+        );
     }
 
     // Método reutilizable para la lógica de imágenes

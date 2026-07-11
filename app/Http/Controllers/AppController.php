@@ -8,7 +8,10 @@ use App\Models\JobOffer;
 use App\Models\Partner;
 use App\Models\StudyProgram;
 use App\Models\User;
+use App\Models\Claim;
+use App\Http\Requests\ClaimValidate;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class AppController extends Controller {
 
@@ -72,6 +75,19 @@ class AppController extends Controller {
     public function complaintsBook(): View {
         $enterprise = Enterprise::first();
         return view('transparency.complaints-book', compact('enterprise'));
+    }
+
+    public function storeClaim(ClaimValidate $request): RedirectResponse {
+        $validated = $request->validated();
+
+        if ($request->hasFile('file_path')) {
+            $filePath = $request->file('file_path')->store('claims', 'public');
+            $validated['file_path'] = $filePath;
+        }
+
+        Claim::create($validated);
+
+        return back()->with('success', 'Su reclamo o queja ha sido registrado con éxito.');
     }
 
     // Trámites

@@ -32,6 +32,7 @@ Route::get('/transparencia/estadisticas',             [AppController::class, 'st
 Route::get('/transparencia/inversion-y-gestion',      [AppController::class, 'managementReports'])->name('inversion-y-gestion');
 Route::get('/transparencia/licenciamiento',           [AppController::class, 'licensment'])->name('licenciamiento');
 Route::get('/transparencia/libro-de-reclamaciones',   [AppController::class, 'complaintsBook'])->name('libro-de-reclamaciones');
+Route::post('/transparencia/libro-de-reclamaciones',  [AppController::class, 'storeClaim'])->name('libro-de-reclamaciones.store');
 
 // Trámites
 Route::get('/tramites/mesa-de-partes',                [AppController::class, 'partsTable'])->name('mesa-de-partes');

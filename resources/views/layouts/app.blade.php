@@ -6,7 +6,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{ $enterprise->favicon_path }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Bolsa de Trabajo — Instituto Francisco Vigo Caballero')</title>
+    <title>@yield('title', 'IESTP Francisco Vigo Caballero')</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,9 +15,8 @@
         href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ asset('css/bootstrap-icons/bootstrap-icons.min.css') }}">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
     @stack('styles')
     <!-- Alpine.js -->
@@ -26,15 +25,11 @@
 
 <body>
     @include('admin.components.nav-header')
-    <!-- ═══════════════════════════════════════
-        MAIN CONTENT
-    ═══════════════════════════════════════ -->
+    <!-- MAIN CONTENT -->
     <main id="main-content">
         @yield('content')
     </main>
-    <!-- ═══════════════════════════════════════
-        FOOTER
-    ═══════════════════════════════════════ -->
+    <!-- FOOTER -->
     <footer id="site-footer">
         <div class="footer-grid">
             <!-- Col 1: Brand -->
@@ -87,20 +82,20 @@
                 <p class="footer-col-title">Síguenos</p>
                 <div class="social-grid">
                     @if ($enterprise->facebook_link)
-                        <a href="{{ $enterprise->facebook_link }}" class="social-btn fb" target="_blank"
-                            rel="noopener" aria-label="Facebook">
+                        <a href="{{ $enterprise->facebook_link }}" class="social-btn fb" target="_blank" rel="noopener"
+                            aria-label="Facebook">
                             <i class="bi bi-facebook"></i>
                         </a>
                     @endif
                     @if ($enterprise->twitter_link)
-                        <a href="{{ $enterprise->twitter_link }}" class="social-btn tw" target="_blank"
-                            rel="noopener" aria-label="Twitter/X">
+                        <a href="{{ $enterprise->twitter_link }}" class="social-btn tw" target="_blank" rel="noopener"
+                            aria-label="Twitter/X">
                             <i class="bi bi-twitter-x"></i>
                         </a>
                     @endif
                     @if ($enterprise->linkedin_link)
-                        <a href="{{ $enterprise->linkedin_link }}" class="social-btn li" target="_blank"
-                            rel="noopener" aria-label="LinkedIn">
+                        <a href="{{ $enterprise->linkedin_link }}" class="social-btn li" target="_blank" rel="noopener"
+                            aria-label="LinkedIn">
                             <i class="bi bi-linkedin"></i>
                         </a>
                     @endif

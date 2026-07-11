@@ -55,17 +55,23 @@ class AppController extends Controller {
     public function documentsManagement(): View {
         return view('transparency.management-documents');
     }
+
     public function statistics(): View {
         return view('transparency.statistics');
     }
+
     public function managementReports(): View {
         return view('transparency.investment-and-management');
     }
+
     public function licensment(): View {
         return view('transparency.licensment');
     }
+
+    // libro de reclamaciones
     public function complaintsBook(): View {
-        return view('transparency.complaints-book');
+        $enterprise = Enterprise::first();
+        return view('transparency.complaints-book', compact('enterprise'));
     }
 
     // Trámites
@@ -74,6 +80,7 @@ class AppController extends Controller {
         return view('procedures.parts-table', compact('enterprise'));
     }
 
+    // tupa
     public function tupa(): View {
         return view('procedures.tupa');
     }

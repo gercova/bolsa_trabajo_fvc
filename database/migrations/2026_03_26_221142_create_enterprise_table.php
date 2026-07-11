@@ -38,6 +38,7 @@ return new class extends Migration
             $table->string('color')->default('bg-blue-500');
             $table->string('logo_path')->nullable();
             $table->string('favicon_path')->nullable();
+            $table->string('complaints_book_path')->nullable();
             $table->timestamps();
         });
     }

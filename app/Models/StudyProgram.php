@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class StudyProgram extends Model
@@ -11,6 +12,7 @@ class StudyProgram extends Model
     protected $primaryKey   = 'id';
     protected $fillable     = [
         'name',
+        'slug',
         'logo_path',
         'description',
         'details',
@@ -31,5 +33,10 @@ class StudyProgram extends Model
     public function images(): MorphMany
     {
         return $this->morphMany(Image::class, 'imageable', 'imageable_type', 'imageable_id');
+    }
+
+    public function admissionDetails(): HasMany 
+    {
+        return $this->hasMany(AdmissionDetail::class, 'program_id', 'id');
     }
 }

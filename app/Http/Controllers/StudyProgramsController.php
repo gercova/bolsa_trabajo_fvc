@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\StudyProgram;
+use App\Http\Requests\StudyProgramValidate;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class StudyProgramsController extends Controller
 {
@@ -44,54 +47,80 @@ class StudyProgramsController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): View {
-        //
+    public function create(): View
+    {
         return view('admin.programs.create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): JsonResponse {
-        //
-        return response()->json([
+    public function store(StudyProgramValidate $request): RedirectResponse
+    {
+        $validated = $request->validated();
+        $validated['slug'] = Str::slug($validated['name']);
 
-        ]);
-    }
+        if ($request->hasFile('logo_path')) {
+            $path = $request->file('logo_path')->store('programs', 'public');
+            $validated['logo_path'] = $path;
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id): JsonResponse {
-        //
-        return response()->json();
+        StudyProgram::create($validated);
+
+        return redirect()->route('admin.programs.index')->with('success', 'Programa de estudio creado correctamente');
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id): View {
-        //
-        return view('admin.programs.edit');
+    public function edit(StudyProgram $program): View
+    {
+        return view('admin.programs.edit', compact('program'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, StudyProgram $program): JsonResponse {
-        //
-        return response()->json([]);
+    public function update(StudyProgramValidate $request, StudyProgram $program): RedirectResponse
+    {
+        $validated = $request->validated();
+        $validated['slug'] = Str::slug($validated['name']);
+
+        if ($request->hasFile('logo_path')) {
+            if ($program->logo_path) {
+                Storage::disk('public')->delete($program->logo_path);
+            }
+            $path = $request->file('logo_path')->store('programs', 'public');
+            $validated['logo_path'] = $path;
+        }
+
+        $program->update($validated);
+
+        return redirect()->route('admin.programs.index')->with('success', 'Programa de estudio actualizado correctamente');
+    }
+
+    /**
+     * Toggle the status of the specified resource.
+     */
+    public function toggleStatus(StudyProgram $program): RedirectResponse
+    {
+        $program->update([
+            'is_active' => !$program->is_active
+        ]);
+
+        return redirect()->back()->with('success', 'Estado del programa de estudio actualizado correctamente');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(StudyProgram $program): JsonResponse {
-        //
+    public function destroy(StudyProgram $program): RedirectResponse
+    {
+        if ($program->logo_path) {
+            Storage::disk('public')->delete($program->logo_path);
+        }
         $program->delete();
-        return response()->json([
-            'status'    => true,
-            'message'   => 'Programa de estudio eliminado'
-        ]);
+
+        return redirect()->route('admin.programs.index')->with('success', 'Programa de estudio eliminado correctamente');
     }
 }

@@ -103,7 +103,7 @@
                                     <span class="inline-block text-xs font-bold tracking-widest text-blue-200 uppercase bg-blue-900/40 py-1 px-3 rounded-full mb-1">
                                         Período Académico
                                     </span>
-                                    <h3 class="text-2xl font-extrabold text-white">CEPRE - {{ $exam->period }}</h3>
+                                    <h3 class="text-2xl font-extrabold text-white">{{ $exam->activity }} - {{ $exam->period }}</h3>
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <span class="bg-blue-100 text-blue-800 text-sm font-extrabold px-4 py-2 rounded-full flex items-center gap-1.5 shadow-sm">
@@ -142,14 +142,7 @@
                                             </p>
                                         </div>
 
-                                        @if ($exam->observation)
-                                            <div class="border-t border-gray-100 pt-6">
-                                                <h4 class="text-lg font-bold text-blue-900 mb-2">Información Adicional</h4>
-                                                <p class="text-base text-gray-600 leading-relaxed pl-1 border-l-4 border-blue-500">
-                                                    {!! nl2br(e($exam->observation)) !!}
-                                                </p>
-                                            </div>
-                                        @endif
+
 
                                         @if ($exam->url_pdf)
                                             <div class="pt-4">

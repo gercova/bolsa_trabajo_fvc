@@ -165,18 +165,19 @@
                                         {{-- Proceso --}}
                                         <div>
                                             <label for="process" class="block mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                                <i class="bi bi-journal-bookmark-fill text-purple-600 mr-1"></i>
-                                                Proceso
-                                                <span class="text-red-500">*</span>
+                                                 <i class="bi bi-journal-bookmark-fill text-purple-600 mr-1"></i>
+                                                 Proceso
+                                                 <span class="text-red-500">*</span>
                                             </label>
                                             <div class="relative">
                                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                     <i class="bi bi-bookmark text-gray-400"></i>
                                                 </div>
                                                 <select name="process" id="process" required
-                                                    class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition appearance-none text-sm @error('process') border-red-500 @enderror">
-                                                    <option value="cepre" {{ old('process') == 'cepre' ? 'selected' : '' }}>CEPRE</option>
-                                                    <option value="admisión" {{ old('process') == 'admisión' ? 'selected' : '' }}>Admisión</option>
+                                                     class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition appearance-none text-sm @error('process') border-red-500 @enderror">
+                                                     <option value="cepre" {{ old('process') == 'cepre' ? 'selected' : '' }}>CEPRE</option>
+                                                     <option value="admisión" {{ old('process') == 'admisión' ? 'selected' : '' }}>Admisión</option>
+                                                     <option value="matrícula" {{ old('process') == 'matrícula' ? 'selected' : '' }}>Matrícula</option>
                                                 </select>
                                                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                                     <i class="bi bi-chevron-down text-gray-400"></i>
@@ -185,6 +186,32 @@
                                             @error('process')
                                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                             @enderror
+                                        </div>
+
+                                        {{-- Área Académica --}}
+                                        <div>
+                                             <label for="area_id" class="block mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                                 <i class="bi bi-building text-purple-600 mr-1"></i>
+                                                 Área Académica Responsable
+                                             </label>
+                                             <div class="relative">
+                                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                     <i class="bi bi-house text-gray-400"></i>
+                                                 </div>
+                                                 <select name="area_id" id="area_id"
+                                                     class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition appearance-none text-sm @error('area_id') border-red-500 @enderror">
+                                                     <option value="">-- Seleccionar Área (Opcional) --</option>
+                                                     @foreach($areas as $area)
+                                                         <option value="{{ $area->id }}" {{ old('area_id') == $area->id ? 'selected' : '' }}>{{ $area->name }}</option>
+                                                     @endforeach
+                                                 </select>
+                                                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                     <i class="bi bi-chevron-down text-gray-400"></i>
+                                                 </div>
+                                             </div>
+                                             @error('area_id')
+                                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                             @enderror
                                         </div>
 
                                         {{-- Fecha Examen --}}
@@ -244,20 +271,21 @@
                                             @enderror
                                         </div>
 
-                                        {{-- Observaciones --}}
+                                        {{-- Actividad / Nombre del Proceso --}}
                                         <div class="md:col-span-2">
-                                            <label for="observation" class="block mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                                <i class="bi bi-chat-left-text-fill text-purple-600 mr-1"></i>
-                                                Observaciones / Descripción del evento
+                                            <label for="activity" class="block mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                                <i class="bi bi-info-circle-fill text-purple-600 mr-1"></i>
+                                                Actividad / Nombre del Proceso
+                                                <span class="text-red-500">*</span>
                                             </label>
                                             <div class="relative">
-                                                <div class="absolute top-3 left-3 pointer-events-none">
-                                                    <i class="bi bi-pencil text-gray-400"></i>
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <i class="bi bi-tag-fill text-gray-400"></i>
                                                 </div>
-                                                <textarea name="observation" id="observation" rows="4" placeholder="Detalle información extra como requisitos específicos..."
-                                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm @error('observation') border-red-500 @enderror">{{ old('observation') }}</textarea>
+                                                <input type="text" name="activity" id="activity" value="{{ old('activity') }}" placeholder="Ej: Matrícula Regular 2026-I, Examen de Admisión General..." required
+                                                     class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm @error('activity') border-red-500 @enderror">
                                             </div>
-                                            @error('observation')
+                                            @error('activity')
                                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                             @enderror
                                         </div>

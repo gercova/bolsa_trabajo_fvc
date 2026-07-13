@@ -1,136 +1,126 @@
 @extends('layouts.app')
-@section('title', 'Programas de Estudio — IESTP Francisco Vigo Caballero')
+
+@section('title', 'Programas de Estudio y Carreras — IESTP Francisco Vigo Caballero')
+
 @push('styles')
+    {{-- SEO Optimization Meta Tags --}}
+    <meta name="description"
+        content="Conoce las carreras profesionales técnicas gratuitas del IESTP Francisco Vigo Caballero. Prepárate en 3 años con certificaciones modulares anuales y título oficial a nombre de la Nación.">
+    <meta name="keywords"
+        content="carreras tecnicas, programas de estudio, enfermeria tecnica, manejo forestal, asistencia administrativa, produccion agropecuaria, administracion de redes, institutos tecnologicos, educacion publica gratuita">
+    <meta name="robots" content="index, follow">
+
     <style>
-        /* Sutiles animaciones y mejoras de visualización */
         .hover-card {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .hover-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        .line-clamp-4 {
-            display: -webkit-box;
-            -webkit-line-clamp: 4;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.15);
         }
     </style>
 @endpush
-
 @section('content')
     {{-- ===== HERO SECTION ===== --}}
-    <section class="hero-gradient text-white py-24 relative overflow-hidden">
-        {{-- Efectos decorativos de fondo --}}
-        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]">
-        </div>
-        <div class="absolute -top-40 -right-40 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
-        <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl"></div>
-
-        <div class="container mx-auto px-4 relative z-10 text-center">
-            <span
-                class="inline-block bg-purple-500/20 text-purple-300 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest mb-4 border border-purple-500/30">
-                Formación Técnica Profesional
-            </span>
-            <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight leading-tight">
-                Nuestros Programas de Estudio
+    <section
+        class="relative bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white overflow-hidden py-20 lg:py-32 border-b border-blue-900/30">
+        {{-- Elegant glow patterns --}}
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(56,189,248,0.15),transparent_50%)]"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(59,130,246,0.12),transparent_40%)]"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-8">
+            <h1
+                class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-none text-white max-w-5xl mx-auto">
+                Nuestros <span
+                    class="text-sky-400 bg-gradient-to-r from-sky-400 to-blue-400 bg-clip-text text-transparent">Programas
+                    de Estudio</span>
             </h1>
-            <p class="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-8 font-normal leading-relaxed">
-                Descubre carreras técnicas diseñadas para responder a las demandas del mercado moderno. Prepárate con
-                educación práctica, profesores expertos y certificaciones oficiales.
+            <p class="text-xl sm:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-medium">
+                Descubre carreras profesionales acreditadas diseñadas para responder con éxito a las demandas del mercado
+                laboral actual.
             </p>
 
-            {{-- Métricas destacadas en el Hero --}}
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mt-12 pt-8 border-t border-white/10">
-                <div class="text-center">
-                    <p class="text-3xl md:text-4xl font-extrabold text-purple-400">3 años</p>
-                    <p class="text-xs md:text-sm text-gray-400 mt-1">Duración por carrera</p>
+            {{-- Metrics Grid in Hero --}}
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto mt-16 pt-12 border-t border-white/10">
+                <div
+                    class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/5 hover:border-sky-500/20 transition-all duration-300">
+                    <p class="text-3xl sm:text-4xl font-black text-sky-400">3 años</p>
+                    <p class="text-sm sm:text-base font-bold text-slate-400 mt-2">Duración Académica</p>
                 </div>
-                <div class="text-center">
-                    <p class="text-3xl md:text-4xl font-extrabold text-purple-400">100%</p>
-                    <p class="text-xs md:text-sm text-gray-400 mt-1">Título a nombre de la Nación</p>
+                <div
+                    class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/5 hover:border-sky-500/20 transition-all duration-300">
+                    <p class="text-3xl sm:text-4xl font-black text-sky-400">100%</p>
+                    <p class="text-sm sm:text-base font-bold text-slate-400 mt-2">Título a Nombre de la Nación</p>
                 </div>
-                <div class="text-center">
-                    <p class="text-3xl md:text-4xl font-extrabold text-purple-400">Modular</p>
-                    <p class="text-xs md:text-sm text-gray-400 mt-1">Certificaciones Anuales</p>
+                <div
+                    class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/5 hover:border-sky-500/20 transition-all duration-300">
+                    <p class="text-3xl sm:text-4xl font-black text-sky-400">Modular</p>
+                    <p class="text-sm sm:text-base font-bold text-slate-400 mt-2">Certificaciones Anuales</p>
                 </div>
-                <div class="text-center">
-                    <p class="text-3xl md:text-4xl font-extrabold text-purple-400">Gratuito</p>
-                    <p class="text-xs md:text-sm text-gray-400 mt-1">Instituto Público</p>
+                <div
+                    class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/5 hover:border-sky-500/20 transition-all duration-300">
+                    <p class="text-3xl sm:text-4xl font-black text-sky-400">Gratuito</p>
+                    <p class="text-sm sm:text-base font-bold text-slate-400 mt-2">Educación Superior Pública</p>
                 </div>
             </div>
         </div>
     </section>
 
-    {{-- ===== PROGRAMAS DE ESTUDIO ===== --}}
+    {{-- ===== PROGRAM LIST SECTION ===== --}}
     @if ($programs->isNotEmpty())
         @php
-            // Mapeo dinámico de estilos, íconos y colores por programa para una presentación premium y variada
             $programMeta = [
                 'Producción Agropecuaria' => [
                     'icon' => 'bi-tree-fill',
-                    'color' => 'emerald',
-                    'gradient' => 'from-emerald-600 to-teal-700',
-                    'bg_light' => 'bg-emerald-50',
-                    'border' => 'border-emerald-100',
-                    'text' => 'text-emerald-700',
-                    'tag' => 'Sector Primario & Agro',
+                    'accent' => 'emerald',
+                    'bg_badge' => 'bg-emerald-50 text-emerald-800 border-emerald-100',
+                    'tag' => 'Producción & Campo',
+                    'color_bar' => 'bg-emerald-500',
                 ],
                 'Enfermería Técnica' => [
                     'icon' => 'bi-heart-pulse-fill',
-                    'color' => 'rose',
-                    'gradient' => 'from-rose-600 to-red-700',
-                    'bg_light' => 'bg-rose-50',
-                    'border' => 'border-rose-100',
-                    'text' => 'text-rose-700',
+                    'accent' => 'rose',
+                    'bg_badge' => 'bg-rose-50 text-rose-800 border-rose-100',
                     'tag' => 'Ciencias de la Salud',
+                    'color_bar' => 'bg-rose-500',
                 ],
                 'Administración de Redes y Comunicaciones' => [
                     'icon' => 'bi-router-fill',
-                    'color' => 'blue',
-                    'gradient' => 'from-blue-600 to-indigo-700',
-                    'bg_light' => 'bg-blue-50',
-                    'border' => 'border-blue-100',
-                    'text' => 'text-blue-700',
-                    'tag' => 'Tecnología & Redes',
+                    'accent' => 'sky',
+                    'bg_badge' => 'bg-sky-50 text-sky-800 border-sky-100',
+                    'tag' => 'Soporte e Infraestructura TI',
+                    'color_bar' => 'bg-sky-500',
                 ],
                 'Asistencia Administrativa' => [
                     'icon' => 'bi-briefcase-fill',
-                    'color' => 'purple',
-                    'gradient' => 'from-purple-600 to-indigo-700',
-                    'bg_light' => 'bg-purple-50',
-                    'border' => 'border-purple-100',
-                    'text' => 'text-purple-700',
-                    'tag' => 'Gestión Corporativa',
+                    'accent' => 'blue',
+                    'bg_badge' => 'bg-blue-50 text-blue-800 border-blue-100',
+                    'tag' => 'Administración & Finanzas',
+                    'color_bar' => 'bg-blue-600',
                 ],
                 'Manejo Forestal' => [
                     'icon' => 'bi-globe-americas',
-                    'color' => 'teal',
-                    'gradient' => 'from-teal-600 to-emerald-700',
-                    'bg_light' => 'bg-teal-50',
-                    'border' => 'border-teal-100',
-                    'text' => 'text-teal-700',
-                    'tag' => 'Conservación & Bosques',
+                    'accent' => 'teal',
+                    'bg_badge' => 'bg-teal-50 text-teal-800 border-teal-100',
+                    'tag' => 'Recursos Naturales',
+                    'color_bar' => 'bg-teal-500',
                 ],
             ];
         @endphp
 
-        <section class="py-20 bg-gray-50 border-b border-gray-100">
-            <div class="container mx-auto px-4">
-                <div class="text-center mb-16">
+        <section class="py-24 bg-slate-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-20">
                     <span
-                        class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest mb-3">
-                        Oferta Vigente
+                        class="inline-flex items-center gap-1.5 py-1.5 px-4 rounded-full text-sm font-extrabold bg-blue-100 text-blue-800 uppercase tracking-wider">
+                        Especialidades
                     </span>
-                    <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">
-                        Explora Nuestras Especialidades
+                    <h2 class="text-3xl sm:text-5xl font-black text-slate-900 mt-3 tracking-tight">
+                        Explora Carreras Profesionales
                     </h2>
-                    <p class="text-gray-600 mt-4 max-w-2xl mx-auto text-base">
-                        Diseñadas bajo el enfoque de competencias laborales para garantizar que obtengas los conocimientos
-                        prácticos requeridos en la industria.
+                    <p class="text-lg sm:text-xl text-slate-600 mt-4 leading-relaxed">
+                        Nuestras mallas curriculares están orientadas al desarrollo de competencias prácticas, preparándote
+                        directamente para incorporarte al empleo técnico.
                     </p>
                 </div>
 
@@ -139,64 +129,69 @@
                         @php
                             $meta = $programMeta[$program->name] ?? [
                                 'icon' => 'bi-mortarboard-fill',
-                                'color' => 'purple',
-                                'gradient' => 'from-purple-600 to-indigo-700',
-                                'bg_light' => 'bg-purple-50',
-                                'border' => 'border-purple-100',
-                                'text' => 'text-purple-700',
+                                'accent' => 'blue',
+                                'bg_badge' => 'bg-blue-50 text-blue-800 border-blue-100',
                                 'tag' => 'Educación Técnica',
+                                'color_bar' => 'bg-blue-500',
                             ];
+
+                            $mainImage =
+                                $program->images->first(fn($img) => $img->is_main) ?? $program->images->first();
+                            $imagePath = $mainImage ? $mainImage->path : null;
                         @endphp
+
                         <div
-                            class="group bg-white rounded-3xl border border-gray-100 shadow-sm hover-card overflow-hidden flex flex-col h-full">
-                            {{-- Header con gradiente e ícono/logo --}}
-                            <div class="h-40 bg-gradient-to-br {{ $meta['gradient'] }} flex items-center justify-center p-6 relative overflow-hidden">
-                                {{-- Círculos decorativos traslúcidos --}}
-                                <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-sm"></div>
-                                <div class="absolute -top-6 -left-6 w-20 h-20 bg-white/10 rounded-full blur-sm"></div>
-
-                                @if ($program->logo_path)
-                                    <img src="{{ Storage::url($program->logo_path) }}" alt="{{ $program->name }}"
-                                        class="h-24 w-24 object-contain drop-shadow-xl z-10 transition-transform duration-300 group-hover:scale-105">
-                                @else
-                                    <div class="z-10 text-center">
-                                        <i class="bi {{ $meta['icon'] }} text-6xl text-white/90 drop-shadow-md"></i>
+                            class="group bg-white rounded-3xl border border-slate-100 shadow-md hover-card overflow-hidden flex flex-col h-full">
+                            {{-- Header image / gradient --}}
+                            <div class="h-60 relative overflow-hidden bg-slate-900 flex items-center justify-center">
+                                @if ($imagePath)
+                                    <img src="{{ Str::startsWith($imagePath, ['http://', 'https://']) ? $imagePath : asset('storage/' . $imagePath) }}"
+                                        alt="{{ $program->name }}"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90">
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent">
                                     </div>
+                                @else
+                                    <div class="absolute inset-0 bg-gradient-to-br from-blue-900 to-slate-950"></div>
+                                    <i class="bi {{ $meta['icon'] }} text-7xl text-white/40 drop-shadow z-10"></i>
                                 @endif
-                            </div>
 
-                            {{-- Cuerpo de la tarjeta --}}
-                            <div class="p-6 md:p-8 flex flex-col flex-grow">
-                                <div class="flex items-center gap-2 mb-3">
+                                {{-- Floated Category tag --}}
+                                <div class="absolute top-4 left-4 z-20">
                                     <span
-                                        class="px-2.5 py-1 text-xs font-semibold rounded-md {{ $meta['bg_light'] }} {{ $meta['text'] }}">
+                                        class="px-3.5 py-1.5 text-xs font-black rounded-lg uppercase tracking-wider shadow border {{ $meta['bg_badge'] }}">
                                         {{ $meta['tag'] }}
                                     </span>
-                                    <span class="text-xs text-gray-400 flex items-center gap-1">
-                                        <i class="bi bi-clock"></i> 3 Años
-                                    </span>
+                                </div>
+                            </div>
+
+                            {{-- Card Body --}}
+                            <div class="p-8 flex flex-col flex-grow space-y-6">
+                                <div>
+                                    <h3
+                                        class="text-2xl font-black text-slate-900 group-hover:text-blue-600 transition-colors leading-tight mb-2">
+                                        {{ $program->name }}
+                                    </h3>
+                                    <div class="w-16 h-1 {{ $meta['color_bar'] }} rounded-full"></div>
                                 </div>
 
-                                <h3
-                                    class="font-extrabold text-gray-900 text-xl leading-tight mb-3 group-hover:text-purple-700 transition-colors">
-                                    {{ $program->name }}
-                                </h3>
-
                                 @if ($program->description)
-                                    <p class="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-4 flex-grow">
-                                        {!! Str::limit($program->description, 225, '...') !!}
+                                    <p class="text-base text-slate-600 leading-relaxed line-clamp-4 flex-grow font-medium">
+                                        {!! Str::limit(strip_tags($program->description), 120, '...') !!}
                                     </p>
                                 @else
-                                    <p class="text-gray-400 text-sm italic mb-6 flex-grow">Sin descripción disponible.</p>
+                                    <p class="text-slate-400 text-base italic flex-grow">Descripción detallada no disponible
+                                        en este momento.</p>
                                 @endif
 
-                                {{-- Detalles formateados (Duración / Título) --}}
+                                {{-- Details --}}
                                 @if ($program->details)
-                                    <div class="space-y-2 mb-6 pt-4 border-t border-gray-100">
+                                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2">
                                         @foreach (explode("\n", $program->details) as $detailLine)
                                             @if (trim($detailLine))
-                                                <div class="flex items-start gap-2 text-xs text-gray-600">
-                                                    <i class="bi bi-info-circle-fill text-purple-500 shrink-0 mt-0.5"></i>
+                                                <div class="flex items-start gap-2.5 text-sm font-bold text-slate-700">
+                                                    <i
+                                                        class="bi bi-info-circle text-blue-600 shrink-0 mt-0.5 text-base"></i>
                                                     <span>{{ $detailLine }}</span>
                                                 </div>
                                             @endif
@@ -204,33 +199,39 @@
                                     </div>
                                 @endif
 
-                                {{-- Certificaciones Modulares --}}
+                                {{-- Modules list --}}
                                 @if ($program->modules->isNotEmpty())
-                                    <div class="mt-auto bg-gray-50 p-4 rounded-2xl border border-gray-100/80 mb-6">
+                                    <div class="space-y-3">
                                         <h4
-                                            class="text-xs font-bold text-gray-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                                            <i class="bi bi-patch-check text-purple-600 text-sm"></i>
-                                            Certificaciones Modulares
+                                            class="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                                            <i class="bi bi-patch-check-fill text-blue-600 text-sm"></i>
+                                            Módulos de Certificación
                                         </h4>
-                                        <ul class="space-y-1.5">
-                                            @foreach ($program->modules as $module)
-                                                <li class="text-xs text-gray-600 flex items-start gap-2">
-                                                    <i
-                                                        class="bi bi-chevron-right text-purple-500 shrink-0 mt-1 text-[10px]"></i>
-                                                    <span class="leading-tight">{{ $module->module }}</span>
-                                                </li>
+                                        <div class="space-y-2">
+                                            @foreach ($program->modules->take(3) as $idx => $module)
+                                                <div
+                                                    class="flex items-start gap-3 bg-slate-50/50 p-3 rounded-lg border border-slate-100 hover:bg-white hover:shadow-sm transition-all">
+                                                    <span
+                                                        class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white font-extrabold text-[11px] flex items-center justify-center mt-0.5">
+                                                        {{ $idx + 1 }}
+                                                    </span>
+                                                    <span class="text-sm font-bold text-slate-700 leading-snug">
+                                                        {{ $module->module }}
+                                                    </span>
+                                                </div>
                                             @endforeach
-                                        </ul>
+                                        </div>
                                     </div>
                                 @endif
 
-                                {{-- Botón de Acción --}}
-                                <a href="/programas-de-estudios/{{ $program->slug }}"
-                                    class="w-full bg-slate-900 text-white py-3 rounded-xl hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 font-bold text-sm tracking-wide shadow-sm group-hover:shadow-md">
-                                    Ver plan de estudios completo
-                                    <i
-                                        class="bi bi-arrow-right text-sm transition-transform duration-300 group-hover:translate-x-1"></i>
-                                </a>
+                                {{-- Action Button --}}
+                                <div class="pt-4">
+                                    <a href="/programas-de-estudios/{{ $program->slug }}"
+                                        class="w-full inline-flex items-center justify-center px-6 py-3.5 text-base font-black text-white bg-slate-950 hover:bg-blue-600 rounded-xl transition duration-200 shadow-md hover:shadow-lg">
+                                        Plan de Estudios Completo
+                                        <i class="bi bi-arrow-right ml-2 text-lg"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     @endforeach
@@ -239,251 +240,246 @@
         </section>
     @endif
 
-    {{-- ===== POR QUÉ ESTUDIAR CON NOSOTROS ===== --}}
-    <section class="py-20 bg-white">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
+    {{-- ===== WHY STUDY HERE SECTION ===== --}}
+    <section class="py-24 bg-white border-t border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-20">
                 <span
-                    class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest mb-3">
-                    Nuestras Ventajas
+                    class="inline-flex items-center gap-1.5 py-1.5 px-4 rounded-full text-sm font-extrabold bg-blue-100 text-blue-800 uppercase tracking-wider">
+                    Ventajas
                 </span>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">
-                    ¿Por qué elegir el IESTP FVC?
+                <h2 class="text-3xl sm:text-5xl font-black text-slate-900 mt-3 tracking-tight">
+                    ¿Por qué elegir el IESTP Francisco Vigo Caballero?
                 </h2>
-                <p class="text-gray-600 mt-4 max-w-xl mx-auto text-base">
-                    Nuestra metodología está orientada a la inserción laboral rápida mediante formación práctica de alto
-                    nivel.
+                <p class="text-lg sm:text-xl text-slate-600 mt-4 leading-relaxed">
+                    Ofrecemos una educación técnica integral, práctica y con respaldo oficial para impulsar tu inserción
+                    laboral.
                 </p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div class="p-6 rounded-2xl bg-gray-50 border border-gray-100 hover:shadow-md transition-shadow">
-                    <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600 mb-6">
-                        <i class="bi bi-file-earmark-badge text-2xl"></i>
+                {{-- Point 1 --}}
+                <div
+                    class="p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-md transition duration-300 flex flex-col justify-between">
+                    <div>
+                        <div
+                            class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-6 shadow-sm">
+                            <i class="bi bi-file-earmark-badge text-2xl"></i>
+                        </div>
+                        <h3 class="font-extrabold text-slate-900 text-lg mb-3">Título Oficial</h3>
+                        <p class="text-base text-slate-600 leading-relaxed font-medium">
+                            Obtén tu Título Profesional Técnico a Nombre de la Nación con valor oficial para todo el
+                            territorio nacional.
+                        </p>
                     </div>
-                    <h3 class="font-bold text-gray-900 text-lg mb-3">Título Oficial</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed">
-                        Recibe tu Título de Técnico Profesional a Nombre de la Nación al culminar satisfactoriamente tus 3
-                        años de formación académica.
-                    </p>
                 </div>
 
-                <div class="p-6 rounded-2xl bg-gray-50 border border-gray-100 hover:shadow-md transition-shadow">
-                    <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600 mb-6">
-                        <i class="bi bi-award text-2xl"></i>
+                {{-- Point 2 --}}
+                <div
+                    class="p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-md transition duration-300 flex flex-col justify-between">
+                    <div>
+                        <div
+                            class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-6 shadow-sm">
+                            <i class="bi bi-award text-2xl"></i>
+                        </div>
+                        <h3 class="font-extrabold text-slate-900 text-lg mb-3">Certificación Modular</h3>
+                        <p class="text-base text-slate-600 leading-relaxed font-medium">
+                            Convalida módulos y recibe certificaciones anuales intermedias que te permiten acceder a empleos
+                            mientras estudias.
+                        </p>
                     </div>
-                    <h3 class="font-bold text-gray-900 text-lg mb-3">Certificación Modular</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed">
-                        Obtén un certificado oficial cada año al concluir un módulo técnico, permitiéndote buscar trabajo
-                        especializado antes de graduarte.
-                    </p>
                 </div>
 
-                <div class="p-6 rounded-2xl bg-gray-50 border border-gray-100 hover:shadow-md transition-shadow">
-                    <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600 mb-6">
-                        <i class="bi bi-briefcase text-2xl"></i>
+                {{-- Point 3 --}}
+                <div
+                    class="p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-md transition duration-300 flex flex-col justify-between">
+                    <div>
+                        <div
+                            class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-6 shadow-sm">
+                            <i class="bi bi-briefcase text-2xl"></i>
+                        </div>
+                        <h3 class="font-extrabold text-slate-900 text-lg mb-3">Bolsa de Empleo</h3>
+                        <p class="text-base text-slate-600 leading-relaxed font-medium">
+                            Acceso directo a ofertas laborales y convenios con empresas líderes en la región para tus
+                            prácticas y empleo formal.
+                        </p>
                     </div>
-                    <h3 class="font-bold text-gray-900 text-lg mb-3">Bolsa de Trabajo</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed">
-                        Accede a convocatorias y ofertas laborales exclusivas mediante convenios directos con empresas y
-                        fundaciones de la región.
-                    </p>
                 </div>
 
-                <div class="p-6 rounded-2xl bg-gray-50 border border-gray-100 hover:shadow-md transition-shadow">
-                    <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600 mb-6">
-                        <i class="bi bi-people text-2xl"></i>
+                {{-- Point 4 --}}
+                <div
+                    class="p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-md transition duration-300 flex flex-col justify-between">
+                    <div>
+                        <div
+                            class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-6 shadow-sm">
+                            <i class="bi bi-cash-coin text-2xl"></i>
+                        </div>
+                        <h3 class="font-extrabold text-slate-900 text-lg mb-3">Sin Mensualidades</h3>
+                        <p class="text-base text-slate-600 leading-relaxed font-medium">
+                            Como institución de educación pública nacional, gozarás de educación superior técnica de calidad
+                            y gratuita.
+                        </p>
                     </div>
-                    <h3 class="font-bold text-gray-900 text-lg mb-3">Educación Gratuita</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed">
-                        Al ser una institución pública de educación superior técnica, tienes derecho a una enseñanza
-                        gratuita de calidad sin mensualidades.
-                    </p>
                 </div>
             </div>
         </div>
     </section>
 
-    {{-- ===== PROCESO DE ADMISIÓN ===== --}}
-    <section class="py-20 bg-gray-50 border-t border-b border-gray-100">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
+    {{-- ===== ADMISSION ROADMAP SECTION ===== --}}
+    <section class="py-24 bg-slate-50 border-t border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-20">
                 <span
-                    class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest mb-3">
+                    class="inline-flex items-center gap-1.5 py-1.5 px-4 rounded-full text-sm font-extrabold bg-blue-100 text-blue-800 uppercase tracking-wider">
                     Paso a Paso
                 </span>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">
-                    ¿Cómo formar parte del IESTP FVC?
+                <h2 class="text-3xl sm:text-5xl font-black text-slate-900 mt-3 tracking-tight">
+                    ¿Cómo formar parte de nuestra institución?
                 </h2>
-                <p class="text-gray-600 mt-4 max-w-xl mx-auto text-base">
-                    Sigue nuestro sencillo proceso de admisión para iniciar tu camino hacia el éxito profesional.
+                <p class="text-lg sm:text-xl text-slate-600 mt-4 leading-relaxed">
+                    Sigue esta secuencia de pasos para completar exitosamente tu postulación e ingresar al período lectivo.
                 </p>
             </div>
 
             <div class="relative max-w-5xl mx-auto">
-                {{-- Línea conectora horizontal (solo en pantallas grandes) --}}
-                <div class="absolute top-1/2 left-0 w-full h-1 bg-purple-100 -translate-y-1/2 z-0 hidden lg:block"></div>
+                <div class="absolute top-1/2 left-0 w-full h-1 bg-blue-200 -translate-y-1/2 z-0 hidden lg:block"></div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
-                    {{-- Paso 1 --}}
-                    <div
-                        class="bg-white p-6 rounded-2xl border border-gray-100 text-center hover:shadow-md transition-shadow">
+                    {{-- Step 1 --}}
+                    <div class="bg-white p-6.5 rounded-2xl border border-slate-150 text-center hover:shadow-md transition">
                         <div
-                            class="w-12 h-12 rounded-full bg-purple-600 text-white font-extrabold flex items-center justify-center mx-auto mb-4 text-lg">
+                            class="w-12 h-12 rounded-full bg-blue-600 text-white font-black flex items-center justify-center mx-auto mb-4 text-lg">
                             1
                         </div>
-                        <h3 class="font-bold text-gray-900 text-base mb-2">Requisitos</h3>
-                        <p class="text-gray-500 text-xs leading-relaxed">
-                            Prepara tu certificado de secundaria, copia de DNI y partida de nacimiento.
+                        <h3 class="font-bold text-slate-900 text-base mb-2">Requisitos</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed font-medium">
+                            Reúne tu DNI, certificado de secundaria completa y partida de nacimiento.
                         </p>
                     </div>
 
-                    {{-- Paso 2 --}}
-                    <div
-                        class="bg-white p-6 rounded-2xl border border-gray-100 text-center hover:shadow-md transition-shadow">
+                    {{-- Step 2 --}}
+                    <div class="bg-white p-6.5 rounded-2xl border border-slate-150 text-center hover:shadow-md transition">
                         <div
-                            class="w-12 h-12 rounded-full bg-purple-600 text-white font-extrabold flex items-center justify-center mx-auto mb-4 text-lg">
+                            class="w-12 h-12 rounded-full bg-blue-600 text-white font-black flex items-center justify-center mx-auto mb-4 text-lg">
                             2
                         </div>
-                        <h3 class="font-bold text-gray-900 text-base mb-2">Inscripción</h3>
-                        <p class="text-gray-500 text-xs leading-relaxed">
-                            Regístrate en línea o acude a nuestras oficinas para inscribirte en el examen de admisión.
+                        <h3 class="font-bold text-slate-900 text-base mb-2">Inscripción</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed font-medium">
+                            Inscríbete de manera digital en la web o acudiendo a las oficinas del instituto.
                         </p>
                     </div>
 
-                    {{-- Paso 3 --}}
-                    <div
-                        class="bg-white p-6 rounded-2xl border border-gray-100 text-center hover:shadow-md transition-shadow">
+                    {{-- Step 3 --}}
+                    <div class="bg-white p-6.5 rounded-2xl border border-slate-150 text-center hover:shadow-md transition">
                         <div
-                            class="w-12 h-12 rounded-full bg-purple-600 text-white font-extrabold flex items-center justify-center mx-auto mb-4 text-lg">
+                            class="w-12 h-12 rounded-full bg-blue-600 text-white font-black flex items-center justify-center mx-auto mb-4 text-lg">
                             3
                         </div>
-                        <h3 class="font-bold text-gray-900 text-base mb-2">Examen</h3>
-                        <p class="text-gray-500 text-xs leading-relaxed">
-                            Rinde la evaluación de conocimientos y aptitud en la fecha establecida por la institución.
+                        <h3 class="font-bold text-slate-900 text-base mb-2">Examen</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed font-medium">
+                            Rinde el examen de admisión (conocimientos y aptitud) en las fechas oficiales.
                         </p>
                     </div>
 
-                    {{-- Paso 4 --}}
-                    <div
-                        class="bg-white p-6 rounded-2xl border border-gray-100 text-center hover:shadow-md transition-shadow">
+                    {{-- Step 4 --}}
+                    <div class="bg-white p-6.5 rounded-2xl border border-slate-150 text-center hover:shadow-md transition">
                         <div
-                            class="w-12 h-12 rounded-full bg-purple-600 text-white font-extrabold flex items-center justify-center mx-auto mb-4 text-lg">
+                            class="w-12 h-12 rounded-full bg-blue-600 text-white font-black flex items-center justify-center mx-auto mb-4 text-lg">
                             4
                         </div>
-                        <h3 class="font-bold text-gray-900 text-base mb-2">Matrícula</h3>
-                        <p class="text-gray-500 text-xs leading-relaxed">
-                            Si alcanzaste una vacante, formaliza tu matrícula y estarás listo para iniciar clases.
+                        <h3 class="font-bold text-slate-900 text-base mb-2">Matrícula</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed font-medium">
+                            Tras alcanzar una vacante, formaliza tu matrícula y estarás listo para estudiar.
                         </p>
                     </div>
                 </div>
             </div>
 
-            <div class="text-center mt-12">
+            <div class="text-center mt-14">
                 <a href="{{ route('examen-de-admision') }}"
-                    class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors shadow-sm">
-                    <i class="bi bi-info-circle"></i>
-                    Más detalles sobre la Admisión
+                    class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-xl transition shadow hover:shadow-md">
+                    <i class="bi bi-info-circle text-lg"></i>
+                    Información sobre Admisiones
                 </a>
             </div>
         </div>
     </section>
 
-    {{-- ===== PREGUNTAS FRECUENTES ===== --}}
-    <section class="py-20 bg-white" x-data="{ activeFaq: null }">
-        <div class="container mx-auto px-4 max-w-4xl">
-            <div class="text-center mb-16">
+    {{-- ===== FAQ SECTION ===== --}}
+    <section class="py-24 bg-white" x-data="{ activeFaq: null }">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-20">
                 <span
-                    class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest mb-3">
-                    Dudas comunes
+                    class="inline-flex items-center gap-1.5 py-1.5 px-4 rounded-full text-sm font-extrabold bg-blue-100 text-blue-800 uppercase tracking-wider">
+                    Ayuda
                 </span>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">
+                <h2 class="text-3xl sm:text-5xl font-black text-slate-900 mt-3 tracking-tight">
                     Preguntas Frecuentes
                 </h2>
-                <p class="text-gray-600 mt-4 text-base">
-                    Encuentra respuestas rápidas a las consultas más habituales sobre los programas de estudio.
+                <p class="text-lg sm:text-xl text-slate-600 mt-4 leading-relaxed">
+                    Resolvemos de forma inmediata las dudas comunes sobre los estudios en el IESTP.
                 </p>
             </div>
 
             <div class="space-y-4">
                 {{-- FAQ 1 --}}
-                <div class="border border-gray-200 rounded-2xl overflow-hidden transition-all duration-300"
-                    :class="activeFaq === 1 ? 'border-purple-300 shadow-sm bg-purple-50/10' : ''">
+                <div class="border border-slate-200 rounded-2xl overflow-hidden transition-all duration-300"
+                    :class="activeFaq === 1 ? 'border-blue-400 shadow-md bg-blue-50/5' : ''">
                     <button
-                        class="w-full text-left p-6 font-bold text-gray-900 flex items-center justify-between gap-4 focus:outline-none"
+                        class="w-full text-left p-6 font-bold text-slate-900 text-base sm:text-lg flex items-center justify-between gap-4 focus:outline-none"
                         @click="activeFaq = activeFaq === 1 ? null : 1">
-                        <span>¿Cuánto tiempo duran las carreras y cuáles son los horarios?</span>
-                        <i class="bi transition-transform duration-300 text-purple-600"
+                        <span>¿Cuánto tiempo duran las carreras y en qué horarios se dictan?</span>
+                        <i class="bi transition-transform duration-300 text-blue-600 text-xl"
                             :class="activeFaq === 1 ? 'bi-dash-lg rotate-180' : 'bi-plus-lg'"></i>
                     </button>
                     <div class="transition-all duration-300 max-h-0 overflow-hidden" x-ref="faq1"
                         :style="activeFaq === 1 ? 'max-height: ' + $refs.faq1.scrollHeight + 'px' : ''">
-                        <div class="p-6 pt-0 text-sm text-gray-600 border-t border-gray-100 leading-relaxed">
-                            Todos nuestros programas tienen una duración de 3 años estructurados en 6 períodos académicos
-                            (ciclos semestrales). Los horarios de clase suelen ser diurnos, de lunes a viernes de 7:30 am a
-                            1:30 pm.
+                        <div
+                            class="p-6 pt-0 text-base text-slate-600 border-t border-slate-100 leading-relaxed font-medium">
+                            Todos nuestros programas tienen una duración de 3 años, estructurados en 6 períodos académicos
+                            semestrales. Las clases se dictan de lunes a viernes en horario diurno (7:30 am – 1:30 pm).
                         </div>
                     </div>
                 </div>
 
                 {{-- FAQ 2 --}}
-                <div class="border border-gray-200 rounded-2xl overflow-hidden transition-all duration-300"
-                    :class="activeFaq === 2 ? 'border-purple-300 shadow-sm bg-purple-50/10' : ''">
+                <div class="border border-slate-200 rounded-2xl overflow-hidden transition-all duration-300"
+                    :class="activeFaq === 2 ? 'border-blue-400 shadow-md bg-blue-50/5' : ''">
                     <button
-                        class="w-full text-left p-6 font-bold text-gray-900 flex items-center justify-between gap-4 focus:outline-none"
+                        class="w-full text-left p-6 font-bold text-slate-900 text-base sm:text-lg flex items-center justify-between gap-4 focus:outline-none"
                         @click="activeFaq = activeFaq === 2 ? null : 2">
-                        <span>¿Qué ventajas ofrece la certificación modular?</span>
-                        <i class="bi transition-transform duration-300 text-purple-600"
+                        <span>¿En qué consiste la certificación modular?</span>
+                        <i class="bi transition-transform duration-300 text-blue-600 text-xl"
                             :class="activeFaq === 2 ? 'bi-dash-lg rotate-180' : 'bi-plus-lg'"></i>
                     </button>
                     <div class="transition-all duration-300 max-h-0 overflow-hidden" x-ref="faq2"
                         :style="activeFaq === 2 ? 'max-height: ' + $refs.faq2.scrollHeight + 'px' : ''">
-                        <div class="p-6 pt-0 text-sm text-gray-600 border-t border-gray-100 leading-relaxed">
-                            La certificación modular te otorga un diploma técnico a nombre del Ministerio de Educación al
-                            culminar y aprobar satisfactoriamente cada año académico. Esto valida que cuentas con
-                            competencias específicas para trabajar en puestos intermedios de tu carrera sin necesidad de
-                            haber concluido los 3 años completos.
+                        <div
+                            class="p-6 pt-0 text-base text-slate-600 border-t border-slate-100 leading-relaxed font-medium">
+                            Al culminar y aprobar los cursos correspondientes a cada año de estudios, el instituto te
+                            entrega una certificación modular oficial a nombre de la Nación. Esto te califica para
+                            incorporarte al mercado laboral en puestos asociados antes de culminar la carrera completa.
                         </div>
                     </div>
                 </div>
 
                 {{-- FAQ 3 --}}
-                <div class="border border-gray-200 rounded-2xl overflow-hidden transition-all duration-300"
-                    :class="activeFaq === 3 ? 'border-purple-300 shadow-sm bg-purple-50/10' : ''">
+                <div class="border border-slate-200 rounded-2xl overflow-hidden transition-all duration-300"
+                    :class="activeFaq === 3 ? 'border-blue-400 shadow-md bg-blue-50/5' : ''">
                     <button
-                        class="w-full text-left p-6 font-bold text-gray-900 flex items-center justify-between gap-4 focus:outline-none"
+                        class="w-full text-left p-6 font-bold text-slate-900 text-base sm:text-lg flex items-center justify-between gap-4 focus:outline-none"
                         @click="activeFaq = activeFaq === 3 ? null : 3">
-                        <span>¿Hay algún costo mensual o pago por pensiones?</span>
-                        <i class="bi transition-transform duration-300 text-purple-600"
+                        <span>¿La educación realmente no tiene costo mensual?</span>
+                        <i class="bi transition-transform duration-300 text-blue-600 text-xl"
                             :class="activeFaq === 3 ? 'bi-dash-lg rotate-180' : 'bi-plus-lg'"></i>
                     </button>
                     <div class="transition-all duration-300 max-h-0 overflow-hidden" x-ref="faq3"
                         :style="activeFaq === 3 ? 'max-height: ' + $refs.faq3.scrollHeight + 'px' : ''">
-                        <div class="p-6 pt-0 text-sm text-gray-600 border-t border-gray-100 leading-relaxed">
-                            No. Al ser un Instituto de Educación Superior Tecnológico Público, la educación es 100% gratuita
-                            y no existe cobro de pensiones mensuales. Únicamente se realiza un pago anual de costo social
-                            correspondiente al derecho de matrícula y/o carnet de estudiante.
-                        </div>
-                    </div>
-                </div>
-
-                {{-- FAQ 4 --}}
-                <div class="border border-gray-200 rounded-2xl overflow-hidden transition-all duration-300"
-                    :class="activeFaq === 4 ? 'border-purple-300 shadow-sm bg-purple-50/10' : ''">
-                    <button
-                        class="w-full text-left p-6 font-bold text-gray-900 flex items-center justify-between gap-4 focus:outline-none"
-                        @click="activeFaq = activeFaq === 4 ? null : 4">
-                        <span>¿Qué requisitos son obligatorios para la matrícula?</span>
-                        <i class="bi transition-transform duration-300 text-purple-600"
-                            :class="activeFaq === 4 ? 'bi-dash-lg rotate-180' : 'bi-plus-lg'"></i>
-                    </button>
-                    <div class="transition-all duration-300 max-h-0 overflow-hidden" x-ref="faq4"
-                        :style="activeFaq === 4 ? 'max-height: ' + $refs.faq4.scrollHeight + 'px' : ''">
-                        <div class="p-6 pt-0 text-sm text-gray-600 border-t border-gray-100 leading-relaxed">
-                            Para matricularte es indispensable contar con el Certificado de Estudios de Educación Secundaria
-                            Completa visado, copia simple del Documento Nacional de Identidad (DNI) vigente, partida de
-                            nacimiento original, fotos tamaño carnet a color y la constancia de haber ingresado en el
-                            proceso de admisión.
+                        <div
+                            class="p-6 pt-0 text-base text-slate-600 border-t border-slate-100 leading-relaxed font-medium">
+                            Sí. Al ser un Instituto de Educación Superior Tecnológico Público, la educación es gratuita y no
+                            existen cobros de pensiones o mensualidades. Se realiza únicamente el pago por derecho de
+                            matrícula y carnet estudiantil al inicio del periodo anual.
                         </div>
                     </div>
                 </div>
@@ -491,29 +487,28 @@
         </div>
     </section>
 
-    {{-- ===== CALL TO ACTION ===== --}}
-    <section class="py-20 hero-gradient text-white text-center relative overflow-hidden">
-        <div
-            class="absolute inset-0 opacity-15 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px]">
-        </div>
-        <div class="container mx-auto px-4 relative z-10">
-            <h2 class="text-3xl md:text-5xl font-black mb-6 tracking-tight">
-                ¿Listo para construir tu futuro profesional?
+    {{-- ===== CTA SECTION ===== --}}
+    <section
+        class="py-24 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white text-center relative overflow-hidden border-t border-blue-900/30">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.1),transparent_40%)]"></div>
+        <div class="container mx-auto px-4 relative z-10 space-y-8">
+            <h2 class="text-3xl sm:text-5xl font-black tracking-tight max-w-4xl mx-auto leading-tight">
+                ¿Listo para iniciar tu desarrollo profesional?
             </h2>
-            <p class="text-lg text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed font-normal">
-                Las inscripciones para el próximo examen de admisión ya están abiertas. Elige tu carrera técnica y asegura
-                tu vacante hoy mismo.
+            <p class="text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed font-medium">
+                Asegura tu vacante y prepárate con profesores expertos y talleres equipados. ¡Las inscripciones de admisión
+                están abiertas!
             </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <div class="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                 <a href="{{ route('examen-de-admision') }}"
-                    class="bg-white text-slate-900 px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-colors shadow-md flex items-center justify-center gap-2">
-                    <i class="bi bi-check-circle"></i>
-                    Postular ahora
+                    class="bg-white text-slate-950 hover:bg-slate-100 px-8 py-4.5 rounded-xl font-extrabold transition shadow-lg flex items-center justify-center gap-2.5">
+                    <i class="bi bi-check-circle-fill text-blue-600 text-lg"></i>
+                    Inscribirse Ahora
                 </a>
                 <a href="{{ route('cepre-fvc') }}"
-                    class="bg-purple-600/30 text-white border border-purple-500/40 px-8 py-4 rounded-xl font-bold hover:bg-purple-600/50 transition-colors flex items-center justify-center gap-2">
+                    class="bg-blue-600/20 text-white border border-blue-500/30 hover:bg-blue-600/40 px-8 py-4.5 rounded-xl font-extrabold transition flex items-center justify-center gap-2">
                     CEPRE FVC
-                    <i class="bi bi-arrow-right"></i>
+                    <i class="bi bi-arrow-right text-lg"></i>
                 </a>
             </div>
         </div>

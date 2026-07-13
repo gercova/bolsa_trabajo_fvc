@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('cv_file')->nullable();
             $table->enum('role', ['Admin', 'Administrativo', 'Docente', 'Reclutador', 'Solicitante'])->default('Solicitante')->nullable();
             $table->string('job_position')->nullable();
+            $table->foreignId('charge_id')->nullable()->constrained('charges')->nullOnDelete();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
 

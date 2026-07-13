@@ -13,16 +13,17 @@ return new class extends Migration
     {
         Schema::create('admission', function (Blueprint $table) {
             $table->id();
+            $table->string('activity');
             $table->string('period', 20)->nullable();
             $table->integer('total_vacancies')->default(0);
-            $table->text('observation')->nullable();
             $table->date('exam_date')->nullable();
             $table->date('inscription_start_date')->nullable();
             $table->date('inscription_end_date')->nullable();
             $table->string('url_pdf')->nullable();
             $table->float('price', 2)->default(0);
             $table->enum('type', ['ordinario', 'extraordinario'])->default('ordinario');
-            $table->enum('process', ['admisión', 'cepre'])->default('cepre');
+            $table->enum('process', ['matrícula', 'admisión', 'cepre'])->default('cepre');
+            $table->foreignId('area_id')->nullable()->constrained('area')->nullOnDelete();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
@@ -33,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cepre');
+        Schema::dropIfExists('admission');
     }
 };

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Admission extends Model
@@ -10,6 +11,7 @@ class Admission extends Model
     protected $table        = 'admission';
     protected $primaryKey   = 'id';
     protected $fillable     = [
+        'activity',
         'period',
         'total_vacancies',
         'observation',
@@ -20,6 +22,7 @@ class Admission extends Model
         'price',
         'type',
         'process',
+        'area_id',
         'is_active',
     ];
 
@@ -28,6 +31,10 @@ class Admission extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    public function area(): BelongsTo {
+        return $this->belongsTo(Area::class, 'area_id', 'id');
+    }
 
     public function admissionDetail(): HasMany {
         return $this->hasMany(AdmissionDetail::class, 'admission_id', 'id');

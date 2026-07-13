@@ -41,7 +41,29 @@ class AppController extends Controller {
     
     // examen de admisión
     public function admissionExam(): View {
-        return view('admission.admission-exam');
+        $exams = Admission::where('process', 'admisión')
+            ->where('is_active', true)
+            ->with(['admissionDetail.program'])
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $requirements = AdmissionRequirement::where('is_active', true)->get();
+        $enterprise = Enterprise::first();
+
+        return view('admission.admission-exam', compact('exams', 'requirements', 'enterprise'));
+    }
+
+    // matrículas
+    public function enrollments(): View {
+        $enrollments = Admission::where('process', 'matrícula')
+            ->where('is_active', true)
+            ->with(['admissionDetail.program', 'area'])
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $requirements = AdmissionRequirement::where('is_active', true)->get();
+        $enterprise = Enterprise::first();
+        return view('admission.enrollments', compact('enrollments', 'requirements', 'enterprise'));
     }
 
     // becas y créditos
@@ -49,14 +71,9 @@ class AppController extends Controller {
         return view('admission.scholarships-and-credits');
     }
 
-    // matrículas
-    public function enrollments(): View {
-        return view('admission.enrollments');
-    }
-
     // programas de estudio
     public function studyPrograms(): View {
-        $programs = StudyProgram::where('is_active', true)->with('modules')->get();
+        $programs = StudyProgram::where('is_active', true)->with(['modules', 'images'])->get();
         return view('study-programs', compact('programs'));
     }
 

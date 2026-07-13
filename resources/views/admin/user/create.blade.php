@@ -25,7 +25,7 @@
 
         {{-- Formulario --}}
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-            <form action="{{ route('admin.usuarios.store') }}" method="POST" enctype="multipart/form-data" class="p-6 md:p-8">
+            <form action="{{ route('admin.users.store') }}" method="POST" enctype="multipart/form-data" class="p-6 md:p-8">
                 @csrf
                 {{-- Grid de 2 columnas --}}
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -228,7 +228,7 @@
                 {{-- Botones de acción --}}
                 <div class="mt-8 pt-6 border-t border-gray-200">
                     <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
-                        <a href="{{ route('admin.usuarios') }}" class="px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition text-center">
+                        <a href="{{ route('admin.users.index') }}" class="px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition text-center">
                             <i class="bi bi-x-circle mr-2"></i>
                             Cancelar
                         </a>

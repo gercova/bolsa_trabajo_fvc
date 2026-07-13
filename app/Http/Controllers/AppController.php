@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admission;
+use App\Models\AdmissionRequirement;
 use App\Models\Enterprise;
 use App\Models\HistoricalReview;
 use App\Models\JobOffer;
@@ -25,7 +27,16 @@ class AppController extends Controller {
 
     // cepre fvc
     public function ceprefvc(): View {
-        return view('admission.cepre-fvc');
+        $exams = Admission::where('process', 'cepre')
+            ->where('is_active', true)
+            ->with(['admissionDetail.program'])
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $requirements = AdmissionRequirement::where('is_active', true)->get();
+        $enterprise = Enterprise::first();
+
+        return view('admission.cepre-fvc', compact('exams', 'requirements', 'enterprise'));
     }
     
     // examen de admisión

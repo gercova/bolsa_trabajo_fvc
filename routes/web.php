@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\AdmissionsController;
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\ClaimsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnterpriseController;
 use App\Http\Controllers\JobsController;
@@ -75,14 +77,24 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/',      [ProfileController::class, 'destroy'])->name('destroy');    
     });
 
+    Route::prefix('admin-exams')->name('admin.exams.')->group(function () {
+        Route::get('/',                             [AdmissionsController::class, 'index'])->name('index');
+        Route::get('/crear-examen',                 [AdmissionsController::class, 'create'])->name('create');
+        Route::post('/guardar',                     [AdmissionsController::class, 'store'])->name('store');
+        Route::get('/editar-examen/{admission}',    [AdmissionsController::class, 'edit'])->name('edit');
+        Route::put('/editar-examen/{admission}',    [AdmissionsController::class, 'update'])->name('update');
+        Route::delete('/{admission}',               [AdmissionsController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{admission}',         [AdmissionsController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
     Route::prefix('admin-programas')->name('admin.programs.')->group(function () {
         Route::get('/',                             [StudyProgramsController::class, 'index'])->name('index');
         Route::get('/crear-programa',               [StudyProgramsController::class, 'create'])->name('create');
         Route::post('/guardar',                     [StudyProgramsController::class, 'store'])->name('store');
         Route::get('/editar-programa/{program}',    [StudyProgramsController::class, 'edit'])->name('edit');
-        Route::get('/{program}',                    [StudyProgramsController::class, 'update'])->name('update');
-        Route::post('/estado/{program}',            [StudyProgramsController::class, 'toggleStatus'])->name('toggle-status');
-        Route::get('/{program}',                    [StudyProgramsController::class, 'destroy'])->name('destroy');
+        Route::put('/editar-programa/{program}',    [StudyProgramsController::class, 'update'])->name('update');
+        Route::delete('/{program}',                 [StudyProgramsController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{program}',           [StudyProgramsController::class, 'toggleStatus'])->name('toggle-status');
     });
 
     Route::prefix('admin-trabajos')->name('admin.works.')->group(function () {
@@ -103,6 +115,12 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{user}',           [UsersController::class, 'update'])->name('update');
         Route::post('/estado/{user}',   [UsersController::class, 'toggleStatus'])->name('toggle-status');
         Route::delete('/{user}',        [UsersController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('admin-reclamos')->name('admin.claims.')->group(function () {
+        Route::get('/',                 [ClaimsController::class, 'index'])->name('index');
+        Route::get('/{claim}',          [ClaimsController::class, 'show'])->name('show');
+        Route::post('/estado/{claim}',  [ClaimsController::class, 'status'])->name('status');
     });
 
     Route::prefix('admin-socios')->name('admin.partners.')->group(function () {

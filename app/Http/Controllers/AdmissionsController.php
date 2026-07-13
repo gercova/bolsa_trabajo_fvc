@@ -15,7 +15,7 @@ class AdmissionsController extends Controller
     public function index(Request $request): View {
         $validated = $request->validate([
             'search' => 'nullable|string|max:255',
-            'process' => 'nullable|string|in:admisión,cepre',
+            'process' => 'nullable|string|in:admisión,cepre,matrícula',
             'type' => 'nullable|string|in:ordinario,extraordinario',
             'status' => 'nullable|string|in:active,inactive',
             'date' => 'nullable|string',
@@ -31,7 +31,7 @@ class AdmissionsController extends Controller
             $search = $validated['search'];
             $query->where(function($q) use ($search) {
                 $q->where('period', 'LIKE', "%{$search}%")
-                  ->orWhere('observation', 'LIKE', "%{$search}%");
+                  ->orWhere('activity', 'LIKE', "%{$search}%");
             });
         }
 
@@ -70,7 +70,8 @@ class AdmissionsController extends Controller
 
     public function create(): View {
         $programs = StudyProgram::where('is_active', true)->get();
-        return view('admin.admission.create', compact('programs'));
+        $areas = \App\Models\Area::all();
+        return view('admin.admission.create', compact('programs', 'areas'));
     }
 
     public function edit(Admission $admission): View {
@@ -86,7 +87,9 @@ class AdmissionsController extends Controller
             ];
         });
 
-        return view('admin.admission.edit', compact('admission', 'programs'));
+        $areas = \App\Models\Area::all();
+
+        return view('admin.admission.edit', compact('admission', 'programs', 'areas'));
     }
 
     public function store(AdmissionRequest $request): RedirectResponse {

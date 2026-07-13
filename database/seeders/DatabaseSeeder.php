@@ -14,6 +14,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(ChargesSeeder::class);
+        $this->call(AreasSeeder::class);
         $this->call(UbigeoRegionSeeder::class);
         $this->call(UbigeoProvinceSeeder::class);
         $this->call(UbigeoDistrictSeeder::class);

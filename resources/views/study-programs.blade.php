@@ -24,7 +24,7 @@
 @section('content')
     {{-- ===== HERO SECTION ===== --}}
     <section
-        class="relative bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white overflow-hidden py-20 lg:py-32 border-b border-blue-900/30">
+        class="relative bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white overflow-hidden py-15 lg:py-20 border-b border-blue-900/30">
         {{-- Elegant glow patterns --}}
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(56,189,248,0.15),transparent_50%)]"></div>
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(59,130,246,0.12),transparent_40%)]"></div>
@@ -41,7 +41,7 @@
             </p>
 
             {{-- Metrics Grid in Hero --}}
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto mt-16 pt-12 border-t border-white/10">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-16 pt-12 border-t border-white/10">
                 <div
                     class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/5 hover:border-sky-500/20 transition-all duration-300">
                     <p class="text-3xl sm:text-4xl font-black text-sky-400">3 años</p>
@@ -56,11 +56,6 @@
                     class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/5 hover:border-sky-500/20 transition-all duration-300">
                     <p class="text-3xl sm:text-4xl font-black text-sky-400">Modular</p>
                     <p class="text-sm sm:text-base font-bold text-slate-400 mt-2">Certificaciones Anuales</p>
-                </div>
-                <div
-                    class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/5 hover:border-sky-500/20 transition-all duration-300">
-                    <p class="text-3xl sm:text-4xl font-black text-sky-400">Gratuito</p>
-                    <p class="text-sm sm:text-base font-bold text-slate-400 mt-2">Educación Superior Pública</p>
                 </div>
             </div>
         </div>
@@ -264,7 +259,7 @@
                     <div>
                         <div
                             class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-6 shadow-sm">
-                            <i class="bi bi-file-earmark-badge text-2xl"></i>
+                            <i class="bi bi-mortarboard text-2xl"></i>
                         </div>
                         <h3 class="font-extrabold text-slate-900 text-lg mb-3">Título Oficial</h3>
                         <p class="text-base text-slate-600 leading-relaxed font-medium">

@@ -41,18 +41,6 @@
                 <em>IESTP Francisco Vigo Caballero</em>
             </h1>
             <p class="text-xl mb-8">La llave de tu futuro está en tus manos</p>
-
-            <div class="max-w-2xl mx-auto">
-                <form action="{{ route('bolsa-de-trabajo') }}" method="GET" class="flex flex-col md:flex-row gap-4">
-                    <input type="text" name="search" placeholder="Buscar por palabra clave..."
-                        class="flex-1 px-6 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-300">
-                    <button type="submit"
-                        class="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition flex items-center justify-center gap-2">
-                        <i class="bi bi-search"></i>
-                        Buscar
-                    </button>
-                </form>
-            </div>
         </div>
     </section>
 

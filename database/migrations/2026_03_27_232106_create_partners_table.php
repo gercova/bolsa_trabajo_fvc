@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('company', 100);
             $table->string('link')->nullable();
-            $table->string('image_url');
-            $table->boolean('is_active');
+            $table->string('image_url')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

@@ -72,4 +72,38 @@ class StudyProgramPublicTest extends TestCase
 
         $response->assertRedirect('/programas-de-estudios');
     }
+
+    public function test_public_user_can_access_study_program_detail_page(): void
+    {
+        $this->createEnterprise();
+
+        // Create an active study program with modules
+        $program = StudyProgram::create([
+            'name' => 'Producción Agropecuaria',
+            'slug' => 'produccion-agropecuaria',
+            'description' => 'Especialidad agrícola importante',
+            'details' => "Duración: 3 años\nTítulo: Profesional Técnico\nInversión: Gratuito",
+            'is_active' => true,
+        ]);
+
+        ModularCertification::create([
+            'module' => 'Módulo Agropecuaria I',
+            'model_type' => StudyProgram::class,
+            'program_id' => $program->id,
+            'is_active' => true,
+        ]);
+
+        $response = $this->get('/programas-de-estudios/produccion-agropecuaria');
+
+        $response->assertOk();
+        $response->assertSee('Producción Agropecuaria');
+        $response->assertSee('Especialidad agrícola importante');
+        $response->assertSee('Módulo Agropecuaria I');
+        
+        // Assert SEO tags are present
+        $response->assertSee('<meta name="description"', false);
+        $response->assertSee('<meta name="keywords"', false);
+        $response->assertSee('<link rel="canonical"', false);
+        $response->assertSee('<script type="application/ld+json">', false);
+    }
 }

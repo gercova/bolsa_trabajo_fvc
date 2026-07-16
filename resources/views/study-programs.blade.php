@@ -1,7 +1,5 @@
 @extends('layouts.app')
-
 @section('title', 'Programas de Estudio y Carreras — IESTP Francisco Vigo Caballero')
-
 @push('styles')
     {{-- SEO Optimization Meta Tags --}}
     <meta name="description"
@@ -24,7 +22,7 @@
 @section('content')
     {{-- ===== HERO SECTION ===== --}}
     <section
-        class="relative bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white overflow-hidden py-15 lg:py-20 border-b border-blue-900/30">
+        class="relative bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-blue-900/30">
         {{-- Elegant glow patterns --}}
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(56,189,248,0.15),transparent_50%)]"></div>
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(59,130,246,0.12),transparent_40%)]"></div>

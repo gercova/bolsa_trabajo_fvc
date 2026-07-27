@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('title', 'CEPRE-FVC — IESTP Francisco Vigo Caballero')
-
 @section('content')
     {{-- Hero Section --}}
     <section class="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600 text-white overflow-hidden py-16 lg:py-24">

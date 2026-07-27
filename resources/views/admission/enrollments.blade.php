@@ -8,7 +8,6 @@
         content="matricula, fvc, instituto francisco vigo caballero, matriculas 2026, cronograma de matricula, educacion superior tecnica, trujillo">
     <meta name="robots" content="index, follow">
 @endpush
-
 @section('content')
     {{-- Hero Section (Centered & Premium Glassmorphic Design) --}}
     <section

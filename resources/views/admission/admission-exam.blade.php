@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('title', 'Examen de Admisión — IESTP Francisco Vigo Caballero')
-
 @section('content')
     {{-- Hero Section --}}
     <section

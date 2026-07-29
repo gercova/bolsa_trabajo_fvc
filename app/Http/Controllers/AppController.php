@@ -384,7 +384,6 @@ class AppController extends Controller {
         return view('procedures.tupa', compact('currentTupa', 'tupaHistory', 'procedures'));
     }
 
-
     // quienes somos
     public function whoWeAre(): View {
         $enterprise = Enterprise::get();
@@ -422,6 +421,12 @@ class AppController extends Controller {
     // consejo de estudiantes
     public function studentCouncil(): View {
         return view('aboutus.student-council');
+    }
+
+    public function locales(): View {
+        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
+        $programs   = StudyProgram::where('is_active', true)->get();
+        return view('aboutus.locals', compact('enterprise', 'programs'));
     }
 
     public function offers(): View {

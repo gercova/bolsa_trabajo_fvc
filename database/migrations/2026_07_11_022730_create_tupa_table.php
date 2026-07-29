@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('title');
             $table->text('description');
             $table->string('file_path');
+            $table->date('effective_start_date');
+            $table->date('effective_end_date')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

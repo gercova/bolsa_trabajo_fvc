@@ -167,7 +167,24 @@
                     </div>
                 @endif
             </a>
+
+            <!-- Gestionar TUPA -->
+            <a href="{{ route('admin.tupa.index') }}"
+                class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ request()->routeIs('admin.tupa.*') ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
+                <div
+                    class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200 {{ request()->routeIs('admin.tupa*') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
+                </div>
+                <i
+                    class="bi bi-file-earmark-text text-xl transition-transform duration-200 group-hover:scale-110 {{ request()->routeIs('admin.tupa*') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
+                <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Gestionar TUPA</span>
+                @if (request()->routeIs('admin.tupa*'))
+                    <div
+                        class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                    </div>
+                @endif
+            </a>
         </nav>
+
 
         <div class="p-4 border-t border-slate-700/50" x-show="sidebarOpen" x-transition.opacity>
             <div class="bg-slate-800 rounded-xl p-4 flex items-center space-x-3">

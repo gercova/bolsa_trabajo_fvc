@@ -13,6 +13,7 @@ use App\Http\Controllers\JobsController;
 use App\Http\Controllers\PartnersController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StudyProgramsController;
+use App\Http\Controllers\TupaController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -86,6 +87,16 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/editar-examen/{admission}',    [AdmissionsController::class, 'update'])->name('update');
         Route::delete('/{admission}',               [AdmissionsController::class, 'destroy'])->name('destroy');
         Route::patch('/estado/{admission}',         [AdmissionsController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
+    Route::prefix('admin-tupa')->name('admin.tupa.')->group(function () {
+        Route::get('/',                             [TupaController::class, 'index'])->name('index');
+        Route::get('/crear-tupa',                   [TupaController::class, 'create'])->name('create');
+        Route::post('/guardar',                     [TupaController::class, 'store'])->name('store');
+        Route::get('/editar-tupa/{tupa}',           [TupaController::class, 'edit'])->name('edit');
+        Route::put('/editar-tupa/{tupa}',           [TupaController::class, 'update'])->name('update');
+        Route::delete('/{tupa}',                    [TupaController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{tupa}',              [TupaController::class, 'toggleStatus'])->name('toggle-status');
     });
 
     Route::prefix('admin-programas')->name('admin.programs.')->group(function () {

@@ -132,7 +132,7 @@ class RoleController extends Controller
             }
 
             return redirect()->route('admin.roles.index')
-                             ->with('success', "El rol '{$role->name}' se ha actualizado correctamente.");
+                ->with('success', "El rol '{$role->name}' se ha actualizado correctamente.");
 
         } catch (\Exception $e) {
             Log::error('Error actualizando rol: ' . $e->getMessage());
@@ -176,7 +176,7 @@ class RoleController extends Controller
             }
 
             return redirect()->route('admin.roles.index')
-                             ->with('success', "El rol '{$roleName}' ha sido eliminado correctamente.");
+                ->with('success', "El rol '{$roleName}' ha sido eliminado correctamente.");
 
         } catch (\Exception $e) {
             Log::error('Error eliminando rol: ' . $e->getMessage());

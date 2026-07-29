@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Admission;
 use App\Models\AdmissionRequirement;
+use App\Models\Blog;
 use App\Models\Enterprise;
 use App\Models\HistoricalReview;
 use App\Models\JobOffer;
@@ -22,7 +23,8 @@ class AppController extends Controller {
         $partners   = Partner::where('is_active', true)->get();
         $jobOffers  = JobOffer::where('is_active', true)->get();
         $users      = User::where('is_active', true)->get();
-        return view('home', compact('partners', 'jobOffers', 'users', 'programs'));
+        $blogs      = Blog::where('is_published', true)->latest()->take(3)->get();
+        return view('home', compact('partners', 'jobOffers', 'users', 'programs', 'blogs'));
     }
 
     // cepre fvc

@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call(UbigeoProvinceSeeder::class);
         $this->call(UbigeoDistrictSeeder::class);
         $this->call(EnterpriseSeeder::class);
+        $this->call(RoleSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(StudyProgramSeeder::class);
         $this->call(AdmissionSeeder::class);

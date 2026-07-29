@@ -30,7 +30,7 @@ class JobValidate extends FormRequest
             'company.max'          => 'La empresa no debe superar los 255 caracteres.',
             'location.required'    => 'La ubicación es obligatoria.',
             'location.max'         => 'La ubicación no debe superar los 255 caracteres.',
-            'url.url'              => 'El formato del enlace o URL no es válido.',
+            'url.url'              => 'El formato del enlace o URL no es válido. Ejemplo: https://ejemplo.com',
             'url.max'              => 'La URL no debe superar los 255 caracteres.',
             'source.max'           => 'La fuente no debe superar los 100 caracteres.',
             'description.required' => 'La descripción del puesto es obligatoria.',

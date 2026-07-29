@@ -12,6 +12,7 @@ use App\Http\Controllers\EnterpriseController;
 use App\Http\Controllers\JobsController;
 use App\Http\Controllers\PartnersController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StudyProgramsController;
 use App\Http\Controllers\TupaController;
 use App\Http\Controllers\UsersController;
@@ -117,6 +118,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{offer}/editar-oferta',    [JobsController::class, 'edit'])->name('edit');
         Route::put('/{offer}',                  [JobsController::class, 'update'])->name('update');
         Route::delete('/{offer}',               [JobsController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{offer}',         [JobsController::class, 'toggleStatus'])->name('toggle-status');
     });
     
     Route::prefix('admin-usuarios')->name('admin.users.')->group(function () {
@@ -127,6 +129,15 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{user}',           [UsersController::class, 'update'])->name('update');
         Route::post('/estado/{user}',   [UsersController::class, 'toggleStatus'])->name('toggle-status');
         Route::delete('/{user}',        [UsersController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('admin-roles')->name('admin.roles.')->group(function () {
+        Route::get('/',                 [RoleController::class, 'index'])->name('index');
+        Route::get('/crear',            [RoleController::class, 'create'])->name('create');
+        Route::post('/guardar',         [RoleController::class, 'store'])->name('store');
+        Route::get('/{role}/editar',    [RoleController::class, 'edit'])->name('edit');
+        Route::put('/{role}',           [RoleController::class, 'update'])->name('update');
+        Route::delete('/{role}',        [RoleController::class, 'destroy'])->name('destroy');
     });
 
     Route::prefix('admin-reclamos')->name('admin.claims.')->group(function () {

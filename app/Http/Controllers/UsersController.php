@@ -179,34 +179,48 @@ class UsersController extends Controller {
             $user->syncRoles([$validated['role']]);
         }
 
-        return redirect()->route('admin.usuarios')->with('success', "Usuario {$user->names} actualizado exitosamente.");
+        return redirect()
+            ->route('admin.users.index')->with('success', "Usuario {$user->names} actualizado exitosamente.");
     }
 
-    public function toggleStatus(User $user): JsonResponse {
+    public function toggleStatus(User $user): JsonResponse|RedirectResponse {
         $user->update([
             'is_active' => !$user->is_active
         ]);
 
-        return response()->json([
-            'success'   => true,
-            'message'   => 'Estado del usuario actualizado.',
-            'status'    => $user->is_active
-        ]);
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success'   => true,
+                'message'   => 'Estado del usuario actualizado.',
+                'status'    => $user->is_active
+            ]);
+        }
+
+        $statusMessage = $user->is_active ? 'activado' : 'desactivado';
+        return redirect()->back()->with('success', "Usuario {$user->names} {$statusMessage} correctamente.");
     }
 
-    public function destroy(User $user): JsonResponse {
+    public function destroy(User $user): JsonResponse|RedirectResponse {
         // Verificar que no sea el último admin
         if ($user->role === 'admin' && User::where('role', 'admin')->count() <= 1) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No se puede eliminar el único administrador.'
-            ], 400);
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se puede eliminar el único administrador.'
+                ], 400);
+            }
+            return redirect()->back()->with('error', 'No se puede eliminar el único administrador.');
         }
 
         $user->delete();
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuario eliminado exitosamente.'
-        ]);
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuario eliminado exitosamente.'
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Usuario eliminado exitosamente.');
     }
 }

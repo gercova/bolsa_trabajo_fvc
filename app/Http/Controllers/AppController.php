@@ -11,6 +11,7 @@ use App\Models\JobOffer;
 use App\Models\Partner;
 use App\Models\StudyProgram;
 use App\Models\User;
+use App\Models\UserRoleDetail;
 use App\Models\Claim;
 use App\Http\Requests\ClaimValidate;
 use Illuminate\Contracts\View\View;
@@ -408,8 +409,29 @@ class AppController extends Controller {
 
     // plana de docentes
     public function teachersStaff(): View {
-        $teachers = User::where('role', 'Docente')->get();
-        return view('aboutus.teachers-staff', compact('teachers'));
+        $teacherDetails = UserRoleDetail::with(['user', 'program'])
+            ->where('is_active', true)
+            ->whereHas('user', function ($q) {
+                $q->where('is_active', true);
+            })
+            ->get();
+
+        $programs = StudyProgram::where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        $assignedUserIds = $teacherDetails->pluck('user_id')->unique()->filter()->toArray();
+
+        $unassignedTeachers = User::where(function ($q) {
+                $q->where('role', 'Docente')
+                  ->orWhereHas('roles', fn ($r) => $r->where('name', 'Docente'));
+            })
+            ->where('is_active', true)
+            ->whereNotIn('id', $assignedUserIds)
+            ->orderBy('names')
+            ->get();
+
+        return view('aboutus.teachers-staff', compact('teacherDetails', 'programs', 'unassignedTeachers'));
     }
 
     // plana administrativa

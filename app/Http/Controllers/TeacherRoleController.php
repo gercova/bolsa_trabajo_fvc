@@ -27,8 +27,8 @@ class TeacherRoleController extends Controller
             ->when($search, function ($q) use ($search) {
                 $q->whereHas('user', function ($u) use ($search) {
                     $u->where('names', 'LIKE', "%{$search}%")
-                      ->orWhere('dni', 'LIKE', "%{$search}%")
-                      ->orWhere('job_position', 'LIKE', "%{$search}%");
+                        ->orWhere('dni', 'LIKE', "%{$search}%")
+                        ->orWhere('job_position', 'LIKE', "%{$search}%");
                 });
             })
             ->when($programId, fn($q) => $q->where('program_id', $programId))
@@ -36,14 +36,14 @@ class TeacherRoleController extends Controller
             ->orderByDesc('is_coordinator')
             ->orderBy('created_at');
 
-        $details  = $query->paginate(15)->appends($request->only(['search', 'program_id', 'only_coordinators']));
+        $details  = $query->paginate(10)->appends($request->only(['search', 'program_id', 'only_coordinators']));
         $programs = StudyProgram::orderBy('name')->get();
         $teachers = User::whereHas('roles', fn($q) => $q->where('name', 'Docente'))
-                        ->orWhere('role', 'Docente')
-                        ->where('is_active', true)
-                        ->orderBy('names')
-                        ->get();
-        $roles    = Role::orderBy('name')->get();
+            ->orWhere('role', 'Docente')
+            ->where('is_active', true)
+            ->orderBy('names')
+            ->get();
+        $roles = Role::orderBy('name')->get();
 
         return view('admin.user.teacher-roles', compact(
             'details', 'programs', 'teachers', 'roles',
@@ -63,15 +63,15 @@ class TeacherRoleController extends Controller
             'specialty'      => 'nullable|string|max:255',
             'is_active'      => 'boolean',
         ], [
-            'user_id.required' => 'Debe seleccionar un usuario.',
-            'user_id.exists'   => 'El usuario seleccionado no existe.',
+            'user_id.required'  => 'Debe seleccionar un usuario.',
+            'user_id.exists'    => 'El usuario seleccionado no existe.',
             'program_id.exists' => 'El programa seleccionado no existe.',
         ]);
 
         // Check for duplicate assignment
         $exists = UserRoleDetail::where('user_id', $validated['user_id'])
-                                ->where('program_id', $validated['program_id'] ?? null)
-                                ->exists();
+            ->where('program_id', $validated['program_id'] ?? null)
+            ->exists();
 
         if ($exists) {
             $msg = 'Este docente ya está asignado a ese programa.';
@@ -95,7 +95,7 @@ class TeacherRoleController extends Controller
             }
 
             return redirect()->route('admin.teacher-roles.index')
-                             ->with('success', 'Asignación de docente guardada correctamente.');
+                ->with('success', 'Asignación de docente guardada correctamente.');
 
         } catch (\Exception $e) {
             Log::error('Error creando asignación de docente: ' . $e->getMessage());
@@ -127,9 +127,9 @@ class TeacherRoleController extends Controller
             $teacherRole->program_id != ($validated['program_id'] ?? null)
         ) {
             $exists = UserRoleDetail::where('user_id', $validated['user_id'])
-                                    ->where('program_id', $validated['program_id'] ?? null)
-                                    ->where('id', '!=', $teacherRole->id)
-                                    ->exists();
+                ->where('program_id', $validated['program_id'] ?? null)
+                ->where('id', '!=', $teacherRole->id)
+                ->exists();
 
             if ($exists) {
                 $msg = 'Este docente ya está asignado a ese programa.';
@@ -154,7 +154,7 @@ class TeacherRoleController extends Controller
             }
 
             return redirect()->route('admin.teacher-roles.index')
-                             ->with('success', 'Asignación actualizada correctamente.');
+                ->with('success', 'Asignación actualizada correctamente.');
 
         } catch (\Exception $e) {
             Log::error('Error actualizando asignación de docente: ' . $e->getMessage());
@@ -194,7 +194,7 @@ class TeacherRoleController extends Controller
             }
 
             return redirect()->route('admin.teacher-roles.index')
-                             ->with('success', 'Asignación eliminada correctamente.');
+                ->with('success', 'Asignación eliminada correctamente.');
 
         } catch (\Exception $e) {
             Log::error('Error eliminando asignación: ' . $e->getMessage());

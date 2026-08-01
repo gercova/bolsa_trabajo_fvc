@@ -39,4 +39,10 @@ class StudyProgram extends Model
     {
         return $this->hasMany(AdmissionDetail::class, 'program_id', 'id');
     }
+
+    /** All teacher role details linked to this programme. */
+    public function teacherDetails(): HasMany
+    {
+        return $this->hasMany(UserRoleDetail::class, 'program_id', 'id');
+    }
 }

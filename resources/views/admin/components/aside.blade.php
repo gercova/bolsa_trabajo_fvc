@@ -6,6 +6,32 @@
     @click="sidebarOpen = false" x-cloak>
 </div>
 
+<style>
+    /* Custom Aesthetic Scrollbar for Admin Sidebar */
+    .sidebar-scrollbar::-webkit-scrollbar {
+        width: 5px;
+    }
+    .sidebar-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+        margin: 6px 0;
+    }
+    .sidebar-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.25);
+        border-radius: 20px;
+    }
+    .sidebar-scrollbar:hover::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.4);
+    }
+    .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(to bottom, #a855f7, #6366f1) !important;
+    }
+    /* Firefox scrollbar */
+    .sidebar-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+    }
+</style>
+
 <!-- Sidebar -->
 <aside
     class="bg-slate-900 shadow-2xl transition-all duration-300 ease-in-out flex-shrink-0 fixed lg:relative inset-y-0 left-0 z-[45] lg:z-[40] top-[64px] lg:top-0"
@@ -26,7 +52,7 @@
             </button>
         </div>
 
-        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto sidebar-scrollbar custom-scrollbar">
             <!-- Dashboard -->
             <a href="{{ route('admin.dashboard.index') }}"
                 class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
@@ -123,6 +149,23 @@
                     </div>
                 @endif
             </a>
+
+            <!-- Plana Docente -->
+            <a href="{{ route('admin.teacher-roles.index') }}"
+                class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ request()->routeIs('admin.teacher-roles*') ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
+                <div
+                    class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200 {{ request()->routeIs('admin.teacher-roles*') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
+                </div>
+                <i
+                    class="bi bi-person-workspace text-xl transition-transform duration-200 group-hover:scale-110 {{ request()->routeIs('admin.teacher-roles*') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
+                <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Plana Docente</span>
+                @if (request()->routeIs('admin.teacher-roles*'))
+                    <div
+                        class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                    </div>
+                @endif
+            </a>
+
 
             <!-- Gestionar Roles y Permisos -->
             <a href="{{ route('admin.roles.index') }}"

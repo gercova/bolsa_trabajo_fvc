@@ -24,9 +24,9 @@
         </header>
         {{-- Formulario --}}
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-            <form action="{{ route('admin.users.store') }}" method="POST" enctype="multipart/form-data" class="p-6 md:p-8">
+            <form action="{{ route('admin.users.update', $user) }}" method="POST" enctype="multipart/form-data" class="p-6 md:p-8">
                 @csrf
-                <input type="hidden" name="id" id="id" value="{{ $user->id }}">
+                @method('PUT')
                 {{-- Grid de 2 columnas --}}
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {{-- Columna Izquierda: Foto de Perfil y Estado --}}
@@ -61,7 +61,7 @@
                             {{-- Estado del usuario --}}
                             <div class="border-t border-gray-200 pt-4">
                                 <label class="flex items-center cursor-pointer">
-                                    <input type="checkbox" name="is_active" value="1" checked class="w-5 h-5 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2">
+                                    <input type="checkbox" name="is_active" value="1" {{ old('is_active', $user->is_active) ? 'checked' : '' }} class="w-5 h-5 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2">
                                     <span class="ml-3 text-sm font-medium text-gray-700">
                                         <i class="bi bi-check-circle-fill text-green-600 mr-1"></i>
                                         Usuario activo
@@ -139,7 +139,7 @@
                                     <select name="role" id="role" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition appearance-none @error('role') border-red-500 @enderror">
                                         <option value="">Seleccionar rol...</option>
                                         @foreach ($roles as $role)
-                                            <option value="{{ $role->name }}" {{ old('role') == $role->name ? 'selected' : '' }}>{{ $role->name }}</option>
+                                            <option value="{{ $role->name }}" {{ old('role', $user->roles->first()?->name ?? $user->role) == $role->name ? 'selected' : '' }}>{{ $role->name }}</option>
                                         @endforeach
                                     </select>
                                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">

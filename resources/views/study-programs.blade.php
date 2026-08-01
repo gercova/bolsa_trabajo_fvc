@@ -121,10 +121,10 @@
                     @foreach ($programs as $program)
                         @php
                             $meta = $programMeta[$program->name] ?? [
-                                'icon' => 'bi-mortarboard-fill',
-                                'accent' => 'blue',
-                                'bg_badge' => 'bg-blue-50 text-blue-800 border-blue-100',
-                                'tag' => 'Educación Técnica',
+                                'icon'      => 'bi-mortarboard-fill',
+                                'accent'    => 'blue',
+                                'bg_badge'  => 'bg-blue-50 text-blue-800 border-blue-100',
+                                'tag'       => 'Educación Técnica',
                                 'color_bar' => 'bg-blue-500',
                             ];
 
@@ -137,8 +137,8 @@
                             class="group bg-white rounded-3xl border border-slate-100 shadow-md hover-card overflow-hidden flex flex-col h-full">
                             {{-- Header image / gradient --}}
                             <div class="h-60 relative overflow-hidden bg-slate-900 flex items-center justify-center">
-                                @if ($imagePath)
-                                    <img src="{{ Str::startsWith($imagePath, ['http://', 'https://']) ? $imagePath : asset('storage/' . $imagePath) }}"
+                                @if ($program->logo_path)
+                                    <img src="{{ Str::startsWith($program->logo_path, ['http://', 'https://']) ? $program->logo_path : asset('storage/' . $program->logo_path) }}"
                                         alt="{{ $program->name }}"
                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90">
                                     <div

@@ -292,42 +292,42 @@
     ];
 
     // Default fallback in case slug doesn't match predefined mappings
-    $meta = $programMeta[$programSlug] ?? [
-        'icon' => 'bi-mortarboard-fill',
-        'color' => 'blue',
-        'badge' => 'Educación Superior',
-        'glow_class' => 'bg-blue-500/20',
-        'badge_class' => 'bg-blue-500/15 text-blue-300 border-blue-500/30',
-        'accent_text' => 'text-blue-300',
-        'bullet_class' => 'bg-blue-600',
-        'icon_bg_class' => 'bg-blue-50 text-blue-600 border-blue-100',
-        'border_hover_class' => 'hover:border-blue-300',
-        'badge_module_class' => 'bg-blue-100 text-blue-800',
-        'sidebar_icon_class' => 'text-blue-600',
-        'cta_bg_class' => 'from-blue-600 to-indigo-800',
-        'bar_color_class' => 'bg-blue-500',
-        'perfil' => $program->description,
-        'competencias' => [
-            [
-                'title' => 'Competencia General',
-                'desc' => 'Formación teórica y práctica acorde a las directrices de la especialidad.',
-                'icon' => 'fa-graduation-cap',
-            ],
+$meta = $programMeta[$programSlug] ?? [
+    'icon' => 'bi-mortarboard-fill',
+    'color' => 'blue',
+    'badge' => 'Educación Superior',
+    'glow_class' => 'bg-blue-500/20',
+    'badge_class' => 'bg-blue-500/15 text-blue-300 border-blue-500/30',
+    'accent_text' => 'text-blue-300',
+    'bullet_class' => 'bg-blue-600',
+    'icon_bg_class' => 'bg-blue-50 text-blue-600 border-blue-100',
+    'border_hover_class' => 'hover:border-blue-300',
+    'badge_module_class' => 'bg-blue-100 text-blue-800',
+    'sidebar_icon_class' => 'text-blue-600',
+    'cta_bg_class' => 'from-blue-600 to-indigo-800',
+    'bar_color_class' => 'bg-blue-500',
+    'perfil' => $program->description,
+    'competencias' => [
+        [
+            'title' => 'Competencia General',
+            'desc' => 'Formación teórica y práctica acorde a las directrices de la especialidad.',
+            'icon' => 'fa-graduation-cap',
         ],
-        'campo_laboral' => [
-            'Empresas del sector público y privado afines a la especialidad.',
-            'Consultoría técnica independiente.',
-            'Desarrollo de proyectos y emprendimientos autónomos.',
-        ],
-        'requisitos' => [
-            'Certificado de estudios de Educación Secundaria completa (original).',
-            'Copia simple de Documento Nacional de Identidad (DNI) vigente.',
-            'Partida de Nacimiento original.',
-            'Fotos tamaño carnet.',
-        ],
-    ];
+    ],
+    'campo_laboral' => [
+        'Empresas del sector público y privado afines a la especialidad.',
+        'Consultoría técnica independiente.',
+        'Desarrollo de proyectos y emprendimientos autónomos.',
+    ],
+    'requisitos' => [
+        'Certificado de estudios de Educación Secundaria completa (original).',
+        'Copia simple de Documento Nacional de Identidad (DNI) vigente.',
+        'Partida de Nacimiento original.',
+        'Fotos tamaño carnet.',
+    ],
+];
 
-    $mainImage = $program->images->where('is_main', true)->first() ?? $program->images->first();
+$mainImage = $program->images->where('is_main', true)->first() ?? $program->images->first();
     $albumImages = $program->images;
 @endphp
 
@@ -335,21 +335,25 @@
 
 @push('styles')
     {{-- Font Awesome 6.5.1 --}}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     {{-- SEO Meta Tags --}}
     <meta name="description" content="{{ Str::limit(strip_tags($meta['perfil']), 155) }}">
-    <meta name="keywords" content="{{ $program->name }}, carrera tecnica, IESTP Francisco Vigo Caballero, Uchiza, {{ $meta['badge'] }}">
+    <meta name="keywords"
+        content="{{ $program->name }}, carrera tecnica, IESTP Francisco Vigo Caballero, Uchiza, {{ $meta['badge'] }}">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url()->current() }}">
-    
+
     {{-- Open Graph / Facebook --}}
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ $program->name }} — IESTP Francisco Vigo Caballero">
     <meta property="og:description" content="{{ Str::limit(strip_tags($meta['perfil']), 155) }}">
     <meta property="og:url" content="{{ url()->current() }}">
-    @if($mainImage)
-        <meta property="og:image" content="{{ Str::startsWith($mainImage->path, ['http://', 'https://']) ? $mainImage->path : asset('storage/' . $mainImage->path) }}">
+    @if ($mainImage)
+        <meta property="og:image"
+            content="{{ Str::startsWith($mainImage->path, ['http://', 'https://']) ? $mainImage->path : asset('storage/' . $mainImage->path) }}">
     @endif
 
     {{-- JSON-LD Structured Data --}}
@@ -396,7 +400,8 @@
             <div class="flex flex-col lg:flex-row items-center gap-12">
                 {{-- Text column --}}
                 <div class="lg:w-7/12 text-left">
-                    <span class="inline-flex items-center gap-1.5 {{ $meta['badge_class'] }} text-sm font-bold px-4 py-2 rounded-full uppercase tracking-widest mb-6 border">
+                    <span
+                        class="inline-flex items-center gap-1.5 {{ $meta['badge_class'] }} text-sm font-bold px-4 py-2 rounded-full uppercase tracking-widest mb-6 border">
                         <i class="bi {{ $meta['icon'] }} text-sm"></i>
                         {{ $meta['badge'] }}
                     </span>
@@ -431,14 +436,27 @@
                 {{-- Visual column (Cover Image) --}}
                 <div class="lg:w-5/12 w-full">
                     <div class="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent z-10">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent z-10">
                         </div>
-                        @if ($mainImage)
+                        {{-- @if ($mainImage)
                             <img src="{{ Str::startsWith($mainImage->path, ['http://', 'https://']) ? $mainImage->path : Storage::url($mainImage->path) }}"
                                 alt="{{ $program->name }}"
                                 class="w-full h-80 lg:h-96 object-cover transform scale-105 hover:scale-100 transition-transform duration-700">
                         @else
-                            <div class="w-full h-80 lg:h-96 bg-gradient-to-br {{ $meta['cta_bg_class'] }} flex items-center justify-center">
+                            <div
+                                class="w-full h-80 lg:h-96 bg-gradient-to-br {{ $meta['cta_bg_class'] }} flex items-center justify-center">
+                                <i class="bi {{ $meta['icon'] }} text-9xl text-white/20"></i>
+                            </div>
+                        @endif --}}
+
+                        @if ($program->logo_path)
+                            <img src="{{ Str::startsWith($program->logo_path, ['http://', 'https://']) ? $program->logo_path : Storage::url($program->logo_path) }}"
+                                alt="{{ $program->name }}"
+                                class="w-full h-80 lg:h-96 object-cover transform scale-105 hover:scale-100 transition-transform duration-700">
+                        @else
+                            <div
+                                class="w-full h-80 lg:h-96 bg-gradient-to-br {{ $meta['cta_bg_class'] }} flex items-center justify-center">
                                 <i class="bi {{ $meta['icon'] }} text-9xl text-white/20"></i>
                             </div>
                         @endif
@@ -487,8 +505,10 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             @foreach ($meta['competencias'] as $item)
-                                <div class="flex gap-4 p-5 rounded-2xl bg-gray-50 border border-gray-100 {{ $meta['border_hover_class'] }} transition-colors">
-                                    <div class="w-12 h-12 rounded-xl {{ $meta['icon_bg_class'] }} flex items-center justify-center shrink-0 border">
+                                <div
+                                    class="flex gap-4 p-5 rounded-2xl bg-gray-50 border border-gray-100 {{ $meta['border_hover_class'] }} transition-colors">
+                                    <div
+                                        class="w-12 h-12 rounded-xl {{ $meta['icon_bg_class'] }} flex items-center justify-center shrink-0 border">
                                         <i class="fa-solid {{ $item['icon'] }} text-lg"></i>
                                     </div>
                                     <div>
@@ -517,14 +537,16 @@
                                 @foreach ($program->modules as $index => $module)
                                     <div class="timeline-item flex gap-6 relative">
                                         {{-- Bullet decoration --}}
-                                        <div class="timeline-bullet w-10 h-10 rounded-full {{ $meta['bullet_class'] }} text-white font-extrabold flex items-center justify-center shrink-0 relative z-10 shadow-sm">
+                                        <div
+                                            class="timeline-bullet w-10 h-10 rounded-full {{ $meta['bullet_class'] }} text-white font-extrabold flex items-center justify-center shrink-0 relative z-10 shadow-sm">
                                             {{ $index + 1 }}
                                         </div>
 
                                         {{-- Content --}}
                                         <div class="flex-grow bg-gray-50 border border-gray-100 rounded-2xl p-6 relative">
                                             <div class="flex flex-wrap items-center justify-between gap-4 mb-3">
-                                                <span class="px-3 py-1 text-sm font-bold uppercase tracking-wider rounded-full {{ $meta['badge_module_class'] }}">
+                                                <span
+                                                    class="px-3 py-1 text-sm font-bold uppercase tracking-wider rounded-full {{ $meta['badge_module_class'] }}">
                                                     Módulo Informativo {{ $index + 1 }}
                                                 </span>
                                                 <span class="text-sm text-gray-500 font-medium flex items-center gap-1">
@@ -535,8 +557,10 @@
                                                 {{ $module->module }}
                                             </h3>
                                             <p class="text-sm md:text-base text-gray-600 leading-relaxed">
-                                                Certificación otorgada al concluir satisfactoriamente las unidades didácticas
-                                                teóricas y las correspondientes experiencias formativas en situaciones reales de
+                                                Certificación otorgada al concluir satisfactoriamente las unidades
+                                                didácticas
+                                                teóricas y las correspondientes experiencias formativas en situaciones
+                                                reales de
                                                 trabajo.
                                             </p>
                                         </div>
@@ -570,7 +594,8 @@
                                 Álbum de Fotos & Galería
                             </h2>
                             <p class="text-gray-600 mb-8 text-base">
-                                Explora las actividades prácticas, laboratorios, talleres y el trabajo de campo que realizan nuestros
+                                Explora las actividades prácticas, laboratorios, talleres y el trabajo de campo que realizan
+                                nuestros
                                 estudiantes.
                             </p>
 
@@ -586,8 +611,10 @@
                                         @click="open = true; activeIndex = {{ $idx }}">
                                         <img src="{{ $imgPath }}" alt="Galería {{ $program->name }}"
                                             class="w-full h-full object-cover">
-                                        <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-lg">
+                                        <div
+                                            class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <div
+                                                class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-lg">
                                                 <i class="bi bi-eye-fill"></i>
                                             </div>
                                         </div>
@@ -612,7 +639,8 @@
                                         @click.stop>
 
                                         {{-- Image block --}}
-                                        <div class="relative max-h-[80vh] w-full flex items-center justify-center overflow-hidden rounded-2xl">
+                                        <div
+                                            class="relative max-h-[80vh] w-full flex items-center justify-center overflow-hidden rounded-2xl">
                                             <img :src="images[activeIndex]"
                                                 class="max-h-[80vh] max-w-full object-contain rounded-xl shadow-2xl transition-all duration-300">
 
@@ -662,14 +690,16 @@
 
                     {{-- Technical sheet --}}
                     <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm glow-effect">
-                        <h3 class="text-lg font-extrabold text-gray-900 mb-5 pb-3 border-b border-gray-100 flex items-center gap-2.5">
+                        <h3
+                            class="text-lg font-extrabold text-gray-900 mb-5 pb-3 border-b border-gray-100 flex items-center gap-2.5">
                             <i class="bi bi-info-square {{ $meta['sidebar_icon_class'] }} text-lg"></i>
                             Ficha Técnica
                         </h3>
 
                         <div class="space-y-4">
                             <div class="flex items-start gap-3.5">
-                                <div class="w-9 h-9 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center shrink-0 border border-gray-100">
+                                <div
+                                    class="w-9 h-9 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center shrink-0 border border-gray-100">
                                     <i class="bi bi-award text-base"></i>
                                 </div>
                                 <div>
@@ -681,31 +711,37 @@
                             </div>
 
                             <div class="flex items-start gap-3.5">
-                                <div class="w-9 h-9 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center shrink-0 border border-gray-100">
+                                <div
+                                    class="w-9 h-9 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center shrink-0 border border-gray-100">
                                     <i class="bi bi-hourglass-split text-base"></i>
                                 </div>
                                 <div>
-                                    <p class="text-xs text-gray-400 uppercase font-bold tracking-wider">Duración de Carrera</p>
+                                    <p class="text-xs text-gray-400 uppercase font-bold tracking-wider">Duración de Carrera
+                                    </p>
                                     <p class="text-sm text-gray-700 font-semibold mt-0.5">3 Años (6 Semestres)</p>
                                 </div>
                             </div>
 
                             <div class="flex items-start gap-3.5">
-                                <div class="w-9 h-9 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center shrink-0 border border-gray-100">
+                                <div
+                                    class="w-9 h-9 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center shrink-0 border border-gray-100">
                                     <i class="bi bi-clock text-base"></i>
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-400 uppercase font-bold tracking-wider">Horario Regular</p>
-                                    <p class="text-sm text-gray-700 font-semibold mt-0.5">Lunes a Viernes 7:30 am – 1:30 pm</p>
+                                    <p class="text-sm text-gray-700 font-semibold mt-0.5">Lunes a Viernes 7:30 am – 1:30 pm
+                                    </p>
                                 </div>
                             </div>
 
                             <div class="flex items-start gap-3.5">
-                                <div class="w-9 h-9 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center shrink-0 border border-gray-100">
+                                <div
+                                    class="w-9 h-9 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center shrink-0 border border-gray-100">
                                     <i class="bi bi-cash-coin text-base"></i>
                                 </div>
                                 <div>
-                                    <p class="text-xs text-gray-400 uppercase font-bold tracking-wider">Pensión y Mensualidad</p>
+                                    <p class="text-xs text-gray-400 uppercase font-bold tracking-wider">Pensión y
+                                        Mensualidad</p>
                                     <p class="text-sm text-gray-700 font-semibold mt-0.5">Costo Social S/ 0 (Gratuito)</p>
                                 </div>
                             </div>
@@ -714,7 +750,8 @@
 
                     {{-- Career Prospects / Campo Laboral --}}
                     <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm glow-effect">
-                        <h3 class="text-lg font-extrabold text-gray-900 mb-5 pb-3 border-b border-gray-100 flex items-center gap-2.5">
+                        <h3
+                            class="text-lg font-extrabold text-gray-900 mb-5 pb-3 border-b border-gray-100 flex items-center gap-2.5">
                             <i class="bi bi-briefcase {{ $meta['sidebar_icon_class'] }} text-lg"></i>
                             Campo Laboral
                         </h3>
@@ -725,7 +762,8 @@
                         <ul class="space-y-3">
                             @foreach ($meta['campo_laboral'] as $item)
                                 <li class="text-sm text-gray-700 flex items-start gap-2.5 leading-relaxed">
-                                    <i class="bi bi-check2-circle {{ $meta['sidebar_icon_class'] }} shrink-0 mt-0.5 text-base"></i>
+                                    <i
+                                        class="bi bi-check2-circle {{ $meta['sidebar_icon_class'] }} shrink-0 mt-0.5 text-base"></i>
                                     <span>{{ $item }}</span>
                                 </li>
                             @endforeach
@@ -734,7 +772,8 @@
 
                     {{-- Admission Requirements --}}
                     <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm glow-effect">
-                        <h3 class="text-lg font-extrabold text-gray-900 mb-5 pb-3 border-b border-gray-100 flex items-center gap-2.5">
+                        <h3
+                            class="text-lg font-extrabold text-gray-900 mb-5 pb-3 border-b border-gray-100 flex items-center gap-2.5">
                             <i class="bi bi-clipboard2-check {{ $meta['sidebar_icon_class'] }} text-lg"></i>
                             Requisitos de Matrícula
                         </h3>
@@ -753,13 +792,16 @@
                     </div>
 
                     {{-- CTA Box --}}
-                    <div class="bg-gradient-to-br {{ $meta['cta_bg_class'] }} rounded-3xl p-6 text-white text-center shadow-lg relative overflow-hidden">
-                        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px] z-0">
+                    <div
+                        class="bg-gradient-to-br {{ $meta['cta_bg_class'] }} rounded-3xl p-6 text-white text-center shadow-lg relative overflow-hidden">
+                        <div
+                            class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px] z-0">
                         </div>
                         <div class="relative z-10">
                             <h4 class="font-extrabold text-xl mb-3">¿Deseas iniciar tu inscripción?</h4>
                             <p class="text-sm text-white/80 leading-relaxed mb-6">
-                                Las vacantes son limitadas y no pagas mensualidad alguna durante toda la carrera técnica. ¡Asegura tu futuro!
+                                Las vacantes son limitadas y no pagas mensualidad alguna durante toda la carrera técnica.
+                                ¡Asegura tu futuro!
                             </p>
                             <a href="{{ route('examen-de-admision') }}"
                                 class="inline-block w-full bg-white text-slate-900 hover:bg-gray-100 py-3 rounded-xl font-bold text-sm tracking-wider uppercase transition-colors shadow-md">

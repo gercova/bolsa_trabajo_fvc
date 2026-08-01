@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
         $this->call(AdmissionRequirementSeeder::class);
         $this->call(PartnersSeeder::class);
         $this->call(TupaSeeder::class);
+        $this->call(UserRoleDetailsSeeder::class);
     }
 }
 

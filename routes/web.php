@@ -13,6 +13,7 @@ use App\Http\Controllers\JobsController;
 use App\Http\Controllers\PartnersController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\TeacherRoleController;
 use App\Http\Controllers\StudyProgramsController;
 use App\Http\Controllers\TupaController;
 use App\Http\Controllers\UsersController;
@@ -127,7 +128,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{user}/editar/',   [UsersController::class, 'edit'])->name('edit');
         Route::post('/',                [UsersController::class, 'store'])->name('store');
         Route::put('/{user}',           [UsersController::class, 'update'])->name('update');
-        Route::post('/estado/{user}',   [UsersController::class, 'toggleStatus'])->name('toggle-status');
+        Route::patch('/estado/{user}',  [UsersController::class, 'toggleStatus'])->name('toggle-status');
         Route::delete('/{user}',        [UsersController::class, 'destroy'])->name('destroy');
     });
 
@@ -138,6 +139,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{role}/editar',    [RoleController::class, 'edit'])->name('edit');
         Route::put('/{role}',           [RoleController::class, 'update'])->name('update');
         Route::delete('/{role}',        [RoleController::class, 'destroy'])->name('destroy');
+    });
+
+    // ── Teacher role details ──────────────────────────────────────────────────
+    Route::prefix('admin-docentes-roles')->name('admin.teacher-roles.')->group(function () {
+        Route::get('/',                            [TeacherRoleController::class, 'index'])->name('index');
+        Route::post('/guardar',                    [TeacherRoleController::class, 'store'])->name('store');
+        Route::put('/{teacherRole}',               [TeacherRoleController::class, 'update'])->name('update');
+        Route::patch('/estado/{teacherRole}',      [TeacherRoleController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{teacherRole}',            [TeacherRoleController::class, 'destroy'])->name('destroy');
     });
 
     Route::prefix('admin-reclamos')->name('admin.claims.')->group(function () {

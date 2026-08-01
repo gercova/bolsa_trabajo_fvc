@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -33,15 +34,25 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected function casts(): array {
-        return [
-            'email_verified_at' => 'datetime',
-            'password'          => 'hashed',
-            'is_actibe'         => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password'          => 'hashed',
+        'is_active'         => 'boolean',
+    ];
 
     public function areas(): HasMany {
         return $this->hasMany(Area::class, 'user_id', 'id');
+    }
+
+    /** All role-detail records for this user (can be on multiple programmes). */
+    public function roleDetails(): HasMany {
+        return $this->hasMany(UserRoleDetail::class, 'user_id', 'id');
+    }
+
+    /** The most recently active role-detail record (for display convenience). */
+    public function primaryRoleDetail(): HasOne {
+        return $this->hasOne(UserRoleDetail::class, 'user_id', 'id')
+            ->where('is_active', true)
+            ->latest();
     }
 }

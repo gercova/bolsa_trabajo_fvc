@@ -12,10 +12,14 @@ class UserValidate extends FormRequest
     }
 
     public function rules(): array {
+        // On update routes the User model is bound via route model binding.
+        // On store (create) $userId is null, so the unique rule applies without exception.
+        $userId = $this->route('user')?->id;
+
         return [
-            'dni'           => 'required|string|max:20|unique:users,dni,'.$this->id,
+            'dni'           => 'required|string|max:20|unique:users,dni,'.$userId,
             'names'         => 'required|string|max:255',
-            'email'         => 'required|email|max:255|unique:users,email,'.$this->id,
+            'email'         => 'required|email|max:255|unique:users,email,'.$userId,
             'role'          => 'required',
             'job_position'  => 'nullable|string|max:100',
             'photo_profile' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',

@@ -34,7 +34,8 @@
                     </a>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 space-y-8" x-data="{ selectedIcon: '{{ old('icon', 'bi-mortarboard-fill') }}' }">
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 space-y-8" 
+                    x-data="studyProgramCreateForm('{{ old('icon', 'bi-mortarboard-fill') }}')">
                     
                     {{-- Banner --}}
                     <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-blue-500/10 border border-purple-100">
@@ -43,7 +44,7 @@
                         </div>
                         <div>
                             <h3 class="text-sm font-bold text-gray-900">Nuevo Programa de Estudio</h3>
-                            <p class="text-xs text-gray-500 mt-0.5">Ingresa los datos informáticos, logo, descripción y metadatos visuales de la carrera profesional.</p>
+                            <p class="text-xs text-gray-500 mt-0.5">Ingresa los datos del programa, logo oficial, perfil del egresado y metadatos visuales.</p>
                         </div>
                     </div>
 
@@ -66,14 +67,59 @@
                                 @enderror
                             </div>
 
-                            {{-- Logo --}}
-                            <div class="md:col-span-2 space-y-1.5">
-                                <label for="logo_path" class="block text-xs font-bold uppercase tracking-wider text-gray-700">
-                                    Logo del Programa
+                            {{-- FILE INPUT CON PREVISUALIZACIÓN DE MINIATURA / LOGO --}}
+                            <div class="md:col-span-2 space-y-2">
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700">
+                                    Logo del Programa (Formatos: PNG, JPG, JPEG, GIF, WEBP, SVG)
                                 </label>
-                                <input type="file" id="logo_path" name="logo_path" accept="image/*" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 transition-all @error('logo_path') border-red-500 @enderror">
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                                    {{-- Drag and Drop Upload Area --}}
+                                    <div class="md:col-span-2 relative border-2 border-dashed border-gray-200 hover:border-purple-400 bg-gray-50/50 hover:bg-purple-50/20 rounded-2xl p-6 text-center transition-all duration-200 group">
+                                        <input type="file" id="logo_path" name="logo_path" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml" 
+                                            @change="handleLogoChange($event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                        
+                                        <div class="space-y-2 pointer-events-none">
+                                            <div class="w-12 h-12 mx-auto rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                                                <i class="bi bi-cloud-arrow-up-fill"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-bold text-gray-700">
+                                                    Haz clic o arrastra la imagen aquí
+                                                </p>
+                                                <p class="text-xs text-gray-500 mt-1">PNG, JPG, WEBP, GIF o SVG (Máx. 4MB)</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Live Thumbnail Display Box --}}
+                                    <div class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-2xl border border-gray-200 min-h-[150px]">
+                                        <template x-if="logoPreview">
+                                            <div class="text-center space-y-3 relative w-full">
+                                                <div class="relative inline-block group">
+                                                    <img :src="logoPreview" alt="Previsualización Logo" class="w-24 h-24 object-contain rounded-xl bg-white p-2 border border-gray-200 shadow-sm mx-auto">
+                                                    <button type="button" @click="removeLogo()" class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full text-xs shadow-md transition-colors" title="Quitar imagen">
+                                                        <i class="bi bi-x-lg"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="text-xs text-gray-600 truncate max-w-[200px] mx-auto font-medium" x-text="fileName"></div>
+                                                <span class="inline-block px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[11px] font-bold rounded-full">
+                                                    Previsualización
+                                                </span>
+                                            </div>
+                                        </template>
+
+                                        <template x-if="!logoPreview">
+                                            <div class="text-center space-y-2 text-gray-400">
+                                                <i class="bi bi-image text-3xl opacity-50"></i>
+                                                <p class="text-xs font-medium">Sin logo seleccionado</p>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
                                 @error('logo_path')
-                                    <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                                    <p class="text-xs text-red-500 font-medium mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -175,4 +221,35 @@
         </main>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    function studyProgramCreateForm(defaultIcon) {
+        return {
+            selectedIcon: defaultIcon || 'bi-mortarboard-fill',
+            logoPreview: null,
+            fileName: '',
+
+            handleLogoChange(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.fileName = file.name;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.logoPreview = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+
+            removeLogo() {
+                this.logoPreview = null;
+                this.fileName = '';
+                const input = document.getElementById('logo_path');
+                if (input) input.value = '';
+            }
+        }
+    }
+</script>
+@endpush
 @endsection

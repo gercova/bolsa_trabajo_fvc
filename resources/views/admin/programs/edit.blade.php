@@ -34,7 +34,8 @@
                     </a>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 space-y-8" x-data="{ selectedIcon: '{{ old('icon', $program->icon ?? 'bi-mortarboard-fill') }}' }">
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 space-y-8" 
+                    x-data="studyProgramEditForm('{{ old('icon', $program->icon ?? 'bi-mortarboard-fill') }}', '{{ $program->logo_path ? asset('storage/' . $program->logo_path) : '' }}', '{{ $program->logo_path ? basename($program->logo_path) : '' }}')">
                     
                     {{-- Banner --}}
                     <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-blue-500/10 border border-purple-100">
@@ -67,23 +68,60 @@
                                 @enderror
                             </div>
 
-                            {{-- Logo Actual & File Upload --}}
-                            <div class="md:col-span-2 space-y-3">
-                                <label for="logo_path" class="block text-xs font-bold uppercase tracking-wider text-gray-700">
-                                    Logo / Imagen Representativa del Programa
+                            {{-- FILE INPUT CON PREVISUALIZACIÓN Y LOGO ACTUAL --}}
+                            <div class="md:col-span-2 space-y-2">
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700">
+                                    Logo del Programa (Formatos: PNG, JPG, JPEG, GIF, WEBP, SVG)
                                 </label>
-                                @if($program->logo_path)
-                                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
-                                        <img src="{{ asset('storage/' . $program->logo_path) }}" alt="{{ $program->name }}" class="w-12 h-12 object-contain rounded-lg border border-gray-200 bg-white p-1">
-                                        <div class="text-xs text-gray-500">
-                                            <p class="font-semibold text-gray-700">Logo actual registrado</p>
-                                            <p class="truncate max-w-xs">{{ $program->logo_path }}</p>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                                    {{-- Drag and Drop Upload Area --}}
+                                    <div class="md:col-span-2 relative border-2 border-dashed border-gray-200 hover:border-purple-400 bg-gray-50/50 hover:bg-purple-50/20 rounded-2xl p-6 text-center transition-all duration-200 group">
+                                        <input type="file" id="logo_path" name="logo_path" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml" 
+                                            @change="handleLogoChange($event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                        
+                                        <div class="space-y-2 pointer-events-none">
+                                            <div class="w-12 h-12 mx-auto rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                                                <i class="bi bi-cloud-arrow-up-fill"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-bold text-gray-700">
+                                                    Haz clic o arrastra una nueva imagen para cambiar el logo
+                                                </p>
+                                                <p class="text-xs text-gray-500 mt-1">PNG, JPG, WEBP, GIF o SVG (Máx. 4MB)</p>
+                                            </div>
                                         </div>
                                     </div>
-                                @endif
-                                <input type="file" id="logo_path" name="logo_path" accept="image/*" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 transition-all @error('logo_path') border-red-500 @enderror">
+
+                                    {{-- Live Thumbnail Display Box --}}
+                                    <div class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-2xl border border-gray-200 min-h-[150px]">
+                                        <template x-if="logoPreview">
+                                            <div class="text-center space-y-3 relative w-full">
+                                                <div class="relative inline-block group">
+                                                    <img :src="logoPreview" alt="Previsualización Logo" class="w-24 h-24 object-contain rounded-xl bg-white p-2 border border-gray-200 shadow-sm mx-auto">
+                                                    <button type="button" @click="resetLogo()" class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full text-xs shadow-md transition-colors" title="Restablecer / Deshacer cambio">
+                                                        <i class="bi bi-x-lg"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="text-xs text-gray-600 truncate max-w-[200px] mx-auto font-medium" x-text="fileName"></div>
+                                                <span class="inline-block px-2.5 py-0.5 text-[11px] font-bold rounded-full"
+                                                      :class="isNewFile ? 'bg-emerald-100 text-emerald-800' : 'bg-purple-100 text-purple-800'">
+                                                    <span x-text="isNewFile ? 'Nuevo Logo Seleccionado' : 'Logo Actual Registrado'"></span>
+                                                </span>
+                                            </div>
+                                        </template>
+
+                                        <template x-if="!logoPreview">
+                                            <div class="text-center space-y-2 text-gray-400">
+                                                <i class="bi bi-image text-3xl opacity-50"></i>
+                                                <p class="text-xs font-medium">Sin logo registrado</p>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
                                 @error('logo_path')
-                                    <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                                    <p class="text-xs text-red-500 font-medium mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -185,4 +223,40 @@
         </main>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    function studyProgramEditForm(defaultIcon, existingLogoUrl, originalFileName) {
+        return {
+            selectedIcon: defaultIcon || 'bi-mortarboard-fill',
+            logoPreview: existingLogoUrl || null,
+            originalLogoUrl: existingLogoUrl || null,
+            originalName: originalFileName || '',
+            fileName: originalFileName || '',
+            isNewFile: false,
+
+            handleLogoChange(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.fileName = file.name;
+                    this.isNewFile = true;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.logoPreview = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+
+            resetLogo() {
+                this.logoPreview = this.originalLogoUrl;
+                this.fileName = this.originalName;
+                this.isNewFile = false;
+                const input = document.getElementById('logo_path');
+                if (input) input.value = '';
+            }
+        }
+    }
+</script>
+@endpush
 @endsection

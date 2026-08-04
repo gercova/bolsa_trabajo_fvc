@@ -50,5 +50,12 @@ class Tupa extends Model
     {
         return $query->where('is_active', true);
     }
-}
 
+    /**
+     * Relación con procedimientos del TUPA
+     */
+    public function procedures()
+    {
+        return $this->hasMany(TupaProcedure::class, 'tupa_id');
+    }
+}

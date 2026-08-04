@@ -141,7 +141,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{role}',        [RoleController::class, 'destroy'])->name('destroy');
     });
 
-    // ── Teacher role details ──────────────────────────────────────────────────
+    // Teacher role details
     Route::prefix('admin-docentes-roles')->name('admin.teacher-roles.')->group(function () {
         Route::get('/',                            [TeacherRoleController::class, 'index'])->name('index');
         Route::post('/guardar',                    [TeacherRoleController::class, 'store'])->name('store');

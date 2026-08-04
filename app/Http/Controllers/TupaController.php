@@ -52,8 +52,8 @@ class TupaController extends Controller
         }
 
         $tupas = $tupaQuery->orderBy('effective_start_date', 'desc')
-                           ->paginate($validated['per_page'] ?? 10, ['*'], 'tupas_page')
-                           ->withQueryString();
+            ->paginate($validated['per_page'] ?? 10, ['*'], 'tupas_page')
+            ->withQueryString();
 
         // 2. Categorías TUPA (tupa_categories)
         $catQuery = TupaCategory::withCount('procedures');
@@ -68,8 +68,8 @@ class TupaController extends Controller
         }
 
         $categories = $catQuery->orderBy('name', 'asc')
-                               ->paginate($validated['per_page'] ?? 10, ['*'], 'categories_page')
-                               ->withQueryString();
+            ->paginate($validated['per_page'] ?? 10, ['*'], 'categories_page')
+            ->withQueryString();
 
         // 3. Procedimientos TUPA (tupa_procedures)
         $procQuery = TupaProcedure::with(['category', 'tupa']);
@@ -78,9 +78,9 @@ class TupaController extends Controller
             $search = $validated['search'];
             $procQuery->where(function ($q) use ($search) {
                 $q->where('code', 'LIKE', "%{$search}%")
-                  ->orWhere('name', 'LIKE', "%{$search}%")
-                  ->orWhere('description', 'LIKE', "%{$search}%")
-                  ->orWhere('office', 'LIKE', "%{$search}%");
+                    ->orWhere('name', 'LIKE', "%{$search}%")
+                    ->orWhere('description', 'LIKE', "%{$search}%")
+                    ->orWhere('office', 'LIKE', "%{$search}%");
             });
         }
 
@@ -97,8 +97,8 @@ class TupaController extends Controller
         }
 
         $procedures = $procQuery->orderBy('code', 'asc')
-                                 ->paginate($validated['per_page'] ?? 10, ['*'], 'procedures_page')
-                                 ->withQueryString();
+            ->paginate($validated['per_page'] ?? 10, ['*'], 'procedures_page')
+            ->withQueryString();
 
         $allCategoriesList = TupaCategory::where('is_active', true)->orderBy('name')->get();
         $allTupasList      = Tupa::where('is_active', true)->orderBy('title')->get();
@@ -198,10 +198,7 @@ class TupaController extends Controller
         return redirect()->back()->with('success', 'Estado del registro TUPA actualizado correctamente.');
     }
 
-    // =========================================================================
     // CATEGORÍAS TUPA (tupa_categories)
-    // =========================================================================
-
     public function createCategory(): View
     {
         return view('admin.tupa.categories.create');
@@ -252,10 +249,8 @@ class TupaController extends Controller
         return redirect()->back()->with('success', 'Estado de la categoría actualizado correctamente.');
     }
 
-    // =========================================================================
+    
     // PROCEDIMIENTOS TUPA (tupa_procedures)
-    // =========================================================================
-
     public function createProcedure(): View
     {
         $tupas = Tupa::where('is_active', true)->orderBy('title')->get();

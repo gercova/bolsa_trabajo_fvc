@@ -92,6 +92,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::prefix('admin-tupa')->name('admin.tupa.')->group(function () {
+        // Documentos TUPA
         Route::get('/',                             [TupaController::class, 'index'])->name('index');
         Route::get('/crear-tupa',                   [TupaController::class, 'create'])->name('create');
         Route::post('/guardar',                     [TupaController::class, 'store'])->name('store');
@@ -99,6 +100,26 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/editar-tupa/{tupa}',           [TupaController::class, 'update'])->name('update');
         Route::delete('/{tupa}',                    [TupaController::class, 'destroy'])->name('destroy');
         Route::patch('/estado/{tupa}',              [TupaController::class, 'toggleStatus'])->name('toggle-status');
+
+        // Categorías TUPA
+        Route::prefix('categorias')->name('categories.')->group(function () {
+            Route::get('/crear',                    [TupaController::class, 'createCategory'])->name('create');
+            Route::post('/guardar',                  [TupaController::class, 'storeCategory'])->name('store');
+            Route::get('/editar/{category}',        [TupaController::class, 'editCategory'])->name('edit');
+            Route::put('/editar/{category}',        [TupaController::class, 'updateCategory'])->name('update');
+            Route::delete('/{category}',             [TupaController::class, 'destroyCategory'])->name('destroy');
+            Route::patch('/estado/{category}',      [TupaController::class, 'toggleCategoryStatus'])->name('toggle-status');
+        });
+
+        // Procedimientos TUPA
+        Route::prefix('procedimientos')->name('procedures.')->group(function () {
+            Route::get('/crear',                    [TupaController::class, 'createProcedure'])->name('create');
+            Route::post('/guardar',                  [TupaController::class, 'storeProcedure'])->name('store');
+            Route::get('/editar/{procedure}',      [TupaController::class, 'editProcedure'])->name('edit');
+            Route::put('/editar/{procedure}',      [TupaController::class, 'updateProcedure'])->name('update');
+            Route::delete('/{procedure}',           [TupaController::class, 'destroyProcedure'])->name('destroy');
+            Route::patch('/estado/{procedure}',    [TupaController::class, 'toggleProcedureStatus'])->name('toggle-status');
+        });
     });
 
     Route::prefix('admin-programas')->name('admin.programs.')->group(function () {

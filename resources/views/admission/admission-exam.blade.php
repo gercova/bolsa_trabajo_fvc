@@ -36,7 +36,7 @@
                         <div
                             class="absolute -inset-4 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-3xl blur-2xl opacity-30">
                         </div>
-                        <img src="{{ asset('images/admission_hero_banner.png') }}"
+                        <img src="{{ $admisionImage ? $admisionImage->url : asset('images/admission_hero_banner.png') }}"
                             alt="Examen de Admisión IESTP Francisco Vigo Caballero"
                             class="relative rounded-2xl shadow-2xl border-4 border-white/10 w-full object-cover aspect-square sm:aspect-video lg:aspect-square">
                     </div>
@@ -111,7 +111,8 @@
                                         class="inline-block text-xs font-bold tracking-widest text-blue-200 uppercase bg-blue-900/40 py-1 px-3 rounded-full mb-1">
                                         Período Académico
                                     </span>
-                                    <h3 class="text-2xl font-extrabold text-white">{{ $exam->activity }} - {{ $exam->period }}</h3>
+                                    <h3 class="text-2xl font-extrabold text-white">{{ $exam->activity }} -
+                                        {{ $exam->period }}</h3>
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <span

@@ -28,7 +28,8 @@
                 <div class="lg:col-span-5 relative">
                     <div class="relative mx-auto max-w-md lg:max-w-none">
                         <div class="absolute -inset-4 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-3xl blur-2xl opacity-30"></div>
-                        <img src="{{ asset('images/cepre_hero_banner.png') }}" alt="CEPRE IESTP Francisco Vigo Caballero" 
+                        <img src="{{ $cepreImage ? $cepreImage->url : asset('images/cepre_hero_banner.png') }}"
+                            alt="CEPRE IESTP Francisco Vigo Caballero" 
                             class="relative rounded-2xl shadow-2xl border-4 border-white/10 w-full object-cover aspect-square sm:aspect-video lg:aspect-square">
                     </div>
                 </div>

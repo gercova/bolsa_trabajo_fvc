@@ -61,46 +61,6 @@
 
     {{-- ===== PROGRAM LIST SECTION ===== --}}
     @if ($programs->isNotEmpty())
-        @php
-            $programMeta = [
-                'Producción Agropecuaria' => [
-                    'icon' => 'bi-tree-fill',
-                    'accent' => 'emerald',
-                    'bg_badge' => 'bg-emerald-50 text-emerald-800 border-emerald-100',
-                    'tag' => 'Producción & Campo',
-                    'color_bar' => 'bg-emerald-500',
-                ],
-                'Enfermería Técnica' => [
-                    'icon' => 'bi-heart-pulse-fill',
-                    'accent' => 'rose',
-                    'bg_badge' => 'bg-rose-50 text-rose-800 border-rose-100',
-                    'tag' => 'Ciencias de la Salud',
-                    'color_bar' => 'bg-rose-500',
-                ],
-                'Administración de Redes y Comunicaciones' => [
-                    'icon' => 'bi-router-fill',
-                    'accent' => 'sky',
-                    'bg_badge' => 'bg-sky-50 text-sky-800 border-sky-100',
-                    'tag' => 'Soporte e Infraestructura TI',
-                    'color_bar' => 'bg-sky-500',
-                ],
-                'Asistencia Administrativa' => [
-                    'icon' => 'bi-briefcase-fill',
-                    'accent' => 'blue',
-                    'bg_badge' => 'bg-blue-50 text-blue-800 border-blue-100',
-                    'tag' => 'Administración & Finanzas',
-                    'color_bar' => 'bg-blue-600',
-                ],
-                'Manejo Forestal' => [
-                    'icon' => 'bi-globe-americas',
-                    'accent' => 'teal',
-                    'bg_badge' => 'bg-teal-50 text-teal-800 border-teal-100',
-                    'tag' => 'Recursos Naturales',
-                    'color_bar' => 'bg-teal-500',
-                ],
-            ];
-        @endphp
-
         <section class="py-24 bg-slate-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center max-w-3xl mx-auto mb-20">
@@ -120,16 +80,14 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
                     @foreach ($programs as $program)
                         @php
-                            $meta = $programMeta[$program->name] ?? [
-                                'icon'      => 'bi-mortarboard-fill',
-                                'accent'    => 'blue',
-                                'bg_badge'  => 'bg-blue-50 text-blue-800 border-blue-100',
-                                'tag'       => 'Educación Técnica',
-                                'color_bar' => 'bg-blue-500',
-                            ];
+                            $metaObj  = $program->meta;
+                            $accent   = $metaObj?->accent ?? $program->accent ?? 'blue';
+                            $icon     = $metaObj?->icon ?? $program->icon ?? 'bi-mortarboard-fill';
+                            $tag      = $metaObj?->tag ?? $program->tag ?? 'Educación Técnica';
+                            $bgBadge  = $metaObj?->bg_badge ?? $program->bg_badge ?? "bg-{$accent}-50 text-{$accent}-800 border-{$accent}-100";
+                            $colorBar = $metaObj?->color_bar ?? $program->color_bar ?? "bg-{$accent}-500";
 
-                            $mainImage =
-                                $program->images->first(fn($img) => $img->is_main) ?? $program->images->first();
+                            $mainImage = $program->images->first(fn($img) => $img->is_main) ?? $program->images->first();
                             $imagePath = $mainImage ? $mainImage->path : null;
                         @endphp
 
@@ -146,14 +104,14 @@
                                     </div>
                                 @else
                                     <div class="absolute inset-0 bg-gradient-to-br from-blue-900 to-slate-950"></div>
-                                    <i class="bi {{ $meta['icon'] }} text-7xl text-white/40 drop-shadow z-10"></i>
+                                    <i class="bi {{ $icon }} text-7xl text-white/40 drop-shadow z-10"></i>
                                 @endif
 
                                 {{-- Floated Category tag --}}
                                 <div class="absolute top-4 left-4 z-20">
                                     <span
-                                        class="px-3.5 py-1.5 text-xs font-black rounded-lg uppercase tracking-wider shadow border {{ $meta['bg_badge'] }}">
-                                        {{ $meta['tag'] }}
+                                        class="px-3.5 py-1.5 text-xs font-black rounded-lg uppercase tracking-wider shadow border {{ $bgBadge }}">
+                                        {{ $tag }}
                                     </span>
                                 </div>
                             </div>
@@ -165,7 +123,7 @@
                                         class="text-2xl font-black text-slate-900 group-hover:text-blue-600 transition-colors leading-tight mb-2">
                                         {{ $program->name }}
                                     </h3>
-                                    <div class="w-16 h-1 {{ $meta['color_bar'] }} rounded-full"></div>
+                                    <div class="w-16 h-1 {{ $colorBar }} rounded-full"></div>
                                 </div>
 
                                 @if ($program->description)

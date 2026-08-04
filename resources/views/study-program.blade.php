@@ -391,8 +391,7 @@ $mainImage = $program->images->where('is_main', true)->first() ?? $program->imag
 @section('content')
     {{-- ===== HERO HEADER SECTION ===== --}}
     <section class="bg-gradient-to-br from-slate-900 via-slate-950 to-blue-950 text-white py-20 relative overflow-hidden">
-        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px]">
-        </div>
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)]"></div>
         <div class="absolute -top-40 -right-40 w-96 h-96 {{ $meta['glow_class'] }} rounded-full blur-3xl"></div>
         <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
 

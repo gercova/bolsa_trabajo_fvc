@@ -79,12 +79,21 @@ class AppController extends Controller {
 
     // programas de estudio
     public function studyPrograms(): View {
-        $programs = StudyProgram::where('is_active', true)->with(['modules', 'images'])->get();
+        $programs = StudyProgram::where('is_active', true)
+            ->with(['modules', 'images', 'meta', 'competencies', 'jobFields', 'requirements'])
+            ->get();
         return view('study-programs', compact('programs'));
     }
 
     public function program(StudyProgram $program): View {
-        $program->load(['images', 'modules']);
+        $program->load([
+            'images',
+            'modules' => fn($q) => $q->where('is_active', true),
+            'meta',
+            'competencies' => fn($q) => $q->where('is_active', true)->orderBy('order'),
+            'jobFields' => fn($q) => $q->where('is_active', true)->orderBy('order'),
+            'requirements' => fn($q) => $q->where('is_active', true)->orderBy('order'),
+        ]);
         return view('study-program', compact('program'));
     }
 

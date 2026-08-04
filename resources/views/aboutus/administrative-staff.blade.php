@@ -139,23 +139,11 @@
         <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            {{-- Breadcrumb --}}
-            <nav class="flex items-center text-xs text-blue-200/80 mb-6 gap-2">
-                <a href="{{ route('inicio') }}" class="hover:text-white transition-colors">Inicio</a>
-                <i class="bi bi-chevron-right text-[10px]"></i>
-                <span class="text-blue-300 font-medium">Nosotros</span>
-                <i class="bi bi-chevron-right text-[10px]"></i>
-                <span class="text-white font-semibold">Plana Administrativa</span>
-            </nav>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                 <div class="lg:col-span-8">
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-400/20 backdrop-blur-md text-blue-300 text-xs font-semibold uppercase tracking-wider mb-4">
-                        <i class="bi bi-building-gear text-amber-400"></i>
-                        IESTP Francisco Vigo Caballero — Uchiza
-                    </div>
                     <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight font-sans leading-tight">
-                        Plana Administrativa y <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-amber-300 to-amber-200 font-display italic">Equipo de Gestión</span>
+                        Plana Administrativa y Equipo de Gestión
                     </h1>
                     <p class="mt-4 text-base sm:text-lg text-slate-300 max-w-2xl font-normal leading-relaxed">
                         Conoce al personal directivo, administrativo y de servicios que impulsa la gestión institucional, garantizando una atención eficiente, transparente y de excelencia a nuestra comunidad educativa.

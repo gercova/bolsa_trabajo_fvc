@@ -436,8 +436,24 @@ class AppController extends Controller {
 
     // plana administrativa
     public function administrativeStaff(): View {
-        $staffs = User::where('role', 'Administrativo')->get();
-        return view('aboutus.administrative-staff', compact('staffs'));
+        $enterprise = Enterprise::first();
+
+        $staffs = User::where('is_active', true)
+            ->where(function ($q) {
+                $q->whereIn('role', ['Administrativo', 'Admin'])
+                  ->orWhere('job_position', 'LIKE', '%Director%')
+                  ->orWhere('job_position', 'LIKE', '%Administrador%')
+                  ->orWhere('job_position', 'LIKE', '%Secretaria%')
+                  ->orWhere('job_position', 'LIKE', '%Área%')
+                  ->orWhere('job_position', 'LIKE', '%Jefatura%')
+                  ->orWhere('job_position', 'LIKE', '%Auxiliar%')
+                  ->orWhere('job_position', 'LIKE', '%Seguridad%');
+            })
+            ->where('email', '!=', 'admin@example.com')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        return view('aboutus.administrative-staff', compact('staffs', 'enterprise'));
     }
     
     // consejo de estudiantes

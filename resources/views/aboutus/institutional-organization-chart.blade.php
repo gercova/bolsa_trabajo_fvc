@@ -158,11 +158,9 @@
     {{-- ===== HERO SECTION ===== --}}
     <section
         class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white py-24 overflow-hidden">
-        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px]">
-        </div>
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)]"></div>
         <div class="absolute -top-32 -right-32 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl"></div>
         <div class="absolute -bottom-32 -left-32 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
-
         <div class="container mx-auto px-6 relative z-10 text-center max-w-4xl">
             <span
                 class="inline-flex items-center gap-2 bg-blue-500/20 text-blue-300 text-sm font-bold px-4 py-2 rounded-full uppercase tracking-widest mb-6 border border-blue-500/30">

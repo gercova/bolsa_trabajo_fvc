@@ -31,4 +31,4 @@ class ProgramMeta extends Model
     {
         return $this->belongsTo(StudyProgram::class, 'study_program_id', 'id');
     }
-}
+}   

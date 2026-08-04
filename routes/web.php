@@ -48,7 +48,7 @@ Route::get('/tramites/tupa',                          [AppController::class, 'tu
 Route::get('/nosotros/quienes-somos',               [AppController::class, 'whoWeAre'])->name('quienes-somos');
 Route::get('/nosotros/historia',                    [AppController::class, 'history'])->name('historia');
 Route::get('/nosotros/organigrama-institucional',   [AppController::class, 'institutionalOrganizationChart'])->name('organigrama-institucional');
-Route::get('/nosotros/plana-jerarquica',            [AppController::class, 'teachersStaff'])->name('plana-jerarquica');
+Route::get('/nosotros/plana-jerarquica',            [AppController::class, 'hierarchicalStaff'])->name('plana-jerarquica');
 Route::get('/nosotros/plana-de-docentes',           [AppController::class, 'teachersStaff'])->name('plana-de-docentes');
 Route::get('/nosotros/plana-administrativa',        [AppController::class, 'administrativeStaff'])->name('plana-administrativa');
 Route::get('/nosotros/consejo-de-estudiantes',      [AppController::class, 'studentCouncil'])->name('consejo-de-estudiantes');

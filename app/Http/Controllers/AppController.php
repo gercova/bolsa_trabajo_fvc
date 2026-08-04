@@ -7,6 +7,7 @@ use App\Models\AdmissionRequirement;
 use App\Models\Blog;
 use App\Models\Enterprise;
 use App\Models\HistoricalReview;
+use App\Models\Image;
 use App\Models\JobOffer;
 use App\Models\Partner;
 use App\Models\StudyProgram;
@@ -22,6 +23,7 @@ use Illuminate\Http\RedirectResponse;
 
 class AppController extends Controller {
 
+    // inicio
     public function index(): View {
         $programs   = StudyProgram::where('is_active', true)->get();
         $partners   = Partner::where('is_active', true)->get();
@@ -31,7 +33,7 @@ class AppController extends Controller {
         return view('home', compact('partners', 'jobOffers', 'users', 'programs', 'blogs'));
     }
 
-    // cepre fvc
+    // admision-y-matricula/cepre-fvc
     public function ceprefvc(): View {
         $exams = Admission::where('process', 'cepre')
             ->where('is_active', true)
@@ -39,13 +41,14 @@ class AppController extends Controller {
             ->orderBy('id', 'desc')
             ->get();
 
-        $requirements = AdmissionRequirement::where('is_active', true)->get();
-        $enterprise = Enterprise::first();
+        $requirements  = AdmissionRequirement::where('is_active', true)->get();
+        $enterprise    = Enterprise::first();
+        $cepreImage    = Image::where('imageable_type', 'cepre')->where('imageable_id', 1)->first();
 
-        return view('admission.cepre-fvc', compact('exams', 'requirements', 'enterprise'));
+        return view('admission.cepre-fvc', compact('exams', 'requirements', 'enterprise', 'cepreImage'));
     }
     
-    // examen de admisión
+    // admision-y-matricula/examen-de-admision
     public function admissionExam(): View {
         $exams = Admission::where('process', 'admisión')
             ->where('is_active', true)
@@ -53,13 +56,14 @@ class AppController extends Controller {
             ->orderBy('id', 'desc')
             ->get();
 
-        $requirements = AdmissionRequirement::where('is_active', true)->get();
-        $enterprise = Enterprise::first();
+        $requirements  = AdmissionRequirement::where('is_active', true)->get();
+        $enterprise    = Enterprise::first();
+        $admisionImage = Image::where('imageable_type', 'admision')->where('imageable_id', 1)->first();
 
-        return view('admission.admission-exam', compact('exams', 'requirements', 'enterprise'));
+        return view('admission.admission-exam', compact('exams', 'requirements', 'enterprise', 'admisionImage'));
     }
 
-    // matrículas
+    // admision-y-matricula/matriculas
     public function enrollments(): View {
         $enrollments = Admission::where('process', 'matrícula')
             ->where('is_active', true)
@@ -72,12 +76,12 @@ class AppController extends Controller {
         return view('admission.enrollments', compact('enrollments', 'requirements', 'enterprise'));
     }
 
-    // becas y créditos
+    // admision-y-matriculas/becas-y-creditos
     public function scholarshipsAndCredits(): View {
         return view('admission.scholarships-and-credits');
     }
 
-    // programas de estudio
+    // programas-de-estudios
     public function studyPrograms(): View {
         $programs = StudyProgram::where('is_active', true)
             ->with(['modules', 'images', 'meta', 'competencies', 'jobFields', 'requirements'])
@@ -85,6 +89,7 @@ class AppController extends Controller {
         return view('study-programs', compact('programs'));
     }
 
+    // programas-de-estudios/{program:slug}
     public function program(StudyProgram $program): View {
         $program->load([
             'images',
@@ -97,24 +102,27 @@ class AppController extends Controller {
         return view('study-program', compact('program'));
     }
 
-    // transparencia
+    // transparencia/documentos-de-gestion
     public function documentsManagement(): View {
         return view('transparency.management-documents');
     }
 
+    // transparencia/estadisticas
     public function statistics(): View {
         return view('transparency.statistics');
     }
 
+    // transparencia/inversion-y-gestion
     public function managementReports(): View {
         return view('transparency.investment-and-management');
     }
 
+    // transparencia/licenciamiento
     public function licensment(): View {
         return view('transparency.licensment');
     }
 
-    // libro de reclamaciones
+    // transparencia/libro-de-reclamaciones
     public function complaintsBook(): View {
         $enterprise = Enterprise::first();
         return view('transparency.complaints-book', compact('enterprise'));
@@ -133,13 +141,13 @@ class AppController extends Controller {
         return back()->with('success', 'Su reclamo o queja ha sido registrado con éxito.');
     }
 
-    // Trámites
+    // tramites/mesa-de-partes
     public function partsTable(): View {
         $enterprise = Enterprise::first();
         return view('procedures.parts-table', compact('enterprise'));
     }
 
-    // tupa
+    // tramites/tupa
     public function tupa(): View {
         $enterprise = Enterprise::first();
 
@@ -185,24 +193,24 @@ class AppController extends Controller {
         return view('procedures.tupa', compact('enterprise', 'currentTupa', 'tupaHistory', 'procedures'));
     }
 
-    // quienes somos
+    // nosotros/quienes-somos
     public function whoWeAre(): View {
         $enterprise = Enterprise::get();
         return view('aboutus.who-we-are', compact('enterprise'));
     }
 
-    // historia
+    // nosotros/historia
     public function history(): View {
         $histories = HistoricalReview::where('is_active', true)->orderBy('order', 'asc')->get();
         return view('aboutus.history', compact('histories'));
     }
 
-    // organigrama institucional
+    // nosotros/organigrama-institucional
     public function institutionalOrganizationChart(): View {
         return view('aboutus.institutional-organization-chart');
     }
 
-    // plana jerarquica
+    // nosotros/plana-jerarquica
     public function hierarchicalStaff(): View {
         $enterprise = Enterprise::first();
 
@@ -245,7 +253,7 @@ class AppController extends Controller {
         return view('aboutus.hierarchical-flat', compact('director', 'managementStaff', 'coordinators', 'allHierarchical', 'enterprise'));
     }
 
-    // plana de docentes
+    // nosotros/plana-de-docentes
     public function teachersStaff(): View {
         $teacherDetails = UserRoleDetail::with(['user', 'program'])
             ->where('is_active', true)
@@ -261,18 +269,18 @@ class AppController extends Controller {
         $assignedUserIds = $teacherDetails->pluck('user_id')->unique()->filter()->toArray();
 
         $unassignedTeachers = User::where(function ($q) {
-                $q->where('role', 'Docente')
-                  ->orWhereHas('roles', fn ($r) => $r->where('name', 'Docente'));
-            })
-            ->where('is_active', true)
-            ->whereNotIn('id', $assignedUserIds)
-            ->orderBy('names')
-            ->get();
+            $q->where('role', 'Docente')
+            ->orWhereHas('roles', fn ($r) => $r->where('name', 'Docente'));
+        })
+        ->where('is_active', true)
+        ->whereNotIn('id', $assignedUserIds)
+        ->orderBy('names')
+        ->get();
 
         return view('aboutus.teachers-staff', compact('teacherDetails', 'programs', 'unassignedTeachers'));
     }
 
-    // plana administrativa
+    // nosotros/plana-administrativa
     public function administrativeStaff(): View {
         $enterprise = Enterprise::first();
 
@@ -294,17 +302,19 @@ class AppController extends Controller {
         return view('aboutus.administrative-staff', compact('staffs', 'enterprise'));
     }
     
-    // consejo de estudiantes
+    // nosotros/consejo-de-estudiantes
     public function studentCouncil(): View {
         return view('aboutus.student-council');
     }
 
+    // nosotros/locales
     public function locales(): View {
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
         $programs   = StudyProgram::where('is_active', true)->get();
         return view('aboutus.locals', compact('enterprise', 'programs'));
     }
 
+    // bolsa-de-trabajo
     public function offers(): View {
         $jobs = JobOffer::where('is_active', true)->get();
         return view('job-board.index', compact('jobs'));

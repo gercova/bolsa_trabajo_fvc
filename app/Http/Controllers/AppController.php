@@ -403,8 +403,46 @@ class AppController extends Controller {
     }
 
     // plana jerarquica
-    public function hierarchicalFlat(): View {
-        return view('aboutus.hierarchical-flat');
+    public function hierarchicalStaff(): View {
+        $enterprise = Enterprise::first();
+
+        // 1. Alta Dirección (Director General)
+        $director = User::where('is_active', true)
+            ->where(function ($q) {
+                $q->where('job_position', 'LIKE', '%Director General%')
+                  ->orWhere('role', 'Admin');
+            })
+            ->where('email', '!=', 'admin@example.com')
+            ->first();
+
+        // 2. Jefaturas y Unidades de Gestión
+        $managementStaff = User::where('is_active', true)
+            ->where(function ($q) {
+                $q->where('job_position', 'LIKE', '%Administrador%')
+                  ->orWhere('job_position', 'LIKE', '%Jefe%')
+                  ->orWhere('job_position', 'LIKE', '%Jefatura%')
+                  ->orWhere('job_position', 'LIKE', '%Área de calidad%')
+                  ->orWhere('job_position', 'LIKE', '%Secretaria de Dirección%');
+            })
+            ->where('id', '!=', $director?->id)
+            ->get();
+
+        // 3. Coordinadores Académicos de Carrera
+        $coordinators = UserRoleDetail::with(['user', 'program'])
+            ->where('is_active', true)
+            ->where('is_coordinator', true)
+            ->whereHas('user', fn($q) => $q->where('is_active', true))
+            ->get();
+
+        $allHierarchicalIds = collect([$director?->id])
+            ->concat($managementStaff->pluck('id'))
+            ->concat($coordinators->pluck('user_id'))
+            ->filter()
+            ->unique();
+
+        $allHierarchical = User::whereIn('id', $allHierarchicalIds)->get();
+
+        return view('aboutus.hierarchical-flat', compact('director', 'managementStaff', 'coordinators', 'allHierarchical', 'enterprise'));
     }
 
     // plana de docentes

@@ -55,20 +55,20 @@ Route::get('/nosotros/consejo-de-estudiantes',      [AppController::class, 'stud
 Route::get('/nosotros/locales',                     [AppController::class, 'locales'])->name('locales');
 
 // servicios
-Route::get('/servicios/bolsa-de-trabajo',   [AppController::class, 'offers'])->name('bolsa-de-trabajo');
+Route::get('/servicios/bolsa-de-trabajo', [AppController::class, 'offers'])->name('bolsa-de-trabajo');
 
 // login y registro
-Route::get('/register',                     [RegisteredUserController::class, 'create'])->name('register');
-Route::post('/register',                    [RegisteredUserController::class, 'store']);
-Route::get('/login',                        [AuthenticatedSessionController::class, 'create'])->name('login')->middleware('guest');
-Route::post('/login',                       [AuthenticatedSessionController::class, 'login'])->middleware('guest');
-Route::post('/logout',                      [AuthenticatedSessionController::class, 'logout'])->name('logout');
-Route::get('forgot-password',               [NewPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-Route::post('forgot-password',              [NewPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/register',         [RegisteredUserController::class, 'create'])->name('register');
+Route::post('/register',        [RegisteredUserController::class, 'store']);
+Route::get('/login',            [AuthenticatedSessionController::class, 'create'])->name('login')->middleware('guest');
+Route::post('/login',           [AuthenticatedSessionController::class, 'login'])->middleware('guest');
+Route::post('/logout',          [AuthenticatedSessionController::class, 'logout'])->name('logout');
+Route::get('forgot-password',   [NewPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('forgot-password',  [NewPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 
 // Restablecer contraseña
-Route::get('reset-password/{token}',        [PasswordResetLinkController::class, 'showResetForm'])->name('password.reset');
-Route::post('reset-password',               [PasswordResetLinkController::class, 'reset'])->name('password.update');
+Route::get('reset-password/{token}',    [PasswordResetLinkController::class, 'showResetForm'])->name('password.reset');
+Route::post('reset-password',           [PasswordResetLinkController::class, 'reset'])->name('password.update');
 
 Route::middleware(['auth'])->group(function () {
     Route::prefix('admin-dashboard')->name('admin.dashboard.')->group(function () {
@@ -89,36 +89,38 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/editar-examen/{admission}',    [AdmissionsController::class, 'update'])->name('update');
         Route::delete('/{admission}',               [AdmissionsController::class, 'destroy'])->name('destroy');
         Route::patch('/estado/{admission}',         [AdmissionsController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('/imagen-cepre',                [AdmissionsController::class, 'updateCepreImage'])->name('update-cepre-image');
+        Route::post('/imagen-admision',             [AdmissionsController::class, 'updateAdmissionImage'])->name('update-admission-image');
     });
 
     Route::prefix('admin-tupa')->name('admin.tupa.')->group(function () {
         // Documentos TUPA
-        Route::get('/',                             [TupaController::class, 'index'])->name('index');
-        Route::get('/crear-tupa',                   [TupaController::class, 'create'])->name('create');
-        Route::post('/guardar',                     [TupaController::class, 'store'])->name('store');
-        Route::get('/editar-tupa/{tupa}',           [TupaController::class, 'edit'])->name('edit');
-        Route::put('/editar-tupa/{tupa}',           [TupaController::class, 'update'])->name('update');
-        Route::delete('/{tupa}',                    [TupaController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{tupa}',              [TupaController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/',                     [TupaController::class, 'index'])->name('index');
+        Route::get('/crear-tupa',           [TupaController::class, 'create'])->name('create');
+        Route::post('/guardar',             [TupaController::class, 'store'])->name('store');
+        Route::get('/editar-tupa/{tupa}',   [TupaController::class, 'edit'])->name('edit');
+        Route::put('/editar-tupa/{tupa}',   [TupaController::class, 'update'])->name('update');
+        Route::delete('/{tupa}',            [TupaController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{tupa}',      [TupaController::class, 'toggleStatus'])->name('toggle-status');
 
         // Categorías TUPA
         Route::prefix('categorias')->name('categories.')->group(function () {
-            Route::get('/crear',                    [TupaController::class, 'createCategory'])->name('create');
-            Route::post('/guardar',                  [TupaController::class, 'storeCategory'])->name('store');
-            Route::get('/editar/{category}',        [TupaController::class, 'editCategory'])->name('edit');
-            Route::put('/editar/{category}',        [TupaController::class, 'updateCategory'])->name('update');
-            Route::delete('/{category}',             [TupaController::class, 'destroyCategory'])->name('destroy');
-            Route::patch('/estado/{category}',      [TupaController::class, 'toggleCategoryStatus'])->name('toggle-status');
+            Route::get('/crear',                [TupaController::class, 'createCategory'])->name('create');
+            Route::post('/guardar',             [TupaController::class, 'storeCategory'])->name('store');
+            Route::get('/editar/{category}',    [TupaController::class, 'editCategory'])->name('edit');
+            Route::put('/editar/{category}',    [TupaController::class, 'updateCategory'])->name('update');
+            Route::delete('/{category}',        [TupaController::class, 'destroyCategory'])->name('destroy');
+            Route::patch('/estado/{category}',  [TupaController::class, 'toggleCategoryStatus'])->name('toggle-status');
         });
 
         // Procedimientos TUPA
         Route::prefix('procedimientos')->name('procedures.')->group(function () {
-            Route::get('/crear',                    [TupaController::class, 'createProcedure'])->name('create');
-            Route::post('/guardar',                  [TupaController::class, 'storeProcedure'])->name('store');
-            Route::get('/editar/{procedure}',      [TupaController::class, 'editProcedure'])->name('edit');
-            Route::put('/editar/{procedure}',      [TupaController::class, 'updateProcedure'])->name('update');
-            Route::delete('/{procedure}',           [TupaController::class, 'destroyProcedure'])->name('destroy');
-            Route::patch('/estado/{procedure}',    [TupaController::class, 'toggleProcedureStatus'])->name('toggle-status');
+            Route::get('/crear',                [TupaController::class, 'createProcedure'])->name('create');
+            Route::post('/guardar',             [TupaController::class, 'storeProcedure'])->name('store');
+            Route::get('/editar/{procedure}',   [TupaController::class, 'editProcedure'])->name('edit');
+            Route::put('/editar/{procedure}',   [TupaController::class, 'updateProcedure'])->name('update');
+            Route::delete('/{procedure}',       [TupaController::class, 'destroyProcedure'])->name('destroy');
+            Route::patch('/estado/{procedure}', [TupaController::class, 'toggleProcedureStatus'])->name('toggle-status');
         });
     });
 
@@ -134,51 +136,51 @@ Route::middleware(['auth'])->group(function () {
 
         // Certificaciones Modulares (modular_certification)
         Route::prefix('modulos')->name('modules.')->group(function () {
-            Route::get('/crear',                    [StudyProgramsController::class, 'createModule'])->name('create');
-            Route::post('/guardar',                  [StudyProgramsController::class, 'storeModule'])->name('store');
-            Route::get('/editar/{module}',          [StudyProgramsController::class, 'editModule'])->name('edit');
-            Route::put('/editar/{module}',          [StudyProgramsController::class, 'updateModule'])->name('update');
-            Route::delete('/{module}',               [StudyProgramsController::class, 'destroyModule'])->name('destroy');
-            Route::patch('/estado/{module}',        [StudyProgramsController::class, 'toggleModuleStatus'])->name('toggle-status');
+            Route::get('/crear',                [StudyProgramsController::class, 'createModule'])->name('create');
+            Route::post('/guardar',             [StudyProgramsController::class, 'storeModule'])->name('store');
+            Route::get('/editar/{module}',      [StudyProgramsController::class, 'editModule'])->name('edit');
+            Route::put('/editar/{module}',      [StudyProgramsController::class, 'updateModule'])->name('update');
+            Route::delete('/{module}',          [StudyProgramsController::class, 'destroyModule'])->name('destroy');
+            Route::patch('/estado/{module}',    [StudyProgramsController::class, 'toggleModuleStatus'])->name('toggle-status');
         });
 
         // Competencias (program_competencies)
         Route::prefix('competencias')->name('competencies.')->group(function () {
             Route::get('/crear',                    [StudyProgramsController::class, 'createCompetency'])->name('create');
-            Route::post('/guardar',                  [StudyProgramsController::class, 'storeCompetency'])->name('store');
+            Route::post('/guardar',                 [StudyProgramsController::class, 'storeCompetency'])->name('store');
             Route::get('/editar/{competency}',      [StudyProgramsController::class, 'editCompetency'])->name('edit');
             Route::put('/editar/{competency}',      [StudyProgramsController::class, 'updateCompetency'])->name('update');
-            Route::delete('/{competency}',           [StudyProgramsController::class, 'destroyCompetency'])->name('destroy');
+            Route::delete('/{competency}',          [StudyProgramsController::class, 'destroyCompetency'])->name('destroy');
             Route::patch('/estado/{competency}',    [StudyProgramsController::class, 'toggleCompetencyStatus'])->name('toggle-status');
         });
 
         // Campo Laboral (program_job_fields)
         Route::prefix('campo-laboral')->name('job-fields.')->group(function () {
-            Route::get('/crear',                    [StudyProgramsController::class, 'createJobField'])->name('create');
-            Route::post('/guardar',                  [StudyProgramsController::class, 'storeJobField'])->name('store');
-            Route::get('/editar/{jobField}',        [StudyProgramsController::class, 'editJobField'])->name('edit');
-            Route::put('/editar/{jobField}',        [StudyProgramsController::class, 'updateJobField'])->name('update');
-            Route::delete('/{jobField}',             [StudyProgramsController::class, 'destroyJobField'])->name('destroy');
-            Route::patch('/estado/{jobField}',      [StudyProgramsController::class, 'toggleJobFieldStatus'])->name('toggle-status');
+            Route::get('/crear',                [StudyProgramsController::class, 'createJobField'])->name('create');
+            Route::post('/guardar',             [StudyProgramsController::class, 'storeJobField'])->name('store');
+            Route::get('/editar/{jobField}',    [StudyProgramsController::class, 'editJobField'])->name('edit');
+            Route::put('/editar/{jobField}',    [StudyProgramsController::class, 'updateJobField'])->name('update');
+            Route::delete('/{jobField}',        [StudyProgramsController::class, 'destroyJobField'])->name('destroy');
+            Route::patch('/estado/{jobField}',  [StudyProgramsController::class, 'toggleJobFieldStatus'])->name('toggle-status');
         });
 
         // Metadata de Presentación (program_metas)
         Route::prefix('metadatos')->name('meta.')->group(function () {
-            Route::get('/crear',                    [StudyProgramsController::class, 'createMeta'])->name('create');
-            Route::post('/guardar',                  [StudyProgramsController::class, 'storeMeta'])->name('store');
-            Route::get('/editar/{meta}',            [StudyProgramsController::class, 'editMeta'])->name('edit');
-            Route::put('/editar/{meta}',            [StudyProgramsController::class, 'updateMeta'])->name('update');
-            Route::delete('/{meta}',                 [StudyProgramsController::class, 'destroyMeta'])->name('destroy');
+            Route::get('/crear',            [StudyProgramsController::class, 'createMeta'])->name('create');
+            Route::post('/guardar',         [StudyProgramsController::class, 'storeMeta'])->name('store');
+            Route::get('/editar/{meta}',    [StudyProgramsController::class, 'editMeta'])->name('edit');
+            Route::put('/editar/{meta}',    [StudyProgramsController::class, 'updateMeta'])->name('update');
+            Route::delete('/{meta}',        [StudyProgramsController::class, 'destroyMeta'])->name('destroy');
         });
 
         // Requisitos (program_requirements)
         Route::prefix('requisitos')->name('requirements.')->group(function () {
-            Route::get('/crear',                    [StudyProgramsController::class, 'createRequirement'])->name('create');
-            Route::post('/guardar',                  [StudyProgramsController::class, 'storeRequirement'])->name('store');
-            Route::get('/editar/{requirement}',     [StudyProgramsController::class, 'editRequirement'])->name('edit');
-            Route::put('/editar/{requirement}',     [StudyProgramsController::class, 'updateRequirement'])->name('update');
-            Route::delete('/{requirement}',          [StudyProgramsController::class, 'destroyRequirement'])->name('destroy');
-            Route::patch('/estado/{requirement}',   [StudyProgramsController::class, 'toggleRequirementStatus'])->name('toggle-status');
+            Route::get('/crear',                [StudyProgramsController::class, 'createRequirement'])->name('create');
+            Route::post('/guardar',             [StudyProgramsController::class, 'storeRequirement'])->name('store');
+            Route::get('/editar/{requirement}', [StudyProgramsController::class, 'editRequirement'])->name('edit');
+            Route::put('/editar/{requirement}', [StudyProgramsController::class, 'updateRequirement'])->name('update');
+            Route::delete('/{requirement}',     [StudyProgramsController::class, 'destroyRequirement'])->name('destroy');
+            Route::patch('/estado/{requirement}', [StudyProgramsController::class, 'toggleRequirementStatus'])->name('toggle-status');
         });
     });
 
@@ -214,11 +216,11 @@ Route::middleware(['auth'])->group(function () {
 
     // Teacher role details
     Route::prefix('admin-docentes-roles')->name('admin.teacher-roles.')->group(function () {
-        Route::get('/',                            [TeacherRoleController::class, 'index'])->name('index');
-        Route::post('/guardar',                    [TeacherRoleController::class, 'store'])->name('store');
-        Route::put('/{teacherRole}',               [TeacherRoleController::class, 'update'])->name('update');
-        Route::patch('/estado/{teacherRole}',      [TeacherRoleController::class, 'toggleStatus'])->name('toggle-status');
-        Route::delete('/{teacherRole}',            [TeacherRoleController::class, 'destroy'])->name('destroy');
+        Route::get('/',                 [TeacherRoleController::class, 'index'])->name('index');
+        Route::post('/guardar',         [TeacherRoleController::class, 'store'])->name('store');
+        Route::put('/{teacherRole}',    [TeacherRoleController::class, 'update'])->name('update');
+        Route::patch('/estado/{teacherRole}', [TeacherRoleController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{teacherRole}', [TeacherRoleController::class, 'destroy'])->name('destroy');
     });
 
     Route::prefix('admin-reclamos')->name('admin.claims.')->group(function () {

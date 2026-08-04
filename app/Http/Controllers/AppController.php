@@ -16,6 +16,7 @@ use App\Models\Tupa;
 use App\Models\TupaCategory;
 use App\Models\TupaProcedure;
 use App\Http\Requests\ClaimValidate;
+use App\Models\Claim;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 

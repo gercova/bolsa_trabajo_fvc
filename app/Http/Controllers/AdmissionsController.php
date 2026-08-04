@@ -3,69 +3,115 @@
 namespace App\Http\Controllers;
 
 use App\Models\Admission;
+use App\Models\Image;
 use App\Models\StudyProgram;
 use App\Http\Requests\AdmissionRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdmissionsController extends Controller
 {
     public function index(Request $request): View {
         $validated = $request->validate([
-            'search' => 'nullable|string|max:255',
-            'process' => 'nullable|string|in:admisión,cepre,matrícula',
-            'type' => 'nullable|string|in:ordinario,extraordinario',
-            'status' => 'nullable|string|in:active,inactive',
-            'date' => 'nullable|string',
-            'sort_by' => 'nullable|string|in:id,period,total_vacancies,exam_date,price,type,process,is_active,created_at',
+            'search'     => 'nullable|string|max:255',
+            'process'    => 'nullable|string|in:admisión,cepre,matrícula',
+            'type'       => 'nullable|string|in:ordinario,extraordinario',
+            'status'     => 'nullable|string|in:active,inactive',
+            'date'       => 'nullable|string',
+            'sort_by'    => 'nullable|string|in:id,period,total_vacancies,exam_date,price,type,process,is_active,created_at',
             'sort_order' => 'nullable|string|in:asc,desc',
-            'per_page' => 'nullable|integer|min:1|max:100',
+            'per_page'   => 'nullable|integer|min:1|max:100',
         ]);
 
-        $query = Admission::query();
-
-        // Search
-        if (!empty($validated['search'])) {
-            $search = $validated['search'];
-            $query->where(function($q) use ($search) {
-                $q->where('period', 'LIKE', "%{$search}%")
-                  ->orWhere('activity', 'LIKE', "%{$search}%");
-            });
-        }
-
-        // Process filter
-        if (!empty($validated['process'])) {
-            $query->where('process', $validated['process']);
-        }
-
-        // Type filter
-        if (!empty($validated['type'])) {
-            $query->where('type', $validated['type']);
-        }
-
-        // Status filter
-        if (!empty($validated['status'])) {
-            $status = $validated['status'] === 'active';
-            $query->where('is_active', $status);
-        }
-
-        // Date range filter
-        if (!empty($validated['date'])) {
-            $dates = explode(' - ', $validated['date']);
-            if (count($dates) === 2) {
-                $query->whereBetween('exam_date', [$dates[0], $dates[1]]);
-            }
-        }
-
-        // Sorting
-        $sortBy = $validated['sort_by'] ?? 'created_at';
+        $perPage  = $validated['per_page'] ?? 10;
+        $sortBy   = $validated['sort_by']    ?? 'created_at';
         $sortOrder = $validated['sort_order'] ?? 'desc';
-        $query->orderBy($sortBy, $sortOrder);
 
-        $admission = $query->paginate($validated['per_page'] ?? 10);
-        return view('admin.admission.index', compact('admission'));
+        // Base query builder closure
+        $buildQuery = function (string $process) use ($validated, $sortBy, $sortOrder) {
+            $q = Admission::where('process', $process);
+
+            if (!empty($validated['search'])) {
+                $search = $validated['search'];
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('period', 'LIKE', "%{$search}%")
+                        ->orWhere('activity', 'LIKE', "%{$search}%");
+                });
+            }
+            if (!empty($validated['type'])) {
+                $q->where('type', $validated['type']);
+            }
+            if (!empty($validated['status'])) {
+                $q->where('is_active', $validated['status'] === 'active');
+            }
+            if (!empty($validated['date'])) {
+                $dates = explode(' - ', $validated['date']);
+                if (count($dates) === 2) {
+                    $q->whereBetween('exam_date', [$dates[0], $dates[1]]);
+                }
+            }
+            return $q->orderBy($sortBy, $sortOrder);
+        };
+
+        $cepreAdmissions    = $buildQuery('cepre')->paginate($perPage, ['*'], 'cepre_page');
+        $admisionAdmissions = $buildQuery('admisión')->paginate($perPage, ['*'], 'admision_page');
+
+        // Banner images for the public pages
+        $cepreImage    = Image::where('imageable_type', 'cepre')   ->where('imageable_id', 1)->first();
+        $admisionImage = Image::where('imageable_type', 'admision')->where('imageable_id', 1)->first();
+
+        return view('admin.admission.index', compact(
+            'cepreAdmissions',
+            'admisionAdmissions',
+            'cepreImage',
+            'admisionImage'
+        ));
+    }
+
+    /**
+     * Update the hero banner image for the CEPRE public page.
+     */
+    public function updateCepreImage(Request $request): RedirectResponse {
+        $request->validate(['image' => 'required|image|mimes:jpg,jpeg,png,webp|max:4096']);
+
+        $record = Image::firstOrNew(
+            ['imageable_type' => 'cepre', 'imageable_id' => 1]
+        );
+
+        // Delete old file if it exists and is not the default static asset
+        if ($record->exists && $record->path && !str_starts_with($record->path, 'images/')) {
+            Storage::disk('public')->delete($record->path);
+        }
+
+        $path = $request->file('image')->store('admission-banners', 'public');
+
+        $record->fill(['path' => $path, 'is_main' => true])->save();
+
+        return back()->with('success', 'Imagen del banner CEPRE actualizada correctamente.');
+    }
+
+    /**
+     * Update the hero banner image for the Examen de Admisión public page.
+     */
+    public function updateAdmissionImage(Request $request): RedirectResponse {
+        $request->validate(['image' => 'required|image|mimes:jpg,jpeg,png,webp|max:4096']);
+
+        $record = Image::firstOrNew(
+            ['imageable_type' => 'admision', 'imageable_id' => 1]
+        );
+
+        if ($record->exists && $record->path && !str_starts_with($record->path, 'images/')) {
+            Storage::disk('public')->delete($record->path);
+        }
+
+        $path = $request->file('image')->store('admission-banners', 'public');
+
+        $record->fill(['path' => $path, 'is_main' => true])->save();
+
+        return back()->with('success', 'Imagen del banner Examen de Admisión actualizada correctamente.');
     }
 
     public function create(): View {

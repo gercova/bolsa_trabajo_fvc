@@ -123,6 +123,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::prefix('admin-programas')->name('admin.programs.')->group(function () {
+        // Programas de Estudio
         Route::get('/',                             [StudyProgramsController::class, 'index'])->name('index');
         Route::get('/crear-programa',               [StudyProgramsController::class, 'create'])->name('create');
         Route::post('/guardar',                     [StudyProgramsController::class, 'store'])->name('store');
@@ -130,6 +131,55 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/editar-programa/{program}',    [StudyProgramsController::class, 'update'])->name('update');
         Route::delete('/{program}',                 [StudyProgramsController::class, 'destroy'])->name('destroy');
         Route::patch('/estado/{program}',           [StudyProgramsController::class, 'toggleStatus'])->name('toggle-status');
+
+        // Certificaciones Modulares (modular_certification)
+        Route::prefix('modulos')->name('modules.')->group(function () {
+            Route::get('/crear',                    [StudyProgramsController::class, 'createModule'])->name('create');
+            Route::post('/guardar',                  [StudyProgramsController::class, 'storeModule'])->name('store');
+            Route::get('/editar/{module}',          [StudyProgramsController::class, 'editModule'])->name('edit');
+            Route::put('/editar/{module}',          [StudyProgramsController::class, 'updateModule'])->name('update');
+            Route::delete('/{module}',               [StudyProgramsController::class, 'destroyModule'])->name('destroy');
+            Route::patch('/estado/{module}',        [StudyProgramsController::class, 'toggleModuleStatus'])->name('toggle-status');
+        });
+
+        // Competencias (program_competencies)
+        Route::prefix('competencias')->name('competencies.')->group(function () {
+            Route::get('/crear',                    [StudyProgramsController::class, 'createCompetency'])->name('create');
+            Route::post('/guardar',                  [StudyProgramsController::class, 'storeCompetency'])->name('store');
+            Route::get('/editar/{competency}',      [StudyProgramsController::class, 'editCompetency'])->name('edit');
+            Route::put('/editar/{competency}',      [StudyProgramsController::class, 'updateCompetency'])->name('update');
+            Route::delete('/{competency}',           [StudyProgramsController::class, 'destroyCompetency'])->name('destroy');
+            Route::patch('/estado/{competency}',    [StudyProgramsController::class, 'toggleCompetencyStatus'])->name('toggle-status');
+        });
+
+        // Campo Laboral (program_job_fields)
+        Route::prefix('campo-laboral')->name('job-fields.')->group(function () {
+            Route::get('/crear',                    [StudyProgramsController::class, 'createJobField'])->name('create');
+            Route::post('/guardar',                  [StudyProgramsController::class, 'storeJobField'])->name('store');
+            Route::get('/editar/{jobField}',        [StudyProgramsController::class, 'editJobField'])->name('edit');
+            Route::put('/editar/{jobField}',        [StudyProgramsController::class, 'updateJobField'])->name('update');
+            Route::delete('/{jobField}',             [StudyProgramsController::class, 'destroyJobField'])->name('destroy');
+            Route::patch('/estado/{jobField}',      [StudyProgramsController::class, 'toggleJobFieldStatus'])->name('toggle-status');
+        });
+
+        // Metadata de Presentación (program_metas)
+        Route::prefix('metadatos')->name('meta.')->group(function () {
+            Route::get('/crear',                    [StudyProgramsController::class, 'createMeta'])->name('create');
+            Route::post('/guardar',                  [StudyProgramsController::class, 'storeMeta'])->name('store');
+            Route::get('/editar/{meta}',            [StudyProgramsController::class, 'editMeta'])->name('edit');
+            Route::put('/editar/{meta}',            [StudyProgramsController::class, 'updateMeta'])->name('update');
+            Route::delete('/{meta}',                 [StudyProgramsController::class, 'destroyMeta'])->name('destroy');
+        });
+
+        // Requisitos (program_requirements)
+        Route::prefix('requisitos')->name('requirements.')->group(function () {
+            Route::get('/crear',                    [StudyProgramsController::class, 'createRequirement'])->name('create');
+            Route::post('/guardar',                  [StudyProgramsController::class, 'storeRequirement'])->name('store');
+            Route::get('/editar/{requirement}',     [StudyProgramsController::class, 'editRequirement'])->name('edit');
+            Route::put('/editar/{requirement}',     [StudyProgramsController::class, 'updateRequirement'])->name('update');
+            Route::delete('/{requirement}',          [StudyProgramsController::class, 'destroyRequirement'])->name('destroy');
+            Route::patch('/estado/{requirement}',   [StudyProgramsController::class, 'toggleRequirementStatus'])->name('toggle-status');
+        });
     });
 
     Route::prefix('admin-trabajos')->name('admin.works.')->group(function () {

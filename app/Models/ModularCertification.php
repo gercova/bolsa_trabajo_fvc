@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class ModularCertification extends Model
@@ -16,11 +17,17 @@ class ModularCertification extends Model
         'is_active'
     ];
 
-    /**
-     * Obtener el modelo al que pertenece la imagen (Producto,etcccc, etc.)
-     */
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
     public function modelType(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function studyProgram(): BelongsTo
+    {
+        return $this->belongsTo(StudyProgram::class, 'program_id', 'id');
     }
 }

@@ -292,42 +292,42 @@
     ];
 
     // Default fallback in case slug doesn't match predefined mappings
-$meta = $programMeta[$programSlug] ?? [
-    'icon' => 'bi-mortarboard-fill',
-    'color' => 'blue',
-    'badge' => 'Educación Superior',
-    'glow_class' => 'bg-blue-500/20',
-    'badge_class' => 'bg-blue-500/15 text-blue-300 border-blue-500/30',
-    'accent_text' => 'text-blue-300',
-    'bullet_class' => 'bg-blue-600',
-    'icon_bg_class' => 'bg-blue-50 text-blue-600 border-blue-100',
-    'border_hover_class' => 'hover:border-blue-300',
-    'badge_module_class' => 'bg-blue-100 text-blue-800',
-    'sidebar_icon_class' => 'text-blue-600',
-    'cta_bg_class' => 'from-blue-600 to-indigo-800',
-    'bar_color_class' => 'bg-blue-500',
-    'perfil' => $program->description,
-    'competencias' => [
-        [
-            'title' => 'Competencia General',
-            'desc' => 'Formación teórica y práctica acorde a las directrices de la especialidad.',
-            'icon' => 'fa-graduation-cap',
+    $meta = $programMeta[$programSlug] ?? [
+        'icon' => 'bi-mortarboard-fill',
+        'color' => 'blue',
+        'badge' => 'Educación Superior',
+        'glow_class' => 'bg-blue-500/20',
+        'badge_class' => 'bg-blue-500/15 text-blue-300 border-blue-500/30',
+        'accent_text' => 'text-blue-300',
+        'bullet_class' => 'bg-blue-600',
+        'icon_bg_class' => 'bg-blue-50 text-blue-600 border-blue-100',
+        'border_hover_class' => 'hover:border-blue-300',
+        'badge_module_class' => 'bg-blue-100 text-blue-800',
+        'sidebar_icon_class' => 'text-blue-600',
+        'cta_bg_class' => 'from-blue-600 to-indigo-800',
+        'bar_color_class' => 'bg-blue-500',
+        'perfil' => $program->description,
+        'competencias' => [
+            [
+                'title' => 'Competencia General',
+                'desc' => 'Formación teórica y práctica acorde a las directrices de la especialidad.',
+                'icon' => 'fa-graduation-cap',
+            ],
         ],
-    ],
-    'campo_laboral' => [
-        'Empresas del sector público y privado afines a la especialidad.',
-        'Consultoría técnica independiente.',
-        'Desarrollo de proyectos y emprendimientos autónomos.',
-    ],
-    'requisitos' => [
-        'Certificado de estudios de Educación Secundaria completa (original).',
-        'Copia simple de Documento Nacional de Identidad (DNI) vigente.',
-        'Partida de Nacimiento original.',
-        'Fotos tamaño carnet.',
-    ],
-];
+        'campo_laboral' => [
+            'Empresas del sector público y privado afines a la especialidad.',
+            'Consultoría técnica independiente.',
+            'Desarrollo de proyectos y emprendimientos autónomos.',
+        ],
+        'requisitos' => [
+            'Certificado de estudios de Educación Secundaria completa (original).',
+            'Copia simple de Documento Nacional de Identidad (DNI) vigente.',
+            'Partida de Nacimiento original.',
+            'Fotos tamaño carnet.',
+        ],
+    ];
 
-$mainImage = $program->images->where('is_main', true)->first() ?? $program->images->first();
+    $mainImage = $program->images->where('is_main', true)->first() ?? $program->images->first();
     $albumImages = $program->images;
 @endphp
 

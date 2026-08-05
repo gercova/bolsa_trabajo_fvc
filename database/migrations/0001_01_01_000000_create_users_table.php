@@ -21,10 +21,10 @@ return new class extends Migration
             $table->string('ubigeo', 6)->nullable()->collation('utf8mb4_general_ci');
             $table->foreign('ubigeo')->references('id')->on('ubigeo_district');
             
-            $table->string('email')->unique();
+            $table->string('email')->unique()->nullable();
             $table->string('photo_profile')->nullable();
             $table->string('cv_file')->nullable();
-            $table->enum('role', ['Admin', 'Administrativo', 'Docente', 'Reclutador', 'Solicitante'])->default('Solicitante')->nullable();
+            $table->string('role')->default('Solicitante');
             $table->string('job_position')->nullable();
             $table->foreignId('charge_id')->nullable()->constrained('charges')->nullOnDelete();
             $table->timestamp('email_verified_at')->nullable();

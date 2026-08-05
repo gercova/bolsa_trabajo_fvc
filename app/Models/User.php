@@ -55,4 +55,8 @@ class User extends Authenticatable
             ->where('is_active', true)
             ->latest();
     }
+
+    public function studentCouncils(): HasMany {
+        return $this->hasMany(StudentCouncil::class, 'user_id', 'id');
+    }
 }

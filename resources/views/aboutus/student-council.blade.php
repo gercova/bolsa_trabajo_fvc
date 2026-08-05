@@ -83,17 +83,6 @@
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(59,130,246,0.12),transparent_40%)]"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-8">
-            {{-- Breadcrumb --}}
-            <nav class="flex items-center justify-center text-sm font-semibold text-slate-400 space-x-2">
-                <a href="{{ route('inicio') }}" class="hover:text-sky-400 transition-colors flex items-center gap-1.5">
-                    <i class="bi bi-house-door text-base"></i> Inicio
-                </a>
-                <i class="bi bi-chevron-right text-xs opacity-50"></i>
-                <span class="text-slate-300">Nosotros</span>
-                <i class="bi bi-chevron-right text-xs opacity-50"></i>
-                <span class="text-sky-400 font-bold">Consejo de Estudiantes</span>
-            </nav>
-
             <h1
                 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-none text-white max-w-5xl mx-auto">
                 Consejo de <span

@@ -2,16 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Enterprise;
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         $this->call(ChargesSeeder::class);
@@ -32,6 +26,7 @@ class DatabaseSeeder extends Seeder
         $this->call(TupaCategorySeeder::class);
         $this->call(TupaProcedureSeeder::class);
         $this->call(UserRoleDetailsSeeder::class);
+        $this->call(StudentCouncilSeeder::class);
     }
 }
 

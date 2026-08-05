@@ -13,6 +13,7 @@ use App\Http\Controllers\JobsController;
 use App\Http\Controllers\PartnersController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\StudentCouncilController;
 use App\Http\Controllers\TeacherRoleController;
 use App\Http\Controllers\StudyProgramsController;
 use App\Http\Controllers\TupaController;
@@ -205,15 +206,6 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{user}',        [UsersController::class, 'destroy'])->name('destroy');
     });
 
-    Route::prefix('admin-roles')->name('admin.roles.')->group(function () {
-        Route::get('/',                 [RoleController::class, 'index'])->name('index');
-        Route::get('/crear',            [RoleController::class, 'create'])->name('create');
-        Route::post('/guardar',         [RoleController::class, 'store'])->name('store');
-        Route::get('/{role}/editar',    [RoleController::class, 'edit'])->name('edit');
-        Route::put('/{role}',           [RoleController::class, 'update'])->name('update');
-        Route::delete('/{role}',        [RoleController::class, 'destroy'])->name('destroy');
-    });
-
     // Teacher role details
     Route::prefix('admin-docentes-roles')->name('admin.teacher-roles.')->group(function () {
         Route::get('/',                 [TeacherRoleController::class, 'index'])->name('index');
@@ -221,6 +213,23 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{teacherRole}',    [TeacherRoleController::class, 'update'])->name('update');
         Route::patch('/estado/{teacherRole}', [TeacherRoleController::class, 'toggleStatus'])->name('toggle-status');
         Route::delete('/{teacherRole}', [TeacherRoleController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('admin-consejo-estudiantil')->name('admin.student-council.')->group(function () {
+        Route::get('/',                 [StudentCouncilController::class, 'index'])->name('index');
+        Route::post('/guardar',         [StudentCouncilController::class, 'store'])->name('store');
+        Route::put('/{studentCouncil}', [StudentCouncilController::class, 'update'])->name('update');
+        Route::patch('/estado/{studentCouncil}', [StudentCouncilController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{studentCouncil}', [StudentCouncilController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('admin-roles')->name('admin.roles.')->group(function () {
+        Route::get('/',                 [RoleController::class, 'index'])->name('index');
+        Route::get('/crear',            [RoleController::class, 'create'])->name('create');
+        Route::post('/guardar',         [RoleController::class, 'store'])->name('store');
+        Route::get('/{role}/editar',    [RoleController::class, 'edit'])->name('edit');
+        Route::put('/{role}',           [RoleController::class, 'update'])->name('update');
+        Route::delete('/{role}',        [RoleController::class, 'destroy'])->name('destroy');
     });
 
     Route::prefix('admin-reclamos')->name('admin.claims.')->group(function () {

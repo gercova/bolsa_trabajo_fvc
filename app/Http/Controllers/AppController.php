@@ -10,6 +10,7 @@ use App\Models\HistoricalReview;
 use App\Models\Image;
 use App\Models\JobOffer;
 use App\Models\Partner;
+use App\Models\StudentCouncil;
 use App\Models\StudyProgram;
 use App\Models\User;
 use App\Models\UserRoleDetail;
@@ -304,7 +305,41 @@ class AppController extends Controller {
     
     // nosotros/consejo-de-estudiantes
     public function studentCouncil(): View {
-        return view('aboutus.student-council');
+        $enterprise = Enterprise::first();
+
+        // Obtener períodos académicos disponibles
+        $periods = StudentCouncil::where('is_active', true)
+            ->select('academic_period')
+            ->distinct()
+            ->orderBy('academic_period', 'desc')
+            ->pluck('academic_period');
+
+        $selectedPeriod = request('period', $periods->first() ?? '2026-2027');
+
+        $members = StudentCouncil::with(['user', 'studyProgram'])
+            ->where('is_active', true)
+            ->when($selectedPeriod, fn($q) => $q->where('academic_period', $selectedPeriod))
+            ->get();
+
+        // Clasificar directiva principal y secretarías
+        $board = $members->filter(function ($m) {
+            $pos = mb_strtolower($m->position, 'UTF-8');
+            return str_contains($pos, 'presidente') || str_contains($pos, 'vicepresidente') || str_contains($pos, 'vice presidente');
+        })->values();
+
+        $secretaries = $members->reject(function ($m) {
+            $pos = mb_strtolower($m->position, 'UTF-8');
+            return str_contains($pos, 'presidente') || str_contains($pos, 'vicepresidente') || str_contains($pos, 'vice presidente');
+        })->values();
+
+        return view('aboutus.student-council', compact(
+            'enterprise',
+            'members',
+            'board',
+            'secretaries',
+            'periods',
+            'selectedPeriod'
+        ));
     }
 
     // nosotros/locales

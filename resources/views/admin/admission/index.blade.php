@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('title', 'Gestión de Exámenes de Admisión / CEPRE - Panel Administrativo')
-
 @push('styles')
     <style>
         [x-cloak] { display: none !important; }
@@ -102,7 +101,6 @@
         }
     </style>
 @endpush
-
 @section('content')
     <div id="dashboard-container" class="flex w-full bg-gray-50 font-sans text-gray-900 min-h-[calc(100vh-64px)]"
         x-data="enterpriseApp()">
@@ -147,10 +145,7 @@
                             </div>
                         </div>
                     @endif
-
-                    {{-- ============================================================= --}}
                     {{-- SECTION 1: BANNER IMAGE MANAGEMENT --}}
-                    {{-- ============================================================= --}}
                     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
                             <div class="flex items-center gap-3">
@@ -191,7 +186,6 @@
                                         </div>
                                         <p class="text-xs text-gray-400 mt-1.5 text-center font-medium">Imagen actual</p>
                                     </div>
-
                                     {{-- Upload Form --}}
                                     <form action="{{ route('admin.exams.update-cepre-image') }}" method="POST"
                                         enctype="multipart/form-data" class="flex-1 w-full">
@@ -214,7 +208,6 @@
                                     </form>
                                 </div>
                             </div>
-
                             {{-- ─── Admisión Banner ─── --}}
                             <div class="p-5">
                                 <div class="flex items-center gap-2 mb-4">
@@ -226,7 +219,6 @@
                                         <i class="bi bi-box-arrow-up-right text-xs"></i> Ver página
                                     </a>
                                 </div>
-
                                 <div class="flex flex-col sm:flex-row gap-4 items-start">
                                     {{-- Current Image Preview --}}
                                     <div class="w-full sm:w-36 flex-shrink-0">
@@ -237,7 +229,6 @@
                                         </div>
                                         <p class="text-xs text-gray-400 mt-1.5 text-center font-medium">Imagen actual</p>
                                     </div>
-
                                     {{-- Upload Form --}}
                                     <form action="{{ route('admin.exams.update-admission-image') }}" method="POST"
                                         enctype="multipart/form-data" class="flex-1 w-full">
@@ -257,9 +248,7 @@
                                     </form>
                                 </div>
                             </div>
-
                         </div>
-
                         {{-- Image Table (records) --}}
                         <div class="border-t border-gray-100">
                             <div class="px-5 py-3 flex items-center gap-2 bg-gray-50/60">
@@ -320,10 +309,7 @@
                             </div>
                         </div>
                     </div>
-
-                    {{-- ============================================================= --}}
                     {{-- SECTION 2: FILTERS + NEW BUTTON --}}
-                    {{-- ============================================================= --}}
                     <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-200 space-y-4">
                         <form action="{{ route('admin.exams.index') }}" method="GET" id="filterForm" class="w-full space-y-4">
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -352,7 +338,6 @@
                                     @endif
                                 </div>
                             </div>
-
                             <div class="flex flex-wrap items-center gap-3">
                                 {{-- Tipo --}}
                                 <div class="relative flex-1 min-w-[140px]">
@@ -365,7 +350,6 @@
                                     </select>
                                     <i class="bi bi-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
                                 </div>
-
                                 {{-- Estado --}}
                                 <div class="relative flex-1 min-w-[140px]">
                                     <select name="status"
@@ -377,7 +361,6 @@
                                     </select>
                                     <i class="bi bi-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
                                 </div>
-
                                 {{-- Por página --}}
                                 <div class="relative min-w-[120px]">
                                     <select name="per_page"
@@ -390,7 +373,6 @@
                                     </select>
                                     <i class="bi bi-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
                                 </div>
-
                                 <button type="submit"
                                     class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm font-semibold text-sm">
                                     <i class="bi bi-funnel-fill"></i> Filtrar
@@ -419,10 +401,7 @@
                             </a>
                         </div>
                     </div>
-
-                    {{-- ============================================================= --}}
                     {{-- SECTION 3: TAB PANEL --}}
-                    {{-- ============================================================= --}}
                     <div x-data="{ activeTab: '{{ request()->has('cepre_page') || !request()->has('admision_page') ? 'cepre' : 'admision' }}' }">
 
                         {{-- Tab Buttons --}}

@@ -196,51 +196,105 @@
                         </div>
                     @endif
 
-                    {{-- Curriculum & Modular certifications --}}
-                    @if ($program->modules->isNotEmpty())
-                        <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
-                            <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 flex items-center gap-3">
-                                <span class="w-2 h-8 {{ $barColorClass }} rounded-full"></span>
-                                Plan de Estudios y Certificaciones Modulares
-                            </h2>
-                            <p class="text-gray-600 mb-8 text-base">
-                                Nuestro plan curricular está estructurado modularmente para permitir una rápida inserción
-                                laboral. Cada año académico completado te acredita con un certificado oficial del Ministerio
-                                de Educación:
-                            </p>
+                    {{-- Curriculum & Modular certifications / Itinerario Formativo --}}
+                    @if ($program->modules->isNotEmpty() || $program->training_itinerary_path)
+                        <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm space-y-8">
+                            <div>
+                                <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 flex items-center gap-3">
+                                    <span class="w-2 h-8 {{ $barColorClass }} rounded-full"></span>
+                                    Plan de Estudios e Itinerario Formativo
+                                </h2>
+                                <p class="text-gray-600 text-base">
+                                    Nuestro plan curricular está estructurado modularmente para permitir una rápida inserción
+                                    laboral. Cada año académico completado te acredita con un certificado oficial del Ministerio
+                                    de Educación:
+                                </p>
+                            </div>
 
-                            <div class="space-y-6">
-                                @foreach ($program->modules as $index => $module)
-                                    <div class="timeline-item flex gap-6 relative">
-                                        {{-- Bullet decoration --}}
-                                        <div
-                                            class="timeline-bullet w-10 h-10 rounded-full {{ $bulletClass }} text-white font-extrabold flex items-center justify-center shrink-0 relative z-10 shadow-sm">
-                                            {{ $index + 1 }}
+                            @if ($program->modules->isNotEmpty())
+                                <div class="space-y-6">
+                                    @foreach ($program->modules as $index => $module)
+                                        <div class="timeline-item flex gap-6 relative">
+                                            {{-- Bullet decoration --}}
+                                            <div
+                                                class="timeline-bullet w-10 h-10 rounded-full {{ $bulletClass }} text-white font-extrabold flex items-center justify-center shrink-0 relative z-10 shadow-sm">
+                                                {{ $index + 1 }}
+                                            </div>
+
+                                            {{-- Content --}}
+                                            <div class="flex-grow bg-gray-50 border border-gray-100 rounded-2xl p-6 relative">
+                                                <div class="flex flex-wrap items-center justify-between gap-4 mb-3">
+                                                    <span
+                                                        class="px-3 py-1 text-sm font-bold uppercase tracking-wider rounded-full {{ $badgeModuleClass }}">
+                                                        Módulo Informativo {{ $index + 1 }}
+                                                    </span>
+                                                    <span class="text-sm text-gray-500 font-medium flex items-center gap-1">
+                                                        <i class="bi bi-calendar3"></i> Año Académico {{ $index + 1 }}
+                                                    </span>
+                                                </div>
+                                                <h3 class="font-extrabold text-gray-900 text-lg mb-2">
+                                                    {{ $module->module }}
+                                                </h3>
+                                                <p class="text-sm md:text-base text-gray-600 leading-relaxed">
+                                                    Certificación otorgada al concluir satisfactoriamente las unidades
+                                                    didácticas teóricas y las correspondientes experiencias formativas en situaciones
+                                                    reales de trabajo.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            {{-- Itinerario Formativo Document Download / View Card --}}
+                            @if ($program->training_itinerary_path)
+                                @php
+                                    $itineraryUrl = $program->training_itinerary_url;
+                                @endphp
+                                <div class="p-6 md:p-8 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white border border-slate-700/60 shadow-lg relative overflow-hidden">
+                                    {{-- Ambient decorative background lights --}}
+                                    <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none"></div>
+                                    <div class="absolute -left-10 -top-10 w-48 h-48 bg-purple-500/15 rounded-full blur-2xl pointer-events-none"></div>
+
+                                    <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                                        <div class="flex items-start gap-4">
+                                            <div class="w-14 h-14 rounded-2xl bg-red-500/20 border border-red-400/30 text-red-400 flex items-center justify-center text-3xl shrink-0 shadow-inner">
+                                                <i class="bi bi-file-earmark-pdf-fill"></i>
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-500/30">
+                                                        Documento Oficial
+                                                    </span>
+                                                    <span class="text-xs text-slate-400 font-medium">Itinerario Formativo (PDF)</span>
+                                                </div>
+                                                <h3 class="text-lg md:text-xl font-black text-white tracking-tight">
+                                                    Itinerario Formativo y Malla Curricular
+                                                </h3>
+                                                <p class="text-xs md:text-sm text-slate-300 mt-1 max-w-xl leading-relaxed">
+                                                    Consulta el plan de estudios oficial, distribución de unidades didácticas, créditos y horas lectivas de {{ $program->name }}.
+                                                </p>
+                                            </div>
                                         </div>
 
-                                        {{-- Content --}}
-                                        <div class="flex-grow bg-gray-50 border border-gray-100 rounded-2xl p-6 relative">
-                                            <div class="flex flex-wrap items-center justify-between gap-4 mb-3">
-                                                <span
-                                                    class="px-3 py-1 text-sm font-bold uppercase tracking-wider rounded-full {{ $badgeModuleClass }}">
-                                                    Módulo Informativo {{ $index + 1 }}
-                                                </span>
-                                                <span class="text-sm text-gray-500 font-medium flex items-center gap-1">
-                                                    <i class="bi bi-calendar3"></i> Año Académico {{ $index + 1 }}
-                                                </span>
-                                            </div>
-                                            <h3 class="font-extrabold text-gray-900 text-lg mb-2">
-                                                {{ $module->module }}
-                                            </h3>
-                                            <p class="text-sm md:text-base text-gray-600 leading-relaxed">
-                                                Certificación otorgada al concluir satisfactoriamente las unidades
-                                                didácticas teóricas y las correspondientes experiencias formativas en situaciones
-                                                reales de trabajo.
-                                            </p>
+                                        <div class="flex items-center gap-3 w-full lg:w-auto shrink-0 flex-wrap sm:flex-nowrap">
+                                            {{-- Botón 1: Ver documento en nueva pestaña --}}
+                                            <a href="{{ $itineraryUrl }}" target="_blank" rel="noopener noreferrer"
+                                                class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs md:text-sm border border-white/20 backdrop-blur-sm transition-all duration-200 shadow-sm hover:scale-[1.02] active:scale-[0.98]">
+                                                <i class="bi bi-box-arrow-up-right text-sm"></i>
+                                                <span>Ver Documento</span>
+                                            </a>
+
+                                            {{-- Botón 2: Descargar documento --}}
+                                            <a href="{{ $itineraryUrl }}" download="{{ Str::slug($program->name) }}-itinerario-formativo.pdf"
+                                                class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs md:text-sm transition-all duration-200 shadow-md hover:shadow-purple-500/25 hover:scale-[1.02] active:scale-[0.98]">
+                                                <i class="bi bi-download text-sm"></i>
+                                                <span>Descargar PDF</span>
+                                            </a>
                                         </div>
                                     </div>
-                                @endforeach
-                            </div>
+                                </div>
+                            @endif
                         </div>
                     @endif
 

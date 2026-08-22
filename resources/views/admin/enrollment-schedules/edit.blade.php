@@ -55,7 +55,7 @@
 @endpush
 @section('content')
     <div id="dashboard-container" class="flex w-full bg-gray-50 font-sans text-gray-900 min-h-[calc(100vh-64px)]"
-        x-data="enterpriseApp()">
+    x-data="dashboardApp()">
         @include('admin.components.aside')
         <div class="flex-1 flex flex-col min-w-0 bg-gray-50/50 relative">
 

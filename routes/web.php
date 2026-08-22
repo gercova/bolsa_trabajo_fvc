@@ -63,7 +63,6 @@ Route::get('/servicios/bolsa-de-trabajo', [AppController::class, 'offers'])->nam
 Route::get('/servicios/enlaces-institucionales', [AppController::class, 'institutionalLinks'])->name('enlaces-institucionales');
 
 // Rutas de autenticación (definidas canónicamente en routes/auth.php)
-
 Route::middleware(['auth'])->group(function () {
     Route::prefix('admin-dashboard')->name('admin.dashboard.')->group(function () {
         Route::get('/',    [DashboardController::class, 'index'])->name('index');

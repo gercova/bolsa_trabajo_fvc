@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->string('logo_path')->nullable();
+            $table->string('training_itinerary_path')->nullable();
             $table->string('slug')->unique();
             $table->text('description')->nullable();
             $table->text('details')->nullable();

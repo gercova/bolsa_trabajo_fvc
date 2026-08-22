@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('legal_representative_dni', 11);
             $table->string('legal_representative', 100);
             $table->string('address', 100)->nullable();
+            $table->text('google_maps_iframe')->nullable();
             $table->string('city', 150)->nullable();
             $table->string('business_sector')->nullable();
             $table->string('phrase')->nullable();

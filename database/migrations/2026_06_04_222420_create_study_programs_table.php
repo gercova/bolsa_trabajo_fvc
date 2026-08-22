@@ -34,6 +34,7 @@ return new class extends Migration
             $table->string('sidebar_icon_class')->nullable();
             $table->string('cta_bg_class')->nullable();
             $table->string('bar_color_class')->nullable();
+            $table->unsignedTinyInteger('order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
@@ -44,6 +45,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('program_metas');
+        Schema::dropIfExists('study_programs');
     }
 };

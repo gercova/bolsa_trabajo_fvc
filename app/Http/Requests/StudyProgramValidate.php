@@ -43,6 +43,7 @@ class StudyProgramValidate extends FormRequest
             'sidebar_icon_class'      => 'nullable|string|max:255',
             'cta_bg_class'            => 'nullable|string|max:255',
             'bar_color_class'         => 'nullable|string|max:255',
+            'order'                   => 'nullable|integer|min:0|max:255',
             'is_active'               => 'nullable|boolean',
         ];
     }
@@ -64,6 +65,9 @@ class StudyProgramValidate extends FormRequest
             'description.string'            => 'La descripción debe ser una cadena de texto.',
             'details.required'              => 'Los detalles del programa son obligatorios.',
             'details.string'                => 'Los detalles deben ser una cadena de texto.',
+            'order.integer'                 => 'El orden debe ser un número entero.',
+            'order.min'                     => 'El orden no puede ser menor a 0.',
+            'order.max'                     => 'El orden no puede ser mayor a 255.',
         ];
     }
 }

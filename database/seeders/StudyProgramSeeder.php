@@ -359,6 +359,7 @@ class StudyProgramSeeder extends Seeder
             ],
         ];
 
+        $orderIndex = 1;
         foreach ($programsData as $program) {
             // Crear el programa
             $studyProgram = StudyProgram::create([
@@ -366,6 +367,7 @@ class StudyProgramSeeder extends Seeder
                 'slug' => $program['slug'],
                 'description' => $program['description'],
                 'details' => $program['details'],
+                'order' => $orderIndex++,
                 'is_active' => true,
             ]);
 

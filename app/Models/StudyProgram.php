@@ -33,14 +33,24 @@ class StudyProgram extends Model
         'sidebar_icon_class',
         'cta_bg_class',
         'bar_color_class',
+        'order',
         'is_active',
     ];
 
     protected $casts = [
+        'order'         => 'integer',
         'is_active'     => 'boolean',
         'created_at'    => 'datetime',
         'updated_at'    => 'datetime',
     ];
+
+    /**
+     * Scope a query to sort programs by sequential order and name.
+     */
+    public function scopeOrdered($query)
+    {
+        return $query->orderBy('order', 'asc')->orderBy('name', 'asc');
+    }
 
     // Relaciones existentes
     public function modules(): MorphMany

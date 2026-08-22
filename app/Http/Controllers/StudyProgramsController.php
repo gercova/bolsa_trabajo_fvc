@@ -45,14 +45,15 @@ class StudyProgramsController extends Controller
         $progQuery = StudyProgram::query();
         if ($search && $activeTab === 'programs') {
             $progQuery->where('name', 'LIKE', "%{$search}%")
-                      ->orWhere('description', 'LIKE', "%{$search}%");
+                ->orWhere('description', 'LIKE', "%{$search}%");
         }
         if ($statusFilter && $activeTab === 'programs') {
             $progQuery->where('is_active', $statusFilter === 'active');
         }
-        $programs = $progQuery->orderBy('name', 'asc')
-                              ->paginate($perPage, ['*'], 'programs_page')
-                              ->withQueryString();
+        $programs = $progQuery->orderBy('order', 'asc')
+            ->orderBy('name', 'asc')
+            ->paginate($perPage, ['*'], 'programs_page')
+            ->withQueryString();
 
         // 2. Modular Certifications
         $modQuery = ModularCertification::with('studyProgram');
@@ -66,8 +67,8 @@ class StudyProgramsController extends Controller
             $modQuery->where('program_id', $programFilter);
         }
         $modules = $modQuery->orderBy('id', 'desc')
-                            ->paginate($perPage, ['*'], 'modules_page')
-                            ->withQueryString();
+            ->paginate($perPage, ['*'], 'modules_page')
+            ->withQueryString();
 
         // 3. Program Competencies
         $compQuery = ProgramCompetency::with('studyProgram');
@@ -84,8 +85,8 @@ class StudyProgramsController extends Controller
             $compQuery->where('study_program_id', $programFilter);
         }
         $competencies = $compQuery->orderBy('order', 'asc')
-                                  ->paginate($perPage, ['*'], 'competencies_page')
-                                  ->withQueryString();
+            ->paginate($perPage, ['*'], 'competencies_page')
+            ->withQueryString();
 
         // 4. Program Job Fields
         $jobQuery = ProgramJobField::with('studyProgram');
@@ -99,8 +100,8 @@ class StudyProgramsController extends Controller
             $jobQuery->where('study_program_id', $programFilter);
         }
         $jobFields = $jobQuery->orderBy('order', 'asc')
-                              ->paginate($perPage, ['*'], 'job_fields_page')
-                              ->withQueryString();
+            ->paginate($perPage, ['*'], 'job_fields_page')
+            ->withQueryString();
 
         // 5. Program Metas
         $metaQuery = ProgramMeta::with('studyProgram');
@@ -113,8 +114,8 @@ class StudyProgramsController extends Controller
             $metaQuery->where('study_program_id', $programFilter);
         }
         $metas = $metaQuery->orderBy('id', 'desc')
-                           ->paginate($perPage, ['*'], 'meta_page')
-                           ->withQueryString();
+            ->paginate($perPage, ['*'], 'meta_page')
+            ->withQueryString();
 
         // 6. Program Requirements
         $reqQuery = ProgramRequirement::with('studyProgram');
@@ -128,10 +129,10 @@ class StudyProgramsController extends Controller
             $reqQuery->where('study_program_id', $programFilter);
         }
         $requirements = $reqQuery->orderBy('order', 'asc')
-                                 ->paginate($perPage, ['*'], 'requirements_page')
-                                 ->withQueryString();
+            ->paginate($perPage, ['*'], 'requirements_page')
+            ->withQueryString();
 
-        $allProgramsList = StudyProgram::where('is_active', true)->orderBy('name')->get();
+        $allProgramsList = StudyProgram::where('is_active', true)->orderBy('order', 'asc')->orderBy('name')->get();
 
         return view('admin.programs.index', compact(
             'programs',
@@ -151,14 +152,16 @@ class StudyProgramsController extends Controller
 
     public function create(): View
     {
-        return view('admin.programs.create');
+        $nextOrder = (StudyProgram::max('order') ?? 0) + 1;
+        return view('admin.programs.create', compact('nextOrder'));
     }
 
     public function store(StudyProgramValidate $request): RedirectResponse
     {
         $validated = $request->validated();
         $validated['slug'] = Str::slug($validated['name']);
-        $validated['is_active'] = $request->has('is_active');
+        $validated['is_active'] = $request->boolean('is_active');
+        $validated['order'] = $validated['order'] ?? ((StudyProgram::max('order') ?? 0) + 1);
 
         if ($request->hasFile('logo_path')) {
             $path = $request->file('logo_path')->store('programs', 'public');
@@ -184,7 +187,8 @@ class StudyProgramsController extends Controller
     {
         $validated = $request->validated();
         $validated['slug'] = Str::slug($validated['name']);
-        $validated['is_active'] = $request->has('is_active');
+        $validated['is_active'] = $request->boolean('is_active');
+        $validated['order'] = $validated['order'] ?? $program->order;
 
         if ($request->hasFile('logo_path')) {
             if ($program->logo_path && Storage::disk('public')->exists($program->logo_path)) {

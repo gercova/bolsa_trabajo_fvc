@@ -179,6 +179,11 @@
                                                     <div>
                                                         <h3 class="font-bold text-gray-900 leading-tight">{{ $program->name }}</h3>
                                                         <p class="text-xs text-gray-500 line-clamp-1 mt-0.5">{{ $program->description }}</p>
+                                                        @if($program->training_itinerary_path)
+                                                            <a href="{{ $program->training_itinerary_url }}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-red-600 hover:text-red-800 mt-1 bg-red-50 px-2 py-0.5 rounded-md border border-red-100" title="Ver Itinerario Formativo">
+                                                                <i class="bi bi-file-earmark-pdf-fill"></i> Itinerario PDF
+                                                            </a>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </td>

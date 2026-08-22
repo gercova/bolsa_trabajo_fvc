@@ -165,6 +165,11 @@ class StudyProgramsController extends Controller
             $validated['logo_path'] = $path;
         }
 
+        if ($request->hasFile('training_itinerary_path')) {
+            $itineraryPath = $request->file('training_itinerary_path')->store('programs/documents', 'public');
+            $validated['training_itinerary_path'] = $itineraryPath;
+        }
+
         StudyProgram::create($validated);
 
         return redirect()->route('admin.programs.index', ['tab' => 'programs'])->with('success', 'Programa de estudio creado correctamente.');
@@ -189,6 +194,14 @@ class StudyProgramsController extends Controller
             $validated['logo_path'] = $path;
         }
 
+        if ($request->hasFile('training_itinerary_path')) {
+            if ($program->training_itinerary_path && Storage::disk('public')->exists($program->training_itinerary_path)) {
+                Storage::disk('public')->delete($program->training_itinerary_path);
+            }
+            $itineraryPath = $request->file('training_itinerary_path')->store('programs/documents', 'public');
+            $validated['training_itinerary_path'] = $itineraryPath;
+        }
+
         $program->update($validated);
 
         return redirect()->route('admin.programs.index', ['tab' => 'programs'])->with('success', 'Programa de estudio actualizado correctamente.');
@@ -207,6 +220,9 @@ class StudyProgramsController extends Controller
     {
         if ($program->logo_path && Storage::disk('public')->exists($program->logo_path)) {
             Storage::disk('public')->delete($program->logo_path);
+        }
+        if ($program->training_itinerary_path && Storage::disk('public')->exists($program->training_itinerary_path)) {
+            Storage::disk('public')->delete($program->training_itinerary_path);
         }
         $program->delete();
 

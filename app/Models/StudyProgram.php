@@ -15,6 +15,7 @@ class StudyProgram extends Model
         'name',
         'slug',
         'logo_path',
+        'training_itinerary_path',
         'description',
         'details',
         'icon',
@@ -108,5 +109,15 @@ class StudyProgram extends Model
     public function getRequisitosListAttribute()
     {
         return $this->requirements->pluck('description')->toArray();
+    }
+
+    public function getTrainingItineraryUrlAttribute(): ?string
+    {
+        if (!$this->training_itinerary_path) {
+            return null;
+        }
+        return \Illuminate\Support\Str::startsWith($this->training_itinerary_path, ['http://', 'https://'])
+            ? $this->training_itinerary_path
+            : asset('storage/' . $this->training_itinerary_path);
     }
 }

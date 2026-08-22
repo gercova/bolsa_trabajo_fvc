@@ -35,7 +35,7 @@
                 </div>
 
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 space-y-8" 
-                    x-data="studyProgramEditForm('{{ old('icon', $program->icon ?? 'bi-mortarboard-fill') }}', '{{ $program->logo_path ? asset('storage/' . $program->logo_path) : '' }}', '{{ $program->logo_path ? basename($program->logo_path) : '' }}')">
+                    x-data="studyProgramEditForm('{{ old('icon', $program->icon ?? 'bi-mortarboard-fill') }}', '{{ $program->logo_path ? asset('storage/' . $program->logo_path) : '' }}', '{{ $program->logo_path ? basename($program->logo_path) : '' }}', '{{ $program->training_itinerary_path ? $program->training_itinerary_url : '' }}', '{{ $program->training_itinerary_path ? basename($program->training_itinerary_path) : '' }}')">
                     
                     {{-- Banner --}}
                     <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-blue-500/10 border border-purple-100">
@@ -44,7 +44,7 @@
                         </div>
                         <div>
                             <h3 class="text-sm font-bold text-gray-900">Modificar: {{ $program->name }}</h3>
-                            <p class="text-xs text-gray-500 mt-0.5">Actualiza el perfil profesional, logo, detalles o metadatos de presentación de este programa de estudio.</p>
+                            <p class="text-xs text-gray-500 mt-0.5">Actualiza el perfil profesional, logo, itinerario formativo, detalles o metadatos de presentación de este programa de estudio.</p>
                         </div>
                     </div>
 
@@ -121,6 +121,75 @@
                                 </div>
 
                                 @error('logo_path')
+                                    <p class="text-xs text-red-500 font-medium mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- FILE INPUT CON PREVISUALIZACIÓN Y DOCUMENTO ITINERARIO FORMATIVO (PDF) --}}
+                            <div class="md:col-span-2 space-y-2">
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700">
+                                    Documento del Itinerario Formativo (Formato: PDF)
+                                </label>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                                    {{-- Drag and Drop Upload Area --}}
+                                    <div class="md:col-span-2 relative border-2 border-dashed border-gray-200 hover:border-indigo-400 bg-gray-50/50 hover:bg-indigo-50/20 rounded-2xl p-6 text-center transition-all duration-200 group">
+                                        <input type="file" id="training_itinerary_path" name="training_itinerary_path" accept="application/pdf,.pdf" 
+                                            @change="handlePdfChange($event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                        
+                                        <div class="space-y-2 pointer-events-none">
+                                            <div class="w-12 h-12 mx-auto rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                                                <i class="bi bi-file-earmark-pdf-fill"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-bold text-gray-700">
+                                                    Haz clic o arrastra un nuevo documento PDF para actualizar el itinerario
+                                                </p>
+                                                <p class="text-xs text-gray-500 mt-1">Documento del plan de estudios / itinerario en formato PDF (Máx. 20MB)</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Live Document Status Box --}}
+                                    <div class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-2xl border border-gray-200 min-h-[150px]">
+                                        <template x-if="pdfFileName">
+                                            <div class="text-center space-y-3 relative w-full">
+                                                <div class="relative inline-block group">
+                                                    <div class="w-16 h-16 rounded-2xl bg-red-50 text-red-600 border border-red-100 flex items-center justify-center text-3xl shadow-sm mx-auto">
+                                                        <i class="bi bi-file-earmark-pdf-fill"></i>
+                                                    </div>
+                                                    <template x-if="isNewPdf">
+                                                        <button type="button" @click="resetPdf()" class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full text-xs shadow-md transition-colors" title="Restablecer / Deshacer cambio">
+                                                            <i class="bi bi-x-lg"></i>
+                                                        </button>
+                                                    </template>
+                                                </div>
+                                                <div class="text-xs text-gray-700 truncate max-w-[200px] mx-auto font-bold" x-text="pdfFileName"></div>
+                                                
+                                                <div class="flex flex-col items-center gap-2">
+                                                    <span class="inline-block px-2.5 py-0.5 text-[11px] font-bold rounded-full"
+                                                          :class="isNewPdf ? 'bg-emerald-100 text-emerald-800' : 'bg-indigo-100 text-indigo-800'">
+                                                        <span x-text="isNewPdf ? 'Nuevo PDF Seleccionado' : 'PDF Actual Registrado'"></span>
+                                                    </span>
+                                                    <template x-if="existingPdfUrl && !isNewPdf">
+                                                        <a :href="existingPdfUrl" target="_blank" class="inline-flex items-center gap-1 text-[11px] text-indigo-600 hover:text-indigo-800 font-bold hover:underline">
+                                                            <i class="bi bi-eye"></i> Ver PDF Actual
+                                                        </a>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </template>
+
+                                        <template x-if="!pdfFileName">
+                                            <div class="text-center space-y-2 text-gray-400">
+                                                <i class="bi bi-file-earmark-arrow-up text-3xl opacity-50"></i>
+                                                <p class="text-xs font-medium">Sin documento PDF registrado</p>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                @error('training_itinerary_path')
                                     <p class="text-xs text-red-500 font-medium mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -226,7 +295,7 @@
 
 @push('scripts')
 <script>
-    function studyProgramEditForm(defaultIcon, existingLogoUrl, originalFileName) {
+    function studyProgramEditForm(defaultIcon, existingLogoUrl, originalFileName, existingPdfUrl, originalPdfName) {
         return {
             selectedIcon: defaultIcon || 'bi-mortarboard-fill',
             logoPreview: existingLogoUrl || null,
@@ -234,6 +303,11 @@
             originalName: originalFileName || '',
             fileName: originalFileName || '',
             isNewFile: false,
+
+            existingPdfUrl: existingPdfUrl || null,
+            originalPdfName: originalPdfName || '',
+            pdfFileName: originalPdfName || '',
+            isNewPdf: false,
 
             handleLogoChange(event) {
                 const file = event.target.files[0];
@@ -253,6 +327,21 @@
                 this.fileName = this.originalName;
                 this.isNewFile = false;
                 const input = document.getElementById('logo_path');
+                if (input) input.value = '';
+            },
+
+            handlePdfChange(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.pdfFileName = file.name;
+                    this.isNewPdf = true;
+                }
+            },
+
+            resetPdf() {
+                this.pdfFileName = this.originalPdfName;
+                this.isNewPdf = false;
+                const input = document.getElementById('training_itinerary_path');
                 if (input) input.value = '';
             }
         }

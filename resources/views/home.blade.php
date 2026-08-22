@@ -151,17 +151,14 @@
 @endpush
 @section('content')
     {{-- ═══ HERO CAROUSEL — UNSM STYLE ════════════════════════════════════ --}}
-    <section class="relative bg-slate-950 text-white overflow-hidden select-none" aria-label="Carrusel de Portada Institucional"
-        x-data="heroCarousel()"
-        x-init="init()"
-        @mouseenter="pauseTimer()"
-        @mouseleave="resumeTimer()"
-        @keydown.right.window="nextSlide()"
+    <section class="relative bg-slate-950 text-white overflow-hidden select-none"
+        aria-label="Carrusel de Portada Institucional" x-data="heroCarousel()" x-init="init()"
+        @mouseenter="pauseTimer()" @mouseleave="resumeTimer()" @keydown.right.window="nextSlide()"
         @keydown.left.window="prevSlide()">
 
         {{-- Carousel Slides Container --}}
         <div class="relative w-full h-[540px] sm:h-[600px] lg:h-[660px] xl:h-[700px] overflow-hidden">
-            
+
             {{-- SLIDE 1: Admisión & Formación --}}
             <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
                 :class="currentSlide === 0 ? 'opacity-100 z-20 pointer-events-auto' : 'opacity-0 z-10 pointer-events-none'">
@@ -172,26 +169,31 @@
                 </div>
 
                 {{-- Multi-layered Dark Vignette & Gradient Overlays --}}
-                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 via-55% to-slate-950/30"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 via-55% to-slate-950/30">
+                </div>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
 
                 {{-- Content --}}
                 <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
                     <div class="max-w-3xl space-y-6 pt-10">
-                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md">
+                        <div
+                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md">
                             <i class="bi bi-mortarboard-fill text-amber-400"></i>
                             <span>Admisión 2026-I • Modalidades Abiertas</span>
                         </div>
 
-                        <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] text-white font-display">
+                        <h1
+                            class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] text-white font-display">
                             Tu futuro profesional empieza aquí, en el <br>
-                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-sky-300 to-cyan-300">
+                            <span
+                                class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-sky-300 to-cyan-300">
                                 IESTP Francisco Vigo Caballero
                             </span>
                         </h1>
 
                         <p class="text-base sm:text-lg lg:text-xl text-slate-200 leading-relaxed font-sans max-w-2xl">
-                            Estudia una de nuestras 5 carreras técnicas a Nombre de la Nación en Uchiza. Formación con alta demanda laboral, plana docente calificada y modernos ambientes.
+                            Estudia una de nuestras 5 carreras técnicas a Nombre de la Nación en Uchiza. Formación con alta
+                            demanda laboral, plana docente calificada y modernos ambientes.
                         </p>
 
                         <div class="flex flex-col sm:flex-row gap-3.5 pt-2">
@@ -218,25 +220,30 @@
                     style="background-image: url('{{ asset('images/slider_tecnologia.jpg') }}');">
                 </div>
 
-                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 via-55% to-slate-950/30"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 via-55% to-slate-950/30">
+                </div>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
 
                 <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
                     <div class="max-w-3xl space-y-6 pt-10">
-                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-500/20 border border-sky-400/40 text-sky-300 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md">
+                        <div
+                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-500/20 border border-sky-400/40 text-sky-300 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md">
                             <i class="bi bi-cpu-fill text-sky-400"></i>
                             <span>Innovación & Transformación Digital</span>
                         </div>
 
-                        <h2 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] text-white font-display">
+                        <h2
+                            class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] text-white font-display">
                             Laboratorios modernos de computación, <br>
-                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-cyan-300 to-indigo-300">
+                            <span
+                                class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-cyan-300 to-indigo-300">
                                 redes y telecomunicaciones
                             </span>
                         </h2>
 
                         <p class="text-base sm:text-lg lg:text-xl text-slate-200 leading-relaxed font-sans max-w-2xl">
-                            Capacítate en arquitectura de redes, ciberseguridad, ensamblaje de servidores y desarrollo de software con talleres prácticos desde el primer ciclo.
+                            Capacítate en arquitectura de redes, ciberseguridad, ensamblaje de servidores y desarrollo de
+                            software con talleres prácticos desde el primer ciclo.
                         </p>
 
                         <div class="flex flex-col sm:flex-row gap-3.5 pt-2">
@@ -263,25 +270,30 @@
                     style="background-image: url('{{ asset('images/slider_enfermeria.jpg') }}');">
                 </div>
 
-                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 via-55% to-slate-950/30"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 via-55% to-slate-950/30">
+                </div>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
 
                 <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
                     <div class="max-w-3xl space-y-6 pt-10">
-                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-500/20 border border-rose-400/40 text-rose-300 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md">
+                        <div
+                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-500/20 border border-rose-400/40 text-rose-300 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md">
                             <i class="bi bi-heart-pulse-fill text-rose-400"></i>
                             <span>Vocación de Servicio & Salud Comunitaria</span>
                         </div>
 
-                        <h2 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] text-white font-display">
+                        <h2
+                            class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] text-white font-display">
                             Enfermería Técnica con <br>
-                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-300 via-pink-300 to-amber-300">
+                            <span
+                                class="text-transparent bg-clip-text bg-gradient-to-r from-rose-300 via-pink-300 to-amber-300">
                                 simulación clínica integral
                             </span>
                         </h2>
 
                         <p class="text-base sm:text-lg lg:text-xl text-slate-200 leading-relaxed font-sans max-w-2xl">
-                            Desarrolla competencias asistenciales con docentes médicos y licenciados. Convenios con hospitales y centros de salud para tus prácticas preprofesionales.
+                            Desarrolla competencias asistenciales con docentes médicos y licenciados. Convenios con
+                            hospitales y centros de salud para tus prácticas preprofesionales.
                         </p>
 
                         <div class="flex flex-col sm:flex-row gap-3.5 pt-2">
@@ -308,25 +320,30 @@
                     style="background-image: url('{{ asset('images/slider_agroforestal.jpg') }}');">
                 </div>
 
-                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 via-55% to-slate-950/30"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 via-55% to-slate-950/30">
+                </div>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
 
                 <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
                     <div class="max-w-3xl space-y-6 pt-10">
-                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md">
+                        <div
+                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md">
                             <i class="bi bi-tree-fill text-emerald-400"></i>
                             <span>Desarrollo Agroforestal & Sostenibilidad</span>
                         </div>
 
-                        <h2 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] text-white font-display">
+                        <h2
+                            class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] text-white font-display">
                             Liderazgo en el agro y la <br>
-                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-300 to-lime-300">
+                            <span
+                                class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-300 to-lime-300">
                                 conservación de los bosques
                             </span>
                         </h2>
 
                         <p class="text-base sm:text-lg lg:text-xl text-slate-200 leading-relaxed font-sans max-w-2xl">
-                            Aprende en parcelas demostrativas, viveros tecnificados y módulos de producción pecuaria en Uchiza. Formando técnicos para la productividad del Alto Huallaga.
+                            Aprende en parcelas demostrativas, viveros tecnificados y módulos de producción pecuaria en
+                            Uchiza. Formando técnicos para la productividad del Alto Huallaga.
                         </p>
 
                         <div class="flex flex-col sm:flex-row gap-3.5 pt-2">
@@ -364,17 +381,22 @@
         <div class="absolute bottom-6 sm:bottom-8 left-0 right-0 z-30 pointer-events-none">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
                 {{-- Slide Pills / Indicators --}}
-                <div class="flex items-center gap-2 sm:gap-3 bg-slate-900/80 border border-white/20 px-3 py-1.5 rounded-full backdrop-blur-md pointer-events-auto">
-                    <template x-for="(slide, index) in [
+                <div
+                    class="flex items-center gap-2 sm:gap-3 bg-slate-900/80 border border-white/20 px-3 py-1.5 rounded-full backdrop-blur-md pointer-events-auto">
+                    <template
+                        x-for="(slide, index) in [
                         { label: 'Admisión 2026' },
                         { label: 'Redes & TI' },
                         { label: 'Enfermería' },
                         { label: 'Agroforestal' }
-                    ]" :key="index">
+                    ]"
+                        :key="index">
                         <button type="button" @click="goToSlide(index)"
                             class="px-3 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                            :class="currentSlide === index ? 'bg-white text-slate-950 shadow-md scale-105' : 'text-slate-300 hover:text-white hover:bg-white/10'">
-                            <span class="w-1.5 h-1.5 rounded-full" :class="currentSlide === index ? 'bg-blue-600' : 'bg-slate-500'"></span>
+                            :class="currentSlide === index ? 'bg-white text-slate-950 shadow-md scale-105' :
+                                'text-slate-300 hover:text-white hover:bg-white/10'">
+                            <span class="w-1.5 h-1.5 rounded-full"
+                                :class="currentSlide === index ? 'bg-blue-600' : 'bg-slate-500'"></span>
                             <span class="hidden sm:inline" x-text="slide.label"></span>
                             <span class="sm:hidden" x-text="index + 1"></span>
                         </button>
@@ -382,9 +404,13 @@
                 </div>
 
                 {{-- Play/Pause & Counter indicator --}}
-                <div class="hidden md:flex items-center gap-3 bg-slate-900/80 border border-white/20 px-4 py-1.5 rounded-full backdrop-blur-md text-xs font-semibold text-slate-300 pointer-events-auto">
-                    <button type="button" @click="isPaused = !isPaused" class="hover:text-white transition-colors cursor-pointer" :title="isPaused ? 'Reanudar carrusel' : 'Pausar carrusel'">
-                        <i class="bi" :class="isPaused ? 'bi-play-fill text-amber-400 text-sm' : 'bi-pause-fill text-sm'"></i>
+                <div
+                    class="hidden md:flex items-center gap-3 bg-slate-900/80 border border-white/20 px-4 py-1.5 rounded-full backdrop-blur-md text-xs font-semibold text-slate-300 pointer-events-auto">
+                    <button type="button" @click="isPaused = !isPaused"
+                        class="hover:text-white transition-colors cursor-pointer"
+                        :title="isPaused ? 'Reanudar carrusel' : 'Pausar carrusel'">
+                        <i class="bi"
+                            :class="isPaused ? 'bi-play-fill text-amber-400 text-sm' : 'bi-pause-fill text-sm'"></i>
                     </button>
                     <span class="text-white font-bold" x-text="(currentSlide + 1) + ' / ' + totalSlides"></span>
                 </div>
@@ -394,50 +420,59 @@
     </section>
 
     {{-- ═══ INSTITUTIONAL QUICK ACCESS BAR (UNSM STYLE) ════════════════════ --}}
-    <section class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white border-y border-blue-700/40 py-4 shadow-md relative z-30">
+    <section
+        class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white border-y border-blue-700/40 py-4 shadow-md relative z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                 <a href="{{ route('examen-de-admision') }}"
                     class="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 transition-all group">
-                    <div class="w-10 h-10 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-400/30 flex items-center justify-center text-lg flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-400/30 flex items-center justify-center text-lg flex-shrink-0 group-hover:scale-110 transition-transform">
                         <i class="bi bi-pencil-square"></i>
                     </div>
                     <div>
                         <p class="text-xs text-blue-200 font-medium">Proceso 2026-I</p>
-                        <p class="text-xs sm:text-sm font-bold text-white group-hover:text-sky-200 transition-colors">Admisión Ordinaria</p>
+                        <p class="text-xs sm:text-sm font-bold text-white group-hover:text-sky-200 transition-colors">
+                            Admisión Ordinaria</p>
                     </div>
                 </a>
 
                 <a href="{{ route('mesa-de-partes') }}"
                     class="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 transition-all group">
-                    <div class="w-10 h-10 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 flex items-center justify-center text-lg flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 flex items-center justify-center text-lg flex-shrink-0 group-hover:scale-110 transition-transform">
                         <i class="bi bi-inbox-fill"></i>
                     </div>
                     <div>
                         <p class="text-xs text-cyan-200 font-medium">Trámite Documentario</p>
-                        <p class="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-200 transition-colors">Mesa de Partes</p>
+                        <p class="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-200 transition-colors">Mesa
+                            de Partes</p>
                     </div>
                 </a>
 
                 <a href="{{ route('bolsa-de-trabajo') }}"
                     class="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 transition-all group">
-                    <div class="w-10 h-10 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 flex items-center justify-center text-lg flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 flex items-center justify-center text-lg flex-shrink-0 group-hover:scale-110 transition-transform">
                         <i class="bi bi-briefcase-fill"></i>
                     </div>
                     <div>
                         <p class="text-xs text-indigo-200 font-medium">Oportunidades Laborales</p>
-                        <p class="text-xs sm:text-sm font-bold text-white group-hover:text-indigo-200 transition-colors">Bolsa de Trabajo</p>
+                        <p class="text-xs sm:text-sm font-bold text-white group-hover:text-indigo-200 transition-colors">
+                            Bolsa de Trabajo</p>
                     </div>
                 </a>
 
                 <a href="{{ route('documentos-de-gestion') }}"
                     class="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 transition-all group">
-                    <div class="w-10 h-10 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-400/30 flex items-center justify-center text-lg flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-400/30 flex items-center justify-center text-lg flex-shrink-0 group-hover:scale-110 transition-transform">
                         <i class="bi bi-file-earmark-ruled-fill"></i>
                     </div>
                     <div>
                         <p class="text-xs text-amber-200 font-medium">Transparencia</p>
-                        <p class="text-xs sm:text-sm font-bold text-white group-hover:text-amber-200 transition-colors">Documentos & TUPA</p>
+                        <p class="text-xs sm:text-sm font-bold text-white group-hover:text-amber-200 transition-colors">
+                            Documentos & TUPA</p>
                     </div>
                 </a>
             </div>
@@ -949,47 +984,53 @@
         <div class="absolute inset-0 opacity-20 pointer-events-none"
             style="background-image:radial-gradient(circle, rgba(56, 189, 248, 0.2) 1px, transparent 1px); background-size:32px 32px;"
             aria-hidden="true"></div>
-        <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-[650px] h-[300px] bg-gradient-to-r from-sky-500/20 via-blue-600/20 to-cyan-400/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div
+            class="absolute -top-24 left-1/2 -translate-x-1/2 w-[650px] h-[300px] bg-gradient-to-r from-sky-500/20 via-blue-600/20 to-cyan-400/20 rounded-full blur-3xl pointer-events-none">
+        </div>
 
         <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center reveal">
-            {{-- Pulsing Live Radar Badge --}}
-            <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-sky-500/10 border border-sky-400/30 text-sky-300 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md mb-4 shadow-sm">
-                <span class="relative flex h-2.5 w-2.5">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                </span>
-                <span>Contador Oficial • Visitas al Portal Web</span>
-            </div>
-
             <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white font-display tracking-tight">
-                Impacto y Presencia Digital del <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-cyan-300 to-blue-300">IESTP FVC</span>
+                Impacto y Presencia Digital del <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-cyan-300 to-blue-300">IESTP
+                    FVC</span>
             </h2>
             <p class="text-slate-300/80 text-sm sm:text-base mt-2.5 max-w-xl mx-auto leading-relaxed">
                 Monitoreo permanente de consultas y accesos a nuestra plataforma educativa institucional.
             </p>
 
             {{-- Main Glass Counter Board --}}
-            <div class="mt-8 bg-gradient-to-b from-slate-900/90 to-slate-950/90 border border-sky-500/30 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl shadow-sky-950/80 backdrop-blur-xl relative overflow-hidden group">
+            <div
+                class="mt-8 bg-gradient-to-b from-slate-900/90 to-slate-950/90 border border-sky-500/30 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl shadow-sky-950/80 backdrop-blur-xl relative overflow-hidden group">
                 {{-- Decorative corner accents --}}
-                <div class="absolute top-0 left-0 w-28 h-28 bg-sky-500/10 rounded-br-full blur-xl pointer-events-none"></div>
-                <div class="absolute bottom-0 right-0 w-28 h-28 bg-blue-500/10 rounded-tl-full blur-xl pointer-events-none"></div>
+                <div class="absolute top-0 left-0 w-28 h-28 bg-sky-500/10 rounded-br-full blur-xl pointer-events-none">
+                </div>
+                <div
+                    class="absolute bottom-0 right-0 w-28 h-28 bg-blue-500/10 rounded-tl-full blur-xl pointer-events-none">
+                </div>
 
-                <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-sky-400/90 mb-4 flex items-center justify-center gap-2">
+                <p
+                    class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-sky-400/90 mb-4 flex items-center justify-center gap-2">
                     <i class="bi bi-eye-fill text-sky-400"></i>
                     <span>Total Acumulado de Visitas</span>
                 </p>
 
                 {{-- Digital Digit Plate Counter (Flip / Odometer Style) --}}
-                <div class="flex items-center justify-center gap-1.5 sm:gap-2.5 md:gap-3 flex-wrap py-2" id="visitor-digits-container" aria-label="Contador: {{ $totalVisits }} visitas">
+                <div class="flex items-center justify-center gap-1.5 sm:gap-2.5 md:gap-3 flex-wrap py-2"
+                    id="visitor-digits-container" aria-label="Contador: {{ $totalVisits }} visitas">
                     @foreach ($visitDigits as $index => $digit)
-                        <div class="relative flex flex-col items-center justify-center w-10 h-14 sm:w-14 sm:h-20 md:w-16 md:h-24 bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950 border-2 border-sky-500/40 rounded-xl sm:rounded-2xl shadow-lg shadow-black/60 overflow-hidden transform hover:-translate-y-1 transition-all duration-300 select-none">
+                        <div
+                            class="relative flex flex-col items-center justify-center w-10 h-14 sm:w-14 sm:h-20 md:w-16 md:h-24 bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950 border-2 border-sky-500/40 rounded-xl sm:rounded-2xl shadow-lg shadow-black/60 overflow-hidden transform hover:-translate-y-1 transition-all duration-300 select-none">
                             {{-- Top Gloss Reflection --}}
-                            <div class="absolute top-0 inset-x-0 h-1/2 bg-white/5 border-b border-white/10 pointer-events-none"></div>
+                            <div
+                                class="absolute top-0 inset-x-0 h-1/2 bg-white/5 border-b border-white/10 pointer-events-none">
+                            </div>
                             {{-- Center split line for odometer look --}}
-                            <div class="absolute inset-x-0 top-1/2 h-[1px] bg-sky-950/80 shadow-sm pointer-events-none"></div>
-                            
+                            <div class="absolute inset-x-0 top-1/2 h-[1px] bg-sky-950/80 shadow-sm pointer-events-none">
+                            </div>
+
                             {{-- Digit Number --}}
-                            <span class="visitor-digit relative z-10 font-mono font-black text-2xl sm:text-4xl md:text-5xl text-transparent bg-clip-text bg-gradient-to-b from-white via-sky-100 to-cyan-300 tabular-nums drop-shadow-[0_2px_10px_rgba(56,189,248,0.4)]"
+                            <span
+                                class="visitor-digit relative z-10 font-mono font-black text-2xl sm:text-4xl md:text-5xl text-transparent bg-clip-text bg-gradient-to-b from-white via-sky-100 to-cyan-300 tabular-nums drop-shadow-[0_2px_10px_rgba(56,189,248,0.4)]"
                                 data-target-digit="{{ $digit }}">
                                 {{ $digit }}
                             </span>
@@ -1000,40 +1041,9 @@
                 {{-- Formatted readable total subtitle --}}
                 <div class="mt-5 flex items-center justify-center gap-2 text-slate-300 text-xs sm:text-sm font-medium">
                     <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
-                    <span>Registrando <strong class="text-white font-bold" id="visitor-total-formatted">{{ number_format($totalVisits, 0, '', ',') }}</strong> visitas totales al portal</span>
-                </div>
-
-                {{-- Micro-indicator Badges Grid --}}
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-8 pt-6 border-t border-slate-800/80 text-left">
-                    <div class="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-sky-500/20 transition-colors">
-                        <div class="w-9 h-9 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-400/30 flex items-center justify-center text-base shrink-0">
-                            <i class="bi bi-globe2"></i>
-                        </div>
-                        <div>
-                            <p class="text-[11px] text-slate-400 font-medium leading-none">Conteo Global</p>
-                            <p class="text-xs sm:text-sm font-bold text-white mt-1">Todas las vistas</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-sky-500/20 transition-colors">
-                        <div class="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center justify-center text-base shrink-0">
-                            <i class="bi bi-activity"></i>
-                        </div>
-                        <div>
-                            <p class="text-[11px] text-slate-400 font-medium leading-none">Monitoreo Activo</p>
-                            <p class="text-xs sm:text-sm font-bold text-white mt-1">24/7 en tiempo real</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-sky-500/20 transition-colors">
-                        <div class="w-9 h-9 rounded-lg bg-blue-500/20 text-blue-300 border border-blue-400/30 flex items-center justify-center text-base shrink-0">
-                            <i class="bi bi-shield-check"></i>
-                        </div>
-                        <div>
-                            <p class="text-[11px] text-slate-400 font-medium leading-none">Transparencia</p>
-                            <p class="text-xs sm:text-sm font-bold text-white mt-1">Portal Oficial FVC</p>
-                        </div>
-                    </div>
+                    <span>Registrando <strong class="text-white font-bold"
+                            id="visitor-total-formatted">{{ number_format($totalVisits, 0, '', ',') }}</strong> visitas
+                        totales al portal</span>
                 </div>
             </div>
         </div>
@@ -1045,27 +1055,25 @@
         (function() {
             const ld = {
                 "@context": "https://schema.org",
-                "@graph": [
-                    {
-                        "@type": "WebPage",
-                        "@id": "{{ url('/') }}",
-                        "url": "{{ url('/') }}",
-                        "name": "IESTP Francisco Vigo Caballero — Formación Técnica Superior en Uchiza",
-                        "description": "Portal oficial del IESTP Francisco Vigo Caballero en Uchiza, San Martín, Perú.",
-                        "inLanguage": "es-PE",
-                        "isPartOf": {
-                            "@id": "{{ url('/') }}#website"
-                        }
-                    }, {
-                        "@type": "BreadcrumbList",
-                        "itemListElement": [{
-                            "@type": "ListItem",
-                            "position": 1,
-                            "name": "Inicio",
-                            "item": "{{ url('/') }}"
-                        }]
+                "@graph": [{
+                    "@type": "WebPage",
+                    "@id": "{{ url('/') }}",
+                    "url": "{{ url('/') }}",
+                    "name": "IESTP Francisco Vigo Caballero — Formación Técnica Superior en Uchiza",
+                    "description": "Portal oficial del IESTP Francisco Vigo Caballero en Uchiza, San Martín, Perú.",
+                    "inLanguage": "es-PE",
+                    "isPartOf": {
+                        "@id": "{{ url('/') }}#website"
                     }
-                ]
+                }, {
+                    "@type": "BreadcrumbList",
+                    "itemListElement": [{
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Inicio",
+                        "item": "{{ url('/') }}"
+                    }]
+                }]
             };
             const s = document.createElement('script');
             s.type = 'application/ld+json';
@@ -1160,7 +1168,9 @@
                         animateDigits();
                         observer.disconnect();
                     }
-                }, { threshold: 0.2 });
+                }, {
+                    threshold: 0.2
+                });
                 observer.observe(visitorSection);
             } else {
                 animateDigits();

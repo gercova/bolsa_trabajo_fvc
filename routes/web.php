@@ -33,6 +33,7 @@ Route::get('/admision-y-matriculas/becas-y-creditos',   [AppController::class, '
 
 // programas de estudio
 Route::get('/programas-de-estudios',                [AppController::class, 'studyPrograms'])->name('programas-de-estudio');
+
 Route::get('/programas-de-estudios/{program:slug}', [AppController::class, 'program'])->name('programas-de-estudio.detalle');
 
 // Transparencia

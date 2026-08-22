@@ -119,6 +119,21 @@
                                     <h3 class="text-xl md:text-2xl font-black text-slate-900 mb-4 leading-tight">
                                         {{ $history->title }}
                                     </h3>
+
+                                    {{-- Reference Photo / Image --}}
+                                    @if ($history->image_path)
+                                        <div class="mb-6 rounded-2xl overflow-hidden border border-slate-100 shadow-sm bg-slate-50 relative group">
+                                            <img src="{{ $history->image_url }}" 
+                                                 alt="{{ $history->title }}" 
+                                                 class="w-full max-h-80 object-cover object-center group-hover:scale-105 transition-transform duration-500">
+                                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-between text-white">
+                                                <span class="text-xs font-semibold drop-shadow-md">Registro Fotográfico Referencial</span>
+                                                <a href="{{ $history->image_url }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold hover:bg-white hover:text-slate-900 transition">
+                                                    <i class="bi bi-arrows-fullscreen text-[10px]"></i> Ver completa
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endif
                                     
                                     {{-- Description --}}
                                     <div class="prose max-w-none text-slate-650 text-sm md:text-base leading-relaxed space-y-4">

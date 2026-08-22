@@ -52,7 +52,7 @@ class AdminStudyProgramTest extends TestCase
             'is_active' => '1',
         ]);
 
-        $response->assertRedirect('/admin-programas');
+        $response->assertRedirect('/admin-programas?tab=programs');
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('study_programs', [
@@ -96,7 +96,8 @@ class AdminStudyProgramTest extends TestCase
         $response = $this->actingAs($user)->get("/admin-programas/editar-programa/{$program->id}");
         
         $response->assertOk();
-        $response->assertSee('Editar Programa: Agropecuaria');
+        $response->assertSee('Editar Programa de Estudio');
+        $response->assertSee('Agropecuaria');
     }
 
     public function test_admin_can_update_program(): void
@@ -122,7 +123,7 @@ class AdminStudyProgramTest extends TestCase
             'is_active' => '0',
         ]);
 
-        $response->assertRedirect('/admin-programas');
+        $response->assertRedirect('/admin-programas?tab=programs');
         $response->assertSessionHas('success');
 
         $program->refresh();
@@ -176,7 +177,7 @@ class AdminStudyProgramTest extends TestCase
 
         $response = $this->actingAs($user)->delete("/admin-programas/{$program->id}");
 
-        $response->assertRedirect('/admin-programas');
+        $response->assertRedirect('/admin-programas?tab=programs');
         $response->assertSessionHas('success');
 
         $this->assertDatabaseMissing('study_programs', [
@@ -184,5 +185,46 @@ class AdminStudyProgramTest extends TestCase
         ]);
 
         Storage::disk('public')->assertMissing($logoPath);
+    }
+
+    public function test_admin_can_store_and_sort_programs_by_order(): void
+    {
+        $user = User::factory()->create();
+
+        $prog3 = StudyProgram::create([
+            'name' => 'Zootecnia',
+            'slug' => 'zootecnia',
+            'description' => 'Tercer programa',
+            'details' => 'Detalle',
+            'order' => 3,
+            'is_active' => true,
+        ]);
+
+        $prog1 = StudyProgram::create([
+            'name' => 'Administración',
+            'slug' => 'administracion',
+            'description' => 'Primer programa',
+            'details' => 'Detalle',
+            'order' => 1,
+            'is_active' => true,
+        ]);
+
+        $prog2 = StudyProgram::create([
+            'name' => 'Contabilidad',
+            'slug' => 'contabilidad',
+            'description' => 'Segundo programa',
+            'details' => 'Detalle',
+            'order' => 2,
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($user)->get('/admin-programas');
+        $response->assertOk();
+
+        $programsInView = $response->viewData('programs');
+        $this->assertEquals('Administración', $programsInView->first()->name);
+        $this->assertEquals(1, $programsInView->first()->order);
+        $this->assertEquals('Zootecnia', $programsInView->last()->name);
+        $this->assertEquals(3, $programsInView->last()->order);
     }
 }

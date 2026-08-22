@@ -32,7 +32,7 @@ class AppController extends Controller {
 
     // inicio
     public function index(): View {
-        $programs    = StudyProgram::where('is_active', true)->get();
+        $programs    = StudyProgram::where('is_active', true)->orderBy('order', 'asc')->orderBy('name', 'asc')->get();
         $partners    = Partner::where('is_active', true)->get();
         $jobOffers   = JobOffer::where('is_active', true)->get();
         $users       = User::where('is_active', true)->get();
@@ -105,6 +105,8 @@ class AppController extends Controller {
     // programas-de-estudios
     public function studyPrograms(): View {
         $programs = StudyProgram::where('is_active', true)
+            ->orderBy('order', 'asc')
+            ->orderBy('name', 'asc')
             ->with(['modules', 'images', 'meta', 'competencies', 'jobFields', 'requirements'])
             ->get();
         return view('study-programs', compact('programs'));

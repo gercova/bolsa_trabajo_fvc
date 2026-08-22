@@ -74,53 +74,217 @@
                 @endif
             </a>
 
-            <!-- Gestionar Exámenes -->
-            <a href="{{ route('admin.exams.index') }}"
-                class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ request()->routeIs('admin.exams.*') ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
-                <div
-                    class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200 {{ request()->routeIs('admin.exams*') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
-                </div>
-                <i
-                    class="bi bi-journal-text text-xl transition-transform duration-200 group-hover:scale-110 {{ request()->routeIs('admin.exams*') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
-                <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Gestionar Exámenes</span>
-                @if (request()->routeIs('admin.exams*'))
-                    <div
-                        class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
-                    </div>
-                @endif
-            </a>
+            <!-- ── GRUPO: Gestionar Calendario ─────────────────────────── -->
+            @php $calendarOpen = request()->routeIs('admin.exams.*', 'admin.enrollments.*', 'admin.scholarships.*'); @endphp
+            <div x-data="{ open: {{ $calendarOpen ? 'true' : 'false' }} }">
 
-            <!-- Cronograma de Matrículas -->
-            <a href="{{ route('admin.enrollments.index') }}"
-                class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ request()->routeIs('admin.enrollments.*') ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
-                <div
-                    class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200 {{ request()->routeIs('admin.enrollments*') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
-                </div>
-                <i
-                    class="bi bi-calendar-check text-xl transition-transform duration-200 group-hover:scale-110 {{ request()->routeIs('admin.enrollments*') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
-                <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Cronograma de Matrículas</span>
-                @if (request()->routeIs('admin.enrollments*'))
+                {{-- Trigger --}}
+                <button @click="sidebarOpen ? open = !open : open = true"
+                    class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                        {{ $calendarOpen ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
                     <div
-                        class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                        class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200
+                            {{ $calendarOpen ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
                     </div>
-                @endif
-            </a>
+                    <i
+                        class="bi bi-calendar3 text-xl transition-transform duration-200 group-hover:scale-110
+                            {{ $calendarOpen ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
+                    <span class="ml-4 font-medium whitespace-nowrap flex-1 text-left" x-show="sidebarOpen">Gestionar
+                        Calendario</span>
+                    <i class="bi text-xs ml-auto transition-transform duration-200"
+                        :class="open ? 'bi-chevron-up' : 'bi-chevron-down'" x-show="sidebarOpen"></i>
+                </button>
 
-            <!-- Gestionar Becas y Créditos -->
-            <a href="{{ route('admin.scholarships.index') }}"
-                class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ request()->routeIs('admin.scholarships*') ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
-                <div
-                    class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200 {{ request()->routeIs('admin.scholarships*') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
+                {{-- Children --}}
+                <div x-show="open && sidebarOpen" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-1"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-1"
+                    class="mt-1 ml-4 pl-3 border-l border-slate-700/60 space-y-1" x-cloak>
+
+                    {{-- Gestionar Exámenes --}}
+                    <a href="{{ route('admin.exams.index') }}"
+                        class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                            {{ request()->routeIs('admin.exams.*') ? 'bg-purple-600/15 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
+                        <i
+                            class="bi bi-journal-text text-base group-hover:scale-110 transition-transform duration-200
+                                {{ request()->routeIs('admin.exams.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Gestionar Exámenes</span>
+                        @if (request()->routeIs('admin.exams.*'))
+                            <div
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                            </div>
+                        @endif
+                    </a>
+
+                    {{-- Cronograma de Matrículas --}}
+                    <a href="{{ route('admin.enrollments.index') }}"
+                        class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                            {{ request()->routeIs('admin.enrollments.*') ? 'bg-purple-600/15 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
+                        <i
+                            class="bi bi-calendar-check text-base group-hover:scale-110 transition-transform duration-200
+                                {{ request()->routeIs('admin.enrollments.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Cronograma de Matrículas</span>
+                        @if (request()->routeIs('admin.enrollments.*'))
+                            <div
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                            </div>
+                        @endif
+                    </a>
+
+                    {{-- Gestionar Becas --}}
+                    <a href="{{ route('admin.scholarships.index') }}"
+                        class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                            {{ request()->routeIs('admin.scholarships.*') ? 'bg-purple-600/15 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
+                        <i
+                            class="bi bi-award text-base group-hover:scale-110 transition-transform duration-200
+                                {{ request()->routeIs('admin.scholarships.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Gestionar Becas</span>
+                        @if (request()->routeIs('admin.scholarships.*'))
+                            <div
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                            </div>
+                        @endif
+                    </a>
                 </div>
-                <i
-                    class="bi bi-award text-xl transition-transform duration-200 group-hover:scale-110 {{ request()->routeIs('admin.scholarships*') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
-                <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Gestionar Becas</span>
-                @if (request()->routeIs('admin.scholarships*'))
+            </div>
+
+            <!-- ── GRUPO: Gestionar Documentación ──────────────────────── -->
+            @php $docsOpen = request()->routeIs('admin.tupa.*', 'admin.documents.*'); @endphp
+            <div x-data="{ open: {{ $docsOpen ? 'true' : 'false' }} }">
+
+                <button @click="sidebarOpen ? open = !open : open = true"
+                    class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                        {{ $docsOpen ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
                     <div
-                        class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                        class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200
+                            {{ $docsOpen ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
                     </div>
-                @endif
-            </a>
+                    <i
+                        class="bi bi-folder2-open text-xl transition-transform duration-200 group-hover:scale-110
+                            {{ $docsOpen ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
+                    <span class="ml-4 font-medium whitespace-nowrap flex-1 text-left" x-show="sidebarOpen">Gestionar
+                        Documentos</span>
+                    <i class="bi text-xs ml-auto transition-transform duration-200"
+                        :class="open ? 'bi-chevron-up' : 'bi-chevron-down'" x-show="sidebarOpen"></i>
+                </button>
+
+                <div x-show="open && sidebarOpen" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-1"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-1"
+                    class="mt-1 ml-4 pl-3 border-l border-slate-700/60 space-y-1" x-cloak>
+
+                    {{-- Gestionar TUPA --}}
+                    <a href="{{ route('admin.tupa.index') }}"
+                        class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                            {{ request()->routeIs('admin.tupa.*') ? 'bg-purple-600/15 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
+                        <i
+                            class="bi bi-file-earmark-text text-base group-hover:scale-110 transition-transform duration-200
+                                {{ request()->routeIs('admin.tupa.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Gestionar TUPA</span>
+                        @if (request()->routeIs('admin.tupa.*'))
+                            <div
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                            </div>
+                        @endif
+                    </a>
+
+                    {{-- Documentos de Gestión --}}
+                    <a href="{{ route('admin.documents.index') }}"
+                        class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                            {{ request()->routeIs('admin.documents.*') ? 'bg-purple-600/15 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
+                        <i
+                            class="bi bi-folder-symlink text-base group-hover:scale-110 transition-transform duration-200
+                                {{ request()->routeIs('admin.documents.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Documentos de Gestión</span>
+                        @if (request()->routeIs('admin.documents.*'))
+                            <div
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                            </div>
+                        @endif
+                    </a>
+                </div>
+            </div>
+
+            <!-- ── GRUPO: Gestionar Grupos ─────────────────────────────── -->
+            @php $groupsOpen = request()->routeIs('admin.users.*', 'admin.teacher-roles.*', 'admin.student-council.*'); @endphp
+            <div x-data="{ open: {{ $groupsOpen ? 'true' : 'false' }} }">
+
+                <button @click="sidebarOpen ? open = !open : open = true"
+                    class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                        {{ $groupsOpen ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
+                    <div
+                        class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200
+                            {{ $groupsOpen ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
+                    </div>
+                    <i
+                        class="bi bi-people-fill text-xl transition-transform duration-200 group-hover:scale-110
+                            {{ $groupsOpen ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
+                    <span class="ml-4 font-medium whitespace-nowrap flex-1 text-left" x-show="sidebarOpen">Gestionar
+                        Grupos</span>
+                    <i class="bi text-xs ml-auto transition-transform duration-200"
+                        :class="open ? 'bi-chevron-up' : 'bi-chevron-down'" x-show="sidebarOpen"></i>
+                </button>
+
+                <div x-show="open && sidebarOpen" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-1"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-1"
+                    class="mt-1 ml-4 pl-3 border-l border-slate-700/60 space-y-1" x-cloak>
+
+                    {{-- Gestionar Usuarios --}}
+                    <a href="{{ route('admin.users.index') }}"
+                        class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                            {{ request()->routeIs('admin.users.*') ? 'bg-purple-600/15 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
+                        <i
+                            class="bi bi-people text-base group-hover:scale-110 transition-transform duration-200
+                                {{ request()->routeIs('admin.users.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Gestionar Usuarios</span>
+                        @if (request()->routeIs('admin.users.*'))
+                            <div
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                            </div>
+                        @endif
+                    </a>
+
+                    {{-- Plana Docente --}}
+                    <a href="{{ route('admin.teacher-roles.index') }}"
+                        class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                            {{ request()->routeIs('admin.teacher-roles.*') ? 'bg-purple-600/15 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
+                        <i
+                            class="bi bi-person-workspace text-base group-hover:scale-110 transition-transform duration-200
+                                {{ request()->routeIs('admin.teacher-roles.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Plana Docente</span>
+                        @if (request()->routeIs('admin.teacher-roles.*'))
+                            <div
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                            </div>
+                        @endif
+                    </a>
+
+                    {{-- Consejo Estudiantil --}}
+                    <a href="{{ route('admin.student-council.index') }}"
+                        class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                            {{ request()->routeIs('admin.student-council.*') ? 'bg-purple-600/15 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
+                        <i
+                            class="bi bi-mortarboard text-base group-hover:scale-110 transition-transform duration-200
+                                {{ request()->routeIs('admin.student-council.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Consejo Estudiantil</span>
+                        @if (request()->routeIs('admin.student-council.*'))
+                            <div
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                            </div>
+                        @endif
+                    </a>
+                </div>
+            </div>
 
             <!-- Gestionar programas de estudio -->
             <a href="{{ route('admin.programs.index') }}"
@@ -154,38 +318,6 @@
                 @endif
             </a>
 
-            <!-- Gestionar TUPA -->
-            <a href="{{ route('admin.tupa.index') }}"
-                class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ request()->routeIs('admin.tupa.*') ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
-                <div
-                    class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200 {{ request()->routeIs('admin.tupa*') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
-                </div>
-                <i
-                    class="bi bi-file-earmark-text text-xl transition-transform duration-200 group-hover:scale-110 {{ request()->routeIs('admin.tupa*') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
-                <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Gestionar TUPA</span>
-                @if (request()->routeIs('admin.tupa*'))
-                    <div
-                        class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
-                    </div>
-                @endif
-            </a>
-
-            <!-- Documentos de Gestión -->
-            <a href="{{ route('admin.documents.index') }}"
-                class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ request()->routeIs('admin.documents.*') ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
-                <div
-                    class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200 {{ request()->routeIs('admin.documents*') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
-                </div>
-                <i
-                    class="bi bi-folder-symlink text-xl transition-transform duration-200 group-hover:scale-110 {{ request()->routeIs('admin.documents*') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
-                <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Documentos de Gestión</span>
-                @if (request()->routeIs('admin.documents*'))
-                    <div
-                        class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
-                    </div>
-                @endif
-            </a>
-
             <!-- Áreas Institucionales -->
             <a href="{{ route('admin.areas.index') }}"
                 class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ request()->routeIs('admin.areas.*') ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
@@ -202,7 +334,7 @@
                 @endif
             </a>
 
-            <!-- Gestionar puestos -->
+            <!-- Bolsa de Trabajo -->
             <a href="{{ route('admin.works.index') }}"
                 class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ request()->routeIs('admin.works.*') ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
                 <div
@@ -212,55 +344,6 @@
                     class="bi bi-briefcase text-xl transition-transform duration-200 group-hover:scale-110 {{ request()->routeIs('admin.works*') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
                 <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Bolsa de Trabajo</span>
                 @if (request()->routeIs('admin.works*'))
-                    <div
-                        class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
-                    </div>
-                @endif
-            </a>
-
-
-            <!-- Gestionar usuarios -->
-            <a href="{{ route('admin.users.index') }}"
-                class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ request()->routeIs('admin.users*') ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
-                <div
-                    class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200 {{ request()->routeIs('admin.users*') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
-                </div>
-                <i
-                    class="bi bi-people text-xl transition-transform duration-200 group-hover:scale-110 {{ request()->routeIs('admin.users*') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
-                <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Gestionar Usuarios</span>
-                @if (request()->routeIs('admin.users*'))
-                    <div
-                        class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
-                    </div>
-                @endif
-            </a>
-
-            <!-- Plana Docente -->
-            <a href="{{ route('admin.teacher-roles.index') }}"
-                class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ request()->routeIs('admin.teacher-roles*') ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
-                <div
-                    class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200 {{ request()->routeIs('admin.teacher-roles*') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
-                </div>
-                <i
-                    class="bi bi-person-workspace text-xl transition-transform duration-200 group-hover:scale-110 {{ request()->routeIs('admin.teacher-roles*') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
-                <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Plana Docente</span>
-                @if (request()->routeIs('admin.teacher-roles*'))
-                    <div
-                        class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
-                    </div>
-                @endif
-            </a>
-
-            <!-- Consejo Estudiantil -->
-            <a href="{{ route('admin.student-council.index') }}"
-                class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ request()->routeIs('admin.student-council*') ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
-                <div
-                    class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200 {{ request()->routeIs('admin.student-council*') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
-                </div>
-                <i
-                    class="bi bi-people text-xl transition-transform duration-200 group-hover:scale-110 {{ request()->routeIs('admin.student-council*') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
-                <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Consejo Estudiantil</span>
-                @if (request()->routeIs('admin.student-council*'))
                     <div
                         class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
                     </div>

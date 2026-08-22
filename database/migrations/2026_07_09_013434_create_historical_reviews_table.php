@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description');
+            $table->string('image_path')->nullable();
             $table->integer('start_year')->nullable();
             $table->integer('end_year')->nullable();
             $table->unsignedTinyInteger('order')->default(0);

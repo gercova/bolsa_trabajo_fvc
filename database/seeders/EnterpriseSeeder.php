@@ -16,6 +16,7 @@ class EnterpriseSeeder extends Seeder
             'legal_representative_dni'  => '00000000',
             'legal_representative'      => 'Teodorico Ganoza Medina',
             'address'                   => 'Av. Ricardo Palma N° 1401',
+            'google_maps_iframe'        => '<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3947.886026543033!2d-76.46860822416807!3d-8.449056191591522!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91af63dcf2a7d793%3A0x39afb5dd2aae7783!2sFRANCISCO%20VIGO%20CABALLERO!5e0!3m2!1ses!2spe!4v1740000000000!5m2!1ses!2spe" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
             'city'                      => 'Uchiza',
             'business_sector'           => 'Educación',
             'phrase'                    => 'Somos tu llave para triunfar',

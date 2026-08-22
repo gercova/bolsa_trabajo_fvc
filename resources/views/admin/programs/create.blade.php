@@ -239,8 +239,22 @@
                                 <input type="text" id="tag" name="tag" value="{{ old('tag') }}" placeholder="Ej: Ciencias de la Salud, Producción & Campo" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
                             </div>
 
-                            {{-- Badge visual CSS --}}
+                            {{-- Orden Secuencial --}}
                             <div class="space-y-1.5">
+                                <label for="order" class="block text-xs font-bold uppercase tracking-wider text-gray-700">
+                                    Orden de Presentación <span class="text-gray-400 font-normal">(Secuencial)</span>
+                                </label>
+                                <div class="relative">
+                                    <i class="bi bi-sort-numeric-down absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-base"></i>
+                                    <input type="number" id="order" name="order" value="{{ old('order', $nextOrder ?? 1) }}" min="0" max="255" placeholder="Ej: 1, 2, 3..." class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all @error('order') border-red-500 @enderror">
+                                </div>
+                                @error('order')
+                                    <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Badge visual CSS --}}
+                            <div class="md:col-span-2 space-y-1.5">
                                 <label for="bg_badge" class="block text-xs font-bold uppercase tracking-wider text-gray-700">
                                     Estilo CSS de Badge
                                 </label>

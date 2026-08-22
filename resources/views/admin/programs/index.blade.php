@@ -157,6 +157,7 @@
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr class="bg-gray-50/80 border-b border-gray-100 text-xs uppercase tracking-wider font-semibold text-gray-500">
+                                        <th class="py-4 px-6 text-center w-20">Orden</th>
                                         <th class="py-4 px-6">Programa de Estudio</th>
                                         <th class="py-4 px-6">Identificador (Tag / Acento)</th>
                                         <th class="py-4 px-6">Detalles / Duración</th>
@@ -167,6 +168,12 @@
                                 <tbody class="divide-y divide-gray-100 text-sm">
                                     @forelse($programs as $program)
                                         <tr class="hover:bg-purple-50/30 transition-colors">
+                                            <td class="py-4 px-6 text-center whitespace-nowrap">
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-black bg-gray-100 text-gray-700 border border-gray-200">
+                                                    #{{ $program->order }}
+                                                </span>
+                                            </td>
+
                                             <td class="py-4 px-6">
                                                 <div class="flex items-center gap-3">
                                                     @if($program->logo_path)
@@ -226,7 +233,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="py-12 px-6 text-center">
+                                            <td colspan="6" class="py-12 px-6 text-center">
                                                 <div class="max-w-xs mx-auto text-center space-y-3">
                                                     <div class="w-16 h-16 mx-auto bg-purple-50 text-purple-400 rounded-full flex items-center justify-center">
                                                         <i class="bi bi-mortarboard text-3xl"></i>

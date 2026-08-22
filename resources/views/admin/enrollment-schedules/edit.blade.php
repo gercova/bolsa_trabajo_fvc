@@ -168,7 +168,7 @@
                                         {{-- Cierre --}}
                                         <div>
                                             <label class="form-label" for="end_date">Fecha de Cierre <span
-                                                    class="text-red-500">*</span></label>
+                                                class="text-red-500">*</span></label>
                                             <input type="date" id="end_date" name="end_date"
                                                 value="{{ old('end_date', $schedule->end_date->format('Y-m-d')) }}"
                                                 class="form-input @error('end_date') is-invalid @enderror">

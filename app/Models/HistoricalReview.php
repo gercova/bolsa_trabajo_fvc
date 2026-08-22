@@ -12,6 +12,7 @@ class HistoricalReview extends Model
     protected $fillable     = [
         'title',
         'description',
+        'image_path',
         'start_year',
         'end_year',
         'order',
@@ -26,4 +27,12 @@ class HistoricalReview extends Model
         'created_at' => 'datetime:Y-m-d',
         'updated_at' => 'datetime:Y-m-d',
     ];
+
+    /**
+     * Get the full public URL for the historical review image.
+     */
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image_path ? asset('storage/' . $this->image_path) : null;
+    }
 }

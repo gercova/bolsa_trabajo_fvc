@@ -263,9 +263,6 @@
                                             </div>
                                             <div>
                                                 <div class="flex items-center gap-2 mb-1.5 flex-wrap">
-                                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-500/30">
-                                                        Documento Oficial
-                                                    </span>
                                                     <span class="text-xs text-slate-400 font-medium">Itinerario Formativo (PDF)</span>
                                                 </div>
                                                 <h3 class="text-lg md:text-xl font-black text-white tracking-tight">

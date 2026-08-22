@@ -1,0 +1,36 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+
+class DatabaseSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $this->call(ScholarshipSeeder::class);
+        $this->call(ChargesSeeder::class);
+        $this->call(AreasSeeder::class);
+        $this->call(UbigeoRegionSeeder::class);
+        $this->call(UbigeoProvinceSeeder::class);
+        $this->call(UbigeoDistrictSeeder::class);
+        $this->call(EnterpriseSeeder::class);
+        $this->call(RoleSeeder::class);
+        $this->call(UserSeeder::class);
+        $this->call(StudyProgramSeeder::class);
+        $this->call(AdmissionSeeder::class);
+        $this->call(AdmissionImageSeeder::class);
+        $this->call(HistoricalReviewSeeder::class);
+        $this->call(AdmissionRequirementSeeder::class);
+        $this->call(PartnersSeeder::class);
+        $this->call(TupaSeeder::class);
+        $this->call(TupaCategorySeeder::class);
+        $this->call(TupaProcedureSeeder::class);
+        $this->call(UserRoleDetailsSeeder::class);
+        $this->call(StudentCouncilSeeder::class);
+        $this->call(JobOfferSeeder::class);
+        $this->call(ExternalInstitutionalLinkSeeder::class);
+        $this->call(ManagementDocumentSeeder::class);
+    }
+}
+

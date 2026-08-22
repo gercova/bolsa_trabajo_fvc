@@ -9,6 +9,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnrollmentScheduleController;
 use App\Http\Controllers\EnterpriseController;
 use App\Http\Controllers\ExternalInstitutionalLinkController;
+use App\Http\Controllers\HistoricalReviewController;
 use App\Http\Controllers\JobsController;
 use App\Http\Controllers\ManagementDocumentController;
 use App\Http\Controllers\PartnersController;
@@ -319,6 +320,17 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/editar/{schedule}',     [EnrollmentScheduleController::class, 'update'])->name('update');
         Route::delete('/{schedule}',         [EnrollmentScheduleController::class, 'destroy'])->name('destroy');
         Route::patch('/estado/{schedule}',   [EnrollmentScheduleController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
+    // Gestión de Historia Institucional
+    Route::prefix('admin-historia')->name('admin.history.')->group(function () {
+        Route::get('/',                      [HistoricalReviewController::class, 'index'])->name('index');
+        Route::get('/crear',                 [HistoricalReviewController::class, 'create'])->name('create');
+        Route::post('/guardar',              [HistoricalReviewController::class, 'store'])->name('store');
+        Route::get('/editar/{history}',      [HistoricalReviewController::class, 'edit'])->name('edit');
+        Route::put('/editar/{history}',      [HistoricalReviewController::class, 'update'])->name('update');
+        Route::delete('/{history}',          [HistoricalReviewController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{history}',    [HistoricalReviewController::class, 'toggleStatus'])->name('toggle-status');
     });
 });
 

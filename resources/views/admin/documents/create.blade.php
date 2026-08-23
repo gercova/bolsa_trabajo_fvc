@@ -51,8 +51,7 @@
                             <p class="text-xs text-gray-500 mt-1">Complete los campos requeridos para subir un nuevo documento de gestión institucional.</p>
                         </div>
 
-                        <form action="{{ route('admin.documents.store') }}" method="POST" enctype="multipart/form-data" class="p-6 sm:p-8 space-y-6"
-                            x-data="fileUploader()">
+                        <form action="{{ route('admin.documents.store') }}" method="POST" enctype="multipart/form-data" class="p-6 sm:p-8 space-y-6">
                             @csrf
 
                             {{-- Title Field --}}
@@ -130,84 +129,161 @@
                                 </div>
                             </div>
 
-                            {{-- File Upload & Thumbnail Preview Section --}}
-                            <div class="space-y-2 pt-2">
-                                <label class="block text-sm font-semibold text-gray-700">
-                                    Archivo del Documento <span class="text-red-500">*</span>
-                                </label>
+                            {{-- Grid for File Uploads --}}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                                {{-- Main Document File Upload --}}
+                                <div class="space-y-2" x-data="fileUploader()">
+                                    <label class="block text-sm font-semibold text-gray-700">
+                                        Archivo Principal del Documento <span class="text-red-500">*</span>
+                                    </label>
 
-                                {{-- Drag & Drop / File Picker --}}
-                                <div class="relative border-2 border-dashed rounded-2xl p-6 transition-all text-center cursor-pointer"
-                                    :class="isDragging ? 'border-purple-500 bg-purple-50/50' : 'border-gray-300 hover:border-purple-400 bg-gray-50/30 hover:bg-gray-50'"
-                                    @dragover.prevent="isDragging = true"
-                                    @dragleave.prevent="isDragging = false"
-                                    @drop.prevent="handleDrop($event)"
-                                    @click="$refs.fileInput.click()">
+                                    {{-- Drag & Drop / File Picker --}}
+                                    <div class="relative border-2 border-dashed rounded-2xl p-5 transition-all text-center cursor-pointer min-h-[170px] flex flex-col justify-center"
+                                        :class="isDragging ? 'border-purple-500 bg-purple-50/50' : 'border-gray-300 hover:border-purple-400 bg-gray-50/30 hover:bg-gray-50'"
+                                        @dragover.prevent="isDragging = true"
+                                        @dragleave.prevent="isDragging = false"
+                                        @drop.prevent="handleDrop($event)"
+                                        @click="$refs.fileInput.click()">
 
-                                    <input type="file" name="file_path" id="file_path" x-ref="fileInput"
-                                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.webp"
-                                        class="hidden" required
-                                        @change="handleFileSelect($event)">
+                                        <input type="file" name="file_path" id="file_path" x-ref="fileInput"
+                                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.webp"
+                                            class="hidden" required
+                                            @change="handleFileSelect($event)">
 
-                                    {{-- State 1: No file selected --}}
-                                    <div x-show="!file" class="space-y-3 py-2">
-                                        <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mx-auto shadow-sm">
-                                            <i class="bi bi-cloud-arrow-up text-2xl"></i>
+                                        {{-- State 1: No file selected --}}
+                                        <div x-show="!file" class="space-y-2 py-1">
+                                            <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mx-auto shadow-sm">
+                                                <i class="bi bi-cloud-arrow-up text-xl"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs font-semibold text-gray-700">
+                                                    Clic o arrastre el archivo principal
+                                                </p>
+                                                <p class="text-[11px] text-gray-500 mt-0.5">
+                                                    PDF, Word, Excel, Imagen (Máx. 20MB)
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-700">
-                                                Haga clic aquí para seleccionar o arrastre el archivo
-                                            </p>
-                                            <p class="text-xs text-gray-500 mt-1">
-                                                Formatos permitidos: PDF, Word (DOC/DOCX), Excel (XLS/XLSX), Imágenes (JPG, PNG, WEBP). Máximo 20 MB.
-                                            </p>
-                                        </div>
-                                    </div>
 
-                                    {{-- State 2: Selected File Thumbnail & Preview --}}
-                                    <div x-show="file" x-cloak class="p-2" @click.stop>
-                                        <div class="bg-white border border-purple-200 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-                                            
-                                            {{-- Thumbnail View --}}
-                                            <div class="flex items-center gap-4 w-full sm:w-auto">
-                                                {{-- Image Thumbnail Preview --}}
-                                                <template x-if="isImage">
-                                                    <div class="w-20 h-20 rounded-lg overflow-hidden border border-gray-200 bg-gray-100 flex-shrink-0 relative shadow-inner">
-                                                        <img :src="imageUrl" alt="Preview" class="w-full h-full object-cover">
-                                                    </div>
-                                                </template>
+                                        {{-- State 2: Selected File Thumbnail & Preview --}}
+                                        <div x-show="file" x-cloak class="p-1" @click.stop>
+                                            <div class="bg-white border border-purple-200 rounded-xl p-3 shadow-sm flex items-center justify-between gap-3 text-left">
+                                                <div class="flex items-center gap-3 overflow-hidden">
+                                                    {{-- Image Thumbnail Preview --}}
+                                                    <template x-if="isImage">
+                                                        <div class="w-14 h-14 rounded-lg overflow-hidden border border-gray-200 bg-gray-100 flex-shrink-0 relative shadow-inner">
+                                                            <img :src="imageUrl" alt="Preview" class="w-full h-full object-cover">
+                                                        </div>
+                                                    </template>
 
-                                                {{-- Document Icon Preview --}}
-                                                <template x-if="!isImage">
-                                                    <div class="w-16 h-16 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center flex-shrink-0">
-                                                        <i class="text-3xl" :class="documentIconClass"></i>
-                                                    </div>
-                                                </template>
+                                                    {{-- Document Icon Preview --}}
+                                                    <template x-if="!isImage">
+                                                        <div class="w-12 h-12 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center flex-shrink-0">
+                                                            <i class="text-2xl" :class="documentIconClass"></i>
+                                                        </div>
+                                                    </template>
 
-                                                {{-- File Details --}}
-                                                <div class="text-left overflow-hidden">
-                                                    <p class="text-sm font-bold text-gray-800 truncate max-w-xs sm:max-w-md" x-text="fileName"></p>
-                                                    <div class="flex items-center gap-2 mt-1">
-                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-purple-100 text-purple-800 uppercase" x-text="fileExtension"></span>
-                                                        <span class="text-xs text-gray-500" x-text="fileSize"></span>
+                                                    {{-- File Details --}}
+                                                    <div class="overflow-hidden">
+                                                        <p class="text-xs font-bold text-gray-800 truncate max-w-[140px] sm:max-w-[180px]" x-text="fileName"></p>
+                                                        <div class="flex items-center gap-1.5 mt-0.5">
+                                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 uppercase" x-text="fileExtension"></span>
+                                                            <span class="text-[10px] text-gray-500" x-text="fileSize"></span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            {{-- Remove / Change Button --}}
-                                            <button type="button" @click="clearFile()"
-                                                class="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors flex items-center gap-1.5 self-end sm:self-center">
-                                                <i class="bi bi-trash"></i> Quitar archivo
-                                            </button>
+                                                {{-- Remove Button --}}
+                                                <button type="button" @click="clearFile()"
+                                                    class="p-1.5 text-xs text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors flex-shrink-0"
+                                                    title="Quitar archivo">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
+
+                                    @error('file_path')
+                                        <p class="text-xs text-red-500 flex items-center gap-1 mt-1">
+                                            <i class="bi bi-exclamation-circle-fill"></i> {{ $message }}
+                                        </p>
+                                    @enderror
                                 </div>
 
-                                @error('file_path')
-                                    <p class="text-xs text-red-500 flex items-center gap-1 mt-1">
-                                        <i class="bi bi-exclamation-circle-fill"></i> {{ $message }}
-                                    </p>
-                                @enderror
+                                {{-- Resolution Document File Upload (PDF) --}}
+                                <div class="space-y-2" x-data="fileUploader({ pdfOnly: true })">
+                                    <div class="flex items-center justify-between">
+                                        <label class="block text-sm font-semibold text-gray-700">
+                                            Documento de Resolución
+                                        </label>
+                                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full border border-red-100">
+                                            <i class="bi bi-file-earmark-pdf-fill"></i> Solo PDF
+                                        </span>
+                                    </div>
+
+                                    {{-- Drag & Drop / File Picker --}}
+                                    <div class="relative border-2 border-dashed rounded-2xl p-5 transition-all text-center cursor-pointer min-h-[170px] flex flex-col justify-center"
+                                        :class="isDragging ? 'border-red-500 bg-red-50/50' : 'border-gray-300 hover:border-red-400 bg-gray-50/30 hover:bg-gray-50'"
+                                        @dragover.prevent="isDragging = true"
+                                        @dragleave.prevent="isDragging = false"
+                                        @drop.prevent="handleDrop($event)"
+                                        @click="$refs.fileInput.click()">
+
+                                        <input type="file" name="resolution_document_path" id="resolution_document_path" x-ref="fileInput"
+                                            accept=".pdf"
+                                            class="hidden"
+                                            @change="handleFileSelect($event)">
+
+                                        {{-- State 1: No file selected --}}
+                                        <div x-show="!file" class="space-y-2 py-1">
+                                            <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto shadow-sm">
+                                                <i class="bi bi-file-earmark-pdf text-xl"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs font-semibold text-gray-700">
+                                                    Clic o arrastre la resolución (opcional)
+                                                </p>
+                                                <p class="text-[11px] text-gray-500 mt-0.5">
+                                                    Resolución Directoral o de Aprobación en PDF (Máx. 20MB)
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {{-- State 2: Selected File Thumbnail & Preview --}}
+                                        <div x-show="file" x-cloak class="p-1" @click.stop>
+                                            <div class="bg-white border border-red-200 rounded-xl p-3 shadow-sm flex items-center justify-between gap-3 text-left">
+                                                <div class="flex items-center gap-3 overflow-hidden">
+                                                    {{-- PDF Icon Preview --}}
+                                                    <div class="w-12 h-12 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center flex-shrink-0">
+                                                        <i class="bi bi-file-earmark-pdf-fill text-red-600 text-2xl"></i>
+                                                    </div>
+
+                                                    {{-- File Details --}}
+                                                    <div class="overflow-hidden">
+                                                        <p class="text-xs font-bold text-gray-800 truncate max-w-[140px] sm:max-w-[180px]" x-text="fileName"></p>
+                                                        <div class="flex items-center gap-1.5 mt-0.5">
+                                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800 uppercase" x-text="fileExtension"></span>
+                                                            <span class="text-[10px] text-gray-500" x-text="fileSize"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {{-- Remove Button --}}
+                                                <button type="button" @click="clearFile()"
+                                                    class="p-1.5 text-xs text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors flex-shrink-0"
+                                                    title="Quitar archivo">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @error('resolution_document_path')
+                                        <p class="text-xs text-red-500 flex items-center gap-1 mt-1">
+                                            <i class="bi bi-exclamation-circle-fill"></i> {{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
                             </div>
 
                             {{-- Submit Buttons --}}
@@ -231,7 +307,7 @@
     @push('scripts')
         <script>
             document.addEventListener('alpine:init', () => {
-                Alpine.data('fileUploader', () => ({
+                Alpine.data('fileUploader', (config = {}) => ({
                     file: null,
                     fileName: '',
                     fileSize: '',
@@ -240,6 +316,7 @@
                     imageUrl: '',
                     isDragging: false,
                     documentIconClass: 'bi bi-file-earmark-text text-purple-600',
+                    pdfOnly: config.pdfOnly || false,
 
                     handleFileSelect(event) {
                         const files = event.target.files;
@@ -265,7 +342,7 @@
                         const ext = file.name.split('.').pop().toLowerCase();
                         this.fileExtension = ext;
                         
-                        this.isImage = ['jpg', 'jpeg', 'png', 'webp'].includes(ext);
+                        this.isImage = !this.pdfOnly && ['jpg', 'jpeg', 'png', 'webp'].includes(ext);
 
                         if (this.isImage) {
                             const reader = new FileReader();

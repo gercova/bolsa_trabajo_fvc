@@ -130,22 +130,37 @@
 
                                             {{-- File Preview/Badge --}}
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <a href="{{ $fileUrl }}" target="_blank"
-                                                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-purple-50 hover:border-purple-200 text-gray-700 hover:text-purple-700 text-xs font-medium transition-all group">
-                                                    @if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp']))
-                                                        <i class="bi bi-file-earmark-image text-emerald-600 text-base group-hover:scale-110 transition-transform"></i>
-                                                    @elseif ($ext === 'pdf')
-                                                        <i class="bi bi-file-earmark-pdf text-red-600 text-base group-hover:scale-110 transition-transform"></i>
-                                                    @elseif (in_array($ext, ['doc', 'docx']))
-                                                        <i class="bi bi-file-earmark-word text-blue-600 text-base group-hover:scale-110 transition-transform"></i>
-                                                    @elseif (in_array($ext, ['xls', 'xlsx']))
-                                                        <i class="bi bi-file-earmark-excel text-emerald-700 text-base group-hover:scale-110 transition-transform"></i>
+                                                <div class="flex flex-col gap-1.5 items-start">
+                                                    @if ($doc->file_path)
+                                                        <a href="{{ $fileUrl }}" target="_blank"
+                                                            class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg border border-gray-200 bg-gray-50 hover:bg-purple-50 hover:border-purple-200 text-gray-700 hover:text-purple-700 text-xs font-medium transition-all group">
+                                                            @if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp']))
+                                                                <i class="bi bi-file-earmark-image text-emerald-600 text-sm group-hover:scale-110 transition-transform"></i>
+                                                            @elseif ($ext === 'pdf')
+                                                                <i class="bi bi-file-earmark-pdf text-red-600 text-sm group-hover:scale-110 transition-transform"></i>
+                                                            @elseif (in_array($ext, ['doc', 'docx']))
+                                                                <i class="bi bi-file-earmark-word text-blue-600 text-sm group-hover:scale-110 transition-transform"></i>
+                                                            @elseif (in_array($ext, ['xls', 'xlsx']))
+                                                                <i class="bi bi-file-earmark-excel text-emerald-700 text-sm group-hover:scale-110 transition-transform"></i>
+                                                            @else
+                                                                <i class="bi bi-file-earmark-text text-purple-600 text-sm group-hover:scale-110 transition-transform"></i>
+                                                            @endif
+                                                            <span class="uppercase tracking-wider font-semibold text-[10px]">{{ $ext ?: 'DOC' }}</span>
+                                                            <i class="bi bi-box-arrow-up-right text-[10px] text-gray-400 group-hover:text-purple-600"></i>
+                                                        </a>
                                                     @else
-                                                        <i class="bi bi-file-earmark-text text-purple-600 text-base group-hover:scale-110 transition-transform"></i>
+                                                        <span class="text-xs text-gray-400 italic">Sin archivo</span>
                                                     @endif
-                                                    <span class="uppercase tracking-wider font-semibold text-[11px]">{{ $ext ?: 'DOC' }}</span>
-                                                    <i class="bi bi-box-arrow-up-right text-[10px] text-gray-400 group-hover:text-purple-600"></i>
-                                                </a>
+
+                                                    @if ($doc->resolution_document_path)
+                                                        <a href="{{ Storage::url($doc->resolution_document_path) }}" target="_blank"
+                                                            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-[11px] font-semibold transition-all">
+                                                            <i class="bi bi-file-earmark-pdf-fill text-red-600"></i>
+                                                            <span>Resolución PDF</span>
+                                                            <i class="bi bi-box-arrow-up-right text-[9px] opacity-70"></i>
+                                                        </a>
+                                                    @endif
+                                                </div>
                                             </td>
 
                                             {{-- Validity Period --}}

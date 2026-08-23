@@ -11,6 +11,7 @@ class ManagementDocument extends Model
         'description',
         'details',
         'file_path',
+        'resolution_document_path',
         'validity_period',
         'is_active'
     ];

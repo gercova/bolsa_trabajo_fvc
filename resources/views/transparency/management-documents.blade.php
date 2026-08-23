@@ -131,6 +131,7 @@
                         @php
                             $ext = $doc->file_path ? strtolower(pathinfo($doc->file_path, PATHINFO_EXTENSION)) : 'pdf';
                             $fileUrl = $doc->file_path ? Storage::url($doc->file_path) : null;
+                            $resUrl = $doc->resolution_document_path ? Storage::url($doc->resolution_document_path) : null;
                         @endphp
                         
                         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group"
@@ -158,9 +159,16 @@
                                                 Vigencia {{ $doc->validity_period->format('Y') }}
                                             </span>
                                         @endif
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-extrabold uppercase tracking-wider bg-slate-100 text-slate-700">
-                                            Documento Oficial
-                                        </span>
+                                        <div class="flex items-center gap-1">
+                                            @if ($resUrl)
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-red-100 text-red-800 border border-red-200">
+                                                    <i class="bi bi-file-earmark-check-fill"></i> Resolución
+                                                </span>
+                                            @endif
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-extrabold uppercase tracking-wider bg-slate-100 text-slate-700">
+                                                Oficial
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -200,26 +208,57 @@
                             </div>
 
                             {{-- Action Footer --}}
-                            <div class="p-6 bg-slate-50/60 border-t border-slate-100 flex items-center gap-3">
+                            <div class="p-6 bg-slate-50/60 border-t border-slate-100 space-y-3">
                                 @if ($fileUrl)
-                                    <a href="{{ $fileUrl }}" target="_blank"
-                                        class="flex-1 py-3 px-4 bg-slate-900 hover:bg-blue-600 text-white rounded-xl font-bold text-xs transition-all duration-300 flex items-center justify-center gap-2 shadow-sm hover:shadow-blue-600/30">
-                                        <i class="bi bi-download text-sm"></i>
-                                        <span>Descargar PDF</span>
-                                    </a>
+                                    <div class="flex items-center gap-2.5">
+                                        <a href="{{ $fileUrl }}" target="_blank"
+                                            class="flex-1 py-3 px-4 bg-slate-900 hover:bg-blue-600 text-white rounded-xl font-bold text-xs transition-all duration-300 flex items-center justify-center gap-2 shadow-sm hover:shadow-blue-600/30">
+                                            <i class="bi bi-download text-sm"></i>
+                                            <span>Descargar PDF</span>
+                                        </a>
 
-                                    <button type="button" @click="openPdfModal('{{ $fileUrl }}', '{{ addslashes($doc->title) }}')"
-                                        class="py-3 px-4 bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm"
-                                        title="Previsualizar en pantalla">
-                                        <i class="bi bi-eye text-sm text-blue-600"></i>
-                                        <span class="hidden sm:inline">Ver</span>
-                                    </button>
+                                        <button type="button" @click="openPdfModal('{{ $fileUrl }}', '{{ addslashes($doc->title) }}')"
+                                            class="py-3 px-4 bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                                            title="Previsualizar en pantalla">
+                                            <i class="bi bi-eye text-sm text-blue-600"></i>
+                                            <span class="hidden sm:inline">Ver</span>
+                                        </button>
+                                    </div>
                                 @else
                                     <div class="w-full py-3 px-4 bg-amber-50 border border-amber-200/80 rounded-xl text-center">
                                         <p class="text-xs font-semibold text-amber-800 flex items-center justify-center gap-1.5">
                                             <i class="bi bi-check-circle-fill text-amber-600"></i>
                                             Aprobado y Registrado en Secretaría
                                         </p>
+                                    </div>
+                                @endif
+
+                                {{-- Resolution Document Action Bar --}}
+                                @if ($resUrl)
+                                    <div class="p-3 bg-red-50/80 border border-red-200/80 rounded-2xl flex items-center justify-between gap-2">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <div class="w-8 h-8 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0 text-red-600 text-sm shadow-xs">
+                                                <i class="bi bi-file-earmark-pdf-fill"></i>
+                                            </div>
+                                            <div class="truncate">
+                                                <p class="text-xs font-bold text-red-950 truncate">Resolución de Aprobación</p>
+                                                <p class="text-[10px] text-red-700 font-medium">Documento de sustento legal</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-center gap-1.5 flex-shrink-0">
+                                            <button type="button" @click="openPdfModal('{{ $resUrl }}', 'Resolución — {{ addslashes($doc->title) }}')"
+                                                class="px-2.5 py-1.5 bg-white hover:bg-red-100 text-red-700 border border-red-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-xs"
+                                                title="Ver Resolución">
+                                                <i class="bi bi-eye"></i>
+                                                <span>Ver</span>
+                                            </button>
+                                            <a href="{{ $resUrl }}" download target="_blank"
+                                                class="p-1.5 bg-white hover:bg-red-100 text-red-700 border border-red-200 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center"
+                                                title="Descargar Resolución PDF">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        </div>
                                     </div>
                                 @endif
                             </div>

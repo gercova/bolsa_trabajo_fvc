@@ -58,6 +58,11 @@ class ManagementDocumentController extends Controller
             $data['file_path'] = $file->store('management-document', 'public');
         }
 
+        if ($request->hasFile('resolution_document_path')) {
+            $resolutionFile = $request->file('resolution_document_path');
+            $data['resolution_document_path'] = $resolutionFile->store('management-document/resolutions', 'public');
+        }
+
         $data['is_active'] = $request->boolean('is_active');
 
         ManagementDocument::create($data);
@@ -99,6 +104,16 @@ class ManagementDocumentController extends Controller
             unset($data['file_path']);
         }
 
+        if ($request->hasFile('resolution_document_path')) {
+            if ($managementDocument->resolution_document_path && Storage::disk('public')->exists($managementDocument->resolution_document_path)) {
+                Storage::disk('public')->delete($managementDocument->resolution_document_path);
+            }
+            $resolutionFile = $request->file('resolution_document_path');
+            $data['resolution_document_path'] = $resolutionFile->store('management-document/resolutions', 'public');
+        } else {
+            unset($data['resolution_document_path']);
+        }
+
         $data['is_active'] = $request->boolean('is_active');
 
         $managementDocument->update($data);
@@ -114,6 +129,10 @@ class ManagementDocumentController extends Controller
     {
         if ($managementDocument->file_path && Storage::disk('public')->exists($managementDocument->file_path)) {
             Storage::disk('public')->delete($managementDocument->file_path);
+        }
+
+        if ($managementDocument->resolution_document_path && Storage::disk('public')->exists($managementDocument->resolution_document_path)) {
+            Storage::disk('public')->delete($managementDocument->resolution_document_path);
         }
 
         $managementDocument->delete();

@@ -51,8 +51,7 @@
                             <p class="text-xs text-gray-500 mt-1">Actualice los datos o reemplace el archivo cargado para este documento de gestión.</p>
                         </div>
 
-                        <form action="{{ route('admin.documents.update', $managementDocument) }}" method="POST" enctype="multipart/form-data" class="p-6 sm:p-8 space-y-6"
-                            x-data="fileUploader()">
+                        <form action="{{ route('admin.documents.update', $managementDocument) }}" method="POST" enctype="multipart/form-data" class="p-6 sm:p-8 space-y-6">
                             @csrf
                             @method('PUT')
 
@@ -101,7 +100,6 @@
                                 @enderror
                             </div>
 
-                            {{-- Validity Period & Active Status Grid --}}
                             {{-- Validity Period Field --}}
                             <div class="space-y-1.5">
                                 <label for="validity_period" class="block text-sm font-semibold text-gray-700">
@@ -133,131 +131,247 @@
                                 </div>
                             </div>
 
-                            {{-- File Field with Current Thumbnail and Replacement Preview --}}
-                            <div class="space-y-3 pt-2">
-                                <label class="block text-sm font-semibold text-gray-700">
-                                    Archivo Adjunto del Documento
-                                </label>
+                            {{-- Grid for Files: Main Document & Resolution Document --}}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                                {{-- 1. Main Document Field --}}
+                                <div class="space-y-3" x-data="fileUploader()">
+                                    <label class="block text-sm font-semibold text-gray-700">
+                                        Archivo Principal del Documento
+                                    </label>
 
-                                @php
-                                    $existingExt = strtolower(pathinfo($managementDocument->file_path, PATHINFO_EXTENSION));
-                                    $existingUrl = Storage::url($managementDocument->file_path);
-                                    $isExistingImage = in_array($existingExt, ['jpg', 'jpeg', 'png', 'webp']);
-                                @endphp
+                                    @php
+                                        $existingExt = $managementDocument->file_path ? strtolower(pathinfo($managementDocument->file_path, PATHINFO_EXTENSION)) : '';
+                                        $existingUrl = $managementDocument->file_path ? Storage::url($managementDocument->file_path) : null;
+                                        $isExistingImage = in_array($existingExt, ['jpg', 'jpeg', 'png', 'webp']);
+                                    @endphp
 
-                                {{-- Current Uploaded File Preview --}}
-                                <div class="bg-purple-50/60 border border-purple-200/80 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-                                    <div class="flex items-center gap-4 w-full sm:w-auto">
-                                        @if ($isExistingImage)
-                                            <div class="w-20 h-20 rounded-xl overflow-hidden border border-purple-200 bg-white flex-shrink-0 relative shadow-sm">
-                                                <img src="{{ $existingUrl }}" alt="Vista Previa" class="w-full h-full object-cover">
-                                            </div>
-                                        @else
-                                            <div class="w-16 h-16 rounded-xl bg-white border border-purple-200 flex items-center justify-center flex-shrink-0 shadow-sm">
-                                                @if ($existingExt === 'pdf')
-                                                    <i class="bi bi-file-earmark-pdf-fill text-red-600 text-3xl"></i>
-                                                @elseif (in_array($existingExt, ['doc', 'docx']))
-                                                    <i class="bi bi-file-earmark-word-fill text-blue-600 text-3xl"></i>
-                                                @elseif (in_array($existingExt, ['xls', 'xlsx']))
-                                                    <i class="bi bi-file-earmark-excel-fill text-emerald-600 text-3xl"></i>
+                                    @if ($existingUrl)
+                                        {{-- Current Uploaded File Preview --}}
+                                        <div class="bg-purple-50/60 border border-purple-200/80 rounded-2xl p-3.5 shadow-sm flex items-center justify-between gap-3">
+                                            <div class="flex items-center gap-3 overflow-hidden">
+                                                @if ($isExistingImage)
+                                                    <div class="w-14 h-14 rounded-xl overflow-hidden border border-purple-200 bg-white flex-shrink-0 relative shadow-sm">
+                                                        <img src="{{ $existingUrl }}" alt="Vista Previa" class="w-full h-full object-cover">
+                                                    </div>
                                                 @else
-                                                    <i class="bi bi-file-earmark-text-fill text-purple-600 text-3xl"></i>
+                                                    <div class="w-12 h-12 rounded-xl bg-white border border-purple-200 flex items-center justify-center flex-shrink-0 shadow-sm">
+                                                        @if ($existingExt === 'pdf')
+                                                            <i class="bi bi-file-earmark-pdf-fill text-red-600 text-2xl"></i>
+                                                        @elseif (in_array($existingExt, ['doc', 'docx']))
+                                                            <i class="bi bi-file-earmark-word-fill text-blue-600 text-2xl"></i>
+                                                        @elseif (in_array($existingExt, ['xls', 'xlsx']))
+                                                            <i class="bi bi-file-earmark-excel-fill text-emerald-600 text-2xl"></i>
+                                                        @else
+                                                            <i class="bi bi-file-earmark-text-fill text-purple-600 text-2xl"></i>
+                                                        @endif
+                                                    </div>
                                                 @endif
-                                            </div>
-                                        @endif
 
-                                        <div class="text-left overflow-hidden">
-                                            <div class="flex items-center gap-2">
-                                                <span class="text-xs font-bold text-purple-900 uppercase tracking-wide">Archivo Actual</span>
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-purple-200 text-purple-800 uppercase">{{ $existingExt ?: 'DOC' }}</span>
-                                            </div>
-                                            <p class="text-sm font-semibold text-gray-800 truncate max-w-xs sm:max-w-md mt-0.5">
-                                                {{ basename($managementDocument->file_path) }}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <a href="{{ $existingUrl }}" target="_blank"
-                                        class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-purple-700 bg-white border border-purple-200 hover:bg-purple-100 rounded-xl transition-all shadow-sm">
-                                        <i class="bi bi-box-arrow-up-right"></i> Ver / Descargar
-                                    </a>
-                                </div>
-
-                                {{-- Drag & Drop / File Picker for Replacement --}}
-                                <div class="relative border-2 border-dashed rounded-2xl p-6 transition-all text-center cursor-pointer mt-3"
-                                    :class="isDragging ? 'border-purple-500 bg-purple-50/50' : 'border-gray-300 hover:border-purple-400 bg-gray-50/30 hover:bg-gray-50'"
-                                    @dragover.prevent="isDragging = true"
-                                    @dragleave.prevent="isDragging = false"
-                                    @drop.prevent="handleDrop($event)"
-                                    @click="$refs.fileInput.click()">
-
-                                    <input type="file" name="file_path" id="file_path" x-ref="fileInput"
-                                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.webp"
-                                        class="hidden"
-                                        @change="handleFileSelect($event)">
-
-                                    {{-- State 1: No new file selected --}}
-                                    <div x-show="!file" class="space-y-2 py-1">
-                                        <div class="w-10 h-10 rounded-full bg-gray-200/80 text-gray-600 flex items-center justify-center mx-auto shadow-sm">
-                                            <i class="bi bi-arrow-repeat text-xl"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-700">
-                                                Seleccione un nuevo archivo para reemplazar el actual (opcional)
-                                            </p>
-                                            <p class="text-xs text-gray-500 mt-0.5">
-                                                Si no desea reemplazar el archivo, deje este campo vacío.
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {{-- State 2: New Selected File Thumbnail & Preview --}}
-                                    <div x-show="file" x-cloak class="p-2" @click.stop>
-                                        <div class="bg-white border border-emerald-300 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-                                            
-                                            {{-- Thumbnail View --}}
-                                            <div class="flex items-center gap-4 w-full sm:w-auto">
-                                                {{-- Image Thumbnail Preview --}}
-                                                <template x-if="isImage">
-                                                    <div class="w-20 h-20 rounded-lg overflow-hidden border border-gray-200 bg-gray-100 flex-shrink-0 relative shadow-inner">
-                                                        <img :src="imageUrl" alt="Preview" class="w-full h-full object-cover">
-                                                    </div>
-                                                </template>
-
-                                                {{-- Document Icon Preview --}}
-                                                <template x-if="!isImage">
-                                                    <div class="w-16 h-16 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center flex-shrink-0">
-                                                        <i class="text-3xl" :class="documentIconClass"></i>
-                                                    </div>
-                                                </template>
-
-                                                {{-- File Details --}}
                                                 <div class="text-left overflow-hidden">
-                                                    <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-700">
-                                                        <i class="bi bi-check-circle-fill text-xs"></i> Nuevo Archivo Seleccionado
-                                                    </span>
-                                                    <p class="text-sm font-bold text-gray-800 truncate max-w-xs sm:max-w-md mt-0.5" x-text="fileName"></p>
-                                                    <div class="flex items-center gap-2 mt-0.5">
-                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-100 text-emerald-800 uppercase" x-text="fileExtension"></span>
-                                                        <span class="text-xs text-gray-500" x-text="fileSize"></span>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <span class="text-[10px] font-bold text-purple-900 uppercase">Actual</span>
+                                                        <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-purple-200 text-purple-800 uppercase">{{ $existingExt ?: 'DOC' }}</span>
                                                     </div>
+                                                    <p class="text-xs font-semibold text-gray-800 truncate max-w-[130px] sm:max-w-[160px] mt-0.5">
+                                                        {{ basename($managementDocument->file_path) }}
+                                                    </p>
                                                 </div>
                                             </div>
 
-                                            {{-- Cancel Replacement Button --}}
-                                            <button type="button" @click="clearFile()"
-                                                class="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors flex items-center gap-1.5 self-end sm:self-center">
-                                                <i class="bi bi-x-circle"></i> Cancelar reemplazo
-                                            </button>
+                                            <a href="{{ $existingUrl }}" target="_blank"
+                                                class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-purple-700 bg-white border border-purple-200 hover:bg-purple-100 rounded-xl transition-all shadow-sm flex-shrink-0">
+                                                <i class="bi bi-box-arrow-up-right"></i> Ver
+                                            </a>
+                                        </div>
+                                    @endif
+
+                                    {{-- Drag & Drop / File Picker for Replacement --}}
+                                    <div class="relative border-2 border-dashed rounded-2xl p-4 transition-all text-center cursor-pointer min-h-[150px] flex flex-col justify-center"
+                                        :class="isDragging ? 'border-purple-500 bg-purple-50/50' : 'border-gray-300 hover:border-purple-400 bg-gray-50/30 hover:bg-gray-50'"
+                                        @dragover.prevent="isDragging = true"
+                                        @dragleave.prevent="isDragging = false"
+                                        @drop.prevent="handleDrop($event)"
+                                        @click="$refs.fileInput.click()">
+
+                                        <input type="file" name="file_path" id="file_path" x-ref="fileInput"
+                                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.webp"
+                                            class="hidden"
+                                            @change="handleFileSelect($event)">
+
+                                        {{-- State 1: No new file selected --}}
+                                        <div x-show="!file" class="space-y-1.5 py-1">
+                                            <div class="w-8 h-8 rounded-full bg-gray-200/80 text-gray-600 flex items-center justify-center mx-auto shadow-sm">
+                                                <i class="bi bi-arrow-repeat text-base"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs font-semibold text-gray-700">
+                                                    Reemplazar archivo principal (opcional)
+                                                </p>
+                                                <p class="text-[10px] text-gray-500">
+                                                    PDF, Word, Excel, Imagen (Máx. 20MB)
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {{-- State 2: New Selected File Thumbnail & Preview --}}
+                                        <div x-show="file" x-cloak class="p-1" @click.stop>
+                                            <div class="bg-white border border-emerald-300 rounded-xl p-3 shadow-sm flex items-center justify-between gap-3 text-left">
+                                                <div class="flex items-center gap-3 overflow-hidden">
+                                                    <template x-if="isImage">
+                                                        <div class="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 bg-gray-100 flex-shrink-0 relative shadow-inner">
+                                                            <img :src="imageUrl" alt="Preview" class="w-full h-full object-cover">
+                                                        </div>
+                                                    </template>
+
+                                                    <template x-if="!isImage">
+                                                        <div class="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center flex-shrink-0">
+                                                            <i class="text-2xl" :class="documentIconClass"></i>
+                                                        </div>
+                                                    </template>
+
+                                                    <div class="overflow-hidden">
+                                                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700">
+                                                            <i class="bi bi-check-circle-fill"></i> Nuevo archivo
+                                                        </span>
+                                                        <p class="text-xs font-bold text-gray-800 truncate max-w-[130px] sm:max-w-[160px]" x-text="fileName"></p>
+                                                        <div class="flex items-center gap-1 mt-0.5">
+                                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-medium bg-emerald-100 text-emerald-800 uppercase" x-text="fileExtension"></span>
+                                                            <span class="text-[10px] text-gray-500" x-text="fileSize"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <button type="button" @click="clearFile()"
+                                                    class="p-1 text-xs text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors flex-shrink-0"
+                                                    title="Cancelar reemplazo">
+                                                    <i class="bi bi-x-circle"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
+
+                                    @error('file_path')
+                                        <p class="text-xs text-red-500 flex items-center gap-1 mt-1">
+                                            <i class="bi bi-exclamation-circle-fill"></i> {{ $message }}
+                                        </p>
+                                    @enderror
                                 </div>
 
-                                @error('file_path')
-                                    <p class="text-xs text-red-500 flex items-center gap-1 mt-1">
-                                        <i class="bi bi-exclamation-circle-fill"></i> {{ $message }}
-                                    </p>
-                                @enderror
+                                {{-- 2. Resolution Document Field (PDF) --}}
+                                <div class="space-y-3" x-data="fileUploader({ pdfOnly: true })">
+                                    <div class="flex items-center justify-between">
+                                        <label class="block text-sm font-semibold text-gray-700">
+                                            Documento de Resolución
+                                        </label>
+                                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full border border-red-100">
+                                            <i class="bi bi-file-earmark-pdf-fill"></i> Solo PDF
+                                        </span>
+                                    </div>
+
+                                    @php
+                                        $existingResExt = $managementDocument->resolution_document_path ? strtolower(pathinfo($managementDocument->resolution_document_path, PATHINFO_EXTENSION)) : '';
+                                        $existingResUrl = $managementDocument->resolution_document_path ? Storage::url($managementDocument->resolution_document_path) : null;
+                                    @endphp
+
+                                    @if ($existingResUrl)
+                                        {{-- Current Resolution File Preview --}}
+                                        <div class="bg-red-50/60 border border-red-200/80 rounded-2xl p-3.5 shadow-sm flex items-center justify-between gap-3">
+                                            <div class="flex items-center gap-3 overflow-hidden">
+                                                <div class="w-12 h-12 rounded-xl bg-white border border-red-200 flex items-center justify-center flex-shrink-0 shadow-sm">
+                                                    <i class="bi bi-file-earmark-pdf-fill text-red-600 text-2xl"></i>
+                                                </div>
+
+                                                <div class="text-left overflow-hidden">
+                                                    <div class="flex items-center gap-1.5">
+                                                        <span class="text-[10px] font-bold text-red-900 uppercase">Resolución Actual</span>
+                                                        <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-red-200 text-red-800 uppercase">PDF</span>
+                                                    </div>
+                                                    <p class="text-xs font-semibold text-gray-800 truncate max-w-[130px] sm:max-w-[160px] mt-0.5">
+                                                        {{ basename($managementDocument->resolution_document_path) }}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <a href="{{ $existingResUrl }}" target="_blank"
+                                                class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-red-700 bg-white border border-red-200 hover:bg-red-100 rounded-xl transition-all shadow-sm flex-shrink-0">
+                                                <i class="bi bi-box-arrow-up-right"></i> Ver
+                                            </a>
+                                        </div>
+                                    @else
+                                        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-3.5 flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-xl bg-gray-200/70 text-gray-500 flex items-center justify-center flex-shrink-0">
+                                                <i class="bi bi-file-earmark-x text-lg"></i>
+                                            </div>
+                                            <div class="text-left">
+                                                <p class="text-xs font-bold text-gray-700">Sin resolución adjunta</p>
+                                                <p class="text-[10px] text-gray-500">Puede adjuntar una resolución en PDF a continuación.</p>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    {{-- Drag & Drop / File Picker for Resolution --}}
+                                    <div class="relative border-2 border-dashed rounded-2xl p-4 transition-all text-center cursor-pointer min-h-[150px] flex flex-col justify-center"
+                                        :class="isDragging ? 'border-red-500 bg-red-50/50' : 'border-gray-300 hover:border-red-400 bg-gray-50/30 hover:bg-gray-50'"
+                                        @dragover.prevent="isDragging = true"
+                                        @dragleave.prevent="isDragging = false"
+                                        @drop.prevent="handleDrop($event)"
+                                        @click="$refs.fileInput.click()">
+
+                                        <input type="file" name="resolution_document_path" id="resolution_document_path" x-ref="fileInput"
+                                            accept=".pdf"
+                                            class="hidden"
+                                            @change="handleFileSelect($event)">
+
+                                        {{-- State 1: No new file selected --}}
+                                        <div x-show="!file" class="space-y-1.5 py-1">
+                                            <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto shadow-sm">
+                                                <i class="bi bi-file-earmark-pdf text-base"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs font-semibold text-gray-700">
+                                                    {{ $existingResUrl ? 'Reemplazar resolución (opcional)' : 'Subir documento de resolución (opcional)' }}
+                                                </p>
+                                                <p class="text-[10px] text-gray-500">
+                                                    Formato PDF (Máx. 20MB)
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {{-- State 2: New Selected File Thumbnail & Preview --}}
+                                        <div x-show="file" x-cloak class="p-1" @click.stop>
+                                            <div class="bg-white border border-red-300 rounded-xl p-3 shadow-sm flex items-center justify-between gap-3 text-left">
+                                                <div class="flex items-center gap-3 overflow-hidden">
+                                                    <div class="w-11 h-11 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center flex-shrink-0">
+                                                        <i class="bi bi-file-earmark-pdf-fill text-red-600 text-2xl"></i>
+                                                    </div>
+
+                                                    <div class="overflow-hidden">
+                                                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-700">
+                                                            <i class="bi bi-check-circle-fill"></i> Nueva resolución seleccionada
+                                                        </span>
+                                                        <p class="text-xs font-bold text-gray-800 truncate max-w-[130px] sm:max-w-[160px]" x-text="fileName"></p>
+                                                        <div class="flex items-center gap-1 mt-0.5">
+                                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-medium bg-red-100 text-red-800 uppercase" x-text="fileExtension"></span>
+                                                            <span class="text-[10px] text-gray-500" x-text="fileSize"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <button type="button" @click="clearFile()"
+                                                    class="p-1 text-xs text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors flex-shrink-0"
+                                                    title="Cancelar reemplazo">
+                                                    <i class="bi bi-x-circle"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @error('resolution_document_path')
+                                        <p class="text-xs text-red-500 flex items-center gap-1 mt-1">
+                                            <i class="bi bi-exclamation-circle-fill"></i> {{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
                             </div>
 
                             {{-- Submit Buttons --}}
@@ -281,7 +395,7 @@
     @push('scripts')
         <script>
             document.addEventListener('alpine:init', () => {
-                Alpine.data('fileUploader', () => ({
+                Alpine.data('fileUploader', (config = {}) => ({
                     file: null,
                     fileName: '',
                     fileSize: '',
@@ -290,6 +404,7 @@
                     imageUrl: '',
                     isDragging: false,
                     documentIconClass: 'bi bi-file-earmark-text text-emerald-600',
+                    pdfOnly: config.pdfOnly || false,
 
                     handleFileSelect(event) {
                         const files = event.target.files;
@@ -315,7 +430,7 @@
                         const ext = file.name.split('.').pop().toLowerCase();
                         this.fileExtension = ext;
                         
-                        this.isImage = ['jpg', 'jpeg', 'png', 'webp'].includes(ext);
+                        this.isImage = !this.pdfOnly && ['jpg', 'jpeg', 'png', 'webp'].includes(ext);
 
                         if (this.isImage) {
                             const reader = new FileReader();

@@ -19,26 +19,32 @@
                 '@type' => 'ListItem',
                 'position' => $pos++,
                 'item' => [
-                    '@type' => 'Person',
-                    'name' => $director->names,
-                    'jobTitle' => $director->job_position ?? 'Director General',
-                    'email' => $director->email ?? null,
+                    '@type'     => 'Person',
+                    'name'      => $director->names,
+                    'jobTitle'  => $director->job_position ?? 'Director General',
+                    'email'     => $director->email ?? null,
                     'telephone' => $director->phone ?? null,
-                    'worksFor' => ['@type' => 'EducationalOrganization', 'name' => 'IESTP Francisco Vigo Caballero'],
+                    'worksFor'  => [
+                        '@type' => 'EducationalOrganization', 
+                        'name'  => 'IESTP Francisco Vigo Caballero'
+                    ],
                 ],
             ];
         }
         foreach ($managementStaff as $s) {
             $schemaPersons[] = [
-                '@type' => 'ListItem',
-                'position' => $pos++,
-                'item' => [
-                    '@type' => 'Person',
-                    'name' => $s->names,
-                    'jobTitle' => $s->job_position ?? 'Jefe de Unidad',
-                    'email' => $s->email ?? null,
+                '@type'     => 'ListItem',
+                'position'  => $pos++,
+                'item'      => [
+                    '@type'     => 'Person',
+                    'name'      => $s->names,
+                    'jobTitle'  => $s->job_position ?? 'Jefe de Unidad',
+                    'email'     => $s->email ?? null,
                     'telephone' => $s->phone ?? null,
-                    'worksFor' => ['@type' => 'EducationalOrganization', 'name' => 'IESTP Francisco Vigo Caballero'],
+                    'worksFor'  => [
+                        '@type' => 'EducationalOrganization', 
+                        'name'  => 'IESTP Francisco Vigo Caballero'
+                    ],
                 ],
             ];
         }
@@ -47,15 +53,18 @@
                 continue;
             }
             $schemaPersons[] = [
-                '@type' => 'ListItem',
-                'position' => $pos++,
-                'item' => [
-                    '@type' => 'Person',
-                    'name' => $c->user->names,
-                    'jobTitle' => 'Coordinador Académico — ' . ($c->program->name ?? 'Programa de Estudios'),
-                    'email' => $c->user->email ?? null,
+                '@type'     => 'ListItem',
+                'position'  => $pos++,
+                'item'      => [
+                    '@type'     => 'Person',
+                    'name'      => $c->user->names,
+                    'jobTitle'  => 'Coordinador Académico — ' . ($c->program->name ?? 'Programa de Estudios'),
+                    'email'     => $c->user->email ?? null,
                     'telephone' => $c->user->phone ?? null,
-                    'worksFor' => ['@type' => 'EducationalOrganization', 'name' => 'IESTP Francisco Vigo Caballero'],
+                    'worksFor'  => [
+                        '@type' => 'EducationalOrganization', 
+                        'name'  => 'IESTP Francisco Vigo Caballero'
+                    ],
                 ],
             ];
         }
@@ -387,13 +396,6 @@
 
                             <div
                                 class="mt-4 pt-4 border-t border-amber-200/60 flex flex-wrap items-center justify-center md:justify-start gap-3 text-xs">
-                                @if ($director->dni)
-                                    <span
-                                        class="inline-flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border border-amber-200 shadow-sm text-slate-700">
-                                        <i class="bi bi-card-heading text-amber-600"></i>
-                                        <strong>DNI:</strong> {{ $director->dni }}
-                                    </span>
-                                @endif
                                 @if ($director->email)
                                     <a href="mailto:{{ $director->email }}"
                                         class="inline-flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border border-amber-200 shadow-sm text-blue-700 hover:text-blue-900 font-medium transition-colors">
@@ -469,12 +471,6 @@
                                     {{ $staff->job_position ?? 'Jefe de Unidad' }}</p>
 
                                 <div class="mt-4 pt-3 border-t border-slate-100 space-y-1.5 text-xs text-slate-600">
-                                    @if ($staff->dni)
-                                        <div class="flex items-center gap-2">
-                                            <i class="bi bi-card-heading text-slate-400 w-4 text-center"></i>
-                                            <span><strong>DNI:</strong> {{ $staff->dni }}</span>
-                                        </div>
-                                    @endif
                                     @if ($staff->email)
                                         <div class="flex items-center gap-2 min-w-0">
                                             <i class="bi bi-envelope text-slate-400 w-4 text-center flex-shrink-0"></i>
@@ -578,12 +574,6 @@
                                 @endif
 
                                 <div class="mt-4 pt-3 border-t border-slate-100 space-y-1.5 text-xs text-slate-600">
-                                    @if ($user->dni)
-                                        <div class="flex items-center gap-2">
-                                            <i class="bi bi-card-heading text-slate-400 w-4 text-center"></i>
-                                            <span><strong>DNI:</strong> {{ $user->dni }}</span>
-                                        </div>
-                                    @endif
                                     @if ($user->email)
                                         <div class="flex items-center gap-2 min-w-0">
                                             <i class="bi bi-envelope text-slate-400 w-4 text-center flex-shrink-0"></i>
@@ -1181,13 +1171,6 @@
                     <template x-if="selectedLeader">
                         <div class="p-6 space-y-4">
                             <div class="bg-slate-50 rounded-2xl border border-slate-100 p-4 space-y-3 text-xs">
-                                <div class="flex items-center justify-between gap-3 py-1 border-b border-slate-200/60">
-                                    <span class="font-semibold text-slate-500 flex items-center gap-1.5">
-                                        <i class="bi bi-card-heading text-slate-400"></i> DNI
-                                    </span>
-                                    <span class="font-bold text-slate-800 font-mono"
-                                        x-text="selectedLeader.dni || 'No registrado'"></span>
-                                </div>
                                 <div class="flex items-center justify-between gap-3 py-1 border-b border-slate-200/60">
                                     <span class="font-semibold text-slate-500 flex items-center gap-1.5">
                                         <i class="bi bi-envelope text-slate-400"></i> Correo

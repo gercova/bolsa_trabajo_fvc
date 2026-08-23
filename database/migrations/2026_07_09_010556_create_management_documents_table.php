@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->text('details')->nullable();
             $table->string('file_path')->nullable();
+            $table->string('resolution_document_path')->nullable();
             $table->date('validity_period')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();

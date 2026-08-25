@@ -45,32 +45,116 @@ class AppController extends Controller {
 
     // admision-y-matricula/cepre-fvc
     public function ceprefvc(): View {
+        $currentYear     = now()->year;
+        $projectedYear   = $currentYear + 1;
+        $projectedPeriod = $projectedYear . '-I';
+
+        // Filter projected CEPRE schedule (e.g. 2027-I when in 2026)
         $exams = Admission::where('process', 'cepre')
             ->where('is_active', true)
+            ->where(function ($q) use ($projectedPeriod, $projectedYear) {
+                $q->where('period', $projectedPeriod)
+                  ->orWhere('period', 'LIKE', "{$projectedYear}%");
+            })
             ->with(['admissionDetail.program'])
             ->orderBy('id', 'desc')
             ->get();
+
+        // Fallback to active CEPRE records if no projected period records found yet
+        if ($exams->isEmpty()) {
+            $exams = Admission::where('process', 'cepre')
+                ->where('is_active', true)
+                ->where(function ($q) use ($currentYear) {
+                    $q->where('period', '>=', "{$currentYear}-I")
+                      ->orWhereNull('period');
+                })
+                ->with(['admissionDetail.program'])
+                ->orderBy('period', 'desc')
+                ->orderBy('id', 'desc')
+                ->get();
+        }
 
         $requirements  = AdmissionRequirement::where('is_active', true)->get();
         $enterprise    = Enterprise::first();
         $cepreImage    = Image::where('imageable_type', 'cepre')->where('imageable_id', 1)->first();
 
-        return view('admission.cepre-fvc', compact('exams', 'requirements', 'enterprise', 'cepreImage'));
+        return view('admission.cepre-fvc', compact('exams', 'requirements', 'enterprise', 'cepreImage', 'projectedPeriod'));
     }
     
     // admision-y-matricula/examen-de-admision
     public function admissionExam(): View {
+        // Dinámica de período proyectado (ej. para el año 2026 proyecta 2027-I)
+        $projectedPeriod = (now()->year + 1) . '-I';
+
+        // 1. Vacantes de CEPRE activas en el período proyectado para realizar el descuento
+        $cepreExams = Admission::where('process', 'cepre')
+            ->where('is_active', true)
+            ->where('period', $projectedPeriod)
+            ->with('admissionDetail')
+            ->get();
+
+        if ($cepreExams->isEmpty()) {
+            // Fallback si aún no hay CEPRE registrado con el período proyectado
+            $cepreExams = Admission::where('process', 'cepre')
+                ->where('is_active', true)
+                ->with('admissionDetail')
+                ->get();
+        }
+
+        $cepreTotalVacancies = $cepreExams->sum('total_vacancies');
+        $cepreVacanciesByProgram = [];
+        foreach ($cepreExams as $cepreExam) {
+            foreach ($cepreExam->admissionDetail as $detail) {
+                $cepreVacanciesByProgram[$detail->program_id] = ($cepreVacanciesByProgram[$detail->program_id] ?? 0) + $detail->vacancies;
+            }
+        }
+
+        // 2. Consulta de exámenes de admisión para el ciclo proyectado ordenando: Extraordinario primero, luego Ordinario
         $exams = Admission::where('process', 'admisión')
             ->where('is_active', true)
+            ->where('period', $projectedPeriod)
             ->with(['admissionDetail.program'])
-            ->orderBy('id', 'desc')
+            ->orderByRaw("FIELD(type, 'extraordinario', 'ordinario')")
+            ->orderBy('id', 'asc')
             ->get();
+
+        if ($exams->isEmpty()) {
+            // Fallback si no hay exámenes para el ciclo proyectado
+            $exams = Admission::where('process', 'admisión')
+                ->where('is_active', true)
+                ->with(['admissionDetail.program'])
+                ->orderByRaw("FIELD(type, 'extraordinario', 'ordinario')")
+                ->orderBy('id', 'desc')
+                ->get();
+        }
+
+        // Cálculo de vacantes totales brutas y disponibles descontando las vacantes de CEPRE
+        $totalGrossVacancies = $exams->sum('total_vacancies');
+        $totalAvailableVacancies = max(0, $totalGrossVacancies - $cepreTotalVacancies);
+
+        // 3. Último examen de admisión con publicación de resultados (PDF)
+        $lastExamResults = Admission::where('process', 'admisión')
+            ->whereNotNull('results_url_pdf')
+            ->orderBy('exam_date', 'desc')
+            ->orderBy('id', 'desc')
+            ->first();
 
         $requirements  = AdmissionRequirement::where('is_active', true)->get();
         $enterprise    = Enterprise::first();
         $admisionImage = Image::where('imageable_type', 'admision')->where('imageable_id', 1)->first();
 
-        return view('admission.admission-exam', compact('exams', 'requirements', 'enterprise', 'admisionImage'));
+        return view('admission.admission-exam', compact(
+            'exams',
+            'projectedPeriod',
+            'cepreTotalVacancies',
+            'cepreVacanciesByProgram',
+            'totalGrossVacancies',
+            'totalAvailableVacancies',
+            'lastExamResults',
+            'requirements',
+            'enterprise',
+            'admisionImage'
+        ));
     }
 
     // admision-y-matricula/matriculas
@@ -97,9 +181,10 @@ class AppController extends Controller {
 
     // admision-y-matriculas/becas-y-creditos
     public function scholarshipsAndCredits(): View {
-        $scholarships = Scholarship::active()->ordered()->get();
-        $enterprise   = Enterprise::first();
-        return view('admission.scholarships-and-credits', compact('scholarships', 'enterprise'));
+        $scholarships              = Scholarship::active()->ordered()->get();
+        $totalScholarshipVacancies = $scholarships->sum('vacancies');
+        $enterprise                = Enterprise::first();
+        return view('admission.scholarships-and-credits', compact('scholarships', 'totalScholarshipVacancies', 'enterprise'));
     }
 
     // programas-de-estudios
@@ -421,6 +506,21 @@ class AppController extends Controller {
             ->distinct()
             ->pluck('source');
 
+        // Graduates / Students directory with CVs for recruiting companies
+        $graduates = User::where('is_active', true)
+            ->where(function ($q) {
+                $q->whereIn('role', ['Estudiante', 'Egresado', 'Titulado'])
+                  ->orWhere('email', 'LIKE', 'estudiante_%');
+            })
+            ->with(['studentCouncils.studyProgram', 'primaryRoleDetail.program'])
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $studyPrograms = StudyProgram::where('is_active', true)
+            ->orderBy('order', 'asc')
+            ->orderBy('name', 'asc')
+            ->get();
+
         return view('job-board.index', compact(
             'jobs',
             'enterprise',
@@ -428,7 +528,9 @@ class AppController extends Controller {
             'sources',
             'search',
             'selectedLocation',
-            'selectedSource'
+            'selectedSource',
+            'graduates',
+            'studyPrograms'
         ));
     }
 

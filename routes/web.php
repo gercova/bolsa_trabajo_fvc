@@ -16,6 +16,7 @@ use App\Http\Controllers\PartnersController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScholarshipController;
+use App\Http\Controllers\StadisticController;
 use App\Http\Controllers\StudentCouncilController;
 use App\Http\Controllers\TeacherRoleController;
 use App\Http\Controllers\StudyProgramsController;
@@ -293,6 +294,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/',                 [ClaimsController::class, 'index'])->name('index');
         Route::get('/{claim}',          [ClaimsController::class, 'show'])->name('show');
         Route::patch('/estado/{claim}',  [ClaimsController::class, 'status'])->name('status');
+    });
+
+    // estadísticas y registros estudiantiles (Transparencia)
+    Route::prefix('admin-estadisticas')->name('admin.statistics.')->group(function () {
+        Route::get('/',                           [StadisticController::class, 'index'])->name('index');
+        Route::get('/crear',                      [StadisticController::class, 'create'])->name('create');
+        Route::post('/guardar',                   [StadisticController::class, 'store'])->name('store');
+        Route::post('/importar',                  [StadisticController::class, 'import'])->name('import');
+        Route::get('/ver/{studentRecord}',        [StadisticController::class, 'show'])->name('show');
+        Route::get('/editar/{studentRecord}',     [StadisticController::class, 'edit'])->name('edit');
+        Route::put('/editar/{studentRecord}',     [StadisticController::class, 'update'])->name('update');
+        Route::delete('/{studentRecord}',         [StadisticController::class, 'destroy'])->name('destroy');
     });
 
     // partners

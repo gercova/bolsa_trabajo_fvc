@@ -197,6 +197,13 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2 bg-white/10 border border-white/15 rounded-2xl px-4 py-2.5 backdrop-blur-sm">
+                        <i class="bi bi-mortarboard-fill text-purple-300 text-lg" aria-hidden="true"></i>
+                        <div>
+                            <p class="text-lg font-black text-white leading-none">{{ $graduates->count() }}</p>
+                            <p class="text-[11px] text-blue-200 font-medium">Egresados con CV</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 bg-white/10 border border-white/15 rounded-2xl px-4 py-2.5 backdrop-blur-sm">
                         <i class="bi bi-geo-alt-fill text-emerald-400 text-lg" aria-hidden="true"></i>
                         <div>
                             <p class="text-lg font-black text-white leading-none">{{ $locations->count() }}</p>
@@ -213,14 +220,19 @@
                 </div>
 
                 {{-- CTAs --}}
-                <div class="flex flex-col sm:flex-row gap-4 pt-2">
+                <div class="flex flex-col sm:flex-row flex-wrap gap-3 pt-2">
                     <a href="#ofertas"
-                       class="inline-flex items-center justify-center px-7 py-4 text-base font-extrabold text-blue-900 bg-white hover:bg-blue-50 rounded-2xl transition-all shadow-xl hover:shadow-2xl group">
+                       class="inline-flex items-center justify-center px-6 py-3.5 text-sm sm:text-base font-extrabold text-blue-900 bg-white hover:bg-blue-50 rounded-2xl transition-all shadow-xl hover:shadow-2xl group">
                         <i class="bi bi-search mr-2 text-blue-700 group-hover:scale-110 transition-transform" aria-hidden="true"></i>
                         Explorar Vacantes
                     </a>
+                    <a href="#egresados"
+                       class="inline-flex items-center justify-center px-6 py-3.5 text-sm sm:text-base font-extrabold text-white bg-blue-600/80 hover:bg-blue-600 border border-blue-400/40 rounded-2xl transition-all shadow-xl hover:shadow-2xl group backdrop-blur-sm">
+                        <i class="bi bi-mortarboard-fill mr-2 text-blue-200 group-hover:scale-110 transition-transform" aria-hidden="true"></i>
+                        Ver Egresados con Potencial
+                    </a>
                     <a href="#publicar-oferta"
-                       class="inline-flex items-center justify-center px-7 py-4 text-base font-extrabold text-white border-2 border-blue-300/30 hover:bg-white/10 rounded-2xl transition-all backdrop-blur-sm">
+                       class="inline-flex items-center justify-center px-6 py-3.5 text-sm sm:text-base font-extrabold text-white border-2 border-blue-300/30 hover:bg-white/10 rounded-2xl transition-all backdrop-blur-sm">
                         <i class="bi bi-building mr-2 text-blue-200" aria-hidden="true"></i>
                         Publicar Vacante
                     </a>
@@ -632,6 +644,315 @@
                     </nav>
 
                 </div>
+            </div>
+        @endif
+
+    </div>
+</section>
+
+
+{{-- ═══ TALENTO Y EGRESADOS FVC (PARA EMPRESAS) ════════════════════════ --}}
+<section id="egresados" aria-label="Egresados y Estudiantes con Potencial" class="py-20 bg-gradient-to-b from-slate-50 to-slate-100/70 border-t border-slate-200/80"
+    x-data="{ selectedProgram: 'all', activeGraduateModal: null }">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {{-- Section Header --}}
+        <div class="text-center max-w-3xl mx-auto mb-12">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 text-blue-900 border border-blue-200 text-xs font-black uppercase tracking-wider mb-4 shadow-xs">
+                <i class="bi bi-mortarboard-fill text-blue-600"></i>
+                Talento FVC · Conexión Empresarial
+            </span>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-950 font-sans leading-tight">
+                Egresados y Estudiantes con Potencial
+            </h2>
+            <div class="w-20 h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto mt-4 rounded-full"></div>
+            <p class="text-base sm:text-lg text-slate-600 mt-4 leading-relaxed">
+                Directorio de graduados y estudiantes técnicos capacitados con formación práctica y competencias certificadas. Revisa sus perfiles, contáctalos directamente o consulta su <strong>Currículum Vitae (PDF)</strong>.
+            </p>
+            <div class="mt-4 flex flex-wrap items-center justify-center gap-3">
+                <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700 text-xs font-bold shadow-xs">
+                    <i class="bi bi-people-fill text-blue-600"></i> {{ $graduates->count() }} Perfiles Calificados
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700 text-xs font-bold shadow-xs">
+                    <i class="bi bi-file-earmark-pdf-fill text-red-600"></i> CVs Oficiales en PDF
+                </span>
+            </div>
+        </div>
+
+        {{-- Program Filter Tabs --}}
+        <div class="flex flex-wrap items-center justify-center gap-2 mb-12">
+            <button type="button" @click="selectedProgram = 'all'"
+                :class="selectedProgram === 'all' ? 'bg-blue-900 text-white shadow-md' : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'"
+                class="px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5">
+                <i class="bi bi-grid-fill"></i> Todos los Programas ({{ $graduates->count() }})
+            </button>
+            @foreach ($studyPrograms as $prog)
+                @php
+                    $progCount = $graduates->filter(function($g) use ($prog) {
+                        $pName = $g->studentCouncils->first()?->studyProgram?->name ?? $g->primaryRoleDetail?->program?->name ?? '';
+                        return $pName === $prog->name;
+                    })->count();
+                @endphp
+                <button type="button" @click="selectedProgram = '{{ $prog->name }}'"
+                    :class="selectedProgram === '{{ $prog->name }}' ? 'bg-blue-900 text-white shadow-md' : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'"
+                    class="px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5">
+                    <span>{{ $prog->name }}</span>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black"
+                        :class="selectedProgram === '{{ $prog->name }}' ? 'bg-blue-800 text-blue-100' : 'bg-slate-100 text-slate-600'">
+                        {{ $progCount }}
+                    </span>
+                </button>
+            @endforeach
+        </div>
+
+        {{-- Graduates Cards Grid --}}
+        @if ($graduates->count() > 0)
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                @foreach ($graduates as $grad)
+                    @php
+                        $gradProg = $grad->studentCouncils->first()?->studyProgram?->name 
+                            ?? $grad->primaryRoleDetail?->program?->name 
+                            ?? 'Formación Técnica';
+                        $initials = collect(explode(' ', $grad->names))->map(fn($part) => mb_substr($part, 0, 1))->take(2)->implode('');
+                        
+                        // Condition color styling
+                        $isTitulado = Str::contains(mb_strtoupper($grad->role), 'TITULADO');
+                        $isEgresado = Str::contains(mb_strtoupper($grad->role), 'EGRESADO');
+                        
+                        $badgeStyle = $isTitulado 
+                            ? 'bg-purple-50 text-purple-800 border-purple-200' 
+                            : ($isEgresado ? 'bg-blue-50 text-blue-800 border-blue-200' : 'bg-emerald-50 text-emerald-800 border-emerald-200');
+                        $badgeIcon = $isTitulado ? 'bi-mortarboard-fill' : ($isEgresado ? 'bi-award-fill' : 'bi-star-fill');
+                    @endphp
+
+                    <article class="bg-white rounded-3xl border border-slate-200/80 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group hover:border-blue-300"
+                        x-show="selectedProgram === 'all' || selectedProgram === '{{ $gradProg }}'"
+                        x-transition:enter="transition ease-out duration-250"
+                        x-transition:enter-start="opacity-0 scale-95"
+                        x-transition:enter-end="opacity-100 scale-100">
+
+                        <div class="p-6 sm:p-7">
+                            {{-- Card Header --}}
+                            <div class="flex items-start justify-between gap-4 mb-5">
+                                @if ($grad->photo_profile)
+                                    <img src="{{ Storage::url($grad->photo_profile) }}" alt="{{ $grad->names }}"
+                                        class="w-14 h-14 rounded-2xl object-cover shadow-md border-2 border-white ring-2 ring-blue-100 flex-shrink-0">
+                                @else
+                                    <div class="w-14 h-14 bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 text-white rounded-2xl flex items-center justify-center text-lg font-black shadow-md flex-shrink-0">
+                                        {{ $initials }}
+                                    </div>
+                                @endif
+
+                                <div class="flex flex-col items-end gap-1.5">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border {{ $badgeStyle }} shadow-xs">
+                                        <i class="bi {{ $badgeIcon }}"></i>
+                                        {{ $grad->role }}
+                                    </span>
+                                    <span class="text-[11px] text-slate-500 font-mono font-semibold">
+                                        DNI: {{ substr($grad->dni, 0, 4) }}****
+                                    </span>
+                                </div>
+                            </div>
+
+                            {{-- Student Info --}}
+                            <h3 class="text-lg font-extrabold text-blue-950 leading-snug group-hover:text-blue-600 transition-colors">
+                                {{ $grad->names }}
+                            </h3>
+
+                            <div class="mt-2.5 mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 text-slate-800 text-xs font-bold">
+                                <i class="bi bi-book-half text-blue-600"></i>
+                                <span>{{ $gradProg }}</span>
+                            </div>
+
+                            <p class="text-xs font-medium text-slate-600 leading-relaxed mb-5">
+                                {{ $grad->job_position ?? 'Técnico capacitado en competencias laborales y prácticas modulares en ' . $gradProg }}
+                            </p>
+
+                            {{-- Direct Contact Channels --}}
+                            <div class="border-t border-slate-100 pt-4 space-y-2 text-xs">
+                                @if ($grad->email)
+                                    <a href="mailto:{{ $grad->email }}" class="flex items-center gap-2 text-slate-600 hover:text-blue-700 font-medium transition truncate"
+                                        title="{{ $grad->email }}">
+                                        <i class="bi bi-envelope-fill text-blue-500 shrink-0"></i>
+                                        <span class="truncate">{{ $grad->email }}</span>
+                                    </a>
+                                @endif
+                                @if ($grad->phone)
+                                    <a href="tel:{{ $grad->phone }}" class="flex items-center gap-2 text-slate-600 hover:text-emerald-700 font-medium transition">
+                                        <i class="bi bi-telephone-fill text-emerald-600 shrink-0"></i>
+                                        <span>{{ $grad->phone }}</span>
+                                    </a>
+                                @endif
+                                <div class="flex items-center gap-2 text-slate-500 font-medium">
+                                    <i class="bi bi-geo-alt-fill text-slate-400 shrink-0"></i>
+                                    <span>Uchiza, San Martín</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Card Footer & Actions --}}
+                        <div class="p-4 sm:px-6 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                            <button type="button" @click="activeGraduateModal = {{ $grad->id }}"
+                                class="inline-flex items-center gap-1.5 text-xs font-extrabold text-blue-800 hover:text-blue-950 py-1 transition">
+                                <i class="bi bi-person-lines-fill text-blue-600"></i> Ver Perfil Completo
+                            </button>
+
+                            <div class="flex items-center gap-1.5">
+                                @if ($grad->cv_file)
+                                    <a href="{{ Storage::url($grad->cv_file) }}" target="_blank"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold rounded-xl transition shadow-xs">
+                                        <i class="bi bi-file-earmark-pdf-fill text-red-300"></i>
+                                        <span>Ver CV (PDF)</span>
+                                    </a>
+                                    <a href="{{ Storage::url($grad->cv_file) }}" download
+                                        class="inline-flex items-center justify-center w-8 h-8 bg-white hover:bg-blue-50 border border-slate-200 text-slate-700 hover:text-blue-700 rounded-xl transition shadow-xs"
+                                        title="Descargar Currículum Vitae (PDF)">
+                                        <i class="bi bi-download text-xs"></i>
+                                    </a>
+                                @else
+                                    <span class="inline-flex items-center gap-1 text-[11px] text-slate-400 italic">
+                                        <i class="bi bi-clock-history"></i> CV en proceso
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Graduate Details Modal --}}
+                        <div x-show="activeGraduateModal === {{ $grad->id }}"
+                            x-transition:enter="transition ease-out duration-250"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-180"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-95"
+                            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md"
+                            style="display:none;"
+                            role="dialog"
+                            aria-modal="true"
+                            @keydown.escape.window="activeGraduateModal = null">
+
+                            <div class="bg-white rounded-3xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 flex flex-col"
+                                @click.outside="activeGraduateModal = null">
+
+                                <div class="h-2 bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-600 rounded-t-3xl flex-shrink-0"></div>
+
+                                <div class="p-6 sm:p-8 space-y-6">
+                                    {{-- Modal Header --}}
+                                    <div class="flex items-start gap-4 pr-8 relative">
+                                        @if ($grad->photo_profile)
+                                            <img src="{{ Storage::url($grad->photo_profile) }}" alt="{{ $grad->names }}"
+                                                class="w-16 h-16 rounded-2xl object-cover shadow-md border border-slate-200 flex-shrink-0">
+                                        @else
+                                            <div class="w-16 h-16 bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 text-white rounded-2xl flex items-center justify-center text-xl font-black shadow-md flex-shrink-0">
+                                                {{ $initials }}
+                                            </div>
+                                        @endif
+
+                                        <div>
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-black border {{ $badgeStyle }}">
+                                                <i class="bi {{ $badgeIcon }}"></i> {{ $grad->role }}
+                                            </span>
+                                            <h3 class="text-xl font-extrabold text-blue-950 mt-1 leading-snug">
+                                                {{ $grad->names }}
+                                            </h3>
+                                            <p class="text-xs font-bold text-blue-700 mt-0.5">
+                                                {{ $gradProg }}
+                                            </p>
+                                        </div>
+
+                                        <button @click="activeGraduateModal = null"
+                                            class="absolute -top-2 right-0 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition"
+                                            aria-label="Cerrar modal">
+                                            <i class="bi bi-x-lg text-sm"></i>
+                                        </button>
+                                    </div>
+
+                                    {{-- Information Blocks --}}
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs">
+                                        <div>
+                                            <span class="font-bold text-slate-500 block">DNI:</span>
+                                            <span class="font-extrabold text-slate-800">{{ $grad->dni }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-slate-500 block">Especialidad / Perfil:</span>
+                                            <span class="font-extrabold text-slate-800">{{ $grad->job_position ?? 'Técnico Profesional' }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-slate-500 block">Correo Electrónico:</span>
+                                            <span class="font-extrabold text-blue-800 break-all">{{ $grad->email }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-slate-500 block">Teléfono / WhatsApp:</span>
+                                            <span class="font-extrabold text-emerald-800">{{ $grad->phone ?? 'No especificado' }}</span>
+                                        </div>
+                                    </div>
+
+                                    {{-- CV Presentation Banner --}}
+                                    <div class="bg-gradient-to-br from-blue-950 to-indigo-950 text-white p-5 rounded-2xl shadow-md space-y-3">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-xl border border-red-400/30 shrink-0">
+                                                <i class="bi bi-file-earmark-pdf-fill"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-sm font-extrabold text-white">Currículum Vitae Documentado</h4>
+                                                <p class="text-xs text-blue-200">Formato PDF oficial con formación técnica y experiencia práctica.</p>
+                                            </div>
+                                        </div>
+
+                                        @if ($grad->cv_file)
+                                            <div class="flex flex-wrap items-center gap-3 pt-2">
+                                                <a href="{{ Storage::url($grad->cv_file) }}" target="_blank"
+                                                    class="px-4 py-2.5 bg-white hover:bg-blue-50 text-blue-950 font-extrabold text-xs rounded-xl transition shadow flex items-center gap-2">
+                                                    <i class="bi bi-eye-fill text-blue-600"></i>
+                                                    <span>Ver Documento Completo</span>
+                                                </a>
+                                                <a href="{{ Storage::url($grad->cv_file) }}" download
+                                                    class="px-4 py-2.5 bg-blue-800/80 hover:bg-blue-800 text-white font-bold text-xs rounded-xl border border-blue-500/40 transition flex items-center gap-2">
+                                                    <i class="bi bi-download"></i>
+                                                    <span>Descargar PDF</span>
+                                                </a>
+                                            </div>
+                                        @else
+                                            <p class="text-xs text-amber-300 italic pt-1">
+                                                El egresado actualizará su documento PDF en los próximos días. Puedes contactarlo directamente por teléfono o correo.
+                                            </p>
+                                        @endif
+                                    </div>
+
+                                    {{-- Direct Contact Buttons --}}
+                                    <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                                        @if ($grad->phone)
+                                            <a href="https://wa.me/51{{ $grad->phone }}?text={{ urlencode('Hola ' . $grad->names . ', nos comunicamos desde la Bolsa de Trabajo del IESTP Francisco Vigo Caballero respecto a una oportunidad laboral.') }}"
+                                                target="_blank"
+                                                class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl transition shadow flex items-center gap-2">
+                                                <i class="bi bi-whatsapp text-sm"></i>
+                                                <span>Contactar por WhatsApp</span>
+                                            </a>
+                                        @endif
+                                        @if ($grad->email)
+                                            <a href="mailto:{{ $grad->email }}?subject={{ urlencode('Oportunidad Laboral — IESTP Francisco Vigo Caballero') }}"
+                                                class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition flex items-center gap-2">
+                                                <i class="bi bi-envelope-fill text-blue-600 text-sm"></i>
+                                                <span>Enviar Correo</span>
+                                            </a>
+                                        @endif
+                                        <button type="button" @click="activeGraduateModal = null"
+                                            class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition ml-auto">
+                                            Cerrar
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        @else
+            <div class="bg-white rounded-3xl border border-slate-200 p-12 text-center max-w-xl mx-auto">
+                <i class="bi bi-people text-4xl text-slate-400 mb-3 inline-block"></i>
+                <h3 class="text-xl font-extrabold text-blue-950 mb-2">Directorio en actualización</h3>
+                <p class="text-xs text-slate-600">Próximamente estarán disponibles los perfiles de nuevos egresados técnicos.</p>
             </div>
         @endif
 

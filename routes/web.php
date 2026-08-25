@@ -237,7 +237,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{offer}',                  [JobsController::class, 'update'])->name('update');
         Route::delete('/{offer}',               [JobsController::class, 'destroy'])->name('destroy');
         Route::patch('/estado/{offer}',         [JobsController::class, 'toggleStatus'])->name('toggle-status');
-        Route::post('/buscar-automatico',        [JobsController::class, 'fetchJobs'])->name('fetch-jobs');
+        Route::post('/buscar-automatico',       [JobsController::class, 'fetchJobs'])->name('fetch-jobs');
     });
     
     // usuarios
@@ -294,31 +294,31 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin-reclamos')->name('admin.claims.')->group(function () {
         Route::get('/',                 [ClaimsController::class, 'index'])->name('index');
         Route::get('/{claim}',          [ClaimsController::class, 'show'])->name('show');
-        Route::patch('/estado/{claim}',  [ClaimsController::class, 'status'])->name('status');
+        Route::patch('/estado/{claim}', [ClaimsController::class, 'status'])->name('status');
     });
 
     // estadísticas y registros estudiantiles (Transparencia)
     Route::prefix('admin-estadisticas')->name('admin.statistics.')->group(function () {
-        Route::get('/',                           [StadisticController::class, 'index'])->name('index');
-        Route::get('/crear',                      [StadisticController::class, 'create'])->name('create');
-        Route::post('/guardar',                   [StadisticController::class, 'store'])->name('store');
-        Route::post('/importar',                  [StadisticController::class, 'import'])->name('import');
-        Route::get('/ver/{studentRecord}',        [StadisticController::class, 'show'])->name('show');
-        Route::get('/editar/{studentRecord}',     [StadisticController::class, 'edit'])->name('edit');
-        Route::put('/editar/{studentRecord}',     [StadisticController::class, 'update'])->name('update');
-        Route::delete('/{studentRecord}',         [StadisticController::class, 'destroy'])->name('destroy');
+        Route::get('/',                         [StadisticController::class, 'index'])->name('index');
+        Route::get('/crear',                    [StadisticController::class, 'create'])->name('create');
+        Route::post('/guardar',                 [StadisticController::class, 'store'])->name('store');
+        Route::post('/importar',                [StadisticController::class, 'import'])->name('import');
+        Route::get('/ver/{studentRecord}',      [StadisticController::class, 'show'])->name('show');
+        Route::get('/editar/{studentRecord}',   [StadisticController::class, 'edit'])->name('edit');
+        Route::put('/editar/{studentRecord}',   [StadisticController::class, 'update'])->name('update');
+        Route::delete('/{studentRecord}',       [StadisticController::class, 'destroy'])->name('destroy');
     });
 
     // grados y títulos (Transparencia)
     Route::prefix('admin-titulos')->name('admin.degree-records.')->group(function () {
-        Route::get('/',                            [DegreeRecordsController::class, 'index'])->name('index');
-        Route::get('/crear',                       [DegreeRecordsController::class, 'create'])->name('create');
-        Route::post('/guardar',                    [DegreeRecordsController::class, 'store'])->name('store');
-        Route::post('/importar',                   [DegreeRecordsController::class, 'import'])->name('import');
-        Route::get('/ver/{degreeRecord}',          [DegreeRecordsController::class, 'show'])->name('show');
-        Route::get('/editar/{degreeRecord}',       [DegreeRecordsController::class, 'edit'])->name('edit');
-        Route::put('/editar/{degreeRecord}',       [DegreeRecordsController::class, 'update'])->name('update');
-        Route::delete('/{degreeRecord}',           [DegreeRecordsController::class, 'destroy'])->name('destroy');
+        Route::get('/',                        [DegreeRecordsController::class, 'index'])->name('index');
+        Route::get('/crear',                   [DegreeRecordsController::class, 'create'])->name('create');
+        Route::post('/guardar',                [DegreeRecordsController::class, 'store'])->name('store');
+        Route::post('/importar',               [DegreeRecordsController::class, 'import'])->name('import');
+        Route::get('/ver/{degreeRecord}',      [DegreeRecordsController::class, 'show'])->name('show');
+        Route::get('/editar/{degreeRecord}',   [DegreeRecordsController::class, 'edit'])->name('edit');
+        Route::put('/editar/{degreeRecord}',   [DegreeRecordsController::class, 'update'])->name('update');
+        Route::delete('/{degreeRecord}',       [DegreeRecordsController::class, 'destroy'])->name('destroy');
     });
 
     // partners

@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -18,8 +19,11 @@ class User extends Authenticatable
     protected $table        = 'users';
     protected $primaryKey   = 'id';
     protected $fillable     = [
+        'document_type_id',
         'dni',
         'names',
+        'birthdate',
+        'mother_tongue',
         'email',
         'photo_profile',
         'cv_file',
@@ -39,6 +43,10 @@ class User extends Authenticatable
         'password'          => 'hashed',
         'is_active'         => 'boolean',
     ];
+
+    public function documentType(): BelongsTo {
+        return $this->belongsTo(DocumentType::class, 'document_type_id', 'id');
+    }
 
     public function areas(): HasMany {
         return $this->hasMany(Area::class, 'user_id', 'id');

@@ -6,6 +6,7 @@ use App\Http\Controllers\AreaController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ClaimsController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DegreeRecordsController;
 use App\Http\Controllers\EnrollmentScheduleController;
 use App\Http\Controllers\EnterpriseController;
 use App\Http\Controllers\ExternalInstitutionalLinkController;
@@ -306,6 +307,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/editar/{studentRecord}',     [StadisticController::class, 'edit'])->name('edit');
         Route::put('/editar/{studentRecord}',     [StadisticController::class, 'update'])->name('update');
         Route::delete('/{studentRecord}',         [StadisticController::class, 'destroy'])->name('destroy');
+    });
+
+    // grados y títulos (Transparencia)
+    Route::prefix('admin-titulos')->name('admin.degree-records.')->group(function () {
+        Route::get('/',                            [DegreeRecordsController::class, 'index'])->name('index');
+        Route::get('/crear',                       [DegreeRecordsController::class, 'create'])->name('create');
+        Route::post('/guardar',                    [DegreeRecordsController::class, 'store'])->name('store');
+        Route::post('/importar',                   [DegreeRecordsController::class, 'import'])->name('import');
+        Route::get('/ver/{degreeRecord}',          [DegreeRecordsController::class, 'show'])->name('show');
+        Route::get('/editar/{degreeRecord}',       [DegreeRecordsController::class, 'edit'])->name('edit');
+        Route::put('/editar/{degreeRecord}',       [DegreeRecordsController::class, 'update'])->name('update');
+        Route::delete('/{degreeRecord}',           [DegreeRecordsController::class, 'destroy'])->name('destroy');
     });
 
     // partners

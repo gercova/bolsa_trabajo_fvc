@@ -82,7 +82,26 @@
         <tbody class="divide-y divide-gray-100">
             @forelse($items as $item)
                 <tr class="hover:bg-purple-50/30 transition-colors group">
-                    <td class="p-4 font-semibold text-gray-900">{{ $item->period }}</td>
+                    <td class="p-4">
+                        <div class="font-semibold text-gray-900">{{ $item->period }}</div>
+                        <div class="text-xs text-gray-500 font-normal truncate max-w-[200px]" title="{{ $item->activity }}">{{ $item->activity }}</div>
+                        <div class="flex items-center gap-1.5 mt-1">
+                            @if ($item->url_pdf)
+                                <a href="{{ Storage::url($item->url_pdf) }}" target="_blank"
+                                    class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition"
+                                    title="Ver Bases / Prospecto PDF">
+                                    <i class="bi bi-file-earmark-pdf-fill text-red-500"></i> Bases
+                                </a>
+                            @endif
+                            @if ($item->results_url_pdf)
+                                <a href="{{ Storage::url($item->results_url_pdf) }}" target="_blank"
+                                    class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition"
+                                    title="Ver Resultados Publicados PDF">
+                                    <i class="bi bi-award-fill text-emerald-600"></i> Resultados
+                                </a>
+                            @endif
+                        </div>
+                    </td>
                     <td class="p-4">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold
                             {{ $item->type === 'ordinario' ? 'bg-indigo-100 text-indigo-800' : 'bg-amber-100 text-amber-800' }}">
@@ -94,7 +113,15 @@
                         {{ $item->exam_date ? \Carbon\Carbon::parse($item->exam_date)->format('d/m/Y') : '—' }}
                     </td>
                     <td class="p-4 text-gray-700 text-sm font-medium">{{ $item->total_vacancies }}</td>
-                    <td class="p-4 text-gray-900 font-semibold text-sm">S/ {{ number_format($item->price, 2) }}</td>
+                    <td class="p-4 text-gray-900 font-semibold text-sm">
+                        <div>S/ {{ number_format($item->price, 2) }}</div>
+                        @if ($item->monthly_fee > 0 || $item->tuition_fee > 0)
+                            <div class="text-[10px] text-gray-500 font-normal">
+                                @if($item->tuition_fee > 0) Mat: S/ {{ number_format($item->tuition_fee, 2) }} @endif
+                                @if($item->monthly_fee > 0) · Mens: S/ {{ number_format($item->monthly_fee, 2) }} @endif
+                            </div>
+                        @endif
+                    </td>
                     <td class="p-4">
                         @if ($item->is_active)
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-800 border border-green-200">
@@ -136,6 +163,22 @@
                                             role="menuitem">
                                             <i class="bi bi-pencil-square mr-2.5 text-purple-500"></i> Actualizar Datos
                                         </a>
+
+                                        @if ($item->url_pdf)
+                                            <a href="{{ Storage::url($item->url_pdf) }}" target="_blank"
+                                                class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 flex items-center transition-colors"
+                                                role="menuitem">
+                                                <i class="bi bi-file-earmark-pdf mr-2.5 text-blue-500"></i> Ver Bases (PDF)
+                                            </a>
+                                        @endif
+
+                                        @if ($item->results_url_pdf)
+                                            <a href="{{ Storage::url($item->results_url_pdf) }}" target="_blank"
+                                                class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 flex items-center transition-colors"
+                                                role="menuitem">
+                                                <i class="bi bi-award mr-2.5 text-emerald-500"></i> Ver Resultados (PDF)
+                                            </a>
+                                        @endif
 
                                         <div class="my-1 border-t border-gray-100"></div>
 

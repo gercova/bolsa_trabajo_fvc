@@ -3,9 +3,9 @@
 namespace App\Imports;
 
 use App\Models\DocumentType;
-use App\Models\StudentRecord;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithStartRow;
@@ -14,53 +14,52 @@ use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 class StudentRecordImport implements ToCollection, WithStartRow, WithChunkReading
 {
     /**
-     * Academic period (e.g. "2026-I") to assign to every imported row.
-     */
-    protected string $academicPeriod;
-
-    /**
-     * Default record type. Overridden per-row if cycle is present.
+     * Default record type — overridden per-row when cycle column is filled.
      */
     protected string $recordType;
 
     /**
-     * Cache of DocumentType abbreviation → id for quick lookup.
+     * Cache of DocumentType abbreviation → id.
+     * Built once at construction to avoid N+1 per row.
      */
     protected array $documentTypeMap = [];
 
     /**
-     * Offset from index 0 to column H.
-     * Excel full-report: offset = 7 (columns A-G exist before H).
-     * CSV exported from just H onwards: offset = 0.
-     * Auto-detected on first non-empty row.
+     * Whether the file is the full MINEDU Excel (cols A-AF = 32 cols)
+     * or a partial CSV starting from col H.
+     * null = not yet determined.
      */
-    protected ?int $colOffset = null;
+    protected ?bool $isFullExcel = null;
 
     /**
-     * Counters for reporting.
+     * Counters exposed to the controller for flash messages.
      */
     public int $importedCount = 0;
     public int $skippedCount  = 0;
 
-    public function __construct(string $academicPeriod, string $recordType = 'ADMISION')
+    /**
+     * @param string $recordType  'ADMISION' | 'MATRICULA' | 'AUTO'
+     */
+    public function __construct(string $recordType = 'AUTO')
     {
-        $this->academicPeriod = strtoupper(trim($academicPeriod));
-        $resolved             = strtoupper(trim($recordType));
-        // AUTO means detect per-row; store ADMISION as the default fallback
+        $resolved         = strtoupper(trim($recordType));
         $this->recordType = ($resolved === 'AUTO') ? 'ADMISION' : $resolved;
 
-        // Build document type lookup map once
-        DocumentType::all()->each(function ($dt) {
-            $key = strtoupper(trim(preg_replace('/[\s.\-]/', '', $dt->abreviation)));
+        // Pre-load all document types once
+        DocumentType::all()->each(function ($dt): void {
+            // Normalised abbreviation key (e.g. "DNI", "CE", "PAS")
+            $key = strtoupper(preg_replace('/[\s.\-]/', '', $dt->abreviation));
             $this->documentTypeMap[$key] = $dt->id;
+            // Also index by full name for safety
             $this->documentTypeMap[strtoupper(trim($dt->name))] = $dt->id;
         });
     }
 
+    // ─── Laravel-Excel interface ─────────────────────────────────────────────
+
     /**
-     * Data starts at row 6 (rows 1-5: title, logo, header rows in MINEDU format).
-     * For plain CSV exports without header rows, startRow = 1 should be used externally,
-     * but for the MINEDU xlsx the default of 6 applies.
+     * Data rows start at row 6 in MINEDU reports
+     * (rows 1-5 = title banner, logos, and merged header rows).
      */
     public function startRow(): int
     {
@@ -68,145 +67,178 @@ class StudentRecordImport implements ToCollection, WithStartRow, WithChunkReadin
     }
 
     /**
-     * Process rows in chunks of 200 to avoid memory spikes.
+     * Process rows in chunks of 500 to balance memory and round-trips.
      */
     public function chunkSize(): int
     {
-        return 200;
+        return 500;
     }
 
     /**
-     * Detect the column offset for the current row.
+     * Receives one chunk at a time and inserts it as a single batch.
      *
-     * Strategy: column H (TIPO DOCUMENTO) contains values like "D.N.I.", "C.E.", etc.
-     * We search the first 15 indexes of the row for a value matching a known doc-type
-     * abbreviation keyword. If found, that index becomes offset for H.
-     * Fallback: if row has >= 32 columns → offset = 7 (full Excel).
-     *           if row has < 32 columns  → offset = 0 (CSV from col H only).
-     */
-    private function detectOffset(Collection $row): int
-    {
-        if ($this->colOffset !== null) {
-            return $this->colOffset;
-        }
-
-        $rowArray = $row->toArray();
-        $count    = count($rowArray);
-
-        // Heuristic 1: row width suggests full-sheet vs partial CSV
-        if ($count >= 32) {
-            $this->colOffset = 7;
-            return 7;
-        }
-
-        // Heuristic 2: look for a doc-type keyword in first 10 cells
-        $docKeywords = ['DNI', 'D.N.I', 'CE', 'C.E', 'PAS', 'RUC'];
-        for ($i = 0; $i < min(10, $count); $i++) {
-            $val = strtoupper(trim(preg_replace('/[\s.\-]/', '', (string)($rowArray[$i] ?? ''))));
-            if (in_array($val, $docKeywords, true) || str_contains($val, 'DNI') || str_contains($val, 'CE')) {
-                $this->colOffset = $i;
-                return $i;
-            }
-        }
-
-        // Fallback: no offset
-        $this->colOffset = 0;
-        return 0;
-    }
-
-    /**
-     * Process each chunk (collection of rows).
+     * ── Full MINEDU Excel (≥ 32 columns, A–AF) ──────────────────────────────
+     *   [0]  A  → PERIODO             → academic_period  ← read per row
+     *   [1]  B  → REGIÓN (IESTP)      → region
+     *   [2]  C  → PROVINCIA (IESTP)   → province
+     *   [3]  D  → DISTRITO (IESTP)    → district
+     *   [4]  E  → CÓDIGO MODULAR      → codigo_modular
+     *   [5]  F  → NOMBRE INSTITUCIÓN  → nombre_institucion
+     *   [6]  G  → TIPO GESTIÓN        → tipo_gestion
+     *   [7]  H  → TIPO DOCUMENTO      → document_type_id
+     *   [8]  I  → DOCUMENTO           → document
+     *   [9]  J  → APELLIDO PATERNO    → last_name_father
+     *   [10] K  → APELLIDO MATERNO    → last_name_mother
+     *   [11] L  → NOMBRES             → names
+     *   [12] M  → FECHA NACIMIENTO    → birthdate
+     *   [13] N  → SEXO                → gender
+     *   [14] O  → CORREO              → email
+     *   [15] P  → CELULAR             → phone
+     *   [16] Q  → LENGUA MATERNA      → mother_tongue
+     *   [17] R  → PAIS PROCEDENCIA    → pais_procedencia
+     *   [18] S  → UBIGEO IE           → ubigeo_ie
+     *   [19] T  → DEPARTAMENTO IE     → region_ie
+     *   [20] U  → PROVINCIA IE        → province_ie
+     *   [21] V  → DISTRITO IE         → district_ie
+     *   [22] W  → TIPO INSTITUCIÓN IE → institution_type_ie
+     *   [23] X  → CÓDIGO MODULAR IE   → modular_code_ie
+     *   [24] Y  → NOMBRE IE           → institution_name_ie
+     *   [25] Z  → TIPO GESTIÓN IE     → management_type_ie
+     *   [26] AA → AÑO DE EGRESO       → year_graduation
+     *   [27] AB → PROGRAMA ESTUDIOS   → study_program
+     *   [28] AC → CICLO               → cycle
+     *   [29] AD → ESTADO MATRÍCULA    → enrollment_status
+     *   [30] AE → ESTADO PERÍODO      → period_status
+     *   [31] AF → FECHA REGISTRO      → registration_date
      *
-     * Column mapping relative to detected offset O:
-     *   O+0  → TIPO DOCUMENTO      → document_type_id
-     *   O+1  → DOCUMENTO           → document
-     *   O+2  → APELLIDO PATERNO    → last_name_father
-     *   O+3  → APELLIDO MATERNO    → last_name_mother
-     *   O+4  → NOMBRES             → names
-     *   O+5  → FECHA NACIMIENTO    → birthdate
-     *   O+6  → SEXO                → gender
-     *   O+7  → CORREO              → email
-     *   O+8  → CELULAR             → phone
-     *   O+9  → LENGUA MATERNA      → mother_tongue
-     *   O+10 → PAIS PROCEDENCIA    → pais_procedencia
-     *   O+11 → UBIGEO IE           → ubigeo_ie
-     *   O+12 → DEPARTAMENTO IE     → region_ie
-     *   O+13 → PROVINCIA IE        → province_ie
-     *   O+14 → DISTRITO IE         → district_ie
-     *   O+15 → TIPO INSTITUCIÓN    → institution_type_ie
-     *   O+16 → CODIGO MODULAR IE   → modular_code_ie
-     *   O+17 → NOMBRE IE           → institution_name_ie
-     *   O+18 → TIPO GESTION IE     → management_type_ie
-     *   O+19 → AÑO DE EGRESO       → year_graduation
-     *   O+20 → PROGRAMA ESTUDIOS   → study_program
-     *   O+21 → CICLO               → cycle
-     *   O+22 → ESTADO MATRÍCULA    → enrollment_status
-     *   O+23 → ESTADO PERÍODO      → period_status
-     *   O+24 → FECHA REGISTRO      → registration_date
+     * ── Partial CSV (< 32 columns, H–AF only, no A–G prefix) ────────────────
+     *   Offset = 0, academic_period left null (fill manually later if needed).
+     *   [0]  H  → TIPO DOCUMENTO
+     *   [1]  I  → DOCUMENTO
+     *   … same relative offsets as Full Excel minus 7.
      */
     public function collection(Collection $rows): void
     {
+        $now   = now()->toDateTimeString();
+        $batch = [];
+
         foreach ($rows as $row) {
-            // Detect offset on first non-empty row
-            $offset = $this->detectOffset($row);
-
-            // col I (offset+1) = document, col L (offset+4) = names
-            $document = $this->cleanString($row[$offset + 1] ?? null);
-            $names    = $this->cleanString($row[$offset + 4] ?? null);
-
-            if (empty($document) && empty($names)) {
-                $this->skippedCount++;
-                continue;
+            // Determine format on first meaningful row
+            if ($this->isFullExcel === null) {
+                $this->isFullExcel = $row->count() >= 32;
             }
 
-            // Resolve document type from col H (offset+0)
-            $docTypeRaw = $this->cleanString($row[$offset + 0] ?? null);
-            $docTypeId  = $this->resolveDocumentTypeId($docTypeRaw);
+            if ($this->isFullExcel) {
+                // ── Full Excel path ──────────────────────────────────────────
+                $document = $this->cleanString($row[8] ?? null);
+                $names    = $this->cleanString($row[11] ?? null);
 
-            // Determine record type per row: if cycle (offset+21) is filled → MATRICULA
-            $cycle      = $this->cleanString($row[$offset + 21] ?? null);
-            $recordType = (!empty($cycle)) ? 'MATRICULA' : $this->recordType;
+                if (empty($document) && empty($names)) {
+                    $this->skippedCount++;
+                    continue;
+                }
 
-            $data = [
-                'document_type_id'    => $docTypeId,
-                'document'            => $document,
-                'last_name_father'    => $this->cleanString($row[$offset + 2] ?? null),
-                'last_name_mother'    => $this->cleanString($row[$offset + 3] ?? null),
-                'names'               => $names,
-                'birthdate'           => $this->parseDate($row[$offset + 5] ?? null),
-                'gender'              => $this->normalizeGender($row[$offset + 6] ?? null),
-                'email'               => $this->cleanString($row[$offset + 7] ?? null),
-                'phone'               => $this->cleanString($row[$offset + 8] ?? null),
-                'mother_tongue'       => $this->cleanString($row[$offset + 9] ?? null),
-                'pais_procedencia'    => $this->cleanString($row[$offset + 10] ?? null),
-                'ubigeo_ie'           => $this->cleanString($row[$offset + 11] ?? null),
-                'region_ie'           => $this->cleanString($row[$offset + 12] ?? null),
-                'province_ie'         => $this->cleanString($row[$offset + 13] ?? null),
-                'district_ie'         => $this->cleanString($row[$offset + 14] ?? null),
-                'institution_type_ie' => $this->cleanString($row[$offset + 15] ?? null),
-                'modular_code_ie'     => $this->cleanString($row[$offset + 16] ?? null),
-                'institution_name_ie' => $this->cleanString($row[$offset + 17] ?? null),
-                'management_type_ie'  => $this->cleanString($row[$offset + 18] ?? null),
-                'year_graduation'     => $this->cleanInt($row[$offset + 19] ?? null),
-                'study_program'       => $this->cleanString($row[$offset + 20] ?? null),
-                'cycle'               => $cycle,
-                'enrollment_status'   => $this->cleanString($row[$offset + 22] ?? null),
-                'period_status'       => $this->cleanString($row[$offset + 23] ?? null),
-                'registration_date'   => $this->parseDate($row[$offset + 24] ?? null),
-                'academic_period'     => $this->academicPeriod,
-                'record_type'         => $recordType,
-            ];
+                $cycle      = $this->cleanString($row[28] ?? null);
+                $recordType = !empty($cycle) ? 'MATRICULA' : $this->recordType;
 
-            StudentRecord::create($data);
-            $this->importedCount++;
+                $batch[] = [
+                    // Institution where the student studies (cols A-G)
+                    'academic_period'     => $this->cleanString($row[0] ?? null),
+                    'region'              => $this->cleanString($row[1] ?? null),
+                    'province'            => $this->cleanString($row[2] ?? null),
+                    'district'            => $this->cleanString($row[3] ?? null),
+                    'codigo_modular'      => $this->cleanString($row[4] ?? null),
+                    'nombre_institucion'  => $this->cleanString($row[5] ?? null),
+                    'tipo_gestion'        => $this->cleanString($row[6] ?? null),
+                    // Student personal data (cols H-R)
+                    'document_type_id'    => $this->resolveDocumentTypeId($this->cleanString($row[7] ?? null)),
+                    'document'            => $document,
+                    'last_name_father'    => $this->cleanString($row[9]  ?? null),
+                    'last_name_mother'    => $this->cleanString($row[10] ?? null),
+                    'names'               => $names,
+                    'birthdate'           => $this->parseDate($row[12] ?? null),
+                    'gender'              => $this->normalizeGender($row[13] ?? null),
+                    'email'               => $this->cleanString($row[14] ?? null),
+                    'phone'               => $this->cleanString($row[15] ?? null),
+                    'mother_tongue'       => $this->cleanString($row[16] ?? null),
+                    'pais_procedencia'    => $this->cleanString($row[17] ?? null),
+                    // Origin IE (cols S-AA)
+                    'ubigeo_ie'           => $this->cleanString($row[18] ?? null),
+                    'region_ie'           => $this->cleanString($row[19] ?? null),
+                    'province_ie'         => $this->cleanString($row[20] ?? null),
+                    'district_ie'         => $this->cleanString($row[21] ?? null),
+                    'institution_type_ie' => $this->cleanString($row[22] ?? null),
+                    'modular_code_ie'     => $this->cleanString($row[23] ?? null),
+                    'institution_name_ie' => $this->cleanString($row[24] ?? null),
+                    'management_type_ie'  => $this->cleanString($row[25] ?? null),
+                    'year_graduation'     => $this->cleanInt($row[26] ?? null),
+                    // Academic process (cols AB-AF)
+                    'study_program'       => $this->cleanString($row[27] ?? null),
+                    'cycle'               => $cycle,
+                    'enrollment_status'   => $this->cleanString($row[29] ?? null),
+                    'period_status'       => $this->cleanString($row[30] ?? null),
+                    'registration_date'   => $this->parseDate($row[31] ?? null),
+                    'record_type'         => $recordType,
+                    'created_at'          => $now,
+                    'updated_at'          => $now,
+                ];
+            } else {
+                // ── Partial CSV path (H–AF only, no A-G columns) ────────────
+                // Offset is 0: col H is at index 0
+                $document = $this->cleanString($row[1] ?? null);  // I
+                $names    = $this->cleanString($row[4] ?? null);  // L
+
+                if (empty($document) && empty($names)) {
+                    $this->skippedCount++;
+                    continue;
+                }
+
+                $cycle      = $this->cleanString($row[21] ?? null);
+                $recordType = !empty($cycle) ? 'MATRICULA' : $this->recordType;
+
+                $batch[] = [
+                    'academic_period'     => null,
+                    'document_type_id'    => $this->resolveDocumentTypeId($this->cleanString($row[0] ?? null)),
+                    'document'            => $document,
+                    'last_name_father'    => $this->cleanString($row[2]  ?? null),
+                    'last_name_mother'    => $this->cleanString($row[3]  ?? null),
+                    'names'               => $names,
+                    'birthdate'           => $this->parseDate($row[5]    ?? null),
+                    'gender'              => $this->normalizeGender($row[6] ?? null),
+                    'email'               => $this->cleanString($row[7]  ?? null),
+                    'phone'               => $this->cleanString($row[8]  ?? null),
+                    'mother_tongue'       => $this->cleanString($row[9]  ?? null),
+                    'pais_procedencia'    => $this->cleanString($row[10] ?? null),
+                    'ubigeo_ie'           => $this->cleanString($row[11] ?? null),
+                    'region_ie'           => $this->cleanString($row[12] ?? null),
+                    'province_ie'         => $this->cleanString($row[13] ?? null),
+                    'district_ie'         => $this->cleanString($row[14] ?? null),
+                    'institution_type_ie' => $this->cleanString($row[15] ?? null),
+                    'modular_code_ie'     => $this->cleanString($row[16] ?? null),
+                    'institution_name_ie' => $this->cleanString($row[17] ?? null),
+                    'management_type_ie'  => $this->cleanString($row[18] ?? null),
+                    'year_graduation'     => $this->cleanInt($row[19] ?? null),
+                    'study_program'       => $this->cleanString($row[20] ?? null),
+                    'cycle'               => $cycle,
+                    'enrollment_status'   => $this->cleanString($row[22] ?? null),
+                    'period_status'       => $this->cleanString($row[23] ?? null),
+                    'registration_date'   => $this->parseDate($row[24]   ?? null),
+                    'record_type'         => $recordType,
+                    'created_at'          => $now,
+                    'updated_at'          => $now,
+                ];
+            }
+        }
+
+        // ── Bulk insert the whole chunk in one query ──────────────────────────
+        if (!empty($batch)) {
+            DB::table('student_records')->insert($batch);
+            $this->importedCount += count($batch);
         }
     }
 
-    // ─── Private helpers ────────────────────────────────────────────────────
+    // ─── Private helpers ─────────────────────────────────────────────────────
 
-    /**
-     * Clean and trim a cell value, returning null if empty.
-     */
     private function cleanString(mixed $value): ?string
     {
         if ($value === null || $value === '') {
@@ -216,9 +248,6 @@ class StudentRecordImport implements ToCollection, WithStartRow, WithChunkReadin
         return $str !== '' ? $str : null;
     }
 
-    /**
-     * Clean integer cell value.
-     */
     private function cleanInt(mixed $value): ?int
     {
         if ($value === null || $value === '') {
@@ -228,36 +257,26 @@ class StudentRecordImport implements ToCollection, WithStartRow, WithChunkReadin
         return $int > 0 ? $int : null;
     }
 
-    /**
-     * Normalize gender value from various Spanish/abbreviated formats.
-     */
     private function normalizeGender(mixed $value): ?string
     {
         $v = strtoupper(trim((string) ($value ?? '')));
-        if (in_array($v, ['M', 'H', 'MASCULINO', 'MALE', 'HOMBRE'])) {
-            return 'MASCULINO';
-        }
-        if (in_array($v, ['F', 'FEMENINO', 'FEMALE', 'MUJER'])) {
-            return 'FEMENINO';
-        }
-        return null;
+        return match (true) {
+            in_array($v, ['M', 'H', 'MASCULINO', 'MALE', 'HOMBRE'], true) => 'MASCULINO',
+            in_array($v, ['F', 'FEMENINO', 'FEMALE', 'MUJER'],       true) => 'FEMENINO',
+            default                                                         => null,
+        };
     }
 
-    /**
-     * Parse date from Peruvian format (d/m/Y), ISO (Y-m-d),
-     * or Excel OLE numeric serial.
-     */
     private function parseDate(mixed $value): ?string
     {
         if ($value === null || $value === '') {
             return null;
         }
 
-        // Numeric: likely OLE serial from Excel
+        // Excel OLE numeric serial
         if (is_numeric($value)) {
             try {
-                $date = ExcelDate::excelToDateTimeObject((float) $value);
-                return $date->format('Y-m-d');
+                return ExcelDate::excelToDateTimeObject((float) $value)->format('Y-m-d');
             } catch (\Exception) {
                 return null;
             }
@@ -265,40 +284,32 @@ class StudentRecordImport implements ToCollection, WithStartRow, WithChunkReadin
 
         $str = trim((string) $value);
 
-        // Try d/m/Y or d-m-Y (Peruvian standard) and other common formats
-        foreach (['d/m/Y', 'd-m-Y', 'd/m/y', 'Y-m-d', 'Y/m/d', 'm/d/Y', 'd/m/Y H:i:s', 'Y-m-d H:i:s'] as $format) {
+        foreach (['d/m/Y', 'd-m-Y', 'd/m/y', 'Y-m-d', 'Y/m/d', 'm/d/Y', 'd/m/Y H:i:s', 'Y-m-d H:i:s'] as $fmt) {
             try {
-                $date = Carbon::createFromFormat($format, $str);
+                $date = Carbon::createFromFormat($fmt, $str);
                 if ($date && $date->year > 1900 && $date->year < 2100) {
                     return $date->format('Y-m-d');
                 }
             } catch (\Exception) {
-                // continue trying next format
+                // try next format
             }
         }
 
         return null;
     }
 
-    /**
-     * Resolve DocumentType ID from abbreviation text in the cell.
-     * Matches D.N.I., DNI, C.E., CE, etc.
-     */
     private function resolveDocumentTypeId(?string $raw): ?int
     {
         if (empty($raw)) {
             return null;
         }
 
-        // Normalize: remove dots, spaces, dashes → uppercase
         $key = strtoupper(preg_replace('/[\s.\-]/', '', $raw));
 
-        // Direct lookup
         if (isset($this->documentTypeMap[$key])) {
             return $this->documentTypeMap[$key];
         }
 
-        // Partial match — find first key that contains the normalized value
         foreach ($this->documentTypeMap as $mapKey => $id) {
             if (str_contains($mapKey, $key) || str_contains($key, $mapKey)) {
                 return $id;

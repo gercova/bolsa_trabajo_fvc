@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Admission;
 use App\Models\AdmissionRequirement;
 use App\Models\Blog;
+use App\Models\DegreeRecord;
 use App\Models\Enterprise;
 use App\Models\EnrollmentSchedule;
 use App\Models\HistoricalReview;
@@ -14,6 +15,7 @@ use App\Models\ManagementDocument;
 use App\Models\Partner;
 use App\Models\Scholarship;
 use App\Models\StudentCouncil;
+use App\Models\StudentRecord;
 use App\Models\StudyProgram;
 use App\Models\User;
 use App\Models\UserRoleDetail;
@@ -27,6 +29,7 @@ use App\Models\VisitorCounter;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AppController extends Controller {
 
@@ -222,7 +225,191 @@ class AppController extends Controller {
 
     // transparencia/estadisticas
     public function statistics(): View {
-        return view('transparency.statistics');
+        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
+
+        // ── 1. Indicadores Generales (KPIs) ──────────────────────────
+        $totalMatriculas = StudentRecord::where('record_type', 'MATRICULA')->count();
+        $totalAdmisiones = StudentRecord::where('record_type', 'ADMISION')->count();
+        $totalTitulos    = DegreeRecord::count();
+        $totalProgramas  = StudyProgram::where('is_active', true)->count();
+        if ($totalProgramas === 0) {
+            $totalProgramas = StudentRecord::whereNotNull('study_program')->distinct('study_program')->count('study_program');
+        }
+        $totalPeriodos   = StudentRecord::whereNotNull('academic_period')->distinct('academic_period')->count('academic_period');
+        $totalAniosTitulacion = DegreeRecord::whereNotNull('diploma_issue_date')
+            ->select(DB::raw('COUNT(DISTINCT YEAR(diploma_issue_date)) as c'))
+            ->value('c') ?? 0;
+
+        // Distribución por género en matrícula
+        $totalMalesMatricula   = StudentRecord::where('record_type', 'MATRICULA')->where('gender', 'MASCULINO')->count();
+        $totalFemalesMatricula = StudentRecord::where('record_type', 'MATRICULA')->where('gender', 'FEMENINO')->count();
+
+        // Distribución por género en grados y títulos
+        $totalMalesTitulos   = DegreeRecord::where('gender', 'MASCULINO')->count();
+        $totalFemalesTitulos = DegreeRecord::where('gender', 'FEMENINO')->count();
+
+        // ── 2. Estadísticas de Matrícula (StudentRecord) ─────────────
+        $enrollmentRaw = StudentRecord::where('record_type', 'MATRICULA')
+            ->whereNotNull('academic_period')
+            ->select(
+                'academic_period',
+                'study_program',
+                DB::raw('count(*) as total'),
+                DB::raw('SUM(CASE WHEN gender = "MASCULINO" THEN 1 ELSE 0 END) as males'),
+                DB::raw('SUM(CASE WHEN gender = "FEMENINO" THEN 1 ELSE 0 END) as females'),
+                DB::raw('SUM(CASE WHEN cycle = "I" THEN 1 ELSE 0 END) as cycle_i'),
+                DB::raw('SUM(CASE WHEN cycle = "II" THEN 1 ELSE 0 END) as cycle_ii'),
+                DB::raw('SUM(CASE WHEN cycle = "III" THEN 1 ELSE 0 END) as cycle_iii'),
+                DB::raw('SUM(CASE WHEN cycle = "IV" THEN 1 ELSE 0 END) as cycle_iv'),
+                DB::raw('SUM(CASE WHEN cycle = "V" THEN 1 ELSE 0 END) as cycle_v'),
+                DB::raw('SUM(CASE WHEN cycle = "VI" THEN 1 ELSE 0 END) as cycle_vi')
+            )
+            ->groupBy('academic_period', 'study_program')
+            ->orderBy('academic_period', 'desc')
+            ->orderBy('study_program', 'asc')
+            ->get();
+
+        $enrollmentByPeriod = $enrollmentRaw->groupBy('academic_period');
+
+        // Resumen Consolidado por Periodo de Matrícula
+        $enrollmentPeriodSummary = StudentRecord::where('record_type', 'MATRICULA')
+            ->whereNotNull('academic_period')
+            ->select(
+                'academic_period',
+                DB::raw('count(*) as total'),
+                DB::raw('SUM(CASE WHEN gender = "MASCULINO" THEN 1 ELSE 0 END) as males'),
+                DB::raw('SUM(CASE WHEN gender = "FEMENINO" THEN 1 ELSE 0 END) as females'),
+                DB::raw('COUNT(DISTINCT study_program) as programs_count')
+            )
+            ->groupBy('academic_period')
+            ->orderBy('academic_period', 'desc')
+            ->get();
+
+        // Resumen Histórico de Matrícula por Programa de Estudios
+        $enrollmentProgramSummary = StudentRecord::where('record_type', 'MATRICULA')
+            ->whereNotNull('study_program')
+            ->select(
+                'study_program',
+                DB::raw('count(*) as total'),
+                DB::raw('SUM(CASE WHEN gender = "MASCULINO" THEN 1 ELSE 0 END) as males'),
+                DB::raw('SUM(CASE WHEN gender = "FEMENINO" THEN 1 ELSE 0 END) as females'),
+                DB::raw('MAX(academic_period) as last_period'),
+                DB::raw('COUNT(DISTINCT academic_period) as periods_count')
+            )
+            ->groupBy('study_program')
+            ->orderBy('total', 'desc')
+            ->get();
+
+        // ── 3. Estadísticas de Admisión (StudentRecord) ──────────────
+        $admissionRaw = StudentRecord::where('record_type', 'ADMISION')
+            ->whereNotNull('academic_period')
+            ->select(
+                'academic_period',
+                'study_program',
+                DB::raw('count(*) as total'),
+                DB::raw('SUM(CASE WHEN gender = "MASCULINO" THEN 1 ELSE 0 END) as males'),
+                DB::raw('SUM(CASE WHEN gender = "FEMENINO" THEN 1 ELSE 0 END) as females')
+            )
+            ->groupBy('academic_period', 'study_program')
+            ->orderBy('academic_period', 'desc')
+            ->orderBy('study_program', 'asc')
+            ->get();
+
+        $admissionByPeriod = $admissionRaw->groupBy('academic_period');
+
+        $admissionPeriodSummary = StudentRecord::where('record_type', 'ADMISION')
+            ->whereNotNull('academic_period')
+            ->select(
+                'academic_period',
+                DB::raw('count(*) as total'),
+                DB::raw('SUM(CASE WHEN gender = "MASCULINO" THEN 1 ELSE 0 END) as males'),
+                DB::raw('SUM(CASE WHEN gender = "FEMENINO" THEN 1 ELSE 0 END) as females')
+            )
+            ->groupBy('academic_period')
+            ->orderBy('academic_period', 'desc')
+            ->get();
+
+        // ── 4. Estadísticas de Grados y Títulos (DegreeRecord) ────────
+        $degreesRaw = DegreeRecord::whereNotNull('diploma_issue_date')
+            ->select(
+                DB::raw('YEAR(diploma_issue_date) as year'),
+                'study_program',
+                DB::raw('MAX(formative_level) as formative_level'),
+                DB::raw('MAX(productive_family) as productive_family'),
+                DB::raw('count(*) as total'),
+                DB::raw('SUM(CASE WHEN gender = "MASCULINO" THEN 1 ELSE 0 END) as males'),
+                DB::raw('SUM(CASE WHEN gender = "FEMENINO" THEN 1 ELSE 0 END) as females')
+            )
+            ->groupBy(DB::raw('YEAR(diploma_issue_date)'), 'study_program')
+            ->orderBy('year', 'desc')
+            ->orderBy('study_program', 'asc')
+            ->get();
+
+        $degreesByYear = $degreesRaw->groupBy('year');
+
+        // Resumen Consolidado Anual de Grados y Títulos
+        $degreesYearSummary = DegreeRecord::whereNotNull('diploma_issue_date')
+            ->select(
+                DB::raw('YEAR(diploma_issue_date) as year'),
+                DB::raw('count(*) as total'),
+                DB::raw('SUM(CASE WHEN gender = "MASCULINO" THEN 1 ELSE 0 END) as males'),
+                DB::raw('SUM(CASE WHEN gender = "FEMENINO" THEN 1 ELSE 0 END) as females'),
+                DB::raw('COUNT(DISTINCT study_program) as programs_count')
+            )
+            ->groupBy(DB::raw('YEAR(diploma_issue_date)'))
+            ->orderBy('year', 'desc')
+            ->get();
+
+        // Resumen Histórico de Grados y Títulos por Programa de Estudios
+        $degreesProgramSummary = DegreeRecord::whereNotNull('study_program')
+            ->select(
+                'study_program',
+                DB::raw('MAX(formative_level) as formative_level'),
+                DB::raw('MAX(productive_family) as productive_family'),
+                DB::raw('count(*) as total'),
+                DB::raw('SUM(CASE WHEN gender = "MASCULINO" THEN 1 ELSE 0 END) as males'),
+                DB::raw('SUM(CASE WHEN gender = "FEMENINO" THEN 1 ELSE 0 END) as females'),
+                DB::raw('MIN(YEAR(diploma_issue_date)) as first_year'),
+                DB::raw('MAX(YEAR(diploma_issue_date)) as last_year')
+            )
+            ->groupBy('study_program')
+            ->orderBy('total', 'desc')
+            ->get();
+
+        // Resumen por Familia Productiva
+        $degreesFamilySummary = DegreeRecord::whereNotNull('productive_family')
+            ->select(
+                'productive_family',
+                DB::raw('count(*) as total'),
+                DB::raw('SUM(CASE WHEN gender = "MASCULINO" THEN 1 ELSE 0 END) as males'),
+                DB::raw('SUM(CASE WHEN gender = "FEMENINO" THEN 1 ELSE 0 END) as females')
+            )
+            ->groupBy('productive_family')
+            ->orderBy('total', 'desc')
+            ->get();
+
+        return view('transparency.statistics', compact(
+            'enterprise',
+            'totalMatriculas',
+            'totalAdmisiones',
+            'totalTitulos',
+            'totalProgramas',
+            'totalPeriodos',
+            'totalAniosTitulacion',
+            'totalMalesMatricula',
+            'totalFemalesMatricula',
+            'totalMalesTitulos',
+            'totalFemalesTitulos',
+            'enrollmentByPeriod',
+            'enrollmentPeriodSummary',
+            'enrollmentProgramSummary',
+            'admissionByPeriod',
+            'admissionPeriodSummary',
+            'degreesByYear',
+            'degreesYearSummary',
+            'degreesProgramSummary',
+            'degreesFamilySummary'
+        ));
     }
 
     // transparencia/inversion-y-gestion

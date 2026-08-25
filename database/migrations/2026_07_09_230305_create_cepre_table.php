@@ -20,7 +20,12 @@ return new class extends Migration
             $table->date('inscription_start_date')->nullable();
             $table->date('inscription_end_date')->nullable();
             $table->string('url_pdf')->nullable();
+            $table->string('results_url_pdf')->nullable();
             $table->float('price', 2)->default(0);
+            $table->decimal('monthly_fee', 8, 2)->nullable()->default(0.00);
+            $table->decimal('tuition_fee', 8, 2)->nullable()->default(0.00);
+            $table->string('duration', 100)->nullable();
+            $table->text('indications')->nullable();
             $table->enum('type', ['ordinario', 'extraordinario'])->default('ordinario');
             $table->enum('process', ['matrícula', 'admisión', 'cepre'])->default('cepre');
             $table->foreignId('area_id')->nullable()->constrained('area')->nullOnDelete();

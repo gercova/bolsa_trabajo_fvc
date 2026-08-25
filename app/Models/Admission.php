@@ -19,7 +19,12 @@ class Admission extends Model
         'inscription_start_date',
         'inscription_end_date',
         'url_pdf',
+        'results_url_pdf',
         'price',
+        'monthly_fee',
+        'tuition_fee',
+        'duration',
+        'indications',
         'type',
         'process',
         'area_id',
@@ -27,9 +32,12 @@ class Admission extends Model
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'is_active'    => 'boolean',
+        'monthly_fee'  => 'decimal:2',
+        'tuition_fee'  => 'decimal:2',
+        'price'        => 'decimal:2',
+        'created_at'   => 'datetime',
+        'updated_at'   => 'datetime',
     ];
 
     public function area(): BelongsTo {

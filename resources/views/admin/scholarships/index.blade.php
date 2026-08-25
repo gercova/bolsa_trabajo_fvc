@@ -121,16 +121,18 @@
                     {{-- Table Container --}}
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                         <div class="overflow-x-auto custom-scrollbar">
-                            <table class="w-full text-left border-collapse min-w-[700px]">
+                            <table class="w-full text-left border-collapse min-w-[850px]">
                                 <thead>
                                     <tr
                                         class="bg-gray-50/80 border-b border-gray-200 text-xs uppercase tracking-wider text-gray-500 font-semibold">
                                         <th class="p-4 w-16 text-center">Icono</th>
                                         <th class="p-4">Nombre & Enlace Slug</th>
-                                        <th class="p-4">Descripción</th>
-                                        <th class="p-4 text-center w-24">Orden</th>
+                                        <th class="p-4 text-center">Vacantes</th>
+                                        <th class="p-4">Descuento / Beneficio</th>
+                                        <th class="p-4">Descripción & Requisitos</th>
+                                        <th class="p-4 text-center w-20">Orden</th>
                                         <th class="p-4 text-center w-28">Estado</th>
-                                        <th class="p-4 text-center w-36">Acciones</th>
+                                        <th class="p-4 text-center w-28">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200">
@@ -146,7 +148,7 @@
 
                                             {{-- Name & Slug --}}
                                             <td class="p-4">
-                                                <div class="font-bold text-gray-900 text-base">
+                                                <div class="font-bold text-gray-900 text-sm sm:text-base">
                                                     {{ $scholarship->name }}
                                                 </div>
                                                 <div class="text-xs text-purple-600 font-mono mt-0.5">
@@ -154,17 +156,47 @@
                                                 </div>
                                             </td>
 
+                                            {{-- Vacancies --}}
+                                            <td class="p-4 text-center">
+                                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black bg-blue-50 text-blue-800 border border-blue-200">
+                                                    <i class="bi bi-people-fill text-blue-600"></i>
+                                                    {{ $scholarship->vacancies ?? 0 }} vac.
+                                                </span>
+                                            </td>
+
+                                            {{-- Discount / Benefit --}}
+                                            <td class="p-4">
+                                                <div class="space-y-1 max-w-xs">
+                                                    @if ($scholarship->discount_percentage > 0)
+                                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                                            <i class="bi bi-tag-fill text-emerald-600"></i>
+                                                            {{ number_format($scholarship->discount_percentage, 0) }}% Descuento
+                                                        </span>
+                                                    @endif
+                                                    @if ($scholarship->discount_details)
+                                                        <p class="text-xs text-gray-700 font-medium leading-tight">
+                                                            {{ $scholarship->discount_details }}
+                                                        </p>
+                                                    @endif
+                                                </div>
+                                            </td>
+
                                             {{-- Description --}}
                                             <td class="p-4">
-                                                <p class="text-xs text-gray-600 line-clamp-2 max-w-md">
+                                                <p class="text-xs text-gray-600 line-clamp-2 max-w-xs">
                                                     {{ $scholarship->description ?? 'Sin descripción ingresada.' }}
                                                 </p>
+                                                @if ($scholarship->requirements)
+                                                    <span class="inline-flex items-center gap-1 text-[11px] text-purple-700 font-semibold mt-1">
+                                                        <i class="bi bi-file-earmark-check"></i> Con requisitos configurados
+                                                    </span>
+                                                @endif
                                             </td>
 
                                             {{-- Sort Order --}}
                                             <td class="p-4 text-center">
                                                 <span
-                                                    class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-black bg-gray-100 text-gray-700 border border-gray-200">
+                                                    class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-black bg-gray-100 text-gray-700 border border-gray-200">
                                                     #{{ $scholarship->sort_order }}
                                                 </span>
                                             </td>
@@ -187,7 +219,7 @@
 
                                             {{-- Actions --}}
                                             <td class="p-4 text-center">
-                                                <div class="flex items-center justify-center gap-2">
+                                                <div class="flex items-center justify-center gap-1">
                                                     <a href="{{ route('admin.scholarships.edit', $scholarship) }}"
                                                         class="p-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
                                                         title="Editar modalidad">
@@ -210,7 +242,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="p-12 text-center text-gray-500">
+                                            <td colspan="8" class="p-12 text-center text-gray-500">
                                                 <div class="max-w-sm mx-auto space-y-3">
                                                     <i class="bi bi-award text-4xl text-gray-300"></i>
                                                     <p class="text-base font-bold text-gray-700">No se encontraron becas</p>

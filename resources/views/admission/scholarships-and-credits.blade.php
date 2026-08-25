@@ -150,49 +150,52 @@
     <section class="py-12 bg-white relative -mt-6 z-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {{-- Card 1: Total Vacantes --}}
                 <div
                     class="bg-blue-50/70 hover:bg-blue-50 border border-blue-100 p-6 rounded-2xl transition-all shadow-sm hover:shadow-md">
                     <div
                         class="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center mb-4 shadow-md shadow-blue-600/20">
-                        <i class="bi bi-percent text-2xl" aria-hidden="true"></i>
+                        <i class="bi bi-people-fill text-2xl" aria-hidden="true"></i>
                     </div>
-                    <h3 class="text-2xl font-black text-blue-900 mb-1">hasta 100%</h3>
-                    <p class="text-sm font-bold text-blue-700">Exoneración en admisión</p>
-                    <p class="text-xs text-gray-600 mt-1">Para primeros puestos y modalidades contempladas por Ley.</p>
+                    <h3 class="text-2xl font-black text-blue-900 mb-1">{{ $scholarships->sum('vacancies') }} Plazas</h3>
+                    <p class="text-sm font-bold text-blue-700">Vacantes Disponibles</p>
+                    <p class="text-xs text-gray-600 mt-1">Plazas totales reservadas en modalidades preferenciales de becas.</p>
                 </div>
 
+                {{-- Card 2: Primeros Puestos --}}
                 <div
                     class="bg-blue-50/70 hover:bg-blue-50 border border-blue-100 p-6 rounded-2xl transition-all shadow-sm hover:shadow-md">
                     <div
-                        class="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center mb-4 shadow-md shadow-blue-600/20">
-                        <i class="bi bi-journal-check text-2xl" aria-hidden="true"></i>
+                        class="w-12 h-12 bg-emerald-600 text-white rounded-xl flex items-center justify-center mb-4 shadow-md shadow-emerald-600/20">
+                        <i class="bi bi-trophy-fill text-2xl" aria-hidden="true"></i>
                     </div>
-                    <h3 class="text-2xl font-black text-blue-900 mb-1">5% Reservado</h3>
-                    <p class="text-sm font-bold text-blue-700">Vacantes por discapacidad</p>
-                    <p class="text-xs text-gray-600 mt-1">Cumplimiento estricto de la Ley N° 29973 (CONADIS).</p>
+                    <h3 class="text-2xl font-black text-emerald-900 mb-1">100% y 50%</h3>
+                    <p class="text-sm font-bold text-emerald-700">Primeros Puestos</p>
+                    <p class="text-xs text-gray-600 mt-1">100% de descuento para el 1° puesto y 50% para el 2° puesto escolar.</p>
                 </div>
 
-                {{-- <div
+                {{-- Card 3: Fuerzas Armadas --}}
+                <div
                     class="bg-blue-50/70 hover:bg-blue-50 border border-blue-100 p-6 rounded-2xl transition-all shadow-sm hover:shadow-md">
                     <div
-                        class="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center mb-4 shadow-md shadow-blue-600/20">
-                        <i class="bi bi-building-check text-2xl" aria-hidden="true"></i>
+                        class="w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center mb-4 shadow-md shadow-indigo-600/20">
+                        <i class="bi bi-shield-fill-check text-2xl" aria-hidden="true"></i>
                     </div>
-                    <h3 class="text-2xl font-black text-blue-900 mb-1">PRONABEC</h3>
-                    <p class="text-sm font-bold text-blue-700">Elegibilidad Beca 18</p>
-                    <p class="text-xs text-gray-600 mt-1">Institución pública acreditada para postulantes a becas del
-                        Estado.</p>
-                </div> --}}
+                    <h3 class="text-2xl font-black text-indigo-900 mb-1">50% Descuento</h3>
+                    <p class="text-sm font-bold text-indigo-700">Servicio Militar (FF.AA.)</p>
+                    <p class="text-xs text-gray-600 mt-1">Beneficio arancelario para personal del SMV y licenciados.</p>
+                </div>
 
+                {{-- Card 4: Inclusión y Leyes --}}
                 <div
                     class="bg-blue-50/70 hover:bg-blue-50 border border-blue-100 p-6 rounded-2xl transition-all shadow-sm hover:shadow-md">
                     <div
                         class="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center mb-4 shadow-md shadow-blue-600/20">
-                        <i class="bi bi-headset text-2xl" aria-hidden="true"></i>
+                        <i class="bi bi-patch-check-fill text-2xl" aria-hidden="true"></i>
                     </div>
-                    <h3 class="text-2xl font-black text-blue-900 mb-1">100% Gratuito</h3>
-                    <p class="text-sm font-bold text-blue-700">Asesoría de postulación</p>
-                    <p class="text-xs text-gray-600 mt-1">Orientación personalizada para armar tu expediente de beca.</p>
+                    <h3 class="text-2xl font-black text-blue-900 mb-1">100% y 5% Ley</h3>
+                    <p class="text-sm font-bold text-blue-700">Inclusión y Reparaciones</p>
+                    <p class="text-xs text-gray-600 mt-1">Exoneración total PIR y reserva legal del 5% CONADIS.</p>
                 </div>
 
             </div>
@@ -206,16 +209,16 @@
 
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <span
-                    class="text-xs font-bold tracking-widest text-blue-600 uppercase bg-blue-100/80 px-3.5 py-1.5 rounded-full">
-                    Modalidades Institucionales
+                    class="text-xs font-bold tracking-widest text-blue-600 uppercase bg-blue-100/80 px-3.5 py-1.5 rounded-full inline-flex items-center gap-1.5">
+                    <i class="bi bi-award-fill text-blue-600"></i>
+                    Modalidades Institucionales • {{ $scholarships->sum('vacancies') }} Plazas Disponibles
                 </span>
                 <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-900 mt-4 font-sans">
-                    Becas y Exoneraciones Especiales
+                    Becas, Descuentos y Exoneraciones
                 </h2>
                 <div class="w-20 h-1.5 bg-blue-500 mx-auto mt-4 rounded-full"></div>
                 <p class="text-lg text-gray-600 mt-6 leading-relaxed">
-                    Conoce las modalidades de ingreso preferencial y exoneración de pago establecidas por norma
-                    institucional y legislación nacional en favor de nuestros postulantes.
+                    Conoce las modalidades de ingreso preferencial, vacantes disponibles y el porcentaje de descuento arancelario establecido por norma institucional y legislación nacional en favor de nuestros postulantes.
                 </p>
             </div>
 
@@ -225,23 +228,55 @@
                         <div
                             class="bg-white rounded-3xl border border-blue-100 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group">
                             <div class="p-8">
+                                {{-- Card Header: Icon & Badges --}}
                                 <div class="flex items-center justify-between mb-6">
                                     <div
                                         class="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-700/20 group-hover:scale-110 transition-transform">
                                         <i class="bi {{ $scholarship->icon ?? 'bi-award' }} text-2xl"
                                             aria-hidden="true"></i>
                                     </div>
-                                    <span
-                                        class="bg-blue-50 text-blue-700 text-xs font-extrabold px-3 py-1 rounded-full border border-blue-200">
-                                        Modalidad #{{ $loop->iteration }}
-                                    </span>
+                                    <div class="flex flex-col items-end gap-1.5">
+                                        <span
+                                            class="bg-blue-50 text-blue-700 text-xs font-extrabold px-3 py-0.5 rounded-full border border-blue-200">
+                                            Modalidad #{{ $loop->iteration }}
+                                        </span>
+                                        <span
+                                            class="bg-emerald-50 text-emerald-800 text-xs font-black px-3 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1 shadow-xs">
+                                            <i class="bi bi-people-fill text-emerald-600"></i>
+                                            {{ $scholarship->vacancies ?? 0 }} Plazas
+                                        </span>
+                                    </div>
                                 </div>
 
+                                {{-- Title --}}
                                 <h3
                                     class="text-xl font-bold text-blue-900 mb-3 group-hover:text-blue-600 transition-colors">
                                     {{ $scholarship->name }}
                                 </h3>
 
+                                {{-- Discount Highlight Box --}}
+                                @if ($scholarship->discount_details || $scholarship->discount_percentage > 0)
+                                    <div class="mb-4 p-3.5 bg-gradient-to-r from-emerald-50/80 to-teal-50/80 rounded-2xl border border-emerald-200/80 text-emerald-950">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="inline-flex items-center gap-1 bg-emerald-600 text-white text-[11px] font-black px-2.5 py-0.5 rounded-md shadow-xs">
+                                                <i class="bi bi-tag-fill text-[10px]"></i>
+                                                @if ($scholarship->discount_percentage > 0)
+                                                    {{ number_format($scholarship->discount_percentage, 0) }}% Beneficio
+                                                @else
+                                                    Descuento
+                                                @endif
+                                            </span>
+                                            <span class="text-xs font-extrabold text-emerald-900 uppercase tracking-wide">
+                                                Beneficio Arancelario
+                                            </span>
+                                        </div>
+                                        <p class="text-xs font-semibold text-emerald-900 leading-snug">
+                                            {{ $scholarship->discount_details ?? 'Exoneración arancelaria preferencial de acuerdo al reglamento institucional.' }}
+                                        </p>
+                                    </div>
+                                @endif
+
+                                {{-- Description --}}
                                 <p class="text-gray-600 text-sm leading-relaxed mb-6">
                                     {{ $scholarship->description ?? 'Modalidad especial de beca y exoneración de acuerdo a los requerimientos de evaluación e ingreso institucional del IESTP Francisco Vigo Caballero.' }}
                                 </p>
@@ -253,7 +288,16 @@
                                         <i class="bi bi-file-earmark-check-fill text-blue-500"></i> Requisitos principales:
                                     </p>
 
-                                    @if (Str::contains(mb_strtoupper($scholarship->name), 'PRIMEROS'))
+                                    @if ($scholarship->requirements)
+                                        @foreach(explode("\n", $scholarship->requirements) as $reqLine)
+                                            @if(trim($reqLine))
+                                                <div class="flex items-start gap-2">
+                                                    <i class="bi bi-check2 text-blue-600 font-bold"></i>
+                                                    <span>{{ trim($reqLine) }}</span>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    @elseif (Str::contains(mb_strtoupper($scholarship->name), 'PRIMEROS'))
                                         <div class="flex items-start gap-2">
                                             <i class="bi bi-check2 text-blue-600 font-bold"></i>
                                             <span>Certificado de estudios con acreditación de 1° o 2° puesto escolar.</span>
@@ -329,11 +373,15 @@
                                 </div>
                             </div>
 
+                            {{-- Card Footer --}}
                             <div class="px-8 py-4 bg-slate-50 border-t border-gray-100 flex items-center justify-between">
-                                <span class="text-xs font-bold text-gray-500">Vacantes limitadas</span>
+                                <span class="text-xs font-bold text-blue-800 flex items-center gap-1">
+                                    <i class="bi bi-check-circle-fill text-emerald-600"></i>
+                                    {{ $scholarship->vacancies ?? 0 }} Vacantes
+                                </span>
                                 <button @click="activeModal = {{ $scholarship->id }}"
                                     class="inline-flex items-center text-xs font-extrabold text-blue-700 hover:text-blue-900 group-hover:translate-x-1 transition-transform">
-                                    Ver Detalle Completo <i class="bi bi-arrow-right ml-1"></i>
+                                    Ver Ficha y Requisitos <i class="bi bi-arrow-right ml-1"></i>
                                 </button>
                             </div>
                         </div>
@@ -359,41 +407,69 @@
                                         <i class="bi {{ $scholarship->icon ?? 'bi-award' }}"></i>
                                     </div>
                                     <div>
-                                        <span class="text-xs font-extrabold uppercase tracking-wider text-blue-600">Ficha
-                                            de Requisitos</span>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs font-extrabold uppercase tracking-wider text-blue-600">Ficha de Modalidad</span>
+                                            <span class="bg-blue-100 text-blue-900 text-[10px] font-black px-2 py-0.5 rounded-full border border-blue-200">
+                                                {{ $scholarship->vacancies ?? 0 }} Plazas
+                                            </span>
+                                        </div>
                                         <h3 class="text-xl font-bold text-blue-900">{{ $scholarship->name }}</h3>
                                     </div>
                                 </div>
 
                                 <div class="space-y-4 text-sm text-gray-700">
-                                    <p class="leading-relaxed bg-blue-50/60 p-4 rounded-2xl border border-blue-100">
+                                    {{-- Descuento / Beneficio en Modal --}}
+                                    @if ($scholarship->discount_details || $scholarship->discount_percentage > 0)
+                                        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-emerald-950">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <span class="inline-flex items-center gap-1 bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-xs">
+                                                    <i class="bi bi-tag-fill"></i>
+                                                    @if ($scholarship->discount_percentage > 0)
+                                                        {{ number_format($scholarship->discount_percentage, 0) }}% DESCUENTO
+                                                    @else
+                                                        BENEFICIO
+                                                    @endif
+                                                </span>
+                                                <span class="text-xs font-extrabold text-emerald-900 uppercase">Cuadro de Descuentos</span>
+                                            </div>
+                                            <p class="text-xs font-semibold text-emerald-900 leading-snug">
+                                                {{ $scholarship->discount_details }}
+                                            </p>
+                                        </div>
+                                    @endif
+
+                                    <p class="leading-relaxed bg-blue-50/60 p-4 rounded-2xl border border-blue-100 text-xs sm:text-sm">
                                         {{ $scholarship->description }}
                                     </p>
 
                                     <div>
                                         <h4 class="font-bold text-blue-900 mb-2 flex items-center gap-2">
-                                            <i class="bi bi-folder-check text-blue-600"></i> Documentación obligatoria a
-                                            presentar:
+                                            <i class="bi bi-folder-check text-blue-600"></i> Documentación obligatoria a presentar:
                                         </h4>
-                                        <ul class="space-y-2 pl-2">
-                                            <li class="flex items-start gap-2">
-                                                <i class="bi bi-check-circle-fill text-blue-500 text-base mt-0.5"></i>
-                                                <span>Ficha de inscripción debidamente completada y firmada.</span>
-                                            </li>
-                                            <li class="flex items-start gap-2">
-                                                <i class="bi bi-check-circle-fill text-blue-500 text-base mt-0.5"></i>
-                                                <span>Copia simple de DNI vigente.</span>
-                                            </li>
-                                            <li class="flex items-start gap-2">
-                                                <i class="bi bi-check-circle-fill text-blue-500 text-base mt-0.5"></i>
-                                                <span>Documento sustentatorio de la modalidad elegida (Constancia IPD, RUV,
-                                                    CONADIS, Libreta Militar, Cuadro de Mérito).</span>
-                                            </li>
-                                            <li class="flex items-start gap-2">
-                                                <i class="bi bi-check-circle-fill text-blue-500 text-base mt-0.5"></i>
-                                                <span>Comprobante de pago por derecho de trámite administrativo (si
-                                                    aplicase).</span>
-                                            </li>
+                                        <ul class="space-y-2 pl-1">
+                                            @if ($scholarship->requirements)
+                                                @foreach(explode("\n", $scholarship->requirements) as $reqLine)
+                                                    @if(trim($reqLine))
+                                                        <li class="flex items-start gap-2 text-xs text-gray-700">
+                                                            <i class="bi bi-check-circle-fill text-blue-500 text-sm mt-0.5"></i>
+                                                            <span>{{ trim($reqLine) }}</span>
+                                                        </li>
+                                                    @endif
+                                                @endforeach
+                                            @else
+                                                <li class="flex items-start gap-2 text-xs text-gray-700">
+                                                    <i class="bi bi-check-circle-fill text-blue-500 text-sm mt-0.5"></i>
+                                                    <span>Ficha de inscripción debidamente completada y firmada.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2 text-xs text-gray-700">
+                                                    <i class="bi bi-check-circle-fill text-blue-500 text-sm mt-0.5"></i>
+                                                    <span>Copia simple de DNI vigente.</span>
+                                                </li>
+                                                <li class="flex items-start gap-2 text-xs text-gray-700">
+                                                    <i class="bi bi-check-circle-fill text-blue-500 text-sm mt-0.5"></i>
+                                                    <span>Documento sustentatorio oficial de la modalidad elegida.</span>
+                                                </li>
+                                            @endif
                                         </ul>
                                     </div>
 

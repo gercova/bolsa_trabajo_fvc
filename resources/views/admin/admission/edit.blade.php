@@ -43,22 +43,68 @@
                                             class="font-bold text-gray-800 mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
                                             <i class="bi bi-gear-fill text-purple-600"></i>
                                             Configuración General
-                                        </h3>
-
-                                        {{-- PDF Upload --}}
+                                        </h3>                                        {{-- PDF Upload (Bases) --}}
                                         <div class="mb-6">
                                             <label for="url_pdf"
                                                 class="block mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
                                                 <i class="bi bi-file-earmark-pdf-fill text-red-500 mr-1"></i>
                                                 Documento de Bases (PDF)
                                             </label>
+
+                                            @if ($admission->url_pdf)
+                                                <div class="mb-3 p-3 bg-red-50/70 border border-red-200 rounded-xl flex items-center justify-between gap-2">
+                                                    <div class="flex items-center gap-2 min-w-0">
+                                                        <i class="bi bi-file-earmark-pdf-fill text-red-600 text-lg flex-shrink-0"></i>
+                                                        <span class="text-xs font-bold text-red-900 truncate">Bases actuales adjuntas</span>
+                                                    </div>
+                                                    <a href="{{ Storage::url($admission->url_pdf) }}" target="_blank"
+                                                        class="px-2.5 py-1 bg-white hover:bg-red-100 text-red-700 border border-red-200 rounded-lg text-xs font-bold transition-all flex items-center gap-1 flex-shrink-0 shadow-xs">
+                                                        <i class="bi bi-box-arrow-up-right text-[10px]"></i>
+                                                        <span>Ver PDF</span>
+                                                    </a>
+                                                </div>
+                                            @endif
+
                                             <input type="file" name="url_pdf" id="url_pdf" accept="application/pdf"
                                                 class="w-full text-xs text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border file:border-gray-300 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 transition cursor-pointer">
                                             <p class="text-[10px] text-gray-500 mt-2">
                                                 <i class="bi bi-info-circle"></i>
-                                                Formato admitido: PDF. Máx: 10MB
+                                                {{ $admission->url_pdf ? 'Selecciona un nuevo PDF si deseas reemplazar las bases actuales.' : 'Formato admitido: PDF. Máx: 10MB' }}
                                             </p>
                                             @error('url_pdf')
+                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+
+                                        {{-- Results PDF Upload --}}
+                                        <div class="mb-6 border-t border-gray-200 pt-4">
+                                            <label for="results_url_pdf"
+                                                class="block mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                                <i class="bi bi-file-earmark-check-fill text-emerald-600 mr-1"></i>
+                                                Publicación de Resultados (PDF)
+                                            </label>
+
+                                            @if ($admission->results_url_pdf)
+                                                <div class="mb-3 p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-center justify-between gap-2">
+                                                    <div class="flex items-center gap-2 min-w-0">
+                                                        <i class="bi bi-file-earmark-pdf-fill text-emerald-600 text-lg flex-shrink-0"></i>
+                                                        <span class="text-xs font-bold text-emerald-900 truncate">Resultados actuales adjuntos</span>
+                                                    </div>
+                                                    <a href="{{ Storage::url($admission->results_url_pdf) }}" target="_blank"
+                                                        class="px-2.5 py-1 bg-white hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold transition-all flex items-center gap-1 flex-shrink-0 shadow-xs">
+                                                        <i class="bi bi-box-arrow-up-right text-[10px]"></i>
+                                                        <span>Ver PDF</span>
+                                                    </a>
+                                                </div>
+                                            @endif
+
+                                            <input type="file" name="results_url_pdf" id="results_url_pdf" accept="application/pdf"
+                                                class="w-full text-xs text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border file:border-gray-300 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 transition cursor-pointer">
+                                            <p class="text-[10px] text-gray-500 mt-2">
+                                                <i class="bi bi-info-circle"></i>
+                                                {{ $admission->results_url_pdf ? 'Selecciona un nuevo PDF si deseas actualizar los resultados publicados.' : 'Opcional. Cuadro de méritos / lista de ingresantes (PDF).' }}
+                                            </p>
+                                            @error('results_url_pdf')
                                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                             @enderror
                                         </div>
@@ -95,7 +141,7 @@
                                                     <i class="bi bi-tag text-gray-400"></i>
                                                 </div>
                                                 <input type="text" name="period" id="period"
-                                                    value="{{ old('period', $admission->period) }}" placeholder="Ej: 2026-I" required
+                                                    value="{{ old('period', $admission->period) }}" placeholder="Ej: 2027-I" required
                                                     class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm @error('period') border-red-500 @enderror">
                                             </div>
                                             @error('period')
@@ -145,6 +191,66 @@
                                                     class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm @error('price') border-red-500 @enderror">
                                             </div>
                                             @error('price')
+                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+
+                                        {{-- Costo de Matrícula --}}
+                                        <div>
+                                            <label for="tuition_fee" class="block mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                                <i class="bi bi-receipt text-purple-600 mr-1"></i>
+                                                Costo de Matrícula (S/)
+                                            </label>
+                                            <div class="relative">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <span class="text-gray-400 text-sm">S/</span>
+                                                </div>
+                                                <input type="number" step="0.01" name="tuition_fee" id="tuition_fee"
+                                                    value="{{ old('tuition_fee', $admission->tuition_fee) }}" placeholder="Ej: 80.00" min="0"
+                                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm @error('tuition_fee') border-red-500 @enderror">
+                                            </div>
+                                            <p class="text-[10px] text-gray-500 mt-1">Opcional. Aplica para CEPRE o Matrícula regular.</p>
+                                            @error('tuition_fee')
+                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+
+                                        {{-- Costo Mensual / Cuota --}}
+                                        <div>
+                                            <label for="monthly_fee" class="block mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                                <i class="bi bi-calendar-check text-purple-600 mr-1"></i>
+                                                Costo Mensual / Mensualidad (S/)
+                                            </label>
+                                            <div class="relative">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <span class="text-gray-400 text-sm">S/</span>
+                                                </div>
+                                                <input type="number" step="0.01" name="monthly_fee" id="monthly_fee"
+                                                    value="{{ old('monthly_fee', $admission->monthly_fee) }}" placeholder="Ej: 100.00" min="0"
+                                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm @error('monthly_fee') border-red-500 @enderror">
+                                            </div>
+                                            <p class="text-[10px] text-gray-500 mt-1">Opcional. Cuota mensual para ciclo CEPRE.</p>
+                                            @error('monthly_fee')
+                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+
+                                        {{-- Duración --}}
+                                        <div>
+                                            <label for="duration" class="block mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                                <i class="bi bi-hourglass-split text-purple-600 mr-1"></i>
+                                                Duración del Ciclo / Proceso
+                                            </label>
+                                            <div class="relative">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <i class="bi bi-clock-history text-gray-400"></i>
+                                                </div>
+                                                <input type="text" name="duration" id="duration"
+                                                    value="{{ old('duration', $admission->duration) }}" placeholder="Ej: 3 meses / 12 semanas"
+                                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm @error('duration') border-red-500 @enderror">
+                                            </div>
+                                            <p class="text-[10px] text-gray-500 mt-1">Opcional. Ej: 3 meses, 12 semanas, Enero - Marzo.</p>
+                                            @error('duration')
                                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                             @enderror
                                         </div>
@@ -314,10 +420,25 @@
                                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                     <i class="bi bi-tag-fill text-gray-400"></i>
                                                 </div>
-                                                <input type="text" name="activity" id="activity" value="{{ old('activity', $admission->activity) }}" placeholder="Ej: Matrícula Regular 2026-I, Examen de Admisión General..." required
+                                                <input type="text" name="activity" id="activity" value="{{ old('activity', $admission->activity) }}" placeholder="Ej: Matrícula Regular 2026-I, Ciclo Preparatorio CEPRE 2027-I..." required
                                                      class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm @error('activity') border-red-500 @enderror">
                                             </div>
                                             @error('activity')
+                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+
+                                        {{-- Indicaciones para el Postulante --}}
+                                        <div class="md:col-span-2">
+                                            <label for="indications" class="block mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                                <i class="bi bi-card-text text-purple-600 mr-1"></i>
+                                                Indicaciones e Instrucciones para el Postulante
+                                            </label>
+                                            <textarea name="indications" id="indications" rows="4"
+                                                placeholder="Detalla las indicaciones del proceso: requisitos el día del examen, hora de ingreso, útiles permitidos, uniforme/vestimenta, modalidad de clases, etc."
+                                                class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm @error('indications') border-red-500 @enderror">{{ old('indications', $admission->indications) }}</textarea>
+                                            <p class="text-[10px] text-gray-500 mt-1">Opcional. Se mostrará a los postulantes como guía informativa.</p>
+                                            @error('indications')
                                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                             @enderror
                                         </div>

@@ -12,15 +12,20 @@ class Scholarship extends Model
         'name',
         'slug',
         'description',
+        'vacancies',
+        'discount_percentage',
+        'discount_details',
+        'requirements',
         'icon',
-        'is_active',
         'sort_order',
         'is_active',
     ];
 
     protected $casts = [
-        'sort_order' => 'integer',
-        'is_active'  => 'boolean',
+        'vacancies'           => 'integer',
+        'discount_percentage' => 'decimal:2',
+        'sort_order'          => 'integer',
+        'is_active'           => 'boolean',
     ];
 
     public function scopeActive($query)

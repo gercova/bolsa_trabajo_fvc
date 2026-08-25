@@ -194,7 +194,8 @@
                             x-transition:leave-end="opacity-0"
                             class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
 
-                            <div @click.outside="importModal = false"
+                            <div @click.outside="!importLoading && (importModal = false)"
+                                @keydown.escape.window="!importLoading && (importModal = false)"
                                 x-transition:enter="transition ease-out duration-200"
                                 x-transition:enter-start="opacity-0 scale-95"
                                 x-transition:enter-end="opacity-100 scale-100"
@@ -211,7 +212,10 @@
                                             <p class="text-xs text-gray-500">Excel (.xlsx, .xls) o CSV — Columnas H a AF</p>
                                         </div>
                                     </div>
-                                    <button @click="importModal = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition">
+                                    <button @click="!importLoading && (importModal = false)"
+                                        :class="importLoading ? 'opacity-30 cursor-not-allowed' : 'hover:text-gray-600 hover:bg-gray-100'"
+                                        :disabled="importLoading"
+                                        class="text-gray-400 p-1 rounded-lg transition">
                                         <i class="bi bi-x-lg text-sm"></i>
                                     </button>
                                 </div>
@@ -222,19 +226,6 @@
                                     @submit="importLoading = true"
                                     class="px-6 py-5 space-y-5">
                                     @csrf
-
-                                    {{-- Academic Period --}}
-                                    <div>
-                                        <label for="import_academic_period"
-                                            class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                                            Período Académico <span class="text-red-500">*</span>
-                                        </label>
-                                        <input type="text" name="academic_period" id="import_academic_period"
-                                            required placeholder="ej. 2026-I" pattern="\d{4}-(I|II)"
-                                            value="{{ old('academic_period') }}"
-                                            class="w-full text-sm border border-gray-300 rounded-xl py-2.5 px-3 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition font-bold text-purple-700">
-                                        <p class="text-xs text-gray-400 mt-1">Formato: 2026-I o 2026-II</p>
-                                    </div>
 
                                     {{-- Record Type --}}
                                     <div>
@@ -280,16 +271,19 @@
                                     <div class="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl p-3">
                                         <i class="bi bi-info-circle-fill text-blue-500 mt-0.5 shrink-0"></i>
                                         <p class="text-xs text-blue-700 leading-relaxed">
-                                            El sistema lee las columnas <strong>H a AF</strong> a partir de la fila 6.
-                                            Las primeras 5 filas (título, logos y encabezados del reporte MINEDU) se omiten automáticamente.
-                                            Las filas sin documento ni nombre se saltan.
+                                            El sistema lee el reporte MINEDU completo (<strong>columnas A–AF</strong>, fila 6 en adelante).
+                                            El <strong>período académico</strong> se toma automáticamente de la <strong>columna A</strong> de cada fila.
+                                            Las primeras 5 filas (título, logos y encabezados) se omiten. Las filas sin documento ni nombre se saltan.
                                         </p>
                                     </div>
 
                                     {{-- Actions --}}
                                     <div class="flex items-center justify-end gap-3 pt-1">
-                                        <button type="button" @click="importModal = false"
-                                            class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-semibold transition">
+                                        <button type="button"
+                                            @click="!importLoading && (importModal = false)"
+                                            :disabled="importLoading"
+                                            :class="importLoading ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                            class="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold transition">
                                             Cancelar
                                         </button>
                                         <button type="submit"

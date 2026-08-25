@@ -111,7 +111,7 @@
                         <i
                             class="bi bi-journal-text text-base group-hover:scale-110 transition-transform duration-200
                                 {{ request()->routeIs('admin.exams.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
-                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Gestionar Exámenes</span>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Exámenes</span>
                         @if (request()->routeIs('admin.exams.*'))
                             <div
                                 class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
@@ -126,7 +126,7 @@
                         <i
                             class="bi bi-calendar-check text-base group-hover:scale-110 transition-transform duration-200
                                 {{ request()->routeIs('admin.enrollments.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
-                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Cronograma de Matrículas</span>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Matrículas</span>
                         @if (request()->routeIs('admin.enrollments.*'))
                             <div
                                 class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
@@ -141,7 +141,7 @@
                         <i
                             class="bi bi-award text-base group-hover:scale-110 transition-transform duration-200
                                 {{ request()->routeIs('admin.scholarships.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
-                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Gestionar Becas</span>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Becas</span>
                         @if (request()->routeIs('admin.scholarships.*'))
                             <div
                                 class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
@@ -186,7 +186,7 @@
                         <i
                             class="bi bi-file-earmark-text text-base group-hover:scale-110 transition-transform duration-200
                                 {{ request()->routeIs('admin.tupa.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
-                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Gestionar TUPA</span>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">TUPA</span>
                         @if (request()->routeIs('admin.tupa.*'))
                             <div
                                 class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
@@ -201,7 +201,7 @@
                         <i
                             class="bi bi-folder-symlink text-base group-hover:scale-110 transition-transform duration-200
                                 {{ request()->routeIs('admin.documents.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
-                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Documentos de Gestión</span>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Documentos</span>
                         @if (request()->routeIs('admin.documents.*'))
                             <div
                                 class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
@@ -246,7 +246,7 @@
                         <i
                             class="bi bi-people text-base group-hover:scale-110 transition-transform duration-200
                                 {{ request()->routeIs('admin.users.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
-                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Gestionar Usuarios</span>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Usuarios</span>
                         @if (request()->routeIs('admin.users.*'))
                             <div
                                 class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
@@ -276,7 +276,7 @@
                         <i
                             class="bi bi-mortarboard text-base group-hover:scale-110 transition-transform duration-200
                                 {{ request()->routeIs('admin.student-council.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
-                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Consejo Estudiantil</span>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Concejo Estudiantil</span>
                         @if (request()->routeIs('admin.student-council.*'))
                             <div
                                 class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
@@ -289,7 +289,6 @@
             <!-- ── GRUPO: Empresa ──────────────────────────────────────── -->
             @php $companyOpen = request()->routeIs('admin.enterprise.*', 'admin.partners.*', 'admin.links.*', 'admin.areas.*', 'admin.history.*'); @endphp
             <div x-data="{ open: {{ $companyOpen ? 'true' : 'false' }} }">
-
                 <button @click="sidebarOpen ? open = !open : open = true"
                     class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden
                         {{ $companyOpen ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
@@ -300,7 +299,8 @@
                     <i
                         class="bi bi-building text-xl transition-transform duration-200 group-hover:scale-110
                             {{ $companyOpen ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
-                    <span class="ml-4 font-medium whitespace-nowrap flex-1 text-left" x-show="sidebarOpen">Empresa</span>
+                    <span class="ml-4 font-medium whitespace-nowrap flex-1 text-left"
+                        x-show="sidebarOpen">Empresa</span>
                     <i class="bi text-xs ml-auto transition-transform duration-200"
                         :class="open ? 'bi-chevron-up' : 'bi-chevron-down'" x-show="sidebarOpen"></i>
                 </button>
@@ -446,7 +446,7 @@
                 </div>
                 <i
                     class="bi bi-shield-lock text-xl transition-transform duration-200 group-hover:scale-110 {{ request()->routeIs('admin.roles*') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
-                <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Gestionar Roles</span>
+                <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Roles del sistema</span>
                 @if (request()->routeIs('admin.roles*'))
                     <div
                         class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
@@ -454,21 +454,64 @@
                 @endif
             </a>
 
-            <!-- Gestionar reclamos -->
-            <a href="{{ route('admin.claims.index') }}"
-                class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ request()->routeIs('admin.claims.*') ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
-                <div
-                    class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200 {{ request()->routeIs('admin.claims*') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
-                </div>
-                <i
-                    class="bi bi-bookmark-x text-xl transition-transform duration-200 group-hover:scale-110 {{ request()->routeIs('admin.claims*') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
-                <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Gestionar Reclamos</span>
-                @if (request()->routeIs('admin.claims*'))
+            <!-- ── GRUPO: Transparencia ─────────────────────────────────── -->
+            @php $transparencyOpen = request()->routeIs('admin.claims.*', 'admin.statistics.*'); @endphp
+            <div x-data="{ open: {{ $transparencyOpen ? 'true' : 'false' }} }">
+                <button @click="sidebarOpen ? open = !open : open = true"
+                    class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                        {{ $transparencyOpen ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
                     <div
-                        class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                        class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200
+                            {{ $transparencyOpen ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
                     </div>
-                @endif
-            </a>
+                    <i
+                        class="bi bi-shield-check text-xl transition-transform duration-200 group-hover:scale-110
+                            {{ $transparencyOpen ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
+                    <span class="ml-4 font-medium whitespace-nowrap flex-1 text-left"
+                        x-show="sidebarOpen">Transparencia</span>
+                    <i class="bi text-xs ml-auto transition-transform duration-200"
+                        :class="open ? 'bi-chevron-up' : 'bi-chevron-down'" x-show="sidebarOpen"></i>
+                </button>
+
+                <div x-show="open && sidebarOpen" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-1"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-1"
+                    class="mt-1 ml-4 pl-3 border-l border-slate-700/60 space-y-1" x-cloak>
+
+                    {{-- Reclamos --}}
+                    <a href="{{ route('admin.claims.index') }}"
+                        class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                            {{ request()->routeIs('admin.claims.*') ? 'bg-purple-600/15 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
+                        <i
+                            class="bi bi-bookmark-x text-base group-hover:scale-110 transition-transform duration-200
+                                {{ request()->routeIs('admin.claims.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Reclamos</span>
+                        @if (request()->routeIs('admin.claims.*'))
+                            <div
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                            </div>
+                        @endif
+                    </a>
+
+                    {{-- Estadísticas --}}
+                    <a href="{{ route('admin.statistics.index') }}"
+                        class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                            {{ request()->routeIs('admin.statistics.*') ? 'bg-purple-600/15 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
+                        <i
+                            class="bi bi-bar-chart-line text-base group-hover:scale-110 transition-transform duration-200
+                                {{ request()->routeIs('admin.statistics.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Estadísticas</span>
+                        @if (request()->routeIs('admin.statistics.*'))
+                            <div
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                            </div>
+                        @endif
+                    </a>
+                </div>
+            </div>
         </nav>
 
         <div class="p-4 border-t border-slate-700/50" x-show="sidebarOpen" x-transition.opacity>

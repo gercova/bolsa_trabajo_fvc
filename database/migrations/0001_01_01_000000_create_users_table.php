@@ -13,11 +13,14 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('document_type_id')->nullable()->default(1)->constrained('document_type')->nullOnDelete();
             $table->string('dni', 8)->unique();
             $table->string('names');
+            $table->date('birthdate')->nullable();
+            $table->string('mother_tongue', 50)->nullable()->default('Español');
             $table->string('phone', 20)->nullable();
             $table->string('address')->nullable();
-
+            $table->char('sex', 1)->nullable()->default('F');
             $table->string('ubigeo', 6)->nullable()->collation('utf8mb4_general_ci');
             $table->foreign('ubigeo')->references('id')->on('ubigeo_district');
             

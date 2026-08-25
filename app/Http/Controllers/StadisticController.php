@@ -160,16 +160,10 @@ class StadisticController extends Controller
      */
     public function import(StudentRecordImportRequest $request): RedirectResponse
     {
-        $academicPeriod = strtoupper(trim($request->input('academic_period')));
-        $recordType     = strtoupper(trim($request->input('record_type', 'AUTO')));
-
-        // If "AUTO" the importer will detect per-row based on cycle presence
-        if ($recordType === 'AUTO') {
-            $recordType = 'ADMISION'; // default; overridden per-row inside the importer
-        }
+        $recordType = strtoupper(trim($request->input('record_type', 'AUTO')));
 
         try {
-            $importer = new StudentRecordImport($academicPeriod, $recordType);
+            $importer = new StudentRecordImport($recordType);
             Excel::import($importer, $request->file('file'));
 
             $msg = "Importación completada: {$importer->importedCount} registros importados";

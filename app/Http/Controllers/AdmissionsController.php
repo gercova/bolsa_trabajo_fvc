@@ -146,6 +146,11 @@ class AdmissionsController extends Controller
             $validated['url_pdf'] = $path;
         }
 
+        if ($request->hasFile('results_url_pdf')) {
+            $path = $request->file('results_url_pdf')->store('admissions/results', 'public');
+            $validated['results_url_pdf'] = $path;
+        }
+
         $validated['is_active'] = $request->has('is_active');
 
         $admission = Admission::create($validated);
@@ -168,10 +173,23 @@ class AdmissionsController extends Controller
         $validated = $request->validated();
 
         if ($request->hasFile('url_pdf')) {
+            if ($admission->url_pdf && Storage::disk('public')->exists($admission->url_pdf)) {
+                Storage::disk('public')->delete($admission->url_pdf);
+            }
             $path = $request->file('url_pdf')->store('admissions', 'public');
             $validated['url_pdf'] = $path;
         } else {
             unset($validated['url_pdf']);
+        }
+
+        if ($request->hasFile('results_url_pdf')) {
+            if ($admission->results_url_pdf && Storage::disk('public')->exists($admission->results_url_pdf)) {
+                Storage::disk('public')->delete($admission->results_url_pdf);
+            }
+            $path = $request->file('results_url_pdf')->store('admissions/results', 'public');
+            $validated['results_url_pdf'] = $path;
+        } else {
+            unset($validated['results_url_pdf']);
         }
 
         $validated['is_active'] = $request->has('is_active');
@@ -198,6 +216,13 @@ class AdmissionsController extends Controller
     }
 
     public function destroy(Admission $admission): RedirectResponse {
+        if ($admission->url_pdf && Storage::disk('public')->exists($admission->url_pdf)) {
+            Storage::disk('public')->delete($admission->url_pdf);
+        }
+        if ($admission->results_url_pdf && Storage::disk('public')->exists($admission->results_url_pdf)) {
+            Storage::disk('public')->delete($admission->results_url_pdf);
+        }
+
         $admission->delete();
         return redirect()->route('admin.exams.index')->with('success', 'Examen de admisión eliminado correctamente');
     }

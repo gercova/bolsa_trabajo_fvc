@@ -10,6 +10,7 @@ use App\Models\Enterprise;
 use App\Models\EnrollmentSchedule;
 use App\Models\HistoricalReview;
 use App\Models\Image;
+use App\Models\InstitutionalCarousel;
 use App\Models\JobOffer;
 use App\Models\ManagementDocument;
 use App\Models\Partner;
@@ -40,10 +41,11 @@ class AppController extends Controller {
         $jobOffers   = JobOffer::where('is_active', true)->get();
         $users       = User::where('is_active', true)->get();
         $blogs       = Blog::where('is_published', true)->latest()->take(3)->get();
+        $carousels   = InstitutionalCarousel::with('image')->active()->ordered()->get();
         $totalVisits = VisitorCounter::getTotalVisits();
         $visitDigits = VisitorCounter::getPaddedDigits($totalVisits, 6);
 
-        return view('home', compact('partners', 'jobOffers', 'users', 'programs', 'blogs', 'totalVisits', 'visitDigits'));
+        return view('home', compact('partners', 'jobOffers', 'users', 'programs', 'blogs', 'carousels', 'totalVisits', 'visitDigits'));
     }
 
     // admision-y-matricula/cepre-fvc

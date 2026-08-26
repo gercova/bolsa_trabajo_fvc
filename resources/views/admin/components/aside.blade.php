@@ -289,7 +289,7 @@
             </div>
 
             <!-- ── GRUPO: Empresa ──────────────────────────────────────── -->
-            @php $companyOpen = request()->routeIs('admin.enterprise.*', 'admin.partners.*', 'admin.links.*', 'admin.areas.*', 'admin.history.*'); @endphp
+            @php $companyOpen = request()->routeIs('admin.enterprise.*', 'admin.partners.*', 'admin.links.*', 'admin.areas.*', 'admin.history.*', 'admin.carousel.*'); @endphp
             <div x-data="{ open: {{ $companyOpen ? 'true' : 'false' }} }">
                 <button @click="sidebarOpen ? open = !open : open = true"
                     class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden
@@ -324,6 +324,21 @@
                                 {{ request()->routeIs('admin.enterprise.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
                         <span class="ml-3 text-sm font-medium whitespace-nowrap">Configurar Empresa</span>
                         @if (request()->routeIs('admin.enterprise.*'))
+                            <div
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                            </div>
+                        @endif
+                    </a>
+
+                    {{-- Carrusel Principal --}}
+                    <a href="{{ route('admin.carousel.index') }}"
+                        class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                            {{ request()->routeIs('admin.carousel.*') ? 'bg-purple-600/15 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
+                        <i
+                            class="bi bi-images text-base group-hover:scale-110 transition-transform duration-200
+                                {{ request()->routeIs('admin.carousel.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Carrusel Principal</span>
+                        @if (request()->routeIs('admin.carousel.*'))
                             <div
                                 class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
                             </div>

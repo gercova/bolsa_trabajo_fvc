@@ -4,6 +4,7 @@ use App\Http\Controllers\AdmissionsController;
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\CarouselController;
 use App\Http\Controllers\ClaimsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DegreeRecordsController;
@@ -357,6 +358,17 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/editar/{history}',      [HistoricalReviewController::class, 'update'])->name('update');
         Route::delete('/{history}',          [HistoricalReviewController::class, 'destroy'])->name('destroy');
         Route::patch('/estado/{history}',    [HistoricalReviewController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
+    // Gestión del Carrusel Institucional (Portada)
+    Route::prefix('admin-carrusel')->name('admin.carousel.')->group(function () {
+        Route::get('/',                      [CarouselController::class, 'index'])->name('index');
+        Route::get('/crear',                 [CarouselController::class, 'create'])->name('create');
+        Route::post('/guardar',              [CarouselController::class, 'store'])->name('store');
+        Route::get('/editar/{carousel}',     [CarouselController::class, 'edit'])->name('edit');
+        Route::put('/editar/{carousel}',     [CarouselController::class, 'update'])->name('update');
+        Route::delete('/{carousel}',         [CarouselController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{carousel}',   [CarouselController::class, 'toggleStatus'])->name('toggle-status');
     });
 });
 

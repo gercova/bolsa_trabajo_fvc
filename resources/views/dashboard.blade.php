@@ -1,6 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Panel de Control — IESTP Francisco Vigo Caballero')
-
+@section('title', 'Panel de Control Principal — IESTP Francisco Vigo Caballero')
 @push('styles')
 <style>
     [x-cloak] { display: none !important; }
@@ -8,590 +7,709 @@
     #main-content { padding-top: 64px !important; }
     footer { margin-top: 0 !important; }
 
-    /* Scrollbar elegante para el sidebar */
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+    /* Custom aesthetic scrollbars */
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 20px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 20px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.5); }
 
-    /* Animaciones de contadores */
+    /* Tabular numeric rendering */
     .stat-val { font-variant-numeric: tabular-nums; }
 
-    /* Card hover glow */
-    .stat-card { transition: transform .22s ease, box-shadow .22s ease; }
-    .stat-card:hover { transform: translateY(-3px); }
-
-    /* Spark bar */
-    .spark-bar {
-        display: inline-block;
-        width: 6px;
-        border-radius: 3px;
-        vertical-align: bottom;
-        transition: height .4s ease;
-        background: currentColor;
+    /* Card hover elevation */
+    .stat-card {
+        transition: transform .25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow .25s cubic-bezier(0.16, 1, 0.3, 1), border-color .25s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 32px -10px rgba(99, 102, 241, 0.12);
     }
 
-    /* Pulse dot */
-    @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+    /* Ambient pulse animation */
+    @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.45;transform:scale(.75)} }
     .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+    /* Glow blobs */
+    .glow-blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(50px);
+        pointer-events: none;
+    }
 </style>
 @endpush
-
 @section('content')
-<div id="dashboard-container" class="flex w-full bg-gray-50 font-sans text-gray-900 min-h-[calc(100vh-64px)]"
+<div id="dashboard-container" class="flex w-full bg-slate-50 font-sans text-slate-900 min-h-[calc(100vh-64px)]"
     x-data="dashboardApp()">
 
     @include('admin.components.aside')
 
     {{-- ══ Main content area ══════════════════════════════════ --}}
-    <div class="flex-1 flex flex-col min-w-0 bg-gray-50/50 relative">
+    <div class="flex-1 flex flex-col min-w-0 bg-slate-50/60 relative">
 
-        {{-- Header --}}
-        <header class="bg-white border-b border-gray-200 sticky top-[64px] lg:top-0 z-[30] shadow-sm backdrop-blur-md bg-white/90">
-            <div class="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+        {{-- ── Top Navigation Header ─────────────────────────── --}}
+        <header class="bg-white/95 border-b border-slate-200/80 sticky top-[64px] lg:top-0 z-[30] shadow-sm backdrop-blur-md">
+            <div class="px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <button @click="toggleSidebar()"
-                            class="text-gray-500 hover:text-purple-600 hover:bg-purple-50 p-2 rounded-lg transition-colors lg:hidden">
+                            class="text-slate-500 hover:text-purple-600 hover:bg-purple-50 p-2 rounded-xl transition-colors lg:hidden"
+                            title="Alternar Menú">
                         <i class="bi bi-list text-2xl"></i>
                     </button>
                     <div>
-                        <h1 class="text-xl sm:text-2xl font-extrabold text-gray-800 tracking-tight leading-tight">
-                            Panel de Control
-                        </h1>
-                        <p class="text-xs text-gray-400 hidden sm:block">
+                        <div class="flex items-center gap-2">
+                            <h1 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight leading-tight">
+                                Panel de Control
+                            </h1>
+                            <span class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-purple-100 text-purple-700 border border-purple-200">
+                                <i class="bi bi-shield-check text-xs"></i> Admin
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-medium hidden sm:block">
+                            <i class="bi bi-calendar3 mr-1 text-[11px]"></i>
                             {{ now()->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY') }}
                         </p>
                     </div>
                 </div>
+
                 <div class="flex items-center gap-3">
-                    <div class="hidden sm:flex items-center text-sm font-medium text-gray-500">
-                        <i class="bi bi-house-door mr-1"></i> Inicio
-                        <i class="bi bi-chevron-right mx-2 text-xs text-gray-400"></i>
-                        <span class="text-purple-600">Resumen General</span>
+                    <div class="hidden md:flex items-center gap-2 text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/60">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+                        <span>Servidor Conectado</span>
                     </div>
+
                     <a href="{{ route('inicio') }}" target="_blank"
-                       class="inline-flex items-center gap-1.5 text-xs font-semibold bg-purple-50 text-purple-600 hover:bg-purple-100 px-3 py-1.5 rounded-lg transition-colors border border-purple-100">
+                       class="inline-flex items-center gap-2 text-xs font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-4 py-2 rounded-xl transition shadow-md shadow-purple-500/20 hover:shadow-purple-500/35">
                         <i class="bi bi-box-arrow-up-right"></i>
-                        <span class="hidden sm:inline">Ver portal</span>
+                        <span>Ver Portal Web</span>
                     </a>
                 </div>
             </div>
         </header>
 
-        {{-- ── Dashboard content ─────────────────────────────── --}}
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden space-y-8">
+        {{-- ── Main Dashboard Body ───────────────────────────── --}}
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden space-y-8 max-w-7xl mx-auto w-full">
 
-            {{-- ═══ Bienvenida contextual ════════════════════════════ --}}
-            <div class="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700 rounded-2xl p-6 sm:p-8 text-white shadow-lg shadow-purple-600/20 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                <div class="absolute bottom-0 left-24 w-40 h-40 bg-indigo-500/20 rounded-full translate-y-1/2"></div>
-                <div class="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <p class="text-purple-200 text-sm font-medium">Bienvenido de nuevo,</p>
-                        <h2 class="text-2xl sm:text-3xl font-extrabold mt-0.5">
-                            {{ explode(' ', Auth::user()->names)[0] ?? 'Administrador' }}
-                            <span class="wave-hand" style="display:inline-block">👋</span>
+            {{-- ═══ HERO BANNER: Bienvenida & Status Institucional ═══ --}}
+            <div class="bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 rounded-3xl p-6 sm:p-8 lg:p-10 text-white shadow-2xl shadow-indigo-950/20 relative overflow-hidden border border-slate-800/80">
+                {{-- Decorative glow orbs --}}
+                <div class="glow-blob w-72 h-72 bg-purple-600/20 -top-20 -right-20"></div>
+                <div class="glow-blob w-64 h-64 bg-indigo-600/20 -bottom-20 left-10"></div>
+                <div class="glow-blob w-40 h-40 bg-sky-500/15 top-1/2 right-1/4"></div>
+
+                <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                    <div class="space-y-3 max-w-2xl">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-purple-200 text-xs font-bold tracking-wide backdrop-blur-md">
+                            <i class="bi bi-mortarboard-fill text-amber-400"></i>
+                            <span>IESTP Francisco Vigo Caballero • Uchiza</span>
+                        </div>
+
+                        <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight text-white">
+                            Hola, <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-sky-300 to-cyan-300">{{ explode(' ', Auth::user()->names ?? 'Administrador')[0] }}</span>
                         </h2>
-                        <p class="text-purple-200 text-sm mt-2 max-w-md">
-                            Aquí tienes un resumen completo del estado actual del sistema. Todo en un solo lugar.
+
+                        <p class="text-slate-300 text-sm sm:text-base leading-relaxed font-normal">
+                            Supervisa y gestiona en tiempo real la admisión, programas de estudio, bolsa de empleo, carrusel de portada y transparencia institucional.
                         </p>
+
+                        {{-- Quick action buttons inside hero --}}
+                        <div class="flex flex-wrap items-center gap-2.5 pt-2">
+                            <a href="{{ route('admin.carousel.create') }}"
+                               class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold rounded-xl backdrop-blur-md transition-all shadow-sm">
+                                <i class="bi bi-images text-purple-300"></i>
+                                <span>Nuevo Slide Carrusel</span>
+                            </a>
+
+                            <a href="{{ route('admin.exams.create') }}"
+                               class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold rounded-xl backdrop-blur-md transition-all shadow-sm">
+                                <i class="bi bi-journal-plus text-amber-300"></i>
+                                <span>Nuevo Examen Admisión</span>
+                            </a>
+
+                            <a href="{{ route('admin.blogs.create') }}"
+                               class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold rounded-xl backdrop-blur-md transition-all shadow-sm">
+                                <i class="bi bi-newspaper text-cyan-300"></i>
+                                <span>Publicar Noticia</span>
+                            </a>
+
+                            <a href="{{ route('admin.works.create') }}"
+                               class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold rounded-xl backdrop-blur-md transition-all shadow-sm">
+                                <i class="bi bi-briefcase text-sky-300"></i>
+                                <span>Nueva Oferta Laboral</span>
+                            </a>
+                        </div>
                     </div>
-                    <div class="hidden sm:flex flex-col items-end gap-1 text-right">
-                        <span class="text-xs text-purple-300 uppercase tracking-widest font-bold">Sistema</span>
-                        <span class="text-xl font-black">IESTP FVC</span>
-                        <span class="inline-flex items-center gap-1.5 bg-green-400/20 text-green-300 border border-green-400/30 text-xs font-bold px-3 py-1 rounded-full">
-                            <span class="w-1.5 h-1.5 rounded-full bg-green-400 pulse-dot"></span>
-                            Sistema Operativo
-                        </span>
+
+                    {{-- Counter & Identity Badge --}}
+                    <div class="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex-shrink-0">
+                        <div class="flex items-center gap-2 text-right">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-dot"></span>
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-300">Sistema 100% Operativo</span>
+                        </div>
+
+                        <div class="space-y-1 text-left sm:text-right lg:text-right">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest block">Visitas del Portal Web</span>
+                            <div class="flex items-center gap-1">
+                                @foreach($visitDigits as $digit)
+                                    <span class="inline-flex items-center justify-center w-6 h-8 rounded-lg bg-slate-900 text-purple-300 font-mono font-black text-base border border-purple-500/30 shadow-inner">
+                                        {{ $digit }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div class="text-[11px] text-slate-400 flex items-center gap-2">
+                            <i class="bi bi-clock-history"></i>
+                            <span>Último acceso: {{ now()->format('H:i') }} hrs</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
+            {{-- ═══ SECCIÓN 1: KPIs Principales (4 Columnas) ═══════════ --}}
+            <section class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                        <i class="bi bi-grid-fill text-purple-600"></i> Métricas Clave del Sistema
+                    </h3>
+                    <span class="text-xs text-slate-400 font-medium">Actualizado en tiempo real</span>
+                </div>
 
-            {{-- ═══ FILA 1 — KPIs Principales (4 columnas) ══════════ --}}
-            <div>
-                <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">
-                    <i class="bi bi-grid-3x3-gap mr-1.5"></i> Indicadores Clave
-                </h3>
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 
-                    {{-- Usuarios totales --}}
-                    <div class="stat-card bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col gap-3">
-                        <div class="flex items-start justify-between">
-                            <div class="w-11 h-11 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center shadow-sm">
-                                <i class="bi bi-people-fill text-xl"></i>
-                            </div>
-                            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full
-                                {{ $usersActive === $usersTotal ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-yellow-50 text-yellow-600 border border-yellow-100' }}">
-                                {{ $usersActive }} activos
-                            </span>
-                        </div>
-                        <div>
-                            <p class="stat-val text-3xl font-black text-gray-900" data-target="{{ $usersTotal }}">{{ $usersTotal }}</p>
-                            <p class="text-sm text-gray-500 font-medium mt-0.5">Usuarios registrados</p>
-                        </div>
-                        <div class="pt-2 border-t border-gray-50 flex items-center justify-between">
-                            <span class="text-xs text-purple-600 font-semibold">+{{ $usersThisMonth }} este mes</span>
-                            <a href="{{ route('admin.users.index') }}" class="text-xs text-gray-400 hover:text-purple-600 transition-colors">
-                                Ver todos <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                    {{-- Bolsa de trabajo --}}
-                    <div class="stat-card bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col gap-3">
-                        <div class="flex items-start justify-between">
-                            <div class="w-11 h-11 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shadow-sm">
-                                <i class="bi bi-briefcase-fill text-xl"></i>
-                            </div>
-                            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
-                                {{ $jobOffersActive }} activas
-                            </span>
-                        </div>
-                        <div>
-                            <p class="stat-val text-3xl font-black text-gray-900" data-target="{{ $jobOffersTotal }}">{{ $jobOffersTotal }}</p>
-                            <p class="text-sm text-gray-500 font-medium mt-0.5">Ofertas de empleo</p>
-                        </div>
-                        <div class="pt-2 border-t border-gray-50 flex items-center justify-between">
-                            <span class="text-xs text-blue-600 font-semibold">{{ $jobOffersTotal - $jobOffersActive }} inactivas</span>
-                            <a href="{{ route('admin.works.index') }}" class="text-xs text-gray-400 hover:text-blue-600 transition-colors">
-                                Ver todas <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                    {{-- Reclamos --}}
-                    <div class="stat-card bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col gap-3">
-                        <div class="flex items-start justify-between">
-                            <div class="w-11 h-11 rounded-xl bg-red-100 text-red-500 flex items-center justify-center shadow-sm">
-                                <i class="bi bi-bookmark-x-fill text-xl"></i>
-                            </div>
-                            @if($claimsThisMonth > 0)
-                                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-500 border border-red-100">
-                                    +{{ $claimsThisMonth }} nuevos
+                    {{-- 1. Usuarios & Plana --}}
+                    <div class="stat-card bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-bl-full transition-all group-hover:scale-110"></div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="w-12 h-12 rounded-2xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center shadow-sm text-xl group-hover:scale-110 transition-transform">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                                <span class="text-[11px] font-bold px-2.5 py-1 rounded-full {{ $usersActive === $usersTotal ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200' }}">
+                                    {{ $usersActive }} activos
                                 </span>
-                            @else
-                                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-gray-50 text-gray-400 border border-gray-100">
-                                    Sin nuevos
-                                </span>
-                            @endif
+                            </div>
+                            <div>
+                                <p class="stat-val text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">{{ $usersTotal }}</p>
+                                <p class="text-xs font-semibold text-slate-500 mt-0.5">Usuarios & Personal</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="stat-val text-3xl font-black text-gray-900" data-target="{{ $claimsTotal }}">{{ $claimsTotal }}</p>
-                            <p class="text-sm text-gray-500 font-medium mt-0.5">Reclamos totales</p>
-                        </div>
-                        <div class="pt-2 border-t border-gray-50 flex items-center justify-between">
-                            <span class="text-xs text-red-500 font-semibold">{{ $claimsThisMonth }} este mes</span>
-                            <a href="{{ route('admin.claims.index') }}" class="text-xs text-gray-400 hover:text-red-500 transition-colors">
-                                Gestionar <i class="bi bi-arrow-right"></i>
+
+                        <div class="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <span class="text-purple-600 font-bold flex items-center gap-1">
+                                <i class="bi bi-person-plus-fill"></i> +{{ $usersThisMonth }} este mes
+                            </span>
+                            <a href="{{ route('admin.users.index') }}" class="font-bold text-slate-400 hover:text-purple-600 transition-colors flex items-center gap-1">
+                                Gestionar <i class="bi bi-chevron-right text-[10px]"></i>
                             </a>
                         </div>
                     </div>
 
-                    {{-- Aliados / Partners --}}
-                    <div class="stat-card bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col gap-3">
-                        <div class="flex items-start justify-between">
-                            <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm">
-                                <i class="bi bi-buildings-fill text-xl"></i>
+                    {{-- 2. Bolsa de Trabajo --}}
+                    <div class="stat-card bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-bl-full transition-all group-hover:scale-110"></div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shadow-sm text-xl group-hover:scale-110 transition-transform">
+                                    <i class="bi bi-briefcase-fill"></i>
+                                </div>
+                                <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                                    {{ $jobOffersActive }} vigentes
+                                </span>
                             </div>
-                            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
-                                {{ $partnersActive }} activos
+                            <div>
+                                <p class="stat-val text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">{{ $jobOffersTotal }}</p>
+                                <p class="text-xs font-semibold text-slate-500 mt-0.5">Ofertas Laborales</p>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <span class="text-blue-600 font-bold flex items-center gap-1">
+                                <i class="bi bi-buildings"></i> {{ $partnersActive }} empresas
                             </span>
+                            <a href="{{ route('admin.works.index') }}" class="font-bold text-slate-400 hover:text-blue-600 transition-colors flex items-center gap-1">
+                                Gestionar <i class="bi bi-chevron-right text-[10px]"></i>
+                            </a>
                         </div>
-                        <div>
-                            <p class="stat-val text-3xl font-black text-gray-900" data-target="{{ $partnersTotal }}">{{ $partnersTotal }}</p>
-                            <p class="text-sm text-gray-500 font-medium mt-0.5">Empresas aliadas</p>
+                    </div>
+
+                    {{-- 3. Admisiones & Procesos --}}
+                    <div class="stat-card bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-bl-full transition-all group-hover:scale-110"></div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center shadow-sm text-xl group-hover:scale-110 transition-transform">
+                                    <i class="bi bi-mortarboard"></i>
+                                </div>
+                                <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                                    {{ $admissionsActive }} activas
+                                </span>
+                            </div>
+                            <div>
+                                <p class="stat-val text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">{{ $admissionsTotal }}</p>
+                                <p class="text-xs font-semibold text-slate-500 mt-0.5">Convocatorias Admisión</p>
+                            </div>
                         </div>
-                        <div class="pt-2 border-t border-gray-50 flex items-center justify-between">
-                            <span class="text-xs text-emerald-600 font-semibold">{{ $partnersTotal - $partnersActive }} inactivas</span>
-                            <a href="{{ route('admin.partners.index') }}" class="text-xs text-gray-400 hover:text-emerald-600 transition-colors">
-                                Ver todas <i class="bi bi-arrow-right"></i>
+
+                        <div class="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <span class="text-amber-600 font-bold flex items-center gap-1">
+                                <i class="bi bi-calendar-check"></i> {{ $enrollmentSchedulesActive }} matrículas
+                            </span>
+                            <a href="{{ route('admin.exams.index') }}" class="font-bold text-slate-400 hover:text-amber-600 transition-colors flex items-center gap-1">
+                                Gestionar <i class="bi bi-chevron-right text-[10px]"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- 4. Reclamos & Quejas --}}
+                    <div class="stat-card bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-rose-500/5 rounded-bl-full transition-all group-hover:scale-110"></div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 flex items-center justify-center shadow-sm text-xl group-hover:scale-110 transition-transform">
+                                    <i class="bi bi-bookmark-x-fill"></i>
+                                </div>
+                                @if($claimsThisMonth > 0)
+                                    <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                                        +{{ $claimsThisMonth }} este mes
+                                    </span>
+                                @else
+                                    <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                                        Sin pendientes
+                                    </span>
+                                @endif
+                            </div>
+                            <div>
+                                <p class="stat-val text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">{{ $claimsTotal }}</p>
+                                <p class="text-xs font-semibold text-slate-500 mt-0.5">Libro de Reclamaciones</p>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <span class="text-rose-600 font-bold flex items-center gap-1">
+                                <i class="bi bi-exclamation-circle"></i> {{ $claimsPending }} por atender
+                            </span>
+                            <a href="{{ route('admin.claims.index') }}" class="font-bold text-slate-400 hover:text-rose-600 transition-colors flex items-center gap-1">
+                                Gestionar <i class="bi bi-chevron-right text-[10px]"></i>
                             </a>
                         </div>
                     </div>
 
                 </div>
-            </div>
+            </section>
 
-
-            {{-- ═══ FILA 2 — KPIs Secundarios (4 columnas) ══════════ --}}
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-
+            {{-- ═══ SECCIÓN 2: KPIs Secundarios (4 Columnas) ═══════════ --}}
+            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {{-- Programas de Estudio --}}
-                <div class="stat-card bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center">
-                            <i class="bi bi-mortarboard-fill text-lg"></i>
+                <div class="stat-card bg-white rounded-3xl border border-slate-200/80 shadow-sm p-5 flex items-center justify-between">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center text-xl">
+                            <i class="bi bi-book-fill"></i>
                         </div>
                         <div>
-                            <p class="text-2xl font-black text-gray-900">{{ $programsTotal }}</p>
-                            <p class="text-xs text-gray-400 font-medium">Programas de Estudio</p>
+                            <p class="text-2xl font-black text-slate-900 tracking-tight">{{ $programsTotal }}</p>
+                            <p class="text-xs font-medium text-slate-500">Programas de Estudio</p>
                         </div>
                     </div>
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="text-sky-600 font-semibold">{{ $programsActive }} publicados</span>
-                        <a href="{{ route('admin.programs.index') }}" class="text-gray-400 hover:text-sky-600 transition-colors">
-                            Gestionar <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
+                    <a href="{{ route('admin.programs.index') }}" class="text-xs font-bold text-emerald-600 hover:bg-emerald-50 px-2.5 py-1.5 rounded-lg transition-colors" title="Ver Programas">
+                        <i class="bi bi-arrow-right text-base"></i>
+                    </a>
                 </div>
 
-                {{-- Exámenes / Admisiones --}}
-                <div class="stat-card bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
-                            <i class="bi bi-journal-text text-lg"></i>
+                {{-- Carrusel Institucional --}}
+                <div class="stat-card bg-white rounded-3xl border border-slate-200/80 shadow-sm p-5 flex items-center justify-between">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-2xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center text-xl">
+                            <i class="bi bi-images"></i>
                         </div>
                         <div>
-                            <p class="text-2xl font-black text-gray-900">{{ $admissionsTotal }}</p>
-                            <p class="text-xs text-gray-400 font-medium">Convocatorias</p>
+                            <p class="text-2xl font-black text-slate-900 tracking-tight">{{ $carouselsTotal }}</p>
+                            <p class="text-xs font-medium text-slate-500">Carrusel Principal</p>
                         </div>
                     </div>
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="text-amber-600 font-semibold">{{ $admissionsActive }} activas</span>
-                        <a href="{{ route('admin.exams.index') }}" class="text-gray-400 hover:text-amber-600 transition-colors">
-                            Gestionar <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
+                    <a href="{{ route('admin.carousel.index') }}" class="text-xs font-bold text-purple-600 hover:bg-purple-50 px-2.5 py-1.5 rounded-lg transition-colors" title="Gestionar Carrusel">
+                        <i class="bi bi-arrow-right text-base"></i>
+                    </a>
                 </div>
 
-                {{-- TUPA --}}
-                <div class="stat-card bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
-                            <i class="bi bi-file-earmark-ruled text-lg"></i>
+                {{-- TUPA & Trámites --}}
+                <div class="stat-card bg-white rounded-3xl border border-slate-200/80 shadow-sm p-5 flex items-center justify-between">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-xl">
+                            <i class="bi bi-file-earmark-text-fill"></i>
                         </div>
                         <div>
-                            <p class="text-2xl font-black text-gray-900">{{ $tupaTotal }}</p>
-                            <p class="text-xs text-gray-400 font-medium">Registros TUPA</p>
+                            <p class="text-2xl font-black text-slate-900 tracking-tight">{{ $tupaTotal }}</p>
+                            <p class="text-xs font-medium text-slate-500">TUPA / Trámites</p>
                         </div>
                     </div>
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="text-indigo-600 font-semibold">{{ $tupaActive }} publicados</span>
-                        <a href="{{ route('admin.tupa.index') }}" class="text-gray-400 hover:text-indigo-600 transition-colors">
-                            Gestionar <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
+                    <a href="{{ route('admin.tupa.index') }}" class="text-xs font-bold text-indigo-600 hover:bg-indigo-50 px-2.5 py-1.5 rounded-lg transition-colors" title="Gestionar TUPA">
+                        <i class="bi bi-arrow-right text-base"></i>
+                    </a>
                 </div>
 
-                {{-- Blog --}}
-                <div class="stat-card bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="w-10 h-10 rounded-xl bg-cyan-100 text-cyan-600 flex items-center justify-center">
-                            <i class="bi bi-newspaper text-lg"></i>
+                {{-- Noticias & Blog --}}
+                <div class="stat-card bg-white rounded-3xl border border-slate-200/80 shadow-sm p-5 flex items-center justify-between">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-2xl bg-cyan-50 border border-cyan-100 text-cyan-600 flex items-center justify-center text-xl">
+                            <i class="bi bi-newspaper"></i>
                         </div>
                         <div>
-                            <p class="text-2xl font-black text-gray-900">{{ $blogsTotal }}</p>
-                            <p class="text-xs text-gray-400 font-medium">Artículos del Blog</p>
+                            <p class="text-2xl font-black text-slate-900 tracking-tight">{{ $blogsTotal }}</p>
+                            <p class="text-xs font-medium text-slate-500">Noticias / Blogs</p>
                         </div>
                     </div>
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="text-cyan-600 font-semibold">{{ $blogsPublished }} publicados</span>
-                        <span class="text-gray-300">{{ $blogsTotal - $blogsPublished }} borradores</span>
-                    </div>
+                    <a href="{{ route('admin.blogs.index') }}" class="text-xs font-bold text-cyan-600 hover:bg-cyan-50 px-2.5 py-1.5 rounded-lg transition-colors" title="Gestionar Blog">
+                        <i class="bi bi-arrow-right text-base"></i>
+                    </a>
                 </div>
+            </section>
 
-            </div>
+            {{-- ═══ SECCIÓN 3: Distribución Demográfica + Actividad Multitab ═══ --}}
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-
-            {{-- ═══ FILA 3 — Distribución de Usuarios + Actividad Reciente ══ --}}
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                {{-- Distribución por rol --}}
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <div>
-                            <h3 class="font-bold text-gray-900 text-sm">Distribución de Usuarios</h3>
-                            <p class="text-xs text-gray-400 mt-0.5">Por rol en el sistema</p>
+                {{-- Columna Izquierda: Demografía & Distribución de Roles --}}
+                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-7 flex flex-col justify-between space-y-6">
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                                <i class="bi bi-pie-chart-fill text-purple-600"></i> Distribución de Usuarios
+                            </h4>
+                            <span class="text-xs text-slate-400 font-medium">Por rol</span>
                         </div>
-                        <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
-                            <i class="bi bi-pie-chart-fill text-sm"></i>
-                        </div>
+                        <p class="text-xs text-slate-500">Composición del personal y usuarios registrados en el sistema.</p>
                     </div>
 
                     @php
                         $roleColors = [
-                            'Admin'          => ['bg-purple-500', 'bg-purple-100', 'text-purple-700'],
-                            'Docente'        => ['bg-blue-500',   'bg-blue-100',   'text-blue-700'],
-                            'Administrativo' => ['bg-indigo-500', 'bg-indigo-100', 'text-indigo-700'],
-                            'usuario'        => ['bg-emerald-500','bg-emerald-100','text-emerald-700'],
+                            'Admin'          => ['bar' => 'bg-purple-600',  'bg' => 'bg-purple-50',  'text' => 'text-purple-700', 'border' => 'border-purple-200'],
+                            'Docente'        => ['bar' => 'bg-blue-600',    'bg' => 'bg-blue-50',    'text' => 'text-blue-700',   'border' => 'border-blue-200'],
+                            'Administrativo' => ['bar' => 'bg-indigo-600',  'bg' => 'bg-indigo-50',  'text' => 'text-indigo-700', 'border' => 'border-indigo-200'],
+                            'Estudiante'     => ['bar' => 'bg-emerald-600', 'bg' => 'bg-emerald-50', 'text' => 'text-emerald-700','border' => 'border-emerald-200'],
+                            'Egresado'       => ['bar' => 'bg-amber-600',   'bg' => 'bg-amber-50',   'text' => 'text-amber-700',  'border' => 'border-amber-200'],
+                            'usuario'        => ['bar' => 'bg-slate-600',   'bg' => 'bg-slate-50',   'text' => 'text-slate-700',  'border' => 'border-slate-200'],
                         ];
-                        $totalUsers = $usersTotal ?: 1;
+                        $totalUsersCalc = $usersTotal ?: 1;
                     @endphp
 
-                    <div class="space-y-3">
+                    <div class="space-y-4">
                         @foreach($usersRoles as $role => $count)
                             @php
-                                $pct   = round(($count / $totalUsers) * 100);
-                                $colors = $roleColors[$role] ?? ['bg-gray-400','bg-gray-100','text-gray-600'];
+                                $pct = round(($count / $totalUsersCalc) * 100);
+                                $theme = $roleColors[$role] ?? ['bar' => 'bg-slate-600', 'bg' => 'bg-slate-50', 'text' => 'text-slate-700', 'border' => 'border-slate-200'];
                             @endphp
-                            <div>
-                                <div class="flex items-center justify-between mb-1">
-                                    <span class="text-xs font-semibold text-gray-700">{{ $role }}</span>
-                                    <span class="text-xs font-bold {{ $colors[2] }}">{{ $count }} ({{ $pct }}%)</span>
+                            <div class="space-y-1.5">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="font-bold text-slate-700">{{ $role }}</span>
+                                    <span class="font-black {{ $theme['text'] }}">{{ $count }} ({{ $pct }}%)</span>
                                 </div>
-                                <div class="h-2 {{ $colors[1] }} rounded-full overflow-hidden">
-                                    <div class="{{ $colors[0] }} h-full rounded-full transition-all duration-700"
-                                         style="width: {{ $pct }}%"></div>
+                                <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full rounded-full {{ $theme['bar'] }} transition-all duration-700" style="width: {{ $pct }}%"></div>
                                 </div>
                             </div>
                         @endforeach
 
                         @if(empty($usersRoles))
-                            <p class="text-xs text-gray-400 text-center py-4">Sin datos disponibles.</p>
+                            <p class="text-xs text-slate-400 text-center py-4">No hay datos de usuarios registrados.</p>
                         @endif
                     </div>
 
-                    <div class="mt-6 pt-4 border-t border-gray-50 grid grid-cols-2 gap-3">
-                        <div class="text-center">
-                            <p class="text-xl font-black text-gray-900">{{ $usersTotal }}</p>
-                            <p class="text-[11px] text-gray-400">Total usuarios</p>
+                    {{-- Indicadores Adicionales de Transparencia --}}
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 grid grid-cols-2 gap-3 text-center">
+                        <div class="border-r border-slate-200/60 pr-2">
+                            <p class="text-xs text-slate-500 font-medium">Grados & Títulos</p>
+                            <p class="text-lg font-black text-slate-900">{{ $degreeRecordsTotal }}</p>
                         </div>
-                        <div class="text-center">
-                            <p class="text-xl font-black text-purple-600">{{ $usersThisMonth }}</p>
-                            <p class="text-[11px] text-gray-400">Nuevos este mes</p>
+                        <div class="pl-2">
+                            <p class="text-xs text-slate-500 font-medium">Registros Alumnos</p>
+                            <p class="text-lg font-black text-indigo-600">{{ $studentRecordsTotal }}</p>
                         </div>
                     </div>
                 </div>
 
-                {{-- Últimos usuarios registrados --}}
-                <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                    <div class="flex items-center justify-between mb-5">
+                {{-- Columna Derecha: Centro de Actividad Reciente Multitab --}}
+                <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-7 flex flex-col justify-between"
+                     x-data="{ activeTab: 'users' }">
+                    
+                    {{-- Tab Navigation Header --}}
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
                         <div>
-                            <h3 class="font-bold text-gray-900 text-sm">Últimos Usuarios Registrados</h3>
-                            <p class="text-xs text-gray-400 mt-0.5">Los más recientes en el sistema</p>
+                            <h4 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                                <i class="bi bi-lightning-charge-fill text-amber-500"></i> Centro de Actividad Reciente
+                            </h4>
+                            <p class="text-xs text-slate-500">Navega entre los últimos eventos y registros en el sistema.</p>
                         </div>
-                        <a href="{{ route('admin.users.index') }}"
-                           class="text-xs font-semibold text-purple-600 hover:text-purple-700 transition-colors flex items-center gap-1">
-                            Ver todos <i class="bi bi-arrow-right text-sm"></i>
-                        </a>
+
+                        {{-- Tab Pills --}}
+                        <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1 sm:pb-0">
+                            <button type="button" @click="activeTab = 'users'"
+                                    class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer"
+                                    :class="activeTab === 'users' ? 'bg-purple-600 text-white shadow-sm shadow-purple-500/30' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'">
+                                <i class="bi bi-people mr-1"></i> Usuarios
+                            </button>
+                            <button type="button" @click="activeTab = 'claims'"
+                                    class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer"
+                                    :class="activeTab === 'claims' ? 'bg-rose-600 text-white shadow-sm shadow-rose-500/30' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'">
+                                <i class="bi bi-bookmark-x mr-1"></i> Reclamos
+                            </button>
+                            <button type="button" @click="activeTab = 'jobs'"
+                                    class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer"
+                                    :class="activeTab === 'jobs' ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/30' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'">
+                                <i class="bi bi-briefcase mr-1"></i> Empleo
+                            </button>
+                            <button type="button" @click="activeTab = 'blogs'"
+                                    class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer"
+                                    :class="activeTab === 'blogs' ? 'bg-cyan-600 text-white shadow-sm shadow-cyan-500/30' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'">
+                                <i class="bi bi-newspaper mr-1"></i> Noticias
+                            </button>
+                        </div>
                     </div>
 
-                    @php
-                        $roleBadge = [
-                            'Admin'          => 'bg-purple-100 text-purple-700',
-                            'Docente'        => 'bg-blue-100 text-blue-700',
-                            'Administrativo' => 'bg-indigo-100 text-indigo-700',
-                            'usuario'        => 'bg-emerald-100 text-emerald-700',
-                        ];
-                    @endphp
-
-                    <div class="divide-y divide-gray-50">
-                        @forelse($recentUsers as $u)
-                            <div class="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
-                                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center flex-shrink-0 text-white text-xs font-bold shadow-sm">
-                                    {{ strtoupper(substr($u->names ?? 'U', 0, 1)) }}
+                    {{-- Tab 1: Usuarios Recientes --}}
+                    <div x-show="activeTab === 'users'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="py-4 space-y-3">
+                        <div class="divide-y divide-slate-100">
+                            @forelse($recentUsers as $u)
+                                <div class="flex items-center justify-between py-2.5 first:pt-0 last:pb-0 gap-3">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white font-black text-xs flex items-center justify-center shadow-sm flex-shrink-0">
+                                            {{ strtoupper(substr($u->names ?? $u->name ?? 'U', 0, 1)) }}
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-xs font-bold text-slate-800 truncate">{{ $u->names ?? $u->name }}</p>
+                                            <p class="text-[11px] text-slate-400 truncate">{{ $u->email }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 flex-shrink-0">
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                                            {{ $u->role ?? 'Usuario' }}
+                                        </span>
+                                        <span class="text-[10px] text-slate-400 hidden sm:inline">
+                                            {{ $u->created_at?->diffForHumans() }}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-semibold text-gray-800 truncate">{{ $u->names }}</p>
-                                    <p class="text-xs text-gray-400 truncate">{{ $u->email }}</p>
+                            @empty
+                                <div class="text-center py-8 text-slate-400">
+                                    <i class="bi bi-people text-3xl"></i>
+                                    <p class="text-xs mt-1">Sin usuarios recientes</p>
                                 </div>
-                                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 {{ $roleBadge[$u->role] ?? 'bg-gray-100 text-gray-600' }}">
-                                    {{ $u->role }}
-                                </span>
-                            </div>
-                        @empty
-                            <div class="text-center py-8 text-gray-400">
-                                <i class="bi bi-people text-3xl block mb-2"></i>
-                                <p class="text-sm">No hay usuarios registrados aún.</p>
-                            </div>
-                        @endforelse
-                    </div>
-                </div>
-
-            </div>
-
-
-            {{-- ═══ FILA 4 — Bolsa de Trabajo + Reclamos ══════════════ --}}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                {{-- Últimas Ofertas de Trabajo --}}
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                    <div class="flex items-center justify-between mb-5">
-                        <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
-                                <i class="bi bi-briefcase-fill"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-gray-900 text-sm">Bolsa de Trabajo</h3>
-                                <p class="text-xs text-gray-400">Últimas ofertas</p>
-                            </div>
+                            @endforelse
                         </div>
-                        <a href="{{ route('admin.works.index') }}"
-                           class="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-1">
-                            Ver todas <i class="bi bi-arrow-right text-sm"></i>
-                        </a>
-                    </div>
-
-                    @forelse($recentOffers as $offer)
-                        <div class="flex items-start gap-3 py-2.5 border-b border-gray-50 last:border-b-0">
-                            <div class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <i class="bi bi-laptop text-blue-500 text-sm"></i>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-gray-800 truncate">{{ $offer->title }}</p>
-                                <p class="text-xs text-gray-400">{{ $offer->company }}</p>
-                            </div>
-                            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full flex-shrink-0
-                                {{ $offer->is_active ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-gray-50 text-gray-400 border border-gray-100' }}">
-                                {{ $offer->is_active ? 'Activa' : 'Inactiva' }}
-                            </span>
-                        </div>
-                    @empty
-                        <div class="flex flex-col items-center justify-center py-10 text-center">
-                            <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-3">
-                                <i class="bi bi-briefcase text-blue-300 text-2xl"></i>
-                            </div>
-                            <p class="text-sm font-semibold text-gray-700">Sin ofertas registradas</p>
-                            <p class="text-xs text-gray-400 mt-1">Agrega ofertas desde la sección de Bolsa de Trabajo.</p>
-                            <a href="{{ route('admin.works.index') }}"
-                               class="mt-4 inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                                <i class="bi bi-plus-lg"></i> Agregar oferta
+                        <div class="pt-2 text-right">
+                            <a href="{{ route('admin.users.index') }}" class="text-xs font-bold text-purple-600 hover:text-purple-700 transition-colors">
+                                Ver todos los usuarios <i class="bi bi-arrow-right"></i>
                             </a>
                         </div>
-                    @endforelse
-                </div>
-
-                {{-- Reclamos recientes --}}
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                    <div class="flex items-center justify-between mb-5">
-                        <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-xl bg-red-100 text-red-500 flex items-center justify-center">
-                                <i class="bi bi-bookmark-x-fill"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-gray-900 text-sm">Reclamos</h3>
-                                <p class="text-xs text-gray-400">Libro de Reclamaciones</p>
-                            </div>
-                        </div>
-                        <a href="{{ route('admin.claims.index') }}"
-                           class="text-xs font-semibold text-red-500 hover:text-red-600 transition-colors flex items-center gap-1">
-                            Ver todos <i class="bi bi-arrow-right text-sm"></i>
-                        </a>
                     </div>
 
-                    @forelse($recentClaims as $claim)
-                        <div class="flex items-start gap-3 py-2.5 border-b border-gray-50 last:border-b-0">
-                            <div class="w-8 h-8 rounded-full bg-red-50 border border-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <i class="bi bi-exclamation-circle text-red-400 text-sm"></i>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-gray-800 truncate">
-                                    {{ $claim->name ?? ($claim->full_name ?? 'Reclamante') }}
-                                </p>
-                                <p class="text-xs text-gray-400 line-clamp-1">
-                                    {{ Str::limit($claim->claim ?? $claim->description ?? 'Sin detalle', 60) }}
-                                </p>
-                            </div>
-                            <span class="text-[11px] text-gray-400 flex-shrink-0">
-                                {{ $claim->created_at?->diffForHumans() }}
-                            </span>
+                    {{-- Tab 2: Reclamos Recientes --}}
+                    <div x-show="activeTab === 'claims'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="py-4 space-y-3" x-cloak>
+                        <div class="divide-y divide-slate-100">
+                            @forelse($recentClaims as $claim)
+                                <div class="flex items-center justify-between py-2.5 first:pt-0 last:pb-0 gap-3">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-10 h-10 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 flex items-center justify-center text-base flex-shrink-0">
+                                            <i class="bi bi-bookmark-x-fill"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-xs font-bold text-slate-800 truncate">{{ $claim->name ?? ($claim->full_name ?? 'Reclamante') }}</p>
+                                            <p class="text-[11px] text-slate-500 line-clamp-1">{{ Str::limit($claim->claim ?? $claim->description ?? 'Sin detalle', 65) }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 flex-shrink-0">
+                                        <span class="text-[10px] text-slate-400">{{ $claim->created_at?->diffForHumans() }}</span>
+                                        <a href="{{ route('admin.claims.index') }}" class="text-xs text-rose-600 hover:text-rose-700 font-bold">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="text-center py-8 text-slate-400">
+                                    <i class="bi bi-check-circle-fill text-3xl text-emerald-400"></i>
+                                    <p class="text-xs mt-1 text-slate-600 font-semibold">¡Todo al día! No hay reclamos pendientes.</p>
+                                </div>
+                            @endforelse
                         </div>
-                    @empty
-                        <div class="flex flex-col items-center justify-center py-10 text-center">
-                            <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-3">
-                                <i class="bi bi-check-circle text-green-400 text-2xl"></i>
-                            </div>
-                            <p class="text-sm font-semibold text-gray-700">Sin reclamos pendientes</p>
-                            <p class="text-xs text-gray-400 mt-1">No hay reclamos en el sistema actualmente.</p>
+                        <div class="pt-2 text-right">
+                            <a href="{{ route('admin.claims.index') }}" class="text-xs font-bold text-rose-600 hover:text-rose-700 transition-colors">
+                                Ir al Libro de Reclamaciones <i class="bi bi-arrow-right"></i>
+                            </a>
                         </div>
-                    @endforelse
+                    </div>
+
+                    {{-- Tab 3: Ofertas Laborales --}}
+                    <div x-show="activeTab === 'jobs'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="py-4 space-y-3" x-cloak>
+                        <div class="divide-y divide-slate-100">
+                            @forelse($recentOffers as $offer)
+                                <div class="flex items-center justify-between py-2.5 first:pt-0 last:pb-0 gap-3">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center text-base flex-shrink-0">
+                                            <i class="bi bi-briefcase-fill"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-xs font-bold text-slate-800 truncate">{{ $offer->title }}</p>
+                                            <p class="text-[11px] text-slate-500 truncate">{{ $offer->company }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 flex-shrink-0">
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $offer->is_active ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500' }}">
+                                            {{ $offer->is_active ? 'Activa' : 'Inactiva' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="text-center py-8 text-slate-400">
+                                    <i class="bi bi-briefcase text-3xl"></i>
+                                    <p class="text-xs mt-1">Sin ofertas laborales registradas</p>
+                                </div>
+                            @endforelse
+                        </div>
+                        <div class="pt-2 text-right">
+                            <a href="{{ route('admin.works.index') }}" class="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                                Ver Bolsa de Trabajo <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- Tab 4: Noticias / Blogs --}}
+                    <div x-show="activeTab === 'blogs'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="py-4 space-y-3" x-cloak>
+                        <div class="divide-y divide-slate-100">
+                            @forelse($recentBlogs as $blog)
+                                <div class="flex items-center justify-between py-2.5 first:pt-0 last:pb-0 gap-3">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-10 h-10 rounded-2xl bg-cyan-50 border border-cyan-100 text-cyan-600 flex items-center justify-center text-base flex-shrink-0">
+                                            <i class="bi bi-newspaper"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-xs font-bold text-slate-800 truncate">{{ $blog->title }}</p>
+                                            <p class="text-[11px] text-slate-500">{{ $blog->created_at?->format('d/m/Y') }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 flex-shrink-0">
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $blog->is_published ? 'bg-cyan-50 text-cyan-700 border border-cyan-200' : 'bg-slate-100 text-slate-500' }}">
+                                            {{ $blog->is_published ? 'Publicado' : 'Borrador' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="text-center py-8 text-slate-400">
+                                    <i class="bi bi-newspaper text-3xl"></i>
+                                    <p class="text-xs mt-1">Sin noticias registradas</p>
+                                </div>
+                            @endforelse
+                        </div>
+                        <div class="pt-2 text-right">
+                            <a href="{{ route('admin.blogs.index') }}" class="text-xs font-bold text-cyan-600 hover:text-cyan-700 transition-colors">
+                                Gestionar Noticias & Blog <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
+            </section>
 
-            </div>
-
-
-            {{-- ═══ FILA 5 — Accesos rápidos de gestión ══════════════ --}}
-            <div>
-                <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">
-                    <i class="bi bi-lightning-fill mr-1.5"></i> Accesos Rápidos de Gestión
+            {{-- ═══ SECCIÓN 4: Accesos Rápidos de Gestión ═══════════════ --}}
+            <section class="space-y-4">
+                <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                    <i class="bi bi-compass-fill text-indigo-600"></i> Accesos Rápidos a Módulos del Sistema
                 </h3>
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
                     @php
-                        $quickLinks = [
-                            ['route'=>route('admin.users.index'),    'icon'=>'bi-people-fill',         'label'=>'Usuarios',    'color'=>'purple'],
-                            ['route'=>route('admin.works.index'),    'icon'=>'bi-briefcase-fill',       'label'=>'Bolsa',       'color'=>'blue'],
-                            ['route'=>route('admin.claims.index'),   'icon'=>'bi-bookmark-x-fill',      'label'=>'Reclamos',    'color'=>'red'],
-                            ['route'=>route('admin.programs.index'), 'icon'=>'bi-mortarboard-fill',     'label'=>'Programas',   'color'=>'sky'],
-                            ['route'=>route('admin.exams.index'),    'icon'=>'bi-journal-text',         'label'=>'Exámenes',    'color'=>'amber'],
-                            ['route'=>route('admin.tupa.index'),     'icon'=>'bi-file-earmark-ruled',   'label'=>'TUPA',        'color'=>'indigo'],
-                            ['route'=>route('admin.partners.index'), 'icon'=>'bi-buildings-fill',       'label'=>'Partners',    'color'=>'emerald'],
-                            ['route'=>route('admin.enterprise.edit'),'icon'=>'bi-building',             'label'=>'Empresa',     'color'=>'slate'],
-                        ];
-                        $qlColors = [
-                            'purple'  => 'bg-purple-50  border-purple-100  text-purple-600  hover:bg-purple-100  hover:border-purple-300',
-                            'blue'    => 'bg-blue-50    border-blue-100    text-blue-600    hover:bg-blue-100    hover:border-blue-300',
-                            'red'     => 'bg-red-50     border-red-100     text-red-500     hover:bg-red-100     hover:border-red-300',
-                            'sky'     => 'bg-sky-50     border-sky-100     text-sky-600     hover:bg-sky-100     hover:border-sky-300',
-                            'amber'   => 'bg-amber-50   border-amber-100   text-amber-600   hover:bg-amber-100   hover:border-amber-300',
-                            'indigo'  => 'bg-indigo-50  border-indigo-100  text-indigo-600  hover:bg-indigo-100  hover:border-indigo-300',
-                            'emerald' => 'bg-emerald-50 border-emerald-100 text-emerald-600 hover:bg-emerald-100 hover:border-emerald-300',
-                            'slate'   => 'bg-slate-50   border-slate-100   text-slate-600   hover:bg-slate-100   hover:border-slate-300',
+                        $hubs = [
+                            ['route' => route('admin.carousel.index'),     'icon' => 'bi-images',             'label' => 'Carrusel',    'color' => 'from-purple-500 to-indigo-600'],
+                            ['route' => route('admin.programs.index'),     'icon' => 'bi-book-fill',          'label' => 'Programas',   'color' => 'from-emerald-500 to-teal-600'],
+                            ['route' => route('admin.exams.index'),        'icon' => 'bi-mortarboard-fill',   'label' => 'Admisión',    'color' => 'from-amber-500 to-orange-600'],
+                            ['route' => route('admin.enrollments.index'),  'icon' => 'bi-calendar-check-fill','label' => 'Matrículas',  'color' => 'from-rose-500 to-red-600'],
+                            ['route' => route('admin.works.index'),        'icon' => 'bi-briefcase-fill',     'label' => 'Bolsa Empleo','color' => 'from-blue-500 to-indigo-600'],
+                            ['route' => route('admin.tupa.index'),         'icon' => 'bi-file-earmark-ruled', 'label' => 'TUPA',        'color' => 'from-indigo-500 to-purple-600'],
+                            ['route' => route('admin.users.index'),        'icon' => 'bi-people-fill',        'label' => 'Usuarios',    'color' => 'from-violet-500 to-fuchsia-600'],
+                            ['route' => route('admin.enterprise.edit'),    'icon' => 'bi-gear-wide-connected','label' => 'Empresa',     'color' => 'from-slate-600 to-slate-800'],
                         ];
                     @endphp
 
-                    @foreach($quickLinks as $ql)
-                        <a href="{{ $ql['route'] }}"
-                           class="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border transition-all duration-200 text-center group {{ $qlColors[$ql['color']] }}">
-                            <i class="bi {{ $ql['icon'] }} text-2xl group-hover:scale-110 transition-transform duration-200"></i>
-                            <span class="text-xs font-bold">{{ $ql['label'] }}</span>
+                    @foreach($hubs as $hub)
+                        <a href="{{ $hub['route'] }}"
+                           class="stat-card bg-white rounded-2xl border border-slate-200/80 p-4 text-center flex flex-col items-center justify-center gap-2 group hover:border-purple-300">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br {{ $hub['color'] }} text-white flex items-center justify-center text-lg shadow-md group-hover:scale-110 transition-transform">
+                                <i class="bi {{ $hub['icon'] }}"></i>
+                            </div>
+                            <span class="text-xs font-bold text-slate-800 group-hover:text-purple-600 transition-colors">{{ $hub['label'] }}</span>
                         </a>
                     @endforeach
                 </div>
-            </div>
+            </section>
 
-
-            {{-- ═══ FILA 6 — Resumen del sistema ══════════════════════ --}}
-            <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 text-white">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center">
-                        <i class="bi bi-activity text-white"></i>
+            {{-- ═══ SECCIÓN 5: Estado de los Servicios & Infraestructura ══ --}}
+            <section class="bg-gradient-to-br from-slate-900 to-slate-950 rounded-3xl p-6 sm:p-8 text-white border border-slate-800 shadow-xl space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-emerald-400 text-xl">
+                            <i class="bi bi-hdd-rack-fill"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-extrabold text-white">Estado de la Infraestructura & Servicios</h4>
+                            <p class="text-xs text-slate-400">Salud del servidor web, base de datos y recursos activos</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="font-bold text-white text-sm">Estado del Sistema</h3>
-                        <p class="text-xs text-slate-400">Resumen de recursos activos</p>
+
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
+                        <span>8 / 8 Servicios Operando</span>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    @php
-                        $systemStats = [
-                            ['label'=>'Usuarios Activos',     'value'=>$usersActive,     'total'=>$usersTotal,     'color'=>'purple'],
-                            ['label'=>'Ofertas Activas',      'value'=>$jobOffersActive,  'total'=>$jobOffersTotal,  'color'=>'blue'],
-                            ['label'=>'Admisiones Activas',   'value'=>$admissionsActive, 'total'=>$admissionsTotal, 'color'=>'amber'],
-                            ['label'=>'Partners Activos',     'value'=>$partnersActive,   'total'=>$partnersTotal,   'color'=>'emerald'],
-                        ];
-                        $sysCols = ['purple'=>'text-purple-400','blue'=>'text-blue-400','amber'=>'text-amber-400','emerald'=>'text-emerald-400'];
-                    @endphp
-
-                    @foreach($systemStats as $ss)
-                        @php $pct = $ss['total'] > 0 ? round(($ss['value']/$ss['total'])*100) : 0; @endphp
-                        <div class="bg-white/5 rounded-xl p-4">
-                            <p class="text-xs text-slate-400 font-medium mb-2">{{ $ss['label'] }}</p>
-                            <p class="text-2xl font-black {{ $sysCols[$ss['color']] }}">{{ $ss['value'] }}</p>
-                            <p class="text-xs text-slate-500 mt-0.5">de {{ $ss['total'] }} totales</p>
-                            <div class="mt-2 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                                <div class="h-full rounded-full transition-all duration-700
-                                    {{ $ss['color']==='purple' ? 'bg-purple-500' : '' }}
-                                    {{ $ss['color']==='blue'   ? 'bg-blue-500'   : '' }}
-                                    {{ $ss['color']==='amber'  ? 'bg-amber-500'  : '' }}
-                                    {{ $ss['color']==='emerald'? 'bg-emerald-500': '' }}"
-                                     style="width: {{ $pct }}%"></div>
-                            </div>
+                    <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
+                        <span class="text-xs text-slate-400 font-medium block">Admisión & Matrícula</span>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-xl font-black text-amber-400">{{ $admissionsActive }}</span>
+                            <span class="text-xs text-slate-500">de {{ $admissionsTotal }} activas</span>
                         </div>
-                    @endforeach
+                        <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full bg-amber-400 rounded-full" style="width: {{ $admissionsTotal > 0 ? ($admissionsActive/$admissionsTotal)*100 : 0 }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
+                        <span class="text-xs text-slate-400 font-medium block">Bolsa de Trabajo</span>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-xl font-black text-blue-400">{{ $jobOffersActive }}</span>
+                            <span class="text-xs text-slate-500">de {{ $jobOffersTotal }} ofertas</span>
+                        </div>
+                        <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-400 rounded-full" style="width: {{ $jobOffersTotal > 0 ? ($jobOffersActive/$jobOffersTotal)*100 : 0 }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
+                        <span class="text-xs text-slate-400 font-medium block">Carrusel Institucional</span>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-xl font-black text-purple-400">{{ $carouselsActive }}</span>
+                            <span class="text-xs text-slate-500">de {{ $carouselsTotal }} slides</span>
+                        </div>
+                        <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full bg-purple-400 rounded-full" style="width: {{ $carouselsTotal > 0 ? ($carouselsActive/$carouselsTotal)*100 : 0 }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
+                        <span class="text-xs text-slate-400 font-medium block">TUPA & Transparencia</span>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-xl font-black text-emerald-400">{{ $tupaActive }}</span>
+                            <span class="text-xs text-slate-500">de {{ $tupaTotal }} publicados</span>
+                        </div>
+                        <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full bg-emerald-400 rounded-full" style="width: {{ $tupaTotal > 0 ? ($tupaActive/$tupaTotal)*100 : 0 }}%"></div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mt-5 pt-4 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <div class="flex items-center gap-2 text-xs text-slate-400">
-                        <span class="w-2 h-2 rounded-full bg-green-400 pulse-dot"></span>
-                        Todos los servicios operando correctamente
-                    </div>
-                    <p class="text-xs text-slate-500">
-                        Última actualización: {{ now()->locale('es')->isoFormat('D MMM YYYY, HH:mm') }}
-                    </p>
+                <div class="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+                    <p>IESTP Francisco Vigo Caballero • Sistema de Gestión Académica e Institucional</p>
+                    <p class="text-slate-500">Sincronización: {{ now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY, HH:mm') }} hrs</p>
                 </div>
-            </div>
+            </section>
 
         </main>
     </div>

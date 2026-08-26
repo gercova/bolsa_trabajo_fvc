@@ -5,11 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Admission;
 use App\Models\Blog;
 use App\Models\Claim;
+use App\Models\DegreeRecord;
+use App\Models\EnrollmentSchedule;
+use App\Models\InstitutionalCarousel;
 use App\Models\JobOffer;
+use App\Models\ManagementDocument;
 use App\Models\Partner;
+use App\Models\Scholarship;
+use App\Models\StudentRecord;
 use App\Models\StudyProgram;
 use App\Models\Tupa;
 use App\Models\User;
+use App\Models\VisitorCounter;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 
@@ -36,6 +43,7 @@ class DashboardController extends Controller
 
         // ── Reclamos ──────────────────────────────────────────
         $claimsTotal     = Claim::count();
+        $claimsPending   = Claim::where('status', 'pendiente')->orWhereNull('status')->count();
         $claimsThisMonth = Claim::whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
@@ -49,27 +57,48 @@ class DashboardController extends Controller
         $programsTotal   = StudyProgram::count();
         $programsActive  = StudyProgram::where('is_active', true)->count();
 
-        // ── Admisiones ────────────────────────────────────────
+        // ── Admisiones & Matrículas ───────────────────────────
         $admissionsTotal  = Admission::count();
         $admissionsActive = Admission::where('is_active', true)->count();
+        $recentAdmissions = Admission::latest()->take(4)->get();
+        $enrollmentSchedulesActive = EnrollmentSchedule::where('is_active', true)->count();
+        $scholarshipsTotal = Scholarship::count();
 
-        // ── TUPA ──────────────────────────────────────────────
-        $tupaTotal  = Tupa::count();
-        $tupaActive = Tupa::where('is_active', true)->count();
+        // ── TUPA & Documentos ─────────────────────────────────
+        $tupaTotal       = Tupa::count();
+        $tupaActive      = Tupa::where('is_active', true)->count();
+        $documentsTotal  = ManagementDocument::count();
+        $documentsActive = ManagementDocument::where('is_active', true)->count();
 
-        // ── Blog ──────────────────────────────────────────────
-        $blogsTotal     = Blog::count();
-        $blogsPublished = Blog::where('is_published', true)->count();
+        // ── Blog / Noticias ───────────────────────────────────
+        $blogsTotal      = Blog::count();
+        $blogsPublished  = Blog::where('is_published', true)->count();
+        $recentBlogs     = Blog::latest()->take(4)->get();
+
+        // ── Carrusel Institucional ────────────────────────────
+        $carouselsTotal  = InstitutionalCarousel::count();
+        $carouselsActive = InstitutionalCarousel::where('is_active', true)->count();
+
+        // ── Contador de Visitas & Transparencia ───────────────
+        $totalVisits     = VisitorCounter::getTotalVisits();
+        $visitDigits     = VisitorCounter::getPaddedDigits($totalVisits, 6);
+        $degreeRecordsTotal = DegreeRecord::count();
+        $studentRecordsTotal = StudentRecord::count();
 
         return view('dashboard', compact(
             'usersTotal', 'usersActive', 'usersThisMonth', 'usersRoles', 'recentUsers',
             'jobOffersTotal', 'jobOffersActive', 'recentOffers',
-            'claimsTotal', 'claimsThisMonth', 'recentClaims',
+            'claimsTotal', 'claimsPending', 'claimsThisMonth', 'recentClaims',
             'partnersTotal', 'partnersActive',
             'programsTotal', 'programsActive',
-            'admissionsTotal', 'admissionsActive',
+            'admissionsTotal', 'admissionsActive', 'recentAdmissions',
+            'enrollmentSchedulesActive', 'scholarshipsTotal',
             'tupaTotal', 'tupaActive',
-            'blogsTotal', 'blogsPublished',
+            'documentsTotal', 'documentsActive',
+            'blogsTotal', 'blogsPublished', 'recentBlogs',
+            'carouselsTotal', 'carouselsActive',
+            'totalVisits', 'visitDigits',
+            'degreeRecordsTotal', 'studentRecordsTotal'
         ));
     }
 }

@@ -87,10 +87,10 @@
                             {{ $calendarOpen ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
                     </div>
                     <i
-                        class="bi bi-calendar3 text-xl transition-transform duration-200 group-hover:scale-110
-                            {{ $calendarOpen ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
-                    <span class="ml-4 font-medium whitespace-nowrap flex-1 text-left" x-show="sidebarOpen">Gestionar
-                        Calendario</span>
+                        class="bi bi-calendar3 text-xl transition-transform duration-200 group-hover:scale-110 {{ $calendarOpen ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
+                    <span class="ml-4 font-medium whitespace-nowrap flex-1 text-left" x-show="sidebarOpen">
+                        Admisión
+                    </span>
                     <i class="bi text-xs ml-auto transition-transform duration-200"
                         :class="open ? 'bi-chevron-up' : 'bi-chevron-down'" x-show="sidebarOpen"></i>
                 </button>
@@ -165,8 +165,9 @@
                     <i
                         class="bi bi-folder2-open text-xl transition-transform duration-200 group-hover:scale-110
                             {{ $docsOpen ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
-                    <span class="ml-4 font-medium whitespace-nowrap flex-1 text-left" x-show="sidebarOpen">Gestionar
-                        Documentos</span>
+                    <span class="ml-4 font-medium whitespace-nowrap flex-1 text-left" x-show="sidebarOpen">
+                        Trámite
+                    </span>
                     <i class="bi text-xs ml-auto transition-transform duration-200"
                         :class="open ? 'bi-chevron-up' : 'bi-chevron-down'" x-show="sidebarOpen"></i>
                 </button>
@@ -225,8 +226,9 @@
                     <i
                         class="bi bi-people-fill text-xl transition-transform duration-200 group-hover:scale-110
                             {{ $groupsOpen ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
-                    <span class="ml-4 font-medium whitespace-nowrap flex-1 text-left" x-show="sidebarOpen">Gestionar
-                        Grupos</span>
+                    <span class="ml-4 font-medium whitespace-nowrap flex-1 text-left" x-show="sidebarOpen">
+                        Personas
+                    </span>
                     <i class="bi text-xs ml-auto transition-transform duration-200"
                         :class="open ? 'bi-chevron-up' : 'bi-chevron-down'" x-show="sidebarOpen"></i>
                 </button>

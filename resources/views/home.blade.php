@@ -150,271 +150,146 @@
 @endpush
 @section('content')
     {{-- ═══ HERO CAROUSEL — UNSM STYLE ════════════════════════════════════ --}}
+    @php
+        $carouselsCount = $carousels->count();
+        $slidesData = $carousels->map(function ($c, $idx) {
+            return [
+                'label' => $c->indicator_label ?: ($c->tag ?: 'Slide ' . ($idx + 1)),
+            ];
+        })->values()->toJson();
+    @endphp
+
     <section class="relative bg-slate-950 text-white overflow-hidden select-none"
-        aria-label="Carrusel de Portada Institucional" x-data="heroCarousel()" x-init="init()"
+        aria-label="Carrusel de Portada Institucional" x-data="heroCarousel({{ $carouselsCount }}, {{ $slidesData }})" x-init="init()"
         @mouseenter="pauseTimer()" @mouseleave="resumeTimer()" @keydown.right.window="nextSlide()"
         @keydown.left.window="prevSlide()">
 
         {{-- Carousel Slides Container --}}
         <div class="relative w-full h-[540px] sm:h-[600px] lg:h-[660px] xl:h-[700px] overflow-hidden">
 
-            {{-- SLIDE 1: Admisión & Formación --}}
-            <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
-                :class="currentSlide === 0 ? 'opacity-100 z-20 pointer-events-auto' : 'opacity-0 z-10 pointer-events-none'">
-                {{-- Background Photo with Ken Burns slow zoom --}}
-                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-[8000ms] ease-out"
-                    :class="currentSlide === 0 ? 'scale-105' : 'scale-100'"
-                    style="background-image: url('{{ asset('images/slider_admision.jpg') }}');">
-                </div>
+            @forelse($carousels as $index => $slide)
+                @php $styles = $slide->theme_styles; @endphp
+                <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+                    :class="currentSlide === {{ $index }} ? 'opacity-100 z-20 pointer-events-auto' : 'opacity-0 z-10 pointer-events-none'">
+                    
+                    {{-- Background Photo with Ken Burns slow zoom --}}
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-[8000ms] ease-out"
+                        :class="currentSlide === {{ $index }} ? 'scale-105' : 'scale-100'"
+                        style="background-image: url('{{ $slide->image_url }}');">
+                    </div>
 
-                {{-- Multi-layered Dark Vignette & Gradient Overlays --}}
-                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 via-55% to-slate-950/30">
-                </div>
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+                    {{-- Multi-layered Dark Vignette & Gradient Overlays --}}
+                    <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 via-55% to-slate-950/30"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
 
-                {{-- Content --}}
-                <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
-                    <div class="max-w-3xl space-y-6 pt-10">
-                        <div
-                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md">
-                            <i class="bi bi-mortarboard-fill text-amber-400"></i>
-                            <span>Admisión 2026-I • Modalidades Abiertas</span>
-                        </div>
+                    {{-- Content --}}
+                    <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
+                        <div class="max-w-3xl space-y-6 pt-10">
+                            @if($slide->tag)
+                                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full {{ $styles['badge_bg'] }} border {{ $styles['badge_border'] }} {{ $styles['badge_text'] }} text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md">
+                                    <i class="bi {{ $slide->tag_icon ?? 'bi-mortarboard-fill' }} {{ $styles['badge_icon'] }}"></i>
+                                    <span>{{ $slide->tag }}</span>
+                                </div>
+                            @endif
 
-                        <h1
-                            class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] text-white font-display">
-                            Tu futuro profesional empieza aquí, en el <br>
-                            <span
-                                class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-sky-300 to-cyan-300">
-                                IESTP Francisco Vigo Caballero
-                            </span>
-                        </h1>
+                            <h{{ $index === 0 ? '1' : '2' }}
+                                class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] text-white font-display">
+                                {{ $slide->title }}
+                                @if($slide->highlight_text)
+                                    <br>
+                                    <span class="text-transparent bg-clip-text bg-gradient-to-r {{ $styles['gradient_text'] }}">
+                                        {{ $slide->highlight_text }}
+                                    </span>
+                                @endif
+                            </h{{ $index === 0 ? '1' : '2' }}>
 
-                        <p class="text-base sm:text-lg lg:text-xl text-slate-200 leading-relaxed font-sans max-w-2xl">
-                            Estudia una de nuestras 5 carreras técnicas a Nombre de la Nación en Uchiza. Formación con alta
-                            demanda laboral, plana docente calificada y modernos ambientes.
-                        </p>
+                            @if($slide->description)
+                                <p class="text-base sm:text-lg lg:text-xl text-slate-200 leading-relaxed font-sans max-w-2xl">
+                                    {{ $slide->description }}
+                                </p>
+                            @endif
 
-                        <div class="flex flex-col sm:flex-row gap-3.5 pt-2">
-                            <a href="{{ route('examen-de-admision') }}"
-                                class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg shadow-sky-500/25 hover:shadow-sky-500/40 transition-all text-sm sm:text-base group">
-                                <i class="bi bi-pencil-square text-lg group-hover:scale-110 transition-transform"></i>
-                                <span>Examen de Admisión</span>
-                            </a>
-                            <a href="{{ route('programas-de-estudio') }}"
-                                class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold rounded-xl backdrop-blur-md transition-all text-sm sm:text-base">
-                                <i class="bi bi-grid-3x3-gap-fill text-sky-300"></i>
-                                <span>Ver 5 Carreras</span>
-                            </a>
+                            @if($slide->primary_button_text || $slide->secondary_button_text)
+                                <div class="flex flex-col sm:flex-row gap-3.5 pt-2">
+                                    @if($slide->primary_button_text)
+                                        <a href="{{ $slide->primary_button_link }}"
+                                            class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-gradient-to-r {{ $styles['btn_primary'] }} text-white font-bold rounded-xl shadow-lg transition-all text-sm sm:text-base group">
+                                            <i class="bi {{ $slide->primary_button_icon ?? 'bi-pencil-square' }} text-lg group-hover:scale-110 transition-transform"></i>
+                                            <span>{{ $slide->primary_button_text }}</span>
+                                        </a>
+                                    @endif
+
+                                    @if($slide->secondary_button_text)
+                                        <a href="{{ $slide->secondary_button_link }}"
+                                            class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold rounded-xl backdrop-blur-md transition-all text-sm sm:text-base">
+                                            <i class="bi {{ $slide->secondary_button_icon ?? 'bi-grid-3x3-gap-fill' }} {{ $styles['btn_sec_icon'] }}"></i>
+                                            <span>{{ $slide->secondary_button_text }}</span>
+                                        </a>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
-            </div>
-
-            {{-- SLIDE 2: Redes y Telecomunicaciones / Tecnología --}}
-            <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
-                :class="currentSlide === 1 ? 'opacity-100 z-20 pointer-events-auto' : 'opacity-0 z-10 pointer-events-none'">
-                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-[8000ms] ease-out"
-                    :class="currentSlide === 1 ? 'scale-105' : 'scale-100'"
-                    style="background-image: url('{{ asset('images/slider_tecnologia.jpg') }}');">
-                </div>
-
-                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 via-55% to-slate-950/30">
-                </div>
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
-
-                <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
-                    <div class="max-w-3xl space-y-6 pt-10">
-                        <div
-                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-500/20 border border-sky-400/40 text-sky-300 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md">
-                            <i class="bi bi-cpu-fill text-sky-400"></i>
-                            <span>Innovación & Transformación Digital</span>
-                        </div>
-
-                        <h2
-                            class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] text-white font-display">
-                            Laboratorios modernos de computación, <br>
-                            <span
-                                class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-cyan-300 to-indigo-300">
-                                redes y telecomunicaciones
-                            </span>
-                        </h2>
-
-                        <p class="text-base sm:text-lg lg:text-xl text-slate-200 leading-relaxed font-sans max-w-2xl">
-                            Capacítate en arquitectura de redes, ciberseguridad, ensamblaje de servidores y desarrollo de
-                            software con talleres prácticos desde el primer ciclo.
-                        </p>
-
-                        <div class="flex flex-col sm:flex-row gap-3.5 pt-2">
-                            <a href="{{ route('programas-de-estudio') }}"
-                                class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg shadow-sky-500/25 transition-all text-sm sm:text-base group">
-                                <i class="bi bi-hdd-network-fill text-lg group-hover:scale-110 transition-transform"></i>
-                                <span>Programa de Redes</span>
-                            </a>
-                            <a href="{{ route('bolsa-de-trabajo') }}"
-                                class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold rounded-xl backdrop-blur-md transition-all text-sm sm:text-base">
-                                <i class="bi bi-briefcase-fill text-sky-300"></i>
-                                <span>Bolsa de Empleo</span>
-                            </a>
-                        </div>
+            @empty
+                {{-- Fallback Slide --}}
+                <div class="absolute inset-0 flex items-center justify-center bg-slate-900 text-white">
+                    <div class="text-center space-y-4 max-w-xl px-4">
+                        <h1 class="text-3xl sm:text-5xl font-extrabold font-display">IESTP Francisco Vigo Caballero</h1>
+                        <p class="text-slate-300 text-base sm:text-lg">Formación Técnica Superior de Calidad en Uchiza, San Martín.</p>
                     </div>
                 </div>
-            </div>
-
-            {{-- SLIDE 3: Enfermería Técnica & Salud --}}
-            <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
-                :class="currentSlide === 2 ? 'opacity-100 z-20 pointer-events-auto' : 'opacity-0 z-10 pointer-events-none'">
-                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-[8000ms] ease-out"
-                    :class="currentSlide === 2 ? 'scale-105' : 'scale-100'"
-                    style="background-image: url('{{ asset('images/slider_enfermeria.jpg') }}');">
-                </div>
-
-                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 via-55% to-slate-950/30">
-                </div>
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
-
-                <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
-                    <div class="max-w-3xl space-y-6 pt-10">
-                        <div
-                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-500/20 border border-rose-400/40 text-rose-300 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md">
-                            <i class="bi bi-heart-pulse-fill text-rose-400"></i>
-                            <span>Vocación de Servicio & Salud Comunitaria</span>
-                        </div>
-
-                        <h2
-                            class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] text-white font-display">
-                            Enfermería Técnica con <br>
-                            <span
-                                class="text-transparent bg-clip-text bg-gradient-to-r from-rose-300 via-pink-300 to-amber-300">
-                                simulación clínica integral
-                            </span>
-                        </h2>
-
-                        <p class="text-base sm:text-lg lg:text-xl text-slate-200 leading-relaxed font-sans max-w-2xl">
-                            Desarrolla competencias asistenciales con docentes médicos y licenciados. Convenios con
-                            hospitales y centros de salud para tus prácticas preprofesionales.
-                        </p>
-
-                        <div class="flex flex-col sm:flex-row gap-3.5 pt-2">
-                            <a href="{{ route('programas-de-estudio') }}"
-                                class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-400 hover:to-red-500 text-white font-bold rounded-xl shadow-lg shadow-rose-500/25 transition-all text-sm sm:text-base group">
-                                <i class="bi bi-heart-pulse text-lg group-hover:scale-110 transition-transform"></i>
-                                <span>Enfermería Técnica</span>
-                            </a>
-                            <a href="{{ route('becas-y-creditos') }}"
-                                class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold rounded-xl backdrop-blur-md transition-all text-sm sm:text-base">
-                                <i class="bi bi-award-fill text-rose-300"></i>
-                                <span>Becas PRONABEC</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- SLIDE 4: Producción Agropecuaria & Manejo Forestal --}}
-            <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
-                :class="currentSlide === 3 ? 'opacity-100 z-20 pointer-events-auto' : 'opacity-0 z-10 pointer-events-none'">
-                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-[8000ms] ease-out"
-                    :class="currentSlide === 3 ? 'scale-105' : 'scale-100'"
-                    style="background-image: url('{{ asset('images/slider_agroforestal.jpg') }}');">
-                </div>
-
-                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 via-55% to-slate-950/30">
-                </div>
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
-
-                <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
-                    <div class="max-w-3xl space-y-6 pt-10">
-                        <div
-                            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md">
-                            <i class="bi bi-tree-fill text-emerald-400"></i>
-                            <span>Desarrollo Agroforestal & Sostenibilidad</span>
-                        </div>
-
-                        <h2
-                            class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] text-white font-display">
-                            Liderazgo en el agro y la <br>
-                            <span
-                                class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-300 to-lime-300">
-                                conservación de los bosques
-                            </span>
-                        </h2>
-
-                        <p class="text-base sm:text-lg lg:text-xl text-slate-200 leading-relaxed font-sans max-w-2xl">
-                            Aprende en parcelas demostrativas, viveros tecnificados y módulos de producción pecuaria en
-                            Uchiza. Formando técnicos para la productividad del Alto Huallaga.
-                        </p>
-
-                        <div class="flex flex-col sm:flex-row gap-3.5 pt-2">
-                            <a href="{{ route('programas-de-estudio') }}"
-                                class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/25 transition-all text-sm sm:text-base group">
-                                <i class="bi bi-tree text-lg group-hover:scale-110 transition-transform"></i>
-                                <span>Ver Carreras del Agro</span>
-                            </a>
-                            <a href="{{ route('cepre-fvc') }}"
-                                class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold rounded-xl backdrop-blur-md transition-all text-sm sm:text-base">
-                                <i class="bi bi-book-fill text-emerald-300"></i>
-                                <span>Ingreso Directo CEPRE</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @endforelse
 
         </div>
 
-        {{-- Carousel Navigation Controls (Left / Right Floating Arrows) --}}
-        <button type="button" @click="prevSlide()"
-            class="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/60 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center backdrop-blur-md transition-all duration-200 shadow-xl hover:scale-110 focus:outline-none cursor-pointer"
-            aria-label="Diapositiva anterior">
-            <i class="bi bi-chevron-left text-xl sm:text-2xl"></i>
-        </button>
+        @if($carouselsCount > 1)
+            {{-- Carousel Navigation Controls (Left / Right Floating Arrows) --}}
+            <button type="button" @click="prevSlide()"
+                class="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/60 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center backdrop-blur-md transition-all duration-200 shadow-xl hover:scale-110 focus:outline-none cursor-pointer"
+                aria-label="Diapositiva anterior">
+                <i class="bi bi-chevron-left text-xl sm:text-2xl"></i>
+            </button>
 
-        <button type="button" @click="nextSlide()"
-            class="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/60 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center backdrop-blur-md transition-all duration-200 shadow-xl hover:scale-110 focus:outline-none cursor-pointer"
-            aria-label="Siguiente diapositiva">
-            <i class="bi bi-chevron-right text-xl sm:text-2xl"></i>
-        </button>
+            <button type="button" @click="nextSlide()"
+                class="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/60 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center backdrop-blur-md transition-all duration-200 shadow-xl hover:scale-110 focus:outline-none cursor-pointer"
+                aria-label="Siguiente diapositiva">
+                <i class="bi bi-chevron-right text-xl sm:text-2xl"></i>
+            </button>
 
-        {{-- Bottom Slide Indicator Bar (UNSM Portal Style) --}}
-        <div class="absolute bottom-6 sm:bottom-8 left-0 right-0 z-30 pointer-events-none">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-                {{-- Slide Pills / Indicators --}}
-                <div
-                    class="flex items-center gap-2 sm:gap-3 bg-slate-900/80 border border-white/20 px-3 py-1.5 rounded-full backdrop-blur-md pointer-events-auto">
-                    <template
-                        x-for="(slide, index) in [
-                        { label: 'Admisión 2026' },
-                        { label: 'Redes & TI' },
-                        { label: 'Enfermería' },
-                        { label: 'Agroforestal' }
-                    ]"
-                        :key="index">
-                        <button type="button" @click="goToSlide(index)"
-                            class="px-3 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                            :class="currentSlide === index ? 'bg-white text-slate-950 shadow-md scale-105' :
-                                'text-slate-300 hover:text-white hover:bg-white/10'">
-                            <span class="w-1.5 h-1.5 rounded-full"
-                                :class="currentSlide === index ? 'bg-blue-600' : 'bg-slate-500'"></span>
-                            <span class="hidden sm:inline" x-text="slide.label"></span>
-                            <span class="sm:hidden" x-text="index + 1"></span>
+            {{-- Bottom Slide Indicator Bar (UNSM Portal Style) --}}
+            <div class="absolute bottom-6 sm:bottom-8 left-0 right-0 z-30 pointer-events-none">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+                    {{-- Slide Pills / Indicators --}}
+                    <div
+                        class="flex items-center gap-2 sm:gap-3 bg-slate-900/80 border border-white/20 px-3 py-1.5 rounded-full backdrop-blur-md pointer-events-auto">
+                        <template x-for="(slide, index) in slides" :key="index">
+                            <button type="button" @click="goToSlide(index)"
+                                class="px-3 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                                :class="currentSlide === index ? 'bg-white text-slate-950 shadow-md scale-105' :
+                                    'text-slate-300 hover:text-white hover:bg-white/10'">
+                                <span class="w-1.5 h-1.5 rounded-full"
+                                    :class="currentSlide === index ? 'bg-blue-600' : 'bg-slate-500'"></span>
+                                <span class="hidden sm:inline" x-text="slide.label"></span>
+                                <span class="sm:hidden" x-text="index + 1"></span>
+                            </button>
+                        </template>
+                    </div>
+
+                    {{-- Play/Pause & Counter indicator --}}
+                    <div
+                        class="hidden md:flex items-center gap-3 bg-slate-900/80 border border-white/20 px-4 py-1.5 rounded-full backdrop-blur-md text-xs font-semibold text-slate-300 pointer-events-auto">
+                        <button type="button" @click="isPaused = !isPaused"
+                            class="hover:text-white transition-colors cursor-pointer"
+                            :title="isPaused ? 'Reanudar carrusel' : 'Pausar carrusel'">
+                            <i class="bi"
+                                :class="isPaused ? 'bi-play-fill text-amber-400 text-sm' : 'bi-pause-fill text-sm'"></i>
                         </button>
-                    </template>
-                </div>
-
-                {{-- Play/Pause & Counter indicator --}}
-                <div
-                    class="hidden md:flex items-center gap-3 bg-slate-900/80 border border-white/20 px-4 py-1.5 rounded-full backdrop-blur-md text-xs font-semibold text-slate-300 pointer-events-auto">
-                    <button type="button" @click="isPaused = !isPaused"
-                        class="hover:text-white transition-colors cursor-pointer"
-                        :title="isPaused ? 'Reanudar carrusel' : 'Pausar carrusel'">
-                        <i class="bi"
-                            :class="isPaused ? 'bi-play-fill text-amber-400 text-sm' : 'bi-pause-fill text-sm'"></i>
-                    </button>
-                    <span class="text-white font-bold" x-text="(currentSlide + 1) + ' / ' + totalSlides"></span>
+                        <span class="text-white font-bold" x-text="(currentSlide + 1) + ' / ' + totalSlides"></span>
+                    </div>
                 </div>
             </div>
-        </div>
+        @endif
 
     </section>
 
@@ -1177,20 +1052,24 @@
         })();
 
         /* ── Hero Carousel Controller (Alpine.js) ───────────────────── */
-        function heroCarousel() {
+        function heroCarousel(count = 4, slides = []) {
             return {
                 currentSlide: 0,
-                totalSlides: 4,
+                totalSlides: count || 1,
+                slides: slides || [],
                 autoplayInterval: null,
                 intervalDuration: 6000,
                 isPaused: false,
 
                 init() {
-                    this.startAutoplay();
+                    if (this.totalSlides > 1) {
+                        this.startAutoplay();
+                    }
                 },
 
                 startAutoplay() {
                     this.clearAutoplay();
+                    if (this.totalSlides <= 1) return;
                     this.autoplayInterval = setInterval(() => {
                         if (!this.isPaused) {
                             this.nextSlide();
@@ -1214,10 +1093,12 @@
                 },
 
                 nextSlide() {
+                    if (this.totalSlides <= 1) return;
                     this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
                 },
 
                 prevSlide() {
+                    if (this.totalSlides <= 1) return;
                     this.currentSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
                 },
 

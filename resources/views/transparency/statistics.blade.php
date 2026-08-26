@@ -18,62 +18,62 @@
       "@context": "https://schema.org",
       "@graph": [
         {
-          "@type": "EducationalOrganization",
-          "@id": "{{ url('/') }}#organization",
-          "name": "{{ $enterprise->company_name ?? 'IESTP Francisco Vigo Caballero' }}",
-          "alternateName": "{{ $enterprise->trade_name ?? 'IESTP FVC' }}",
-          "url": "{{ url('/') }}",
-          "logo": "{{ asset($enterprise->logo_path ?? 'enterprise/favicons/logo-iestpfvc.png') }}",
-          "address": {
-            "@type": "PostalAddress",
-            "streetAddress": "{{ $enterprise->address ?? 'Av. Ricardo Palma N° 1401' }}",
-            "addressLocality": "{{ $enterprise->city ?? 'Uchiza' }}",
-            "addressRegion": "San Martín",
-            "addressCountry": "PE"
-          }
-        },
-        {
-          "@type": "BreadcrumbList",
-          "@id": "{{ url()->current() }}#breadcrumb",
-          "itemListElement": [
-            {
-              "@type": "ListItem",
-              "position": 1,
-              "name": "Inicio",
-              "item": "{{ url('/') }}"
-            },
-            {
-              "@type": "ListItem",
-              "position": 2,
-              "name": "Transparencia",
-              "item": "{{ route('documentos-de-gestion') }}"
-            },
-            {
-              "@type": "ListItem",
-              "position": 3,
-              "name": "Estadísticas Institucionales",
-              "item": "{{ url()->current() }}"
+            "@type": "EducationalOrganization",
+            "@id": "{{ url('/') }}#organization",
+            "name": "{{ $enterprise->company_name ?? 'IESTP Francisco Vigo Caballero' }}",
+            "alternateName": "{{ $enterprise->trade_name ?? 'IESTP FVC' }}",
+            "url": "{{ url('/') }}",
+            "logo": "{{ asset($enterprise->logo_path ?? 'enterprise/favicons/logo-iestpfvc.png') }}",
+            "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "{{ $enterprise->address ?? 'Av. Ricardo Palma N° 1401' }}",
+                "addressLocality": "{{ $enterprise->city ?? 'Uchiza' }}",
+                "addressRegion": "San Martín",
+                "addressCountry": "PE"
             }
-          ]
         },
         {
-          "@type": "Dataset",
-          "@id": "{{ url()->current() }}#dataset",
-          "name": "Estadísticas de Matrícula, Admisión y Titulación — IESTP Francisco Vigo Caballero",
-          "description": "Conjunto de datos estadísticos consolidados y desagregados por año, periodo académico y programa de estudios del IESTP Francisco Vigo Caballero.",
-          "license": "https://creativecommons.org/licenses/by/4.0/",
-          "creator": {
-            "@id": "{{ url('/') }}#organization"
-          },
-          "spatialCoverage": "Uchiza, San Martín, Perú",
-          "temporalCoverage": "1997/2026",
-          "variableMeasured": [
-            "Estudiantes Matriculados",
-            "Postulantes e Ingresantes",
-            "Grados y Títulos Registrados",
-            "Distribución por Género",
-            "Distribución por Ciclo Académico"
-          ]
+            "@type": "BreadcrumbList",
+            "@id": "{{ url()->current() }}#breadcrumb",
+            "itemListElement": [
+                {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Inicio",
+                "item": "{{ url('/') }}"
+                },
+                {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Transparencia",
+                "item": "{{ route('documentos-de-gestion') }}"
+                },
+                {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "Estadísticas Institucionales",
+                "item": "{{ url()->current() }}"
+                }
+            ]
+        },
+        {
+            "@type": "Dataset",
+            "@id": "{{ url()->current() }}#dataset",
+            "name": "Estadísticas de Matrícula, Admisión y Titulación — IESTP Francisco Vigo Caballero",
+            "description": "Conjunto de datos estadísticos consolidados y desagregados por año, periodo académico y programa de estudios del IESTP Francisco Vigo Caballero.",
+            "license": "https://creativecommons.org/licenses/by/4.0/",
+            "creator": {
+                "@id": "{{ url('/') }}#organization"
+            },
+            "spatialCoverage": "Uchiza, San Martín, Perú",
+            "temporalCoverage": "1997/2026",
+            "variableMeasured": [
+                "Estudiantes Matriculados",
+                "Postulantes e Ingresantes",
+                "Grados y Títulos Registrados",
+                "Distribución por Género",
+                "Distribución por Ciclo Académico"
+            ]
         }
       ]
     }
@@ -97,15 +97,6 @@
             <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)]"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
-                {{-- Breadcrumbs --}}
-                <nav class="flex items-center justify-center gap-2 text-xs sm:text-sm text-slate-400 font-medium" aria-label="Breadcrumb">
-                    <a href="{{ url('/') }}" class="hover:text-sky-400 transition-colors">Inicio</a>
-                    <i class="bi bi-chevron-right text-xs text-slate-600"></i>
-                    <span class="text-slate-400">Transparencia</span>
-                    <i class="bi bi-chevron-right text-xs text-slate-600"></i>
-                    <span class="text-sky-400 font-semibold">Estadísticas</span>
-                </nav>
-
                 {{-- Hero Heading --}}
                 <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-white max-w-5xl mx-auto">
                     Estadísticas <span class="text-sky-400 bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">Institucionales</span>

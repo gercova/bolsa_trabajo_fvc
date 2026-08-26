@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 {{-- ═══ SEO ═══════════════════════════════════════════════════════════════ --}}
 @section('title', 'IESTP Francisco Vigo Caballero — Formación Técnica Superior en Uchiza')
 @section('meta_description',

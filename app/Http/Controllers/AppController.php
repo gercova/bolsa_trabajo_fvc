@@ -12,6 +12,7 @@ use App\Models\HistoricalReview;
 use App\Models\Image;
 use App\Models\InstitutionalCarousel;
 use App\Models\JobOffer;
+use App\Models\LicensingPhase;
 use App\Models\ManagementDocument;
 use App\Models\Partner;
 use App\Models\Scholarship;
@@ -421,7 +422,26 @@ class AppController extends Controller {
 
     // transparencia/licenciamiento
     public function licensment(): View {
-        return view('transparency.licensment');
+        $enterprise = Enterprise::first();
+        $phases = LicensingPhase::active()->ordered()->get();
+        $currentPhase = LicensingPhase::currentStage();
+        $cbcPhase = $phases->firstWhere('phase_number', 1) ?? $phases->first();
+        
+        $totalPhases = $phases->count();
+        $completedPhases = $phases->where('status', 'completed')->count();
+        $globalProgress = $totalPhases > 0 
+            ? round($phases->avg('progress_percentage')) 
+            : 0;
+
+        return view('transparency.licensment', compact(
+            'enterprise',
+            'phases',
+            'currentPhase',
+            'cbcPhase',
+            'totalPhases',
+            'completedPhases',
+            'globalProgress'
+        ));
     }
 
     // transparencia/libro-de-reclamaciones

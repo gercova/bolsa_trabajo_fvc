@@ -471,8 +471,8 @@
                 @endif
             </a>
 
-            <!-- ── GRUPO: Transparencia ─────────────────────────────────── -->
-            @php $transparencyOpen = request()->routeIs('admin.claims.*', 'admin.statistics.*', 'admin.degree-records.*', 'admin.licensing.*'); @endphp
+            <!-- ── GRUPO: Transparencia ──────────────────────────────────── -->
+            @php $transparencyOpen = request()->routeIs('admin.claims.*', 'admin.statistics.*', 'admin.degree-records.*', 'admin.licensing.*', 'admin.account-balances.*'); @endphp
             <div x-data="{ open: {{ $transparencyOpen ? 'true' : 'false' }} }">
                 <button @click="sidebarOpen ? open = !open : open = true"
                     class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden
@@ -552,6 +552,21 @@
                                 {{ request()->routeIs('admin.licensing.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
                         <span class="ml-3 text-sm font-medium whitespace-nowrap">Licenciamiento</span>
                         @if (request()->routeIs('admin.licensing.*'))
+                            <div
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                            </div>
+                        @endif
+                    </a>
+
+                    {{-- Inversión y Gastos --}}
+                    <a href="{{ route('admin.account-balances.index') }}"
+                        class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden
+                            {{ request()->routeIs('admin.account-balances.*') ? 'bg-purple-600/15 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
+                        <i
+                            class="bi bi-cash-stack text-base group-hover:scale-110 transition-transform duration-200
+                                {{ request()->routeIs('admin.account-balances.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Inversión y Gastos</span>
+                        @if (request()->routeIs('admin.account-balances.*'))
                             <div
                                 class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
                             </div>

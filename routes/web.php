@@ -13,6 +13,7 @@ use App\Http\Controllers\EnterpriseController;
 use App\Http\Controllers\ExternalInstitutionalLinkController;
 use App\Http\Controllers\HistoricalReviewController;
 use App\Http\Controllers\JobsController;
+use App\Http\Controllers\LicensingController;
 use App\Http\Controllers\ManagementDocumentController;
 use App\Http\Controllers\PartnersController;
 use App\Http\Controllers\ProfileController;
@@ -319,6 +320,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/editar/{degreeRecord}',   [DegreeRecordsController::class, 'edit'])->name('edit');
         Route::put('/editar/{degreeRecord}',   [DegreeRecordsController::class, 'update'])->name('update');
         Route::delete('/{degreeRecord}',       [DegreeRecordsController::class, 'destroy'])->name('destroy');
+    });
+
+    // licenciamiento (Transparencia)
+    Route::prefix('admin-licenciamiento')->name('admin.licensing.')->group(function () {
+        Route::get('/',                           [LicensingController::class, 'index'])->name('index');
+        Route::get('/crear',                      [LicensingController::class, 'create'])->name('create');
+        Route::post('/guardar',                   [LicensingController::class, 'store'])->name('store');
+        Route::get('/editar/{licensing}',         [LicensingController::class, 'edit'])->name('edit');
+        Route::put('/editar/{licensing}',         [LicensingController::class, 'update'])->name('update');
+        Route::delete('/{licensing}',             [LicensingController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{licensing}',       [LicensingController::class, 'toggleStatus'])->name('toggle-status');
+        Route::patch('/etapa-actual/{licensing}', [LicensingController::class, 'setCurrentStage'])->name('set-current');
     });
 
     // partners

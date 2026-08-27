@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdmissionsController;
+use App\Http\Controllers\AccountBalanceController;
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\BlogController;
@@ -382,6 +383,13 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/editar/{carousel}',     [CarouselController::class, 'update'])->name('update');
         Route::delete('/{carousel}',         [CarouselController::class, 'destroy'])->name('destroy');
         Route::patch('/estado/{carousel}',   [CarouselController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
+    // Inversión y Gestión (Transparencia)
+    Route::prefix('admin-inversiones')->name('admin.account-balances.')->group(function () {
+        Route::get('/',              [AccountBalanceController::class, 'index'])->name('index');
+        Route::post('/importar',     [AccountBalanceController::class, 'import'])->name('import');
+        Route::delete('/{accountBalance}', [AccountBalanceController::class, 'destroy'])->name('destroy');
     });
 });
 

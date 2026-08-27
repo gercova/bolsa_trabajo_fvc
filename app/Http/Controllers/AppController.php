@@ -24,6 +24,7 @@ use App\Models\UserRoleDetail;
 use App\Models\Tupa;
 use App\Models\TupaCategory;
 use App\Models\TupaProcedure;
+use App\Http\Controllers\AccountBalanceController;
 use App\Http\Requests\ClaimValidate;
 use App\Models\Claim;
 use App\Models\ExternalInstitutionalLink;
@@ -416,8 +417,8 @@ class AppController extends Controller {
     }
 
     // transparencia/inversion-y-gestion
-    public function managementReports(): View {
-        return view('transparency.investment-and-management');
+    public function managementReports(Request $request): View {
+        return app(AccountBalanceController::class)->publicIndex($request);
     }
 
     // transparencia/licenciamiento

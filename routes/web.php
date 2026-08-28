@@ -6,6 +6,8 @@ use App\Http\Controllers\AppController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CarouselController;
+use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ClaimsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DegreeRecordsController;
@@ -13,9 +15,11 @@ use App\Http\Controllers\EnrollmentScheduleController;
 use App\Http\Controllers\EnterpriseController;
 use App\Http\Controllers\ExternalInstitutionalLinkController;
 use App\Http\Controllers\HistoricalReviewController;
+use App\Http\Controllers\ItineraryController;
 use App\Http\Controllers\JobsController;
 use App\Http\Controllers\LicensingController;
 use App\Http\Controllers\ManagementDocumentController;
+use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\PartnersController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
@@ -229,6 +233,47 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
+    // ─── Certificaciones (Cursos, Módulos, Certificados, Itinerarios) ─────
+    // Cursos
+    Route::prefix('admin-cursos')->name('admin.courses.')->group(function () {
+        Route::get('/',                 [CourseController::class, 'index'])->name('index');
+        Route::post('/',                [CourseController::class, 'store'])->name('store');
+        Route::put('/{course}',         [CourseController::class, 'update'])->name('update');
+        Route::delete('/{course}',      [CourseController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{course}', [CourseController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
+    // Módulos
+    Route::prefix('admin-modulos')->name('admin.modules.')->group(function () {
+        Route::get('/',                     [ModuleController::class, 'index'])->name('index');
+        Route::post('/',                    [ModuleController::class, 'store'])->name('store');
+        Route::put('/{module}',             [ModuleController::class, 'update'])->name('update');
+        Route::delete('/{module}',          [ModuleController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{module}',     [ModuleController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/por-curso/{course}',   [ModuleController::class, 'byCourse'])->name('by-course');
+    });
+
+    // Certificados
+    Route::prefix('admin-certificados')->name('admin.certificates.')->group(function () {
+        Route::get('/',                         [CertificateController::class, 'index'])->name('index');
+        Route::post('/',                        [CertificateController::class, 'store'])->name('store');
+        Route::get('/{certificate}',            [CertificateController::class, 'show'])->name('show');
+        Route::put('/{certificate}',            [CertificateController::class, 'update'])->name('update');
+        Route::delete('/{certificate}',         [CertificateController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{certificate}',   [CertificateController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('/{certificate}/detalles',  [CertificateController::class, 'storeDetail'])->name('details.store');
+        Route::delete('/detalles/{detail}',     [CertificateController::class, 'destroyDetail'])->name('details.destroy');
+    });
+
+    // Itinerarios
+    Route::prefix('admin-itinerarios')->name('admin.itineraries.')->group(function () {
+        Route::get('/',                     [ItineraryController::class, 'index'])->name('index');
+        Route::post('/',                    [ItineraryController::class, 'store'])->name('store');
+        Route::put('/{itinerary}',          [ItineraryController::class, 'update'])->name('update');
+        Route::delete('/{itinerary}',       [ItineraryController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{itinerary}', [ItineraryController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
     // bolsa de trabajo
     Route::prefix('admin-trabajos')->name('admin.works.')->group(function () {
         Route::get('/',                         [JobsController::class, 'index'])->name('index');
@@ -389,6 +434,13 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin-inversiones')->name('admin.account-balances.')->group(function () {
         Route::get('/',              [AccountBalanceController::class, 'index'])->name('index');
         Route::post('/importar',     [AccountBalanceController::class, 'import'])->name('import');
+        // Vaciado de tabla: sólo Director / Administrador (permiso gestionar-inversiones)
+        Route::delete('/limpiar-tabla', [AccountBalanceController::class, 'truncateTable'])
+            ->name('truncate')
+            ->middleware('can:gestionar-inversiones');
+        Route::delete('/clean-table',   [AccountBalanceController::class, 'truncateTable'])
+            ->name('clean-table')
+            ->middleware('can:gestionar-inversiones');
         Route::delete('/{accountBalance}', [AccountBalanceController::class, 'destroy'])->name('destroy');
     });
 });

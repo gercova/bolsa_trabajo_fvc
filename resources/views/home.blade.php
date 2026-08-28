@@ -161,11 +161,12 @@
 
     <section class="relative bg-slate-950 text-white overflow-hidden select-none"
         aria-label="Carrusel de Portada Institucional" x-data="heroCarousel({{ $carouselsCount }}, {{ $slidesData }})" x-init="init()"
-        @mouseenter="pauseTimer()" @mouseleave="resumeTimer()" @keydown.right.window="nextSlide()"
-        @keydown.left.window="prevSlide()">
+        @mouseenter="pauseTimer()" @mouseleave="resumeTimer()"
+        @touchstart="touchStart($event)" @touchend="touchEnd($event)"
+        @keydown.right.window="nextSlide()" @keydown.left.window="prevSlide()">
 
         {{-- Carousel Slides Container --}}
-        <div class="relative w-full h-[540px] sm:h-[600px] lg:h-[660px] xl:h-[700px] overflow-hidden">
+        <div class="relative w-full min-h-[580px] h-[640px] sm:h-[580px] md:h-[620px] lg:h-[660px] xl:h-[700px] overflow-hidden">
 
             @forelse($carousels as $index => $slide)
                 @php $styles = $slide->theme_styles; @endphp
@@ -183,45 +184,45 @@
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
 
                     {{-- Content --}}
-                    <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
-                        <div class="max-w-3xl space-y-6 pt-10">
+                    <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center pt-8 pb-24 sm:pt-10 sm:pb-24 lg:py-0">
+                        <div class="max-w-3xl space-y-4 sm:space-y-6">
                             @if($slide->tag)
-                                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full {{ $styles['badge_bg'] }} border {{ $styles['badge_border'] }} {{ $styles['badge_text'] }} text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md">
+                                <div class="inline-flex items-center gap-2 px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full {{ $styles['badge_bg'] }} border {{ $styles['badge_border'] }} {{ $styles['badge_text'] }} text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md">
                                     <i class="bi {{ $slide->tag_icon ?? 'bi-mortarboard-fill' }} {{ $styles['badge_icon'] }}"></i>
                                     <span>{{ $slide->tag }}</span>
                                 </div>
                             @endif
 
                             <h{{ $index === 0 ? '1' : '2' }}
-                                class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] text-white font-display">
+                                class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] text-white font-display">
                                 {{ $slide->title }}
                                 @if($slide->highlight_text)
-                                    <br>
-                                    <span class="text-transparent bg-clip-text bg-gradient-to-r {{ $styles['gradient_text'] }}">
+                                    <br class="hidden sm:inline">
+                                    <span class="text-transparent bg-clip-text bg-gradient-to-r {{ $styles['gradient_text'] }} block sm:inline">
                                         {{ $slide->highlight_text }}
                                     </span>
                                 @endif
                             </h{{ $index === 0 ? '1' : '2' }}>
 
                             @if($slide->description)
-                                <p class="text-base sm:text-lg lg:text-xl text-slate-200 leading-relaxed font-sans max-w-2xl">
+                                <p class="text-xs sm:text-base lg:text-lg text-slate-200 leading-relaxed font-sans max-w-2xl line-clamp-3 sm:line-clamp-none">
                                     {{ $slide->description }}
                                 </p>
                             @endif
 
                             @if($slide->primary_button_text || $slide->secondary_button_text)
-                                <div class="flex flex-col sm:flex-row gap-3.5 pt-2">
+                                <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-3.5 pt-1 sm:pt-2">
                                     @if($slide->primary_button_text)
                                         <a href="{{ $slide->primary_button_link }}"
-                                            class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-gradient-to-r {{ $styles['btn_primary'] }} text-white font-bold rounded-xl shadow-lg transition-all text-sm sm:text-base group">
-                                            <i class="bi {{ $slide->primary_button_icon ?? 'bi-pencil-square' }} text-lg group-hover:scale-110 transition-transform"></i>
+                                            class="inline-flex items-center justify-center gap-2 px-5 py-3 sm:px-7 sm:py-3.5 bg-gradient-to-r {{ $styles['btn_primary'] }} text-white font-bold rounded-xl shadow-lg transition-all text-xs sm:text-sm md:text-base group w-full sm:w-auto">
+                                            <i class="bi {{ $slide->primary_button_icon ?? 'bi-pencil-square' }} text-base sm:text-lg group-hover:scale-110 transition-transform"></i>
                                             <span>{{ $slide->primary_button_text }}</span>
                                         </a>
                                     @endif
 
                                     @if($slide->secondary_button_text)
                                         <a href="{{ $slide->secondary_button_link }}"
-                                            class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold rounded-xl backdrop-blur-md transition-all text-sm sm:text-base">
+                                            class="inline-flex items-center justify-center gap-2 px-5 py-3 sm:px-7 sm:py-3.5 bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold rounded-xl backdrop-blur-md transition-all text-xs sm:text-sm md:text-base w-full sm:w-auto">
                                             <i class="bi {{ $slide->secondary_button_icon ?? 'bi-grid-3x3-gap-fill' }} {{ $styles['btn_sec_icon'] }}"></i>
                                             <span>{{ $slide->secondary_button_text }}</span>
                                         </a>
@@ -244,28 +245,28 @@
         </div>
 
         @if($carouselsCount > 1)
-            {{-- Carousel Navigation Controls (Left / Right Floating Arrows) --}}
+            {{-- Carousel Navigation Controls (Left / Right Floating Arrows - hidden on small mobile to avoid text collision) --}}
             <button type="button" @click="prevSlide()"
-                class="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/60 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center backdrop-blur-md transition-all duration-200 shadow-xl hover:scale-110 focus:outline-none cursor-pointer"
+                class="hidden sm:flex absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/60 hover:bg-white/25 border border-white/20 text-white items-center justify-center backdrop-blur-md transition-all duration-200 shadow-xl hover:scale-110 focus:outline-none cursor-pointer"
                 aria-label="Diapositiva anterior">
                 <i class="bi bi-chevron-left text-xl sm:text-2xl"></i>
             </button>
 
             <button type="button" @click="nextSlide()"
-                class="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/60 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center backdrop-blur-md transition-all duration-200 shadow-xl hover:scale-110 focus:outline-none cursor-pointer"
+                class="hidden sm:flex absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/60 hover:bg-white/25 border border-white/20 text-white items-center justify-center backdrop-blur-md transition-all duration-200 shadow-xl hover:scale-110 focus:outline-none cursor-pointer"
                 aria-label="Siguiente diapositiva">
                 <i class="bi bi-chevron-right text-xl sm:text-2xl"></i>
             </button>
 
             {{-- Bottom Slide Indicator Bar (UNSM Portal Style) --}}
-            <div class="absolute bottom-6 sm:bottom-8 left-0 right-0 z-30 pointer-events-none">
+            <div class="absolute bottom-4 sm:bottom-8 left-0 right-0 z-30 pointer-events-none">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
                     {{-- Slide Pills / Indicators --}}
                     <div
-                        class="flex items-center gap-2 sm:gap-3 bg-slate-900/80 border border-white/20 px-3 py-1.5 rounded-full backdrop-blur-md pointer-events-auto">
+                        class="flex items-center gap-1.5 sm:gap-3 bg-slate-900/80 border border-white/20 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full backdrop-blur-md pointer-events-auto shadow-lg">
                         <template x-for="(slide, index) in slides" :key="index">
                             <button type="button" @click="goToSlide(index)"
-                                class="px-3 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                                class="px-2.5 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
                                 :class="currentSlide === index ? 'bg-white text-slate-950 shadow-md scale-105' :
                                     'text-slate-300 hover:text-white hover:bg-white/10'">
                                 <span class="w-1.5 h-1.5 rounded-full"
@@ -278,7 +279,7 @@
 
                     {{-- Play/Pause & Counter indicator --}}
                     <div
-                        class="hidden md:flex items-center gap-3 bg-slate-900/80 border border-white/20 px-4 py-1.5 rounded-full backdrop-blur-md text-xs font-semibold text-slate-300 pointer-events-auto">
+                        class="hidden md:flex items-center gap-3 bg-slate-900/80 border border-white/20 px-4 py-1.5 rounded-full backdrop-blur-md text-xs font-semibold text-slate-300 pointer-events-auto shadow-lg">
                         <button type="button" @click="isPaused = !isPaused"
                             class="hover:text-white transition-colors cursor-pointer"
                             :title="isPaused ? 'Reanudar carrusel' : 'Pausar carrusel'">
@@ -1060,6 +1061,8 @@
                 autoplayInterval: null,
                 intervalDuration: 6000,
                 isPaused: false,
+                touchStartX: 0,
+                touchEndX: 0,
 
                 init() {
                     if (this.totalSlides > 1) {
@@ -1105,6 +1108,32 @@
                 goToSlide(index) {
                     this.currentSlide = index;
                     this.startAutoplay();
+                },
+
+                touchStart(e) {
+                    if (e.changedTouches && e.changedTouches.length > 0) {
+                        this.touchStartX = e.changedTouches[0].screenX;
+                    }
+                    this.pauseTimer();
+                },
+
+                touchEnd(e) {
+                    if (e.changedTouches && e.changedTouches.length > 0) {
+                        this.touchEndX = e.changedTouches[0].screenX;
+                    }
+                    this.handleSwipe();
+                    this.resumeTimer();
+                },
+
+                handleSwipe() {
+                    const diff = this.touchStartX - this.touchEndX;
+                    if (Math.abs(diff) > 40) {
+                        if (diff > 0) {
+                            this.nextSlide();
+                        } else {
+                            this.prevSlide();
+                        }
+                    }
                 }
             };
         }

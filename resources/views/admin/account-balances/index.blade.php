@@ -29,7 +29,7 @@
 
             {{-- ── Main Content ─────────────────────────────────────────────────── --}}
             <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden"
-                  x-data="{ importModal: false, importLoading: false, importFileName: '' }">
+                  x-data="{ importModal: false, importLoading: false, importFileName: '', truncateModal: false, truncateLoading: false }">
                 <div class="max-w-7xl mx-auto space-y-6">
 
                     {{-- Alert Messages --}}
@@ -57,6 +57,97 @@
                             </button>
                         </div>
                     @endif
+
+                        {{-- ══ TRUNCATE CONFIRMATION MODAL ══════════════════════════════════════ --}}
+                        @can('gestionar-inversiones')
+                        <div x-show="truncateModal" x-cloak
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+
+                            <div @click.outside="!truncateLoading && (truncateModal = false)"
+                                @keydown.escape.window="!truncateLoading && (truncateModal = false)"
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                class="bg-white rounded-2xl shadow-2xl border border-red-200 w-full max-w-md">
+
+                                {{-- Modal Header --}}
+                                <div class="flex items-center justify-between px-6 py-4 border-b border-red-100 bg-red-50 rounded-t-2xl">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-xl">
+                                            <i class="bi bi-exclamation-triangle-fill"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-extrabold text-red-900">Acción Irreversible</h3>
+                                            <p class="text-xs text-red-600">Vaciado completo de la tabla</p>
+                                        </div>
+                                    </div>
+                                    <button id="close-truncate-modal-btn"
+                                        @click="!truncateLoading && (truncateModal = false)"
+                                        :disabled="truncateLoading"
+                                        class="text-red-400 hover:text-red-600 hover:bg-red-100 p-1 rounded-lg transition">
+                                        <i class="bi bi-x-lg text-sm"></i>
+                                    </button>
+                                </div>
+
+                                {{-- Warning Body --}}
+                                <div class="px-6 py-5 space-y-4">
+                                    <div class="flex items-start gap-3 bg-amber-50 border border-amber-300 rounded-xl p-4">
+                                        <i class="bi bi-shield-exclamation text-amber-500 text-xl mt-0.5 shrink-0"></i>
+                                        <div class="text-sm text-amber-800 space-y-1">
+                                            <p class="font-bold">Estás a punto de eliminar TODOS los registros.</p>
+                                            <p>Se eliminarán permanentemente
+                                                <span class="font-black text-red-700">
+                                                    {{ number_format($totalRecords) }} registros
+                                                </span>
+                                                de la tabla de Inversión y Gastos.
+                                            </p>
+                                            <p class="text-xs text-amber-700">Esta acción <strong>no se puede deshacer</strong>. Asegúrate de haber exportado los datos si los necesitas.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-600">
+                                        <p class="font-bold text-slate-700 mb-1">Solo los siguientes roles pueden realizar esta acción:</p>
+                                        <ul class="space-y-0.5">
+                                            <li class="flex items-center gap-1.5"><i class="bi bi-shield-fill-check text-purple-500"></i> Director</li>
+                                            <li class="flex items-center gap-1.5"><i class="bi bi-shield-fill-check text-purple-500"></i> Administrador</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {{-- Truncate Form --}}
+                                <form action="{{ route('admin.account-balances.truncate') }}" method="POST"
+                                    @submit="truncateLoading = true"
+                                    class="px-6 pb-6">
+                                    @csrf
+                                    @method('DELETE')
+                                    <div class="flex items-center justify-end gap-3">
+                                        <button type="button" id="cancel-truncate-btn"
+                                            @click="!truncateLoading && (truncateModal = false)"
+                                            :disabled="truncateLoading"
+                                            :class="truncateLoading ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                            class="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold transition">
+                                            Cancelar
+                                        </button>
+                                        <button type="submit" id="confirm-truncate-btn"
+                                            :disabled="truncateLoading"
+                                            :class="truncateLoading ? 'opacity-60 cursor-not-allowed' : 'hover:from-red-700 hover:to-rose-800'"
+                                            class="px-5 py-2.5 bg-gradient-to-r from-red-600 to-rose-700 text-white rounded-xl text-sm font-black shadow transition flex items-center gap-2">
+                                            <i class="bi bi-trash3-fill" x-show="!truncateLoading"></i>
+                                            <i class="bi bi-arrow-repeat animate-spin" x-show="truncateLoading"></i>
+                                            <span x-text="truncateLoading ? 'Vaciando...' : 'Sí, vaciar todo'"></span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        @endcan
+                        {{-- ══ END TRUNCATE MODAL ══════════════════════════════════════════ --}}
 
                     {{-- ── KPI Cards ──────────────────────────────────────────────── --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -178,6 +269,17 @@
                                     class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all">
                                     <i class="bi bi-file-earmark-spreadsheet-fill"></i> Importar Excel / CSV
                                 </button>
+
+                                @can('gestionar-inversiones')
+                                    {{-- Truncate / Clear Table Button --}}
+                                    @if ($totalRecords > 0)
+                                        <button type="button" id="open-truncate-modal-btn"
+                                            @click="truncateModal = true"
+                                            class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all">
+                                            <i class="bi bi-trash3-fill"></i> Vaciar Tabla
+                                        </button>
+                                    @endif
+                                @endcan
                             </div>
                         </div>
 

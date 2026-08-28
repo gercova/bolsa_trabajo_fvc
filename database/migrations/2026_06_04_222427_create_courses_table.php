@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('name')->comment('Nombre del curso');
             $table->string('description')->nullable()->comment('Descripción breve del curso');
-            $table->string('modality')->default('Presencial')->comment('Modalidad: Presencial, Semipresencial, Virtual');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

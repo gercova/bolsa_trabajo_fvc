@@ -20,6 +20,7 @@ return new class extends Migration
             $table->date('start_date')->nullable()->comment('Fecha de inicio del certificado');
             $table->date('end_date')->nullable()->comment('Fecha de fin del certificado');
             $table->string('duration')->nullable()->comment('Duración del certificado');
+            $table->string('modality')->default('Presencial');
             $table->date('issue_date');
             $table->boolean('is_active')->default(true);
             $table->integer('download_count')->default(0);

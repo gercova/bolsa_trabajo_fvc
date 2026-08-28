@@ -7,6 +7,7 @@ use App\Imports\AccountBalanceImport;
 use App\Models\AccountBalance;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -31,7 +32,7 @@ class AccountBalanceController extends Controller
             ->search($search)
             ->orderByDesc('date')
             ->orderByDesc('id')
-            ->paginate(25)
+            ->paginate(10)
             ->withQueryString();
 
         // KPI aggregates (same filters, no pagination)
@@ -69,6 +70,34 @@ class AccountBalanceController extends Controller
         return redirect()
             ->route('admin.account-balances.index')
             ->with('success', 'Registro eliminado correctamente.');
+    }
+
+    /**
+     * Truncate (clear) the entire account_balances table.
+     * Restricted to users with the 'gestionar-inversiones' permission
+     * (Director / Administrador roles only).
+     */
+    public function truncateTable(): RedirectResponse
+    {
+        // Double-check permission even if the route middleware already guards it
+        if (! auth()->user()?->can('gestionar-inversiones')) {
+            abort(403, 'No tienes permiso para realizar esta acción.');
+        }
+
+        try {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            AccountBalance::truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+            return redirect()
+                ->route('admin.account-balances.index')
+                ->with('success', 'La tabla de Inversión y Gastos ha sido vaciada completamente.');
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('admin.account-balances.index')
+                ->with('error', 'Error al vaciar la tabla: ' . $e->getMessage());
+        }
     }
 
     /**

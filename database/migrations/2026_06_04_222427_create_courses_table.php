@@ -13,13 +13,10 @@ return new class extends Migration
     {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->unsignedBigInteger('study_program_id');
-            $table->foreign('study_program_id')->references('id')->on('study_programs');
-            $table->char('cycle', 1);
-            $table->text('description');
-            $table->text('details');
-            $table->boolean('is_active')->default(1);
+            $table->string('name')->comment('Nombre del curso');
+            $table->string('description')->nullable()->comment('Descripción breve del curso');
+            $table->string('modality')->default('Presencial')->comment('Modalidad: Presencial, Semipresencial, Virtual');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

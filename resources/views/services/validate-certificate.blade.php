@@ -41,76 +41,201 @@
                 }
             },
             {
-            "@type": "BreadcrumbList",
-            "@id": "{{ url()->current() }}#breadcrumb",
-            "itemListElement": [
-                {
-                    "@type": "ListItem",
-                    "position": 1,
-                    "name": "Inicio",
-                    "item": "{{ url('/') }}"
-                },
-                {
-                    "@type": "ListItem",
-                    "position": 2,
-                    "name": "Servicios",
-                    "item": "{{ route('enlaces-institucionales') }}"
-                },
-                {
-                    "@type": "ListItem",
-                    "position": 3,
-                    "name": "Validar Certificados",
-                    "item": "{{ route('validar-certificado') }}"
-                }
-            ]
-        }
-        @if($certificate)
-        ,{
-            "@type": "EducationalOccupationalCredential",
-            "@id": "{{ url('/validar-certificado/' . $certificate->certificate_code) }}#credential",
-            "name": "{{ $certificate->course->name ?? 'Certificación Modular' }}",
-            "credentialCategory": "Certificado de Aprobación Modular",
-            "identifier": "{{ $certificate->certificate_code }}",
-            "recognizedBy": {
-                "@type": "EducationalOrganization",
-                "name": "{{ $enterprise->company_name ?? 'IESTP Francisco Vigo Caballero' }}"
-            },
-            "validFor": "P3Y",
-            "about": {
-                "@type": "Person",
-                "name": "{{ $certificate->user->names ?? 'Estudiante' }}"
+                "@type": "BreadcrumbList",
+                "@id": "{{ url()->current() }}#breadcrumb",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Inicio",
+                        "item": "{{ url('/') }}"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Servicios",
+                        "item": "{{ route('enlaces-institucionales') }}"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "Validar Certificados",
+                        "item": "{{ route('validar-certificado') }}"
+                    }
+                ]
             }
-        }
-        @endif
-      ]
+            @if($certificate)
+            ,{
+                "@type": "EducationalOccupationalCredential",
+                "@id": "{{ url('/validar-certificado/' . $certificate->certificate_code) }}#credential",
+                "name": "{{ $certificate->course->name ?? 'Certificación Modular' }}",
+                "credentialCategory": "Certificado de Aprobación Modular",
+                "identifier": "{{ $certificate->certificate_code }}",
+                "recognizedBy": {
+                    "@type": "EducationalOrganization",
+                    "name": "{{ $enterprise->company_name ?? 'IESTP Francisco Vigo Caballero' }}"
+                },
+                "validFor": "P3Y",
+                "about": {
+                    "@type": "Person",
+                    "name": "{{ $certificate->user->names ?? 'Estudiante' }}"
+                }
+            }
+            @endif
+        ]
     }
     </script>
 
     <style>
+        .print-only {
+            display: none !important;
+        }
+
         @media print {
-            body * {
-                visibility: hidden;
+            @page {
+                size: A4 portrait;
+                margin: 6mm 8mm 6mm 8mm;
             }
-            #certificate-print-card, #certificate-print-card * {
-                visibility: visible;
+
+            *, *::before, *::after {
+                box-sizing: border-box !important;
             }
-            #certificate-print-card {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                border: none !important;
-                box-shadow: none !important;
-            }
-            .no-print {
+
+            /* 1. COMPLETELY HIDE & REMOVE NON-PRINT ELEMENTS FROM DOM LAYOUT */
+            #site-header,
+            .nav-inner,
+            #site-footer,
+            .footer-grid,
+            .footer-bottom,
+            .hero-section,
+            .summary-tables-section,
+            .no-print,
+            a.sr-only,
+            header,
+            nav,
+            footer,
+            form {
                 display: none !important;
+                position: absolute !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                max-height: 0 !important;
+                min-height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                top: -99999px !important;
+                left: -99999px !important;
+                overflow: hidden !important;
+                clip: rect(0, 0, 0, 0) !important;
+                pointer-events: none !important;
+            }
+
+            /* 2. RESET ALL ANCESTOR CONTAINERS TO ZERO PADDING / MARGINS */
+            html, body {
+                background: #ffffff !important;
+                color: #0f172a !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                overflow: visible !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            main,
+            #main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                padding-top: 0 !important;
+                min-height: 0 !important;
+                position: static !important;
+                display: block !important;
+                width: 100% !important;
+                background: transparent !important;
+            }
+
+            .validate-page-wrapper {
+                margin: 0 !important;
+                padding: 0 !important;
+                min-height: 0 !important;
+                background: transparent !important;
+            }
+
+            .certificate-result-wrapper {
+                margin: 0 !important;
+                padding: 0 !important;
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+                top: 0 !important;
+                position: static !important;
+                max-width: 100% !important;
+                width: 100% !important;
+            }
+
+            /* 3. CERTIFICATE PRINT CARD */
+            #certificate-print-card {
+                margin: 0 auto !important;
+                padding: 0 !important;
+                position: static !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                border: 1.5pt solid #059669 !important;
+                border-radius: 8pt !important;
+                box-shadow: none !important;
+                background: #ffffff !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                display: block !important;
+            }
+
+            .print-only {
+                display: block !important;
+            }
+
+            .print-header-flex {
+                display: flex !important;
+            }
+
+            .print-card-body {
+                padding: 12pt !important;
+                gap: 8pt !important;
+            }
+
+            .print-grid {
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 6pt !important;
+            }
+
+            .print-meta-box {
+                border: 0.75pt solid #cbd5e1 !important;
+                background-color: #f8fafc !important;
+                padding: 5pt 6pt !important;
+                border-radius: 4pt !important;
+            }
+
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+
+            th, td {
+                border: 0.5pt solid #cbd5e1 !important;
+                padding: 3.5pt 5pt !important;
+            }
+
+            thead th {
+                background-color: #f1f5f9 !important;
+                color: #0f172a !important;
             }
         }
     </style>
 @endpush
 
 @section('content')
-<div class="bg-slate-50 min-h-screen font-sans text-slate-800" x-data="{
+<div class="validate-page-wrapper bg-slate-50 min-h-screen font-sans text-slate-800" x-data="{
     activeTab: 'years',
     searchQuery: '{{ $searchCode }}',
     copiedLink: false,
@@ -120,9 +245,8 @@
         setTimeout(() => this.copiedLink = false, 3000);
     }
 }">
-
-    {{-- ═══ HERO & SEARCH SECTION ═════════════════════════════════ --}}
-    <section class="relative bg-gradient-to-br from-slate-950 via-indigo-950 to-blue-900 text-white overflow-hidden py-14 lg:py-18 border-b border-indigo-900/40">
+    {{-- ═══ HERO & SEARCH SECTION (HIDDEN IN PRINT) ════════════════ --}}
+    <section class="hero-section no-print relative bg-gradient-to-br from-slate-950 via-indigo-950 to-blue-900 text-white overflow-hidden py-14 lg:py-18 border-b border-indigo-900/40">
         {{-- Decorative Background Patterns --}}
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_25%,rgba(99,102,241,0.25),transparent_50%)]"></div>
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_85%_75%,rgba(16,185,129,0.18),transparent_40%)]"></div>
@@ -179,21 +303,45 @@
 
     {{-- ═══ CERTIFICATE VALIDATION RESULT (IF SEARCHED) ═══════════════ --}}
     @if($searched)
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20 mb-12">
+        <div class="certificate-result-wrapper max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20 mb-12">
 
             @if($certificate)
                 {{-- Valid Certificate Card --}}
                 <div id="certificate-print-card" class="bg-white rounded-3xl shadow-xl border border-emerald-200/80 overflow-hidden transition-all animate-fade-in">
                     
+                    {{-- Official Institutional Letterhead (Visible in Print) --}}
+                    <div class="print-only border-b-2 border-emerald-600 bg-slate-50 px-6 py-4">
+                        <div class="print-header-flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                @if($enterprise->logo_path)
+                                    <img src="{{ asset($enterprise->logo_path) }}" alt="Logo IESTP FVC" class="h-14 w-auto object-contain">
+                                @else
+                                    <div class="w-12 h-12 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-xl font-bold">
+                                        <i class="bi bi-mortarboard-fill"></i>
+                                    </div>
+                                @endif
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">INSTITUTO DE EDUCACIÓN SUPERIOR TECNOLÓGICO PÚBLICO</p>
+                                    <h2 class="text-sm font-black text-slate-900 leading-tight uppercase font-display mt-0.5">"FRANCISCO VIGO CABALLERO" — UCHIZA</h2>
+                                    <p class="text-[9px] text-slate-500 leading-none mt-0.5">R.M. N° 0450-1997-ED | Código Modular: 0548123 | San Martín - Perú</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[9px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded block">SISTEMA DE VERIFICACIÓN OFICIAL</span>
+                                <span class="text-[9px] text-slate-500 font-mono block mt-0.5">Emisión: {{ $certificate->issue_date ? \Carbon\Carbon::parse($certificate->issue_date)->format('d/m/Y') : date('d/m/Y') }}</span>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Status Banner --}}
-                    <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+                    <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl shrink-0">
+                            <div class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-lg shrink-0">
                                 <i class="bi bi-patch-check-fill text-emerald-200"></i>
                             </div>
                             <div>
-                                <span class="text-xs uppercase font-extrabold tracking-widest text-emerald-200 block">ESTADO DE VALIDACIÓN</span>
-                                <h2 class="text-base sm:text-lg font-black tracking-wide text-white">
+                                <span class="text-[10px] uppercase font-extrabold tracking-widest text-emerald-200 block">ESTADO DE VALIDACIÓN</span>
+                                <h2 class="text-sm sm:text-base font-black tracking-wide text-white">
                                     {{ $certificate->is_active ? 'CERTIFICADO AUTÉNTICO Y VÁLIDO' : 'CERTIFICADO INACTIVO / REVOCADO' }}
                                 </h2>
                             </div>
@@ -207,89 +355,89 @@
                     </div>
 
                     {{-- Card Body --}}
-                    <div class="p-6 sm:p-8 space-y-8 bg-gradient-to-b from-emerald-50/20 to-white">
+                    <div class="print-card-body p-6 sm:p-8 space-y-6 sm:space-y-8 bg-gradient-to-b from-emerald-50/20 to-white">
 
                         {{-- Main Certificate Header Data --}}
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center border-b border-slate-100 pb-6">
-                            <div class="md:col-span-2 space-y-3">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center border-b border-slate-100 pb-5">
+                            <div class="md:col-span-2 space-y-2">
                                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold">
                                     <i class="bi bi-award-fill"></i>
                                     Código Oficial: <span class="font-mono font-black text-indigo-900">{{ $certificate->certificate_code }}</span>
                                 </div>
-                                <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
+                                <h3 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 font-display">
                                     {{ $certificate->course->name ?? 'CURSO MODULAR INSTITUCIONAL' }}
                                 </h3>
-                                <p class="text-sm text-slate-600 leading-relaxed">
+                                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
                                     {{ $certificate->description ?: ($certificate->course->description ?: 'Certificado emitido a favor del participante por haber completado satisfactoriamente los módulos de formación y evaluación modular.') }}
                                 </p>
                             </div>
 
                             {{-- QR and Stamp Badge --}}
                             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-xs">
-                                <div class="w-16 h-16 rounded-xl bg-white border border-slate-200 shadow-inner flex items-center justify-center mb-2">
-                                    <i class="bi bi-qr-code text-3xl text-slate-800"></i>
+                                <div class="w-14 h-14 rounded-xl bg-white border border-slate-200 shadow-inner flex items-center justify-center mb-1.5">
+                                    <i class="bi bi-qr-code text-2xl sm:text-3xl text-slate-800"></i>
                                 </div>
-                                <span class="text-[11px] font-bold text-slate-700">Verificación Digital QR</span>
-                                <span class="text-[10px] text-slate-400 font-mono mt-0.5">{{ $certificate->certificate_code }}</span>
-                                <span class="text-[10px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                                <span class="text-[10px] font-bold text-slate-700">Verificación Digital QR</span>
+                                <span class="text-[9px] text-slate-400 font-mono mt-0.5">{{ $certificate->certificate_code }}</span>
+                                <span class="text-[9px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
                                     <i class="bi bi-shield-check"></i> Sello Institucional
                                 </span>
                             </div>
                         </div>
 
                         {{-- Beneficiary & Course Metadata Grid --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Estudiante / Titular</span>
-                                <p class="text-sm font-extrabold text-slate-900 mt-1 uppercase">{{ $certificate->user->names ?? 'No especificado' }}</p>
-                                <span class="text-xs text-slate-500 mt-0.5 block font-mono">DNI: {{ $certificate->user->dni ?? '—' }}</span>
+                        <div class="print-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Estudiante / Titular</span>
+                                <p class="text-xs sm:text-sm font-extrabold text-slate-900 mt-0.5 uppercase leading-tight">{{ $certificate->user->names ?? 'No especificado' }}</p>
+                                <span class="text-[11px] text-slate-500 mt-0.5 block font-mono">DNI: {{ $certificate->user->dni ?? '—' }}</span>
                             </div>
 
-                            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Modalidad &amp; Horas</span>
-                                <p class="text-sm font-extrabold text-indigo-700 mt-1 flex items-center gap-1.5">
+                            <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Modalidad &amp; Horas</span>
+                                <p class="text-xs sm:text-sm font-extrabold text-indigo-700 mt-0.5 flex items-center gap-1.5 leading-tight">
                                     <i class="bi {{ $certificate->modality === 'Virtual' ? 'bi-laptop' : ($certificate->modality === 'Semipresencial' ? 'bi-shuffle' : 'bi-building') }}"></i>
                                     {{ $certificate->modality }}
                                 </p>
-                                <span class="text-xs text-slate-500 mt-0.5 block">Duración: <strong>{{ $certificate->duration ?: '128 Horas' }}</strong></span>
+                                <span class="text-[11px] text-slate-500 mt-0.5 block">Duración: <strong>{{ $certificate->duration ?: '128 Horas' }}</strong></span>
                             </div>
 
-                            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Periodo de Ejecución</span>
-                                <p class="text-xs font-bold text-slate-800 mt-1">
+                            <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Periodo de Ejecución</span>
+                                <p class="text-[11px] sm:text-xs font-bold text-slate-800 mt-0.5 leading-tight">
                                     {{ $certificate->start_date ? \Carbon\Carbon::parse($certificate->start_date)->format('d/m/Y') : '—' }}
                                     al
                                     {{ $certificate->end_date ? \Carbon\Carbon::parse($certificate->end_date)->format('d/m/Y') : '—' }}
                                 </p>
-                                <span class="text-[11px] text-slate-500 mt-0.5 block">Fecha Emisión: <strong>{{ $certificate->issue_date ? \Carbon\Carbon::parse($certificate->issue_date)->format('d/m/Y') : '—' }}</strong></span>
+                                <span class="text-[10px] text-slate-500 mt-0.5 block">Emisión: <strong>{{ $certificate->issue_date ? \Carbon\Carbon::parse($certificate->issue_date)->format('d/m/Y') : '—' }}</strong></span>
                             </div>
 
-                            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Institución Emisora</span>
-                                <p class="text-xs font-bold text-slate-800 mt-1 leading-tight">{{ $enterprise->company_name ?? 'IESTP Francisco Vigo Caballero' }}</p>
-                                <span class="text-[11px] text-slate-500 mt-0.5 block">Uchiza, San Martín, Perú</span>
+                            <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Institución Emisora</span>
+                                <p class="text-[11px] sm:text-xs font-bold text-slate-800 mt-0.5 leading-tight">{{ $enterprise->trade_name ?? 'IESTP Francisco Vigo Caballero' }}</p>
+                                <span class="text-[10px] text-slate-500 mt-0.5 block">Uchiza, San Martín</span>
                             </div>
                         </div>
 
                         {{-- Modular Evaluation Details Table --}}
-                        <div class="space-y-3">
+                        <div class="space-y-2.5">
                             <div class="flex items-center justify-between">
-                                <h4 class="text-sm font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                                <h4 class="text-xs sm:text-sm font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                                     <i class="bi bi-journal-check text-indigo-600"></i>
                                     Detalle de Calificaciones Modulares
                                 </h4>
-                                <span class="text-xs text-slate-500">Escala vigesimal (0 a 20)</span>
+                                <span class="text-[11px] text-slate-500">Escala vigesimal (0 a 20)</span>
                             </div>
 
                             <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs bg-white">
-                                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                                <table class="w-full text-left border-collapse text-xs">
                                     <thead>
-                                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px] tracking-wider">
-                                            <th class="px-4 py-3 text-center w-12">#</th>
-                                            <th class="px-4 py-3">Módulo / Unidad de Competencia</th>
-                                            <th class="px-4 py-3 text-center">Créditos</th>
-                                            <th class="px-4 py-3 text-center">Calificación</th>
-                                            <th class="px-4 py-3 text-center">Estado</th>
+                                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[10px] sm:text-[11px] tracking-wider">
+                                            <th class="px-3.5 py-2.5 text-center w-10">#</th>
+                                            <th class="px-3.5 py-2.5">Módulo / Unidad de Competencia</th>
+                                            <th class="px-3.5 py-2.5 text-center">Créditos</th>
+                                            <th class="px-3.5 py-2.5 text-center">Calificación</th>
+                                            <th class="px-3.5 py-2.5 text-center">Estado</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
@@ -306,27 +454,27 @@
                                                 }
                                             @endphp
                                             <tr class="hover:bg-slate-50/80 transition-colors">
-                                                <td class="px-4 py-3 text-center font-mono font-bold text-slate-400">{{ $index + 1 }}</td>
-                                                <td class="px-4 py-3 font-semibold text-slate-900">
+                                                <td class="px-3.5 py-2.5 text-center font-mono font-bold text-slate-400">{{ $index + 1 }}</td>
+                                                <td class="px-3.5 py-2.5 font-semibold text-slate-900">
                                                     {{ $detail->module->name ?? ('Módulo ' . ($index + 1)) }}
                                                 </td>
-                                                <td class="px-4 py-3 text-center font-mono text-slate-600">
+                                                <td class="px-3.5 py-2.5 text-center font-mono text-slate-600">
                                                     {{ $detail->module->credits ?? 3 }}
                                                 </td>
-                                                <td class="px-4 py-3 text-center">
-                                                    <span class="inline-flex items-center justify-center font-mono font-bold px-2.5 py-1 rounded-lg {{ ($numericScore >= 13 || $detail->score >= 13) ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200' }}">
+                                                <td class="px-3.5 py-2.5 text-center">
+                                                    <span class="inline-flex items-center justify-center font-mono font-bold px-2 py-0.5 rounded {{ ($numericScore >= 13 || $detail->score >= 13) ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200' }}">
                                                         {{ $detail->score }}
                                                     </span>
                                                 </td>
-                                                <td class="px-4 py-3 text-center">
-                                                    <span class="inline-flex items-center gap-1 text-xs font-bold {{ ($numericScore >= 13 || $detail->score >= 13) ? 'text-emerald-700' : 'text-red-600' }}">
+                                                <td class="px-3.5 py-2.5 text-center">
+                                                    <span class="inline-flex items-center gap-1 text-[11px] font-bold {{ ($numericScore >= 13 || $detail->score >= 13) ? 'text-emerald-700' : 'text-red-600' }}">
                                                         <i class="bi bi-check-circle-fill"></i> Aprobado
                                                     </span>
                                                 </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="5" class="px-4 py-6 text-center text-slate-400 italic">
+                                                <td colspan="5" class="px-4 py-5 text-center text-slate-400 italic">
                                                     No se registran detalles individuales de notas para este certificado.
                                                 </td>
                                             </tr>
@@ -335,13 +483,13 @@
                                     @if($scoreCount > 0)
                                         <tfoot>
                                             <tr class="bg-indigo-50/50 border-t-2 border-indigo-100 font-bold text-slate-900">
-                                                <td colspan="3" class="px-4 py-3 text-right uppercase text-xs tracking-wider text-indigo-900">
+                                                <td colspan="3" class="px-3.5 py-2.5 text-right uppercase text-[10px] sm:text-xs tracking-wider text-indigo-900">
                                                     Promedio Modular Ponderado:
                                                 </td>
-                                                <td class="px-4 py-3 text-center font-mono font-black text-indigo-950 text-base">
+                                                <td class="px-3.5 py-2.5 text-center font-mono font-black text-indigo-950 text-sm">
                                                     {{ number_format($totalScore / $scoreCount, 2) }}
                                                 </td>
-                                                <td class="px-4 py-3 text-center text-xs font-extrabold text-emerald-700">
+                                                <td class="px-3.5 py-2.5 text-center text-[11px] font-extrabold text-emerald-700">
                                                     APROBADO
                                                 </td>
                                             </tr>
@@ -349,6 +497,17 @@
                                     @endif
                                 </table>
                             </div>
+                        </div>
+
+                        {{-- Official Print Footer Notes (Visible in Print) --}}
+                        <div class="print-only border-t border-slate-200 pt-3 text-[8.5pt] text-slate-500 space-y-1">
+                            <div class="flex justify-between items-center">
+                                <span><strong>Enlace Permanente de Verificación:</strong> {{ url('/validar-certificado/' . $certificate->certificate_code) }}</span>
+                                <span><strong>Fecha y Hora de Consulta:</strong> {{ now()->format('d/m/Y H:i:s') }}</span>
+                            </div>
+                            <p class="text-[8pt] text-slate-400 italic">
+                                * Constancia de verificación emitida electrónicamente por el IESTP Francisco Vigo Caballero de conformidad con la Ley General de Educación N° 28044 y normas del MINEDU.
+                            </p>
                         </div>
 
                         {{-- Action Buttons (No-print) --}}
@@ -411,9 +570,8 @@
         </div>
     @endif
 
-    {{-- ═══ SECTION: SUMMARY TABLES BY YEAR, PERIODS, & STUDY PROGRAMS ════ --}}
-    <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
-
+    {{-- ═══ SECTION: SUMMARY TABLES BY YEAR, PERIODS, & STUDY PROGRAMS (HIDDEN IN PRINT) ════ --}}
+    <section class="summary-tables-section no-print max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
         {{-- Section Title --}}
         <div class="text-center max-w-3xl mx-auto space-y-3">
             <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-wider">
@@ -427,7 +585,6 @@
                 Resúmenes tabulares oficiales de certificados emitidos, consolidados y agrupados por <strong>año de emisión</strong>, <strong>periodos académicos</strong> y <strong>programas de estudio</strong>.
             </p>
         </div>
-
         {{-- KPI Stat Chips Grid --}}
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">

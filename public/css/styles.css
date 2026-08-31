@@ -1147,3 +1147,54 @@ body {
 .nav-inner {
     animation: fadeUp .5s ease both;
 }
+
+/* ═══════════════════════════════════════════
+   GLOBAL PRINT STYLES
+═══════════════════════════════════════════ */
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 6mm 8mm 6mm 8mm;
+    }
+
+    html, body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    #main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+        padding-top: 0 !important;
+        min-height: 0 !important;
+        background: #ffffff !important;
+    }
+
+    #site-header,
+    .nav-inner,
+    #site-footer,
+    .no-print,
+    .hero-section,
+    .summary-tables-section,
+    nav,
+    footer,
+    header,
+    a.sr-only,
+    form {
+        display: none !important;
+        height: 0 !important;
+        max-height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        visibility: hidden !important;
+    }
+}

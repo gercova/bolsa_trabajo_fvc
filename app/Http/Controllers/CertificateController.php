@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CertificateDetailRequest;
+use App\Http\Requests\CertificateImportRequest;
 use App\Http\Requests\CertificateRequest;
+use App\Imports\CertificateImport;
 use App\Models\Certificate;
 use App\Models\CertificateDetail;
 use App\Models\Course;
@@ -13,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CertificateController extends Controller
 {
@@ -24,6 +27,7 @@ class CertificateController extends Controller
         $search   = $request->input('search');
         $courseId = $request->input('course_id');
         $userId   = $request->input('user_id');
+        $modality = $request->input('modality');
         $status   = $request->input('status');
 
         $query = Certificate::with(['user', 'course', 'details.module'])
@@ -31,6 +35,7 @@ class CertificateController extends Controller
                 $q->where(function ($sq) use ($search) {
                     $sq->where('certificate_code', 'LIKE', "%{$search}%")
                         ->orWhere('description', 'LIKE', "%{$search}%")
+                        ->orWhere('duration', 'LIKE', "%{$search}%")
                         ->orWhereHas('user', function ($uq) use ($search) {
                             $uq->where('names', 'LIKE', "%{$search}%")
                                 ->orWhere('dni', 'LIKE', "%{$search}%")
@@ -38,27 +43,30 @@ class CertificateController extends Controller
                         })
                         ->orWhereHas('course', function ($cq) use ($search) {
                             $cq->where('name', 'LIKE', "%{$search}%")
-                                ->orWhere('code', 'LIKE', "%{$search}%");
+                                ->orWhere('description', 'LIKE', "%{$search}%");
                         });
                 });
             })
             ->when($courseId, fn ($q) => $q->where('course_id', $courseId))
             ->when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when($modality, fn ($q) => $q->where('modality', $modality))
             ->when($status !== null && $status !== '', function ($q) use ($status) {
                 $q->where('is_active', (bool) $status);
             })
             ->orderByDesc('issue_date')
             ->orderByDesc('id');
 
-        $certificates = $query->paginate(10)->appends($request->only(['search', 'course_id', 'user_id', 'status']));
+        $certificates = $query->paginate(10)->appends($request->only(['search', 'course_id', 'user_id', 'modality', 'status']));
         $courses      = Course::where('is_active', true)->with('modules')->orderBy('name')->get();
         $users        = User::where('is_active', true)->orderBy('names')->get(['id', 'names', 'dni', 'email']);
 
         // Stat counters
-        $totalCertificates  = Certificate::count();
-        $activeCertificates = Certificate::where('is_active', true)->count();
-        $totalDownloads     = (int) Certificate::sum('download_count');
-        $issuedCoursesCount = Certificate::distinct('course_id')->count('course_id');
+        $totalCertificates    = Certificate::count();
+        $activeCertificates   = Certificate::where('is_active', true)->count();
+        $presencialCount      = Certificate::where('modality', 'Presencial')->count();
+        $virtualSemipresCount = Certificate::whereIn('modality', ['Virtual', 'Semipresencial'])->count();
+        $totalDownloads       = (int) Certificate::sum('download_count');
+        $issuedCoursesCount   = Certificate::distinct('course_id')->count('course_id');
 
         return view('admin.certificates.index', compact(
             'certificates',
@@ -66,11 +74,14 @@ class CertificateController extends Controller
             'users',
             'totalCertificates',
             'activeCertificates',
+            'presencialCount',
+            'virtualSemipresCount',
             'totalDownloads',
             'issuedCoursesCount',
             'search',
             'courseId',
             'userId',
+            'modality',
             'status'
         ));
     }
@@ -226,7 +237,7 @@ class CertificateController extends Controller
                 ]
             );
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($request->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Detalle de módulo registrado correctamente.',
@@ -239,7 +250,7 @@ class CertificateController extends Controller
         } catch (\Exception $e) {
             Log::error('Error registrando detalle de certificado: ' . $e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($request->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Error al registrar el módulo: ' . $e->getMessage(),
@@ -278,6 +289,93 @@ class CertificateController extends Controller
             }
 
             return back()->with('error', 'No se pudo eliminar el detalle.');
+        }
+    }
+
+    /**
+     * Import certificates in bulk from an Excel (.xlsx / .xls) or CSV file.
+     *
+     * Real column layout (row 1 = header, data from row 2):
+     *  A → N° fila (ignorada)         G → Fecha de Emisión
+     *  B → DNI (auto-crea usuario)    H → Horas → duration
+     *  C → Apellidos y Nombres        I → Calificación Módulo I
+     *  D → Curso (lookup)             J → *** IGNORADA *** (letras)
+     *  E → Fecha de Inicio            K → Calificación Módulo II
+     *  F → Fecha de Término           L → *** IGNORADA *** (letras)
+     *                                 M → Promedio (ignorado)
+     *                                 N → Modalidad
+     */
+    public function import(CertificateImportRequest $request): RedirectResponse
+    {
+        // ── Suppress iconv multibyte notices during PhpSpreadsheet file reading ──
+        // PhpSpreadsheet's StringHelper uses iconv() internally when reading cells
+        // that contain accented/special characters stored in non-UTF-8 encodings.
+        // This error fires BEFORE collection() is called, so it cannot be caught
+        // inside the importer. We install a temporary handler that silently drops
+        // these specific PHP notices and restores the original handler afterwards.
+        $prevErrorHandler = set_error_handler(
+            function (int $errno, string $errstr, string $errfile) use (&$prevErrorHandler): bool {
+                if (str_contains($errstr, 'iconv') && str_contains($errstr, 'multibyte')) {
+                    return true; // suppress — handled by our cleanString() sanitisation
+                }
+                // Pass anything else to the original handler
+                if ($prevErrorHandler !== null) {
+                    return (bool) call_user_func($prevErrorHandler, $errno, $errstr, $errfile);
+                }
+                return false;
+            }
+        );
+
+        try {
+            $importer = new CertificateImport();
+            Excel::import($importer, $request->file('file'));
+
+            // ── Build success message ─────────────────────────────────────────
+            $parts = [];
+
+            if ($importer->createdUsers > 0) {
+                $parts[] = "{$importer->createdUsers} estudiante(s) registrado(s)";
+            }
+
+            $parts[] = "{$importer->importedCount} certificado(s) importado(s)";
+
+            if ($importer->detailCount > 0) {
+                $parts[] = "{$importer->detailCount} nota(s) de módulo registrada(s)";
+            }
+
+            if ($importer->skippedCount > 0) {
+                $parts[] = "{$importer->skippedCount} fila(s) omitida(s)";
+            }
+
+            $msg = 'Importación completada: ' . implode(', ', $parts) . '.';
+
+            $redirect = redirect()->route('admin.certificates.index')->with('success', $msg);
+
+            if (! empty($importer->errors)) {
+                $redirect = $redirect->with('import_errors', $importer->errors);
+            }
+
+            return $redirect;
+
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = collect($e->failures())
+                ->map(fn ($f) => "Fila {$f->row()}: " . implode(', ', $f->errors()))
+                ->take(10)
+                ->implode(' | ');
+
+            return redirect()
+                ->route('admin.certificates.index')
+                ->with('error', "Error de validación en el archivo: {$failures}");
+
+        } catch (\Exception $e) {
+            Log::error('Error importando certificados: ' . $e->getMessage());
+
+            return redirect()
+                ->route('admin.certificates.index')
+                ->with('error', 'Error al procesar el archivo: ' . $e->getMessage());
+
+        } finally {
+            restore_error_handler();
         }
     }
 }

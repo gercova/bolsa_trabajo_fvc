@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Certificate;
+use App\Models\CertificateDetail;
+use App\Models\Course;
+use App\Models\Module;
 use App\Models\Admission;
 use App\Models\AdmissionRequirement;
 use App\Models\Blog;
@@ -748,5 +752,136 @@ class AppController extends Controller {
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
         $links      = ExternalInstitutionalLink::where('is_active', true)->get();
         return view('services.institutional-links', compact('enterprise', 'links'));
+    }
+
+    /**
+     * Public Certificate Validation and Statistical Summary Portal.
+     * Validates certificates issued by the institution via QR code or certificate_code / DNI.
+     * Presents consolidated summary tables grouped by Year, Academic Period, and Study Programs / Courses.
+     */
+    public function validateCertificate(?string $certificate_code = null, Request $request = null): View {
+        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
+        $request    = $request ?? request();
+
+        // 1. Search code resolution (from URL route parameter or query string)
+        $searchCode = trim((string) ($certificate_code ?: $request->input('code') ?: $request->input('search') ?: $request->input('dni') ?: ''));
+
+        $certificate = null;
+        $searched    = false;
+
+        if ($searchCode !== '') {
+            $searched = true;
+            $certificate = Certificate::with([
+                'user',
+                'course.modules',
+                'details.module'
+            ])
+            ->where(function ($q) use ($searchCode) {
+                $q->where('certificate_code', $searchCode)
+                  ->orWhere('certificate_code', 'LIKE', $searchCode)
+                  ->orWhereHas('user', function ($uq) use ($searchCode) {
+                      $uq->where('dni', $searchCode);
+                  });
+            })
+            ->first();
+
+            if ($certificate) {
+                // Increment view/download counter silently
+                try {
+                    $certificate->increment('download_count');
+                } catch (\Exception $e) {
+                    // Ignore counter increment failure
+                }
+            }
+        }
+
+        // 2. Summary Grouping 1: By Year (Resumen Anual)
+        $yearsSummary = DB::table('certificates')
+            ->selectRaw('
+                YEAR(COALESCE(issue_date, start_date)) as year,
+                count(*) as total_certificates,
+                SUM(CASE WHEN modality = "Presencial" THEN 1 ELSE 0 END) as presencial_count,
+                SUM(CASE WHEN modality = "Virtual" THEN 1 ELSE 0 END) as virtual_count,
+                SUM(CASE WHEN modality = "Semipresencial" THEN 1 ELSE 0 END) as semipresencial_count,
+                SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active_count,
+                count(DISTINCT user_id) as total_students,
+                count(DISTINCT course_id) as total_courses
+            ')
+            ->whereNotNull('issue_date')
+            ->groupBy(DB::raw('YEAR(COALESCE(issue_date, start_date))'))
+            ->orderByDesc('year')
+            ->get();
+
+        // 3. Summary Grouping 2: By Academic Period (Resumen por Periodos)
+        $periodsSummary = DB::table('certificates')
+            ->selectRaw('
+                CASE 
+                    WHEN MONTH(COALESCE(start_date, issue_date)) <= 6 THEN CONCAT(YEAR(COALESCE(start_date, issue_date)), "-I")
+                    ELSE CONCAT(YEAR(COALESCE(start_date, issue_date)), "-II")
+                END as period,
+                count(*) as total_certificates,
+                count(DISTINCT user_id) as total_students,
+                count(DISTINCT course_id) as total_courses,
+                SUM(CASE WHEN modality = "Presencial" THEN 1 ELSE 0 END) as presencial_count,
+                SUM(CASE WHEN modality = "Virtual" THEN 1 ELSE 0 END) as virtual_count,
+                SUM(CASE WHEN modality = "Semipresencial" THEN 1 ELSE 0 END) as semipresencial_count,
+                SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active_count
+            ')
+            ->whereNotNull('issue_date')
+            ->groupBy('period')
+            ->orderByDesc('period')
+            ->get();
+
+        // 4. Summary Grouping 3: By Study Programs / Courses (Resumen por Cursos y Programas)
+        $coursesSummary = DB::table('certificates')
+            ->join('courses', 'certificates.course_id', '=', 'courses.id')
+            ->leftJoin('certificate_details', 'certificates.id', '=', 'certificate_details.certificate_id')
+            ->selectRaw('
+                courses.id as course_id,
+                courses.name as course_name,
+                courses.description as course_description,
+                count(DISTINCT certificates.id) as total_certificates,
+                count(DISTINCT certificates.user_id) as total_students,
+                SUM(CASE WHEN certificates.modality = "Presencial" THEN 1 ELSE 0 END) as presencial_count,
+                SUM(CASE WHEN certificates.modality = "Virtual" THEN 1 ELSE 0 END) as virtual_count,
+                SUM(CASE WHEN certificates.modality = "Semipresencial" THEN 1 ELSE 0 END) as semipresencial_count,
+                SUM(CASE WHEN certificates.is_active = 1 THEN 1 ELSE 0 END) as active_count,
+                ROUND(AVG(CASE WHEN certificate_details.score REGEXP "^[0-9]+(\\.[0-9]+)?$" THEN CAST(certificate_details.score AS DECIMAL(4,2)) ELSE NULL END), 2) as avg_score,
+                MIN(CASE WHEN certificate_details.score REGEXP "^[0-9]+(\\.[0-9]+)?$" THEN CAST(certificate_details.score AS DECIMAL(4,2)) ELSE NULL END) as min_score,
+                MAX(CASE WHEN certificate_details.score REGEXP "^[0-9]+(\\.[0-9]+)?$" THEN CAST(certificate_details.score AS DECIMAL(4,2)) ELSE NULL END) as max_score,
+                count(DISTINCT certificate_details.module_id) as modules_count
+            ')
+            ->groupBy('courses.id', 'courses.name', 'courses.description')
+            ->orderByDesc('total_certificates')
+            ->get();
+
+        // 5. Active Study Programs reference for institutional context
+        $studyPrograms = StudyProgram::where('is_active', true)
+            ->orderBy('order', 'asc')
+            ->orderBy('name', 'asc')
+            ->get();
+
+        // 6. Overall KPI metrics
+        $totalCertificates = Certificate::count();
+        $validCertificates = Certificate::where('is_active', true)->count();
+        $totalStudents     = Certificate::distinct('user_id')->count('user_id');
+        $totalCourses      = Course::where('is_active', true)->count();
+        $totalHours        = Certificate::whereNotNull('duration')->count();
+
+        return view('services.validate-certificate', compact(
+            'enterprise',
+            'certificate',
+            'searchCode',
+            'searched',
+            'yearsSummary',
+            'periodsSummary',
+            'coursesSummary',
+            'studyPrograms',
+            'totalCertificates',
+            'validCertificates',
+            'totalStudents',
+            'totalCourses',
+            'totalHours'
+        ));
     }
 }

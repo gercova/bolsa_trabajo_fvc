@@ -31,7 +31,7 @@
                         <h1 class="text-xl sm:text-2xl font-extrabold text-gray-800 tracking-tight leading-none flex items-center gap-2">
                             <i class="bi bi-journal-bookmark text-purple-600"></i> Cursos y Certificaciones
                         </h1>
-                        <p class="text-xs text-gray-400 font-medium mt-0.5">Gestión de cursos formativos, talleres y programas de certificación</p>
+                        <p class="text-xs text-gray-400 font-medium mt-0.5">Gestión de cursos formativos y talleres de certificación</p>
                     </div>
                 </div>
                 <div class="hidden sm:flex items-center text-sm font-medium text-gray-500">
@@ -131,21 +131,21 @@
 
                     <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs flex items-center gap-4">
                         <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl shrink-0">
-                            <i class="bi bi-building"></i>
+                            <i class="bi bi-layers-fill"></i>
                         </div>
                         <div>
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Presencial</p>
-                            <h3 class="text-2xl font-black text-blue-700">{{ number_format($presencialCount) }}</h3>
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Con Módulos</p>
+                            <h3 class="text-2xl font-black text-blue-700">{{ number_format($withModulesCount) }}</h3>
                         </div>
                     </div>
 
                     <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs flex items-center gap-4">
                         <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-2xl shrink-0">
-                            <i class="bi bi-laptop"></i>
+                            <i class="bi bi-patch-check-fill"></i>
                         </div>
                         <div>
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Virtual / Semipres.</p>
-                            <h3 class="text-2xl font-black text-indigo-700">{{ number_format($virtualCount) }}</h3>
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Con Certificados</p>
+                            <h3 class="text-2xl font-black text-indigo-700">{{ number_format($withCertificatesCount) }}</h3>
                         </div>
                     </div>
                 </div>
@@ -156,26 +156,15 @@
                         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
 
                         {{-- Search --}}
-                        <div class="lg:col-span-5 relative">
+                        <div class="lg:col-span-7 relative">
                             <input type="text" name="search" value="{{ request('search') }}"
-                                placeholder="Buscar por código, nombre o descripción..."
+                                placeholder="Buscar curso por nombre o descripción..."
                                 class="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all">
                             <i class="bi bi-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
                         </div>
 
-                        {{-- Modality Filter --}}
-                        <div class="lg:col-span-3">
-                            <select name="modality" onchange="this.form.submit()"
-                                class="w-full text-sm border border-gray-300 rounded-xl py-2.5 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all bg-white text-gray-700 font-medium">
-                                <option value="">Modalidad: Todas</option>
-                                <option value="Presencial" {{ request('modality') === 'Presencial' ? 'selected' : '' }}>Presencial</option>
-                                <option value="Semipresencial" {{ request('modality') === 'Semipresencial' ? 'selected' : '' }}>Semipresencial</option>
-                                <option value="Virtual" {{ request('modality') === 'Virtual' ? 'selected' : '' }}>Virtual</option>
-                            </select>
-                        </div>
-
                         {{-- Status Filter --}}
-                        <div class="lg:col-span-2">
+                        <div class="lg:col-span-3">
                             <select name="status" onchange="this.form.submit()"
                                 class="w-full text-sm border border-gray-300 rounded-xl py-2.5 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all bg-white text-gray-700 font-medium">
                                 <option value="">Estado: Todos</option>
@@ -190,7 +179,7 @@
                                 class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-1.5 flex-1">
                                 <i class="bi bi-funnel-fill"></i> Filtrar
                             </button>
-                            @if (request()->hasAny(['search', 'modality', 'status']))
+                            @if (request()->hasAny(['search', 'status']))
                                 <a href="{{ route('admin.courses.index') }}"
                                     class="p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-sm transition-all"
                                     title="Limpiar Filtros">
@@ -221,7 +210,7 @@
                             <div class="text-center">
                                 <p class="font-bold text-gray-700">Sin cursos registrados</p>
                                 <p class="text-sm text-gray-500 mt-1">
-                                    @if (request()->hasAny(['search', 'modality', 'status']))
+                                    @if (request()->hasAny(['search', 'status']))
                                         No hay cursos con los filtros aplicados.
                                         <a href="{{ route('admin.courses.index') }}" class="text-purple-600 font-semibold hover:underline">Limpiar filtros</a>
                                     @else
@@ -235,51 +224,49 @@
                             <table class="min-w-full text-sm">
                                 <thead class="bg-gray-50 border-b border-gray-200">
                                     <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Código</th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">#</th>
                                         <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre del Curso</th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Modalidad</th>
+                                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Descripción</th>
                                         <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Módulos</th>
+                                        <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Itinerarios</th>
                                         <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Certificados</th>
                                         <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Estado</th>
                                         <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
-                                    @foreach ($courses as $course)
+                                    @foreach ($courses as $index => $course)
                                         <tr class="hover:bg-gray-50/80 transition-colors">
-                                            <td class="px-4 py-3 font-mono font-bold text-purple-700 whitespace-nowrap">
-                                                {{ $course->code }}
+                                            <td class="px-4 py-3 font-mono text-xs text-gray-400 whitespace-nowrap">
+                                                {{ $courses->firstItem() + $index }}
                                             </td>
                                             <td class="px-4 py-3">
                                                 <div class="font-bold text-gray-800">{{ $course->name }}</div>
-                                                @if ($course->description)
-                                                    <div class="text-xs text-gray-500 truncate max-w-xs">{{ $course->description }}</div>
-                                                @endif
                                             </td>
-                                            <td class="px-4 py-3 whitespace-nowrap">
-                                                @if ($course->modality === 'Presencial')
-                                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                                                        <i class="bi bi-building text-[10px]"></i> Presencial
-                                                    </span>
-                                                @elseif ($course->modality === 'Virtual')
-                                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                                        <i class="bi bi-laptop text-[10px]"></i> Virtual
-                                                    </span>
+                                            <td class="px-4 py-3">
+                                                @if ($course->description)
+                                                    <div class="text-xs text-gray-500 truncate max-w-sm" title="{{ $course->description }}">
+                                                        {{ $course->description }}
+                                                    </div>
                                                 @else
-                                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                                                        <i class="bi bi-arrow-left-right text-[10px]"></i> Semipresencial
-                                                    </span>
+                                                    <span class="text-xs text-gray-400 italic">Sin descripción</span>
                                                 @endif
                                             </td>
                                             <td class="px-4 py-3 text-center whitespace-nowrap">
                                                 <a href="{{ route('admin.modules.index', ['course_id' => $course->id]) }}"
-                                                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-gray-100 hover:bg-purple-100 hover:text-purple-700 text-gray-700 text-xs font-bold transition">
+                                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-purple-100 hover:text-purple-700 text-gray-700 text-xs font-bold transition">
                                                     <i class="bi bi-layers"></i> {{ $course->modules_count }}
                                                 </a>
                                             </td>
                                             <td class="px-4 py-3 text-center whitespace-nowrap">
+                                                <a href="{{ route('admin.itineraries.index', ['course_id' => $course->id]) }}"
+                                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-indigo-100 hover:text-indigo-700 text-gray-700 text-xs font-bold transition">
+                                                    <i class="bi bi-diagram-3"></i> {{ $course->itineraries_count }}
+                                                </a>
+                                            </td>
+                                            <td class="px-4 py-3 text-center whitespace-nowrap">
                                                 <a href="{{ route('admin.certificates.index', ['course_id' => $course->id]) }}"
-                                                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-gray-100 hover:bg-emerald-100 hover:text-emerald-700 text-gray-700 text-xs font-bold transition">
+                                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-emerald-100 hover:text-emerald-700 text-gray-700 text-xs font-bold transition">
                                                     <i class="bi bi-patch-check"></i> {{ $course->certificates_count }}
                                                 </a>
                                             </td>
@@ -359,7 +346,7 @@
                         </div>
                         <div>
                             <h3 class="text-base font-extrabold text-gray-900" x-text="isEdit ? 'Editar Curso' : 'Nuevo Curso'"></h3>
-                            <p class="text-xs text-gray-500">Complete los datos del curso para certificaciones</p>
+                            <p class="text-xs text-gray-500">Complete el nombre y descripción del curso</p>
                         </div>
                     </div>
                     <button type="button" @click="modalOpen = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg">
@@ -374,38 +361,14 @@
                         <input type="hidden" name="_method" value="PUT">
                     </template>
 
-                    {{-- Code & Modality Row --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Código del Curso <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" name="code" x-model="form.code" required maxlength="50"
-                                placeholder="Ej: CUR-001, MAT101"
-                                class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 uppercase font-mono font-bold">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Modalidad <span class="text-red-500">*</span>
-                            </label>
-                            <select name="modality" x-model="form.modality" required
-                                class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-medium">
-                                <option value="Presencial">Presencial</option>
-                                <option value="Semipresencial">Semipresencial</option>
-                                <option value="Virtual">Virtual</option>
-                            </select>
-                        </div>
-                    </div>
-
                     {{-- Name --}}
                     <div>
                         <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
                             Nombre del Curso <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="name" x-model="form.name" required maxlength="255"
-                            placeholder="Ej: Ensamblaje y Mantenimiento de Computadoras"
-                            class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 font-medium">
+                            placeholder="Ej: INGLÉS A NIVEL BÁSICO"
+                            class="w-full text-sm border border-gray-300 rounded-xl py-2.5 px-3.5 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 font-bold uppercase text-gray-800">
                     </div>
 
                     {{-- Description --}}
@@ -414,7 +377,7 @@
                             Descripción
                         </label>
                         <textarea name="description" x-model="form.description" rows="3" maxlength="1000"
-                            placeholder="Descripción breve del contenido o alcance del curso..."
+                            placeholder="Descripción breve del alcance del curso..."
                             class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"></textarea>
                     </div>
 
@@ -456,10 +419,8 @@
             updateUrl: '',
             form: {
                 id: null,
-                code: '',
                 name: '',
                 description: '',
-                modality: 'Presencial',
                 is_active: true,
             },
 
@@ -468,10 +429,8 @@
                 this.updateUrl = '';
                 this.form = {
                     id: null,
-                    code: '',
                     name: '',
                     description: '',
-                    modality: 'Presencial',
                     is_active: true,
                 };
                 this.modalOpen = true;
@@ -482,10 +441,8 @@
                 this.updateUrl = `{{ url('admin-cursos') }}/${course.id}`;
                 this.form = {
                     id: course.id,
-                    code: course.code || '',
                     name: course.name || '',
                     description: course.description || '',
-                    modality: course.modality || 'Presencial',
                     is_active: Boolean(course.is_active),
                 };
                 this.modalOpen = true;

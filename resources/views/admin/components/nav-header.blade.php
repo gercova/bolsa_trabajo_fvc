@@ -204,6 +204,10 @@
                             <span class="dp-icon"><i class="bi bi-briefcase-fill"></i></span>
                             <span class="dp-label">Bolsa de Trabajo</span>
                         </a>
+                        <a href="{{ route('validar-certificado') }}" class="dp-item {{ request()->routeIs('validar-certificado*') ? 'active' : '' }}">
+                            <span class="dp-icon"><i class="bi bi-patch-check-fill text-emerald-600"></i></span>
+                            <span class="dp-label">Validar Certificados</span>
+                        </a>
                         <a href="{{ route('enlaces-institucionales') }}" class="dp-item">
                             <span class="dp-icon"><i class="bi bi-box-arrow-up-right"></i></span>
                             <span class="dp-label">Enlaces Institucionales</span>
@@ -386,7 +390,7 @@
         </div>
 
         {{-- Servicios --}}
-        <div x-data="{ open: {{ request()->routeIs('bolsa-de-trabajo', 'enlaces-institucionales') ? 'true' : 'false' }} }" class="w-full">
+        <div x-data="{ open: {{ request()->routeIs('bolsa-de-trabajo', 'enlaces-institucionales', 'validar-certificado*') ? 'true' : 'false' }} }" class="w-full">
             <button @click="open = !open" class="mobile-link mobile-link--accordion w-full"
                 :class="open ? 'active' : ''" :aria-expanded="open">
                 <div class="flex items-center gap-3">
@@ -400,6 +404,7 @@
                     Biblioteca Virtual <i class="bi bi-box-arrow-up-right text-[10px] ml-1"></i>
                 </a>
                 <a href="{{ route('bolsa-de-trabajo') }}" class="mobile-sub-link {{ request()->routeIs('bolsa-de-trabajo') ? 'active' : '' }}">Bolsa de Trabajo</a>
+                <a href="{{ route('validar-certificado') }}" class="mobile-sub-link {{ request()->routeIs('validar-certificado*') ? 'active' : '' }}">Validar Certificados</a>
                 <a href="{{ route('enlaces-institucionales') }}" class="mobile-sub-link {{ request()->routeIs('enlaces-institucionales') ? 'active' : '' }}">Enlaces Institucionales</a>
             </div>
         </div>

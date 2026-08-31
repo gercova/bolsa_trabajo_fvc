@@ -69,6 +69,9 @@ Route::get('/nosotros/locales',                     [AppController::class, 'loca
 // servicios
 Route::get('/servicios/bolsa-de-trabajo', [AppController::class, 'offers'])->name('bolsa-de-trabajo');
 
+// Validación de Certificados (QR / Código / Resúmenes estadísticos)
+Route::get('/validar-certificado/{certificate_code?}', [AppController::class, 'validateCertificate'])->name('validar-certificado');
+
 // Links institucionales
 Route::get('/servicios/enlaces-institucionales', [AppController::class, 'institutionalLinks'])->name('enlaces-institucionales');
 
@@ -257,6 +260,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin-certificados')->name('admin.certificates.')->group(function () {
         Route::get('/',                         [CertificateController::class, 'index'])->name('index');
         Route::post('/',                        [CertificateController::class, 'store'])->name('store');
+        Route::post('/importar',                [CertificateController::class, 'import'])->name('import');
         Route::get('/{certificate}',            [CertificateController::class, 'show'])->name('show');
         Route::put('/{certificate}',            [CertificateController::class, 'update'])->name('update');
         Route::delete('/{certificate}',         [CertificateController::class, 'destroy'])->name('destroy');

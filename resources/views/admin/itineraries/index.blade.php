@@ -160,7 +160,7 @@
                                 <option value="">Curso: Todos</option>
                                 @foreach ($courses as $c)
                                     <option value="{{ $c->id }}" {{ request('course_id') == $c->id ? 'selected' : '' }}>
-                                        [{{ $c->code }}] {{ $c->name }}
+                                        {{ $c->name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -239,10 +239,8 @@
                                         <tr class="hover:bg-gray-50/80 transition-colors">
                                             <td class="px-4 py-3 whitespace-nowrap">
                                                 <div class="flex items-center gap-2">
-                                                    <span class="px-2 py-0.5 rounded-md font-mono text-xs font-bold bg-purple-100 text-purple-700">
-                                                        {{ $itin->course?->code ?? 'N/A' }}
-                                                    </span>
-                                                    <span class="font-semibold text-gray-800 text-xs truncate max-w-[180px]" title="{{ $itin->course?->name }}">
+                                                    <i class="bi bi-journal-bookmark text-purple-600"></i>
+                                                    <span class="font-semibold text-gray-800 text-xs truncate max-w-[200px]" title="{{ $itin->course?->name }}">
                                                         {{ $itin->course?->name ?? '—' }}
                                                     </span>
                                                 </div>
@@ -355,7 +353,7 @@
                             class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-medium">
                             <option value="">-- Seleccione curso --</option>
                             @foreach ($courses as $c)
-                                <option value="{{ $c->id }}">[{{ $c->code }}] {{ $c->name }}</option>
+                                <option value="{{ $c->id }}">{{ $c->name }}</option>
                             @endforeach
                         </select>
                     </div>

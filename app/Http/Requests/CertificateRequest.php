@@ -50,6 +50,11 @@ class CertificateRequest extends FormRequest
                 'string',
                 'max:100',
             ],
+            'modality' => [
+                'required',
+                'string',
+                Rule::in(['Presencial', 'Semipresencial', 'Virtual']),
+            ],
             'issue_date' => [
                 'required',
                 'date',

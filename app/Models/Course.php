@@ -8,10 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Course extends Model
 {
     protected $fillable = [
-        'code',
         'name',
         'description',
-        'modality',
         'is_active',
     ];
 

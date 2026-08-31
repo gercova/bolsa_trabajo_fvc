@@ -31,6 +31,7 @@ class RoleSeeder extends Seeder
             'gestionar-partners'          => 'Gestionar Alianzas y Partners',
             'gestionar-investigacion'     => 'Gestionar Unidad de Investigación',
             'gestionar-educacion-continua'=> 'Gestionar Educación Continua',
+            'gestionar-inversiones'       => 'Gestionar Inversión y Gastos (incluye vaciado de tabla)',
         ];
 
         foreach ($permissions as $name => $displayName) {
@@ -42,12 +43,14 @@ class RoleSeeder extends Seeder
             'Director' => [
                 'ver-dashboard', 'gestionar-examenes', 'gestionar-programas', 'gestionar-tupa',
                 'gestionar-trabajos', 'gestionar-usuarios', 'gestionar-roles', 'gestionar-reclamos',
-                'gestionar-empresa', 'gestionar-partners', 'gestionar-investigacion', 'gestionar-educacion-continua'
+                'gestionar-empresa', 'gestionar-partners', 'gestionar-investigacion',
+                'gestionar-educacion-continua', 'gestionar-inversiones',
             ],
             'Administrador' => [
                 'ver-dashboard', 'gestionar-examenes', 'gestionar-programas', 'gestionar-tupa',
                 'gestionar-trabajos', 'gestionar-usuarios', 'gestionar-roles', 'gestionar-reclamos',
-                'gestionar-empresa', 'gestionar-partners', 'gestionar-investigacion', 'gestionar-educacion-continua'
+                'gestionar-empresa', 'gestionar-partners', 'gestionar-investigacion',
+                'gestionar-educacion-continua', 'gestionar-inversiones',
             ],
             'Admin' => [ // Compatibilidad
                 'ver-dashboard', 'gestionar-examenes', 'gestionar-programas', 'gestionar-tupa',

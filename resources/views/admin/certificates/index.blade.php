@@ -107,6 +107,26 @@
                     </div>
                 @endif
 
+                {{-- Import per-row errors --}}
+                @if (session('import_errors'))
+                    <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-xl shadow-sm animate-fade-in">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <i class="bi bi-exclamation-triangle-fill text-amber-600 text-lg"></i>
+                                <p class="text-sm font-bold text-amber-900">Advertencias durante la importación ({{ count(session('import_errors')) }} fila(s) con problemas):</p>
+                            </div>
+                            <button type="button" class="text-amber-500 hover:text-amber-700" onclick="this.closest('[class*=bg-amber]').remove()">
+                                <i class="bi bi-x-lg text-sm"></i>
+                            </button>
+                        </div>
+                        <ul class="list-disc list-inside text-xs text-amber-800 space-y-1 max-h-40 overflow-y-auto">
+                            @foreach (session('import_errors') as $importError)
+                                <li>{{ $importError }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 {{-- ── Stat Cards ── --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs flex items-center gap-4">
@@ -131,21 +151,21 @@
 
                     <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs flex items-center gap-4">
                         <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl shrink-0">
-                            <i class="bi bi-cloud-arrow-down-fill"></i>
+                            <i class="bi bi-building"></i>
                         </div>
                         <div>
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Descargas</p>
-                            <h3 class="text-2xl font-black text-blue-700">{{ number_format($totalDownloads) }}</h3>
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Presencial</p>
+                            <h3 class="text-2xl font-black text-blue-700">{{ number_format($presencialCount) }}</h3>
                         </div>
                     </div>
 
                     <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs flex items-center gap-4">
                         <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-2xl shrink-0">
-                            <i class="bi bi-journal-check"></i>
+                            <i class="bi bi-laptop"></i>
                         </div>
                         <div>
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Cursos Certificados</p>
-                            <h3 class="text-2xl font-black text-indigo-700">{{ number_format($issuedCoursesCount) }}</h3>
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Virtual / Semipres.</p>
+                            <h3 class="text-2xl font-black text-indigo-700">{{ number_format($virtualSemipresCount) }}</h3>
                         </div>
                     </div>
                 </div>
@@ -170,29 +190,40 @@
                                 <option value="">Curso: Todos</option>
                                 @foreach ($courses as $c)
                                     <option value="{{ $c->id }}" {{ request('course_id') == $c->id ? 'selected' : '' }}>
-                                        [{{ $c->code }}] {{ $c->name }}
+                                        {{ $c->name }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
 
-                        {{-- Status Filter --}}
+                        {{-- Modality Filter --}}
                         <div class="lg:col-span-2">
-                            <select name="status" onchange="this.form.submit()"
+                            <select name="modality" onchange="this.form.submit()"
                                 class="w-full text-sm border border-gray-300 rounded-xl py-2.5 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all bg-white text-gray-700 font-medium">
-                                <option value="">Estado: Todos</option>
-                                <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Válidos (Activos)</option>
+                                <option value="">Modalidad: Todas</option>
+                                <option value="Presencial" {{ request('modality') === 'Presencial' ? 'selected' : '' }}>Presencial</option>
+                                <option value="Semipresencial" {{ request('modality') === 'Semipresencial' ? 'selected' : '' }}>Semipresencial</option>
+                                <option value="Virtual" {{ request('modality') === 'Virtual' ? 'selected' : '' }}>Virtual</option>
+                            </select>
+                        </div>
+
+                        {{-- Status Filter --}}
+                        <div class="lg:col-span-1">
+                            <select name="status" onchange="this.form.submit()"
+                                class="w-full text-sm border border-gray-300 rounded-xl py-2.5 px-2 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all bg-white text-gray-700 font-medium">
+                                <option value="">Estado</option>
+                                <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Activos</option>
                                 <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactivos</option>
                             </select>
                         </div>
 
                         {{-- Buttons --}}
-                        <div class="lg:col-span-3 flex items-center gap-2 justify-end">
+                        <div class="lg:col-span-2 flex items-center gap-2 justify-end">
                             <button type="submit"
                                 class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-1.5 flex-1">
                                 <i class="bi bi-funnel-fill"></i> Filtrar
                             </button>
-                            @if (request()->hasAny(['search', 'course_id', 'status']))
+                            @if (request()->hasAny(['search', 'course_id', 'modality', 'status']))
                                 <a href="{{ route('admin.certificates.index') }}"
                                     class="p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-sm transition-all"
                                     title="Limpiar Filtros">
@@ -206,10 +237,18 @@
                         <span class="text-xs font-semibold text-gray-500">
                             Mostrando {{ $certificates->total() }} certificados registrados
                         </span>
-                        <button type="button" @click="openCreateModal()"
-                            class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all">
-                            <i class="bi bi-plus-lg"></i> Nuevo Certificado
-                        </button>
+                        <div class="flex items-center gap-2">
+                            {{-- Import Button --}}
+                            <button type="button" @click="importModalOpen = true"
+                                class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all">
+                                <i class="bi bi-file-earmark-arrow-up"></i> Importar Excel / CSV
+                            </button>
+                            {{-- New Certificate Button --}}
+                            <button type="button" @click="openCreateModal()"
+                                class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all">
+                                <i class="bi bi-plus-lg"></i> Nuevo Certificado
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -260,7 +299,21 @@
                                             </td>
                                             <td class="px-4 py-3">
                                                 <div class="font-semibold text-gray-800 text-xs">{{ $cert->course?->name ?? '—' }}</div>
-                                                <div class="text-[11px] text-purple-600 font-mono font-bold">[{{ $cert->course?->code ?? 'N/A' }}]</div>
+                                                <div class="mt-1">
+                                                    @if ($cert->modality === 'Virtual')
+                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                                            <i class="bi bi-laptop text-[10px]"></i> Virtual
+                                                        </span>
+                                                    @elseif ($cert->modality === 'Semipresencial')
+                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                                            <i class="bi bi-arrow-left-right text-[10px]"></i> Semipresencial
+                                                        </span>
+                                                    @else
+                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                                            <i class="bi bi-building text-[10px]"></i> Presencial
+                                                        </span>
+                                                    @endif
+                                                </div>
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-600">
                                                 <div class="font-semibold">{{ $cert->issue_date ? \Carbon\Carbon::parse($cert->issue_date)->format('d/m/Y') : '—' }}</div>
@@ -393,24 +446,24 @@
                                 class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-medium">
                                 <option value="">-- Seleccione curso --</option>
                                 @foreach ($courses as $c)
-                                    <option value="{{ $c->id }}">[{{ $c->code }}] {{ $c->name }}</option>
+                                    <option value="{{ $c->id }}">{{ $c->name }}</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
 
-                    {{-- Code & Duration Row --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {{-- Code, Modality & Duration Row --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Código de Certificado <span class="text-red-500">*</span>
+                                Código <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
                                 <input type="text" name="certificate_code" x-model="form.certificate_code" required maxlength="100"
                                     placeholder="Ej: CERT-2026-001"
                                     class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 uppercase font-mono font-bold">
                                 <button type="button" @click="generateCode()"
-                                    class="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-purple-600 hover:text-purple-800 bg-purple-50 px-2 py-0.5 rounded">
+                                    class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-purple-600 hover:text-purple-800 bg-purple-50 px-1.5 py-0.5 rounded">
                                     Generar
                                 </button>
                             </div>
@@ -418,10 +471,22 @@
 
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Modalidad <span class="text-red-500">*</span>
+                            </label>
+                            <select name="modality" x-model="form.modality" required
+                                class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-medium">
+                                <option value="Presencial">Presencial</option>
+                                <option value="Semipresencial">Semipresencial</option>
+                                <option value="Virtual">Virtual</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
                                 Duración / Horas
                             </label>
                             <input type="text" name="duration" x-model="form.duration" maxlength="100"
-                                placeholder="Ej: 120 Horas Académicas"
+                                placeholder="Ej: 120 Horas"
                                 class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 font-medium">
                         </div>
                     </div>
@@ -463,12 +528,15 @@
                             class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"></textarea>
                     </div>
 
-                    {{-- Active Toggle --}}
-                    <div class="flex items-center gap-3 pt-2">
-                        <label class="relative inline-flex items-center cursor-pointer">
+                    {{-- Active Toggle — same pattern as /admin-programas/editar-programa --}}
+                    <div class="pt-1">
+                        <label class="inline-flex items-center cursor-pointer gap-3 p-3 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100/80 transition-colors w-full">
                             <input type="checkbox" name="is_active" value="1" x-model="form.is_active" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:width-5 after:transition-all peer-checked:bg-purple-600"></div>
-                            <span class="ml-3 text-xs font-bold text-gray-700">Certificado Válido / Activo</span>
+                            <div class="relative w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-purple-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600 shrink-0"></div>
+                            <div>
+                                <span class="text-sm font-bold text-gray-900 block">Certificado Válido / Activo</span>
+                                <span class="text-xs text-gray-500 block">Los certificados activos son visibles y verificables en el portal institucional.</span>
+                            </div>
                         </label>
                     </div>
 
@@ -627,6 +695,148 @@
             </div>
         </div>
 
+        {{-- ══ MODAL IMPORTAR EXCEL / CSV ════════════════════════════════ --}}
+        <div x-show="importModalOpen" x-cloak
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+
+            <div @click.outside="importModalOpen = false"
+                @keydown.escape.window="importModalOpen = false"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 scale-95"
+                x-transition:enter-end="opacity-100 scale-100"
+                class="bg-white rounded-2xl shadow-2xl border border-gray-200 w-full max-w-xl overflow-hidden flex flex-col max-h-[90vh]">
+
+                {{-- Modal Header --}}
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-teal-50 shrink-0">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl">
+                            <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-extrabold text-gray-900">Importar Certificados</h3>
+                            <p class="text-xs text-gray-500">Carga masiva desde archivo Excel (.xlsx, .xls) o CSV</p>
+                        </div>
+                    </div>
+                    <button type="button" @click="importModalOpen = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg">
+                        <i class="bi bi-x-lg text-sm"></i>
+                    </button>
+                </div>
+
+                {{-- Modal Body --}}
+                <div class="p-6 space-y-5 overflow-y-auto flex-1">
+
+                    {{-- Upload Form --}}
+                    <form id="import-cert-form"
+                        action="{{ route('admin.certificates.import') }}"
+                        method="POST"
+                        enctype="multipart/form-data"
+                        class="space-y-4">
+                        @csrf
+
+                        {{-- Drag & Drop Zone --}}
+                        <div class="relative">
+                            <label for="cert-import-file"
+                                class="flex flex-col items-center justify-center w-full border-2 border-dashed rounded-2xl cursor-pointer transition-all"
+                                :class="fileName ? 'border-emerald-400 bg-emerald-50' : 'border-gray-300 bg-gray-50 hover:border-purple-400 hover:bg-purple-50'"
+                                @dragover.prevent
+                                @drop.prevent="
+                                    const f = $event.dataTransfer.files[0];
+                                    if (f) { fileName = f.name; $refs.fileInput.files = $event.dataTransfer.files; }
+                                ">
+                                <div class="py-8 px-4 text-center">
+                                    <template x-if="!fileName">
+                                        <div class="space-y-2">
+                                            <div class="w-14 h-14 mx-auto rounded-2xl bg-gray-100 text-gray-400 flex items-center justify-center text-3xl">
+                                                <i class="bi bi-cloud-arrow-up"></i>
+                                            </div>
+                                            <p class="text-sm font-semibold text-gray-600">Arrastra tu archivo aquí o <span class="text-purple-600 underline">selecciónalo</span></p>
+                                            <p class="text-xs text-gray-400">Formatos aceptados: <strong>.xlsx, .xls, .csv</strong> — Máx. 10 MB</p>
+                                        </div>
+                                    </template>
+                                    <template x-if="fileName">
+                                        <div class="space-y-2">
+                                            <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl">
+                                                <i class="bi bi-file-earmark-check-fill"></i>
+                                            </div>
+                                            <p class="text-sm font-bold text-emerald-700" x-text="fileName"></p>
+                                            <p class="text-xs text-emerald-500">Archivo listo para importar</p>
+                                        </div>
+                                    </template>
+                                </div>
+                            </label>
+                            <input id="cert-import-file" name="file" type="file"
+                                accept=".xlsx,.xls,.csv"
+                                x-ref="fileInput"
+                                @change="fileName = $event.target.files[0]?.name || ''"
+                                class="sr-only">
+                        </div>
+
+                        {{-- Column Reference --}}
+                        <details class="group">
+                            <summary class="cursor-pointer text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5 select-none">
+                                <i class="bi bi-info-circle text-purple-500"></i>
+                                Estructura esperada del archivo
+                                <i class="bi bi-chevron-down ml-auto transition-transform group-open:rotate-180 text-gray-400"></i>
+                            </summary>
+                            <div class="mt-3 border border-gray-200 rounded-xl overflow-hidden">
+                                <table class="min-w-full text-xs">
+                                    <thead class="bg-gray-50 border-b border-gray-200">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left font-bold text-gray-500 uppercase">Col</th>
+                                            <th class="px-3 py-2 text-left font-bold text-gray-500 uppercase">Encabezado en Excel</th>
+                                            <th class="px-3 py-2 text-left font-bold text-gray-500 uppercase">Campo destino</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        <tr class="bg-gray-50/60"><td class="px-3 py-1.5 font-mono font-bold text-gray-400">A</td><td class="px-3 py-1.5 text-gray-400">N°</td><td class="px-3 py-1.5 text-gray-400 italic">Número de fila — ignorada</td></tr>
+                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">B</td><td class="px-3 py-1.5">DNI / N° Documento</td><td class="px-3 py-1.5 text-gray-500">Busca usuario por DNI</td></tr>
+                                        <tr class="bg-gray-50/60"><td class="px-3 py-1.5 font-mono font-bold text-gray-400">C</td><td class="px-3 py-1.5 text-gray-400">Apellidos y Nombres</td><td class="px-3 py-1.5 text-gray-400 italic">Referencia — ignorada</td></tr>
+                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">D</td><td class="px-3 py-1.5">Curso</td><td class="px-3 py-1.5 text-gray-500">Busca curso por nombre</td></tr>
+                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">E</td><td class="px-3 py-1.5">Fecha de Inicio</td><td class="px-3 py-1.5 text-gray-500">start_date</td></tr>
+                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">F</td><td class="px-3 py-1.5">Fecha de Término</td><td class="px-3 py-1.5 text-gray-500">end_date</td></tr>
+                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">G</td><td class="px-3 py-1.5">Fecha de Emisión</td><td class="px-3 py-1.5 text-gray-500">issue_date</td></tr>
+                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">H</td><td class="px-3 py-1.5">Horas</td><td class="px-3 py-1.5 text-gray-500">duration (ej: "128 Horas")</td></tr>
+                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-indigo-600">I</td><td class="px-3 py-1.5">Calificación I <span class="text-gray-400">(numérica)</span></td><td class="px-3 py-1.5 text-gray-500">Nota Módulo 1 del curso</td></tr>
+                                        <tr class="bg-red-50"><td class="px-3 py-1.5 font-mono font-bold text-red-400">J</td><td class="px-3 py-1.5 text-red-400">Calificación Letras I</td><td class="px-3 py-1.5 text-red-400 italic">Ignorada</td></tr>
+                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-indigo-600">K</td><td class="px-3 py-1.5">Calificación II <span class="text-gray-400">(numérica)</span></td><td class="px-3 py-1.5 text-gray-500">Nota Módulo 2 del curso</td></tr>
+                                        <tr class="bg-red-50"><td class="px-3 py-1.5 font-mono font-bold text-red-400">L</td><td class="px-3 py-1.5 text-red-400">Calificación Letras II</td><td class="px-3 py-1.5 text-red-400 italic">Ignorada</td></tr>
+                                        <tr class="bg-gray-50/60"><td class="px-3 py-1.5 font-mono font-bold text-gray-400">M</td><td class="px-3 py-1.5 text-gray-400">Promedio</td><td class="px-3 py-1.5 text-gray-400 italic">Ignorada (calculado)</td></tr>
+                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">N</td><td class="px-3 py-1.5">Modalidad</td><td class="px-3 py-1.5 text-gray-500">modality (Presencial / Virtual / Semipresencial)</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </details>
+
+                        {{-- Warning about ignored cols --}}
+                        <div class="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
+                            <i class="bi bi-exclamation-triangle-fill text-amber-500 mt-0.5 shrink-0"></i>
+                            <span>Las columnas <strong>J</strong> y <strong>L</strong> (calificación en letras) son ignoradas. El código del certificado se genera automáticamente como <code class="bg-amber-100 px-1 rounded">CERT-{DNI_estudiante}-{ID_curso}</code>. Los módulos se asignan por orden del curso (col. <strong>I</strong> → Módulo 1, col. <strong>K</strong> → Módulo 2).</span>
+                        </div>
+
+                        {{-- Submit --}}
+                        <div class="flex items-center justify-end gap-3 pt-1">
+                            <button type="button" @click="importModalOpen = false"
+                                class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-semibold transition">
+                                Cancelar
+                            </button>
+                            <button type="submit"
+                                class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl text-sm font-bold shadow transition flex items-center gap-2"
+                                :disabled="!fileName"
+                                :class="!fileName ? 'opacity-50 cursor-not-allowed' : ''">
+                                <i class="bi bi-upload"></i> Importar Certificados
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 @endsection
@@ -637,6 +847,8 @@
         return {
             modalOpen: false,
             detailsModalOpen: false,
+            importModalOpen: false,
+            fileName: '',
             isEdit: false,
             updateUrl: '',
             activeCert: null,
@@ -650,6 +862,7 @@
                 start_date: '',
                 end_date: '',
                 duration: '',
+                modality: 'Presencial',
                 issue_date: '{{ date('Y-m-d') }}',
                 is_active: true,
             },
@@ -666,6 +879,7 @@
                     start_date: '',
                     end_date: '',
                     duration: '120 Horas',
+                    modality: 'Presencial',
                     issue_date: '{{ date('Y-m-d') }}',
                     is_active: true,
                 };
@@ -684,6 +898,7 @@
                     start_date: cert.start_date ? cert.start_date.substring(0, 10) : '',
                     end_date: cert.end_date ? cert.end_date.substring(0, 10) : '',
                     duration: cert.duration || '',
+                    modality: cert.modality || 'Presencial',
                     issue_date: cert.issue_date ? cert.issue_date.substring(0, 10) : '{{ date('Y-m-d') }}',
                     is_active: Boolean(cert.is_active),
                 };

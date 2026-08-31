@@ -17,40 +17,36 @@ class CourseController extends Controller
      */
     public function index(Request $request): View
     {
-        $search   = $request->input('search');
-        $modality = $request->input('modality');
-        $status   = $request->input('status');
+        $search = $request->input('search');
+        $status = $request->input('status');
 
         $query = Course::withCount(['modules', 'certificates', 'itineraries'])
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sq) use ($search) {
                     $sq->where('name', 'LIKE', "%{$search}%")
-                        ->orWhere('code', 'LIKE', "%{$search}%")
                         ->orWhere('description', 'LIKE', "%{$search}%");
                 });
             })
-            ->when($modality, fn ($q) => $q->where('modality', $modality))
             ->when($status !== null && $status !== '', function ($q) use ($status) {
                 $q->where('is_active', (bool) $status);
             })
             ->orderBy('name', 'asc');
 
-        $courses = $query->paginate(10)->appends($request->only(['search', 'modality', 'status']));
+        $courses = $query->paginate(10)->appends($request->only(['search', 'status']));
 
         // Stat counters
-        $totalCourses  = Course::count();
-        $activeCourses = Course::where('is_active', true)->count();
-        $presencialCount = Course::where('modality', 'Presencial')->count();
-        $virtualCount    = Course::whereIn('modality', ['Virtual', 'Semipresencial'])->count();
+        $totalCourses           = Course::count();
+        $activeCourses          = Course::where('is_active', true)->count();
+        $withModulesCount       = Course::has('modules')->count();
+        $withCertificatesCount  = Course::has('certificates')->count();
 
         return view('admin.courses.index', compact(
             'courses',
             'totalCourses',
             'activeCourses',
-            'presencialCount',
-            'virtualCount',
+            'withModulesCount',
+            'withCertificatesCount',
             'search',
-            'modality',
             'status'
         ));
     }

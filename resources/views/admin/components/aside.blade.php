@@ -442,16 +442,16 @@
                         <i
                             class="bi bi-mortarboard text-base group-hover:scale-110 transition-transform duration-200
                                 {{ request()->routeIs('admin.programs.*') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400' }}"></i>
-                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Gestionar Programas</span>
+                        <span class="ml-3 text-sm font-medium whitespace-nowrap">Programas de estudio</span>
                         @if (request()->routeIs('admin.programs.*'))
                             <div
                                 class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
                             </div>
                         @endif
                     </a>
-
                     {{-- Submenú: Certificaciones --}}
-                    <div class="pt-2 pb-1 px-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-purple-400/80">
+                    <div
+                        class="pt-2 pb-1 px-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-purple-400/80">
                         <i class="bi bi-patch-check"></i>
                         <span>Certificaciones</span>
                     </div>
@@ -678,7 +678,8 @@
                     <i class="bi bi-person-circle text-2xl text-white"></i>
                 </div>
                 <div class="overflow-hidden">
-                    <p class="text-sm font-medium text-white truncate">{{ Auth::user()->name ?? Auth::user()->names }}
+                    <p class="text-sm font-medium text-white truncate">
+                        {{ Auth::user()->name ?? Auth::user()->names }}
                     </p>
                     <p class="text-xs text-slate-400 truncate">Administrador</p>
                 </div>

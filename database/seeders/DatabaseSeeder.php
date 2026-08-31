@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ManagementDocumentSeeder::class);
         $this->call(InstitutionalCarouselSeeder::class);
         $this->call(LicensingPhaseSeeder::class);
+        $this->call(CourseSeeder::class);
     }
 }
 

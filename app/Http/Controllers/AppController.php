@@ -778,10 +778,10 @@ class AppController extends Controller {
             ])
             ->where(function ($q) use ($searchCode) {
                 $q->where('certificate_code', $searchCode)
-                  ->orWhere('certificate_code', 'LIKE', $searchCode)
-                  ->orWhereHas('user', function ($uq) use ($searchCode) {
-                      $uq->where('dni', $searchCode);
-                  });
+                    ->orWhere('certificate_code', 'LIKE', $searchCode)
+                    ->orWhereHas('user', function ($uq) use ($searchCode) {
+                        $uq->where('dni', $searchCode);
+                    });
             })
             ->first();
 

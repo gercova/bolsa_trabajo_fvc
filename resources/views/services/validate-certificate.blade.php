@@ -201,7 +201,7 @@
                         <div class="flex items-center gap-2">
                             <span class="px-3 py-1 rounded-full text-xs font-bold {{ $certificate->is_active ? 'bg-emerald-400/20 text-emerald-100 border border-emerald-300/30' : 'bg-red-400/20 text-red-100 border border-red-300/30' }}">
                                 <i class="bi bi-circle-fill text-[8px] mr-1 {{ $certificate->is_active ? 'text-emerald-300 animate-pulse' : 'text-red-300' }}"></i>
-                                {{ $certificate->is_active ? 'Registro Vigente en MINEDU' : 'Inactivo' }}
+                                {{ $certificate->is_active ? 'Registro Vigente' : 'Inactivo' }}
                             </span>
                         </div>
                     </div>

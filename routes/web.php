@@ -82,9 +82,10 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::prefix('admin-perfil')->name('admin.profile.')->group(function () {
-        Route::get('/{user}',   [ProfileController::class, 'edit'])->name('edit');
-        Route::patch('/',       [ProfileController::class, 'update'])->name('update');
-        Route::delete('/',      [ProfileController::class, 'destroy'])->name('destroy');    
+        Route::get('/{user?}',   [ProfileController::class, 'edit'])->name('edit');
+        Route::put('/{user?}',   [ProfileController::class, 'update'])->name('update');
+        Route::patch('/{user?}', [ProfileController::class, 'update'])->name('update.patch');
+        Route::delete('/{user?}',[ProfileController::class, 'destroy'])->name('destroy');    
     });
 
     // blogs

@@ -72,4 +72,12 @@ class User extends Authenticatable
     public function studentCouncils(): HasMany {
         return $this->hasMany(StudentCouncil::class, 'user_id', 'id');
     }
+
+    public function favoriteBooks(): \Illuminate\Database\Eloquent\Relations\BelongsToMany {
+        return $this->belongsToMany(Book::class, 'book_favorites', 'user_id', 'book_id')->withTimestamps();
+    }
+
+    public function libraryAccessLogs(): HasMany {
+        return $this->hasMany(LibraryAccessLog::class, 'user_id', 'id');
+    }
 }

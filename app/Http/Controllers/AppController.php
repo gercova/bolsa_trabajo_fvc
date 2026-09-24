@@ -20,6 +20,7 @@ use App\Models\LicensingPhase;
 use App\Models\ManagementDocument;
 use App\Models\Partner;
 use App\Models\Scholarship;
+use App\Models\ScholarshipBeneficiary;
 use App\Models\StudentCouncil;
 use App\Models\StudentRecord;
 use App\Models\StudyProgram;
@@ -195,7 +196,23 @@ class AppController extends Controller {
         $scholarships              = Scholarship::active()->ordered()->get();
         $totalScholarshipVacancies = $scholarships->sum('vacancies');
         $enterprise                = Enterprise::first();
-        return view('admission.scholarships-and-credits', compact('scholarships', 'totalScholarshipVacancies', 'enterprise'));
+
+        $beneficiaries = ScholarshipBeneficiary::active()
+            ->with('scholarship')
+            ->ordered()
+            ->get();
+
+        $beneficiariesByPeriod = $beneficiaries->groupBy('academic_period');
+        $beneficiaryPeriods    = $beneficiariesByPeriod->keys();
+
+        return view('admission.scholarships-and-credits', compact(
+            'scholarships',
+            'totalScholarshipVacancies',
+            'enterprise',
+            'beneficiaries',
+            'beneficiariesByPeriod',
+            'beneficiaryPeriods'
+        ));
     }
 
     // programas-de-estudios

@@ -194,11 +194,10 @@
                     x-transition:leave="dropdown-leave" x-transition:leave-start="dropdown-enter-end"
                     x-transition:leave-end="dropdown-enter-start" style="display:none;">
                     <div class="dropdown-panel-inner">
-                        <a href="https://iestpfranciscovigocaballero.bibliotecalatina.com/login" target="_blank"
-                            rel="noopener" class="dp-item">
+                        <a href="{{ route('biblioteca.index') }}"
+                            class="dp-item {{ request()->routeIs('biblioteca*') ? 'active' : '' }}">
                             <span class="dp-icon"><i class="bi bi-book-half"></i></span>
-                            <span class="dp-label">Biblioteca Virtual <i
-                                    class="bi bi-box-arrow-up-right dp-ext"></i></span>
+                            <span class="dp-label">Biblioteca Virtual</span>
                         </a>
                         <a href="{{ route('bolsa-de-trabajo') }}" class="dp-item">
                             <span class="dp-icon"><i class="bi bi-briefcase-fill"></i></span>
@@ -390,7 +389,7 @@
         </div>
 
         {{-- Servicios --}}
-        <div x-data="{ open: {{ request()->routeIs('bolsa-de-trabajo', 'enlaces-institucionales', 'validar-certificado*') ? 'true' : 'false' }} }" class="w-full">
+        <div x-data="{ open: {{ request()->routeIs('biblioteca*', 'bolsa-de-trabajo', 'enlaces-institucionales', 'validar-certificado*') ? 'true' : 'false' }} }" class="w-full">
             <button @click="open = !open" class="mobile-link mobile-link--accordion w-full"
                 :class="open ? 'active' : ''" :aria-expanded="open">
                 <div class="flex items-center gap-3">
@@ -399,9 +398,9 @@
                 <i class="bi bi-chevron-down mobile-chevron" :class="open ? 'rotated' : ''"></i>
             </button>
             <div x-show="open" x-collapse style="display:none;" class="mobile-sub">
-                <a href="https://iestpfranciscovigocaballero.bibliotecalatina.com/login" target="_blank"
-                    rel="noopener" class="mobile-sub-link">
-                    Biblioteca Virtual <i class="bi bi-box-arrow-up-right text-[10px] ml-1"></i>
+                <a href="{{ route('biblioteca.index') }}"
+                    class="mobile-sub-link {{ request()->routeIs('biblioteca*') ? 'active' : '' }}">
+                    Biblioteca Virtual
                 </a>
                 <a href="{{ route('bolsa-de-trabajo') }}" class="mobile-sub-link {{ request()->routeIs('bolsa-de-trabajo') ? 'active' : '' }}">Bolsa de Trabajo</a>
                 <a href="{{ route('validar-certificado') }}" class="mobile-sub-link {{ request()->routeIs('validar-certificado*') ? 'active' : '' }}">Validar Certificados</a>

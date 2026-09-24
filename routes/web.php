@@ -24,12 +24,15 @@ use App\Http\Controllers\PartnersController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScholarshipController;
+use App\Http\Controllers\ScholarshipBeneficiaryController;
 use App\Http\Controllers\StadisticController;
 use App\Http\Controllers\StudentCouncilController;
 use App\Http\Controllers\TeacherRoleController;
 use App\Http\Controllers\StudyProgramsController;
 use App\Http\Controllers\TupaController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\Admin\LibraryController as AdminLibraryController;
+use App\Http\Controllers\LibraryReaderController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/',         [AppController::class, 'index'])->name('inicio');
@@ -39,6 +42,7 @@ Route::get('/admision-y-matricula/cepre-fvc',           [AppController::class, '
 Route::get('/admision-y-matricula/examen-de-admision',  [AppController::class, 'admissionExam'])->name('examen-de-admision');
 Route::get('/admision-y-matricula/matriculas',          [AppController::class, 'enrollments'])->name('matriculas');
 Route::get('/admision-y-matriculas/becas-y-creditos',   [AppController::class, 'scholarshipsAndCredits'])->name('becas-y-creditos');
+Route::redirect('/becas-y-creditos', '/admision-y-matriculas/becas-y-creditos');
 
 // programas de estudio
 Route::get('/programas-de-estudios',                [AppController::class, 'studyPrograms'])->name('programas-de-estudio');
@@ -121,6 +125,41 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/editar-beca/{scholarship}',    [ScholarshipController::class, 'update'])->name('update');
         Route::delete('/{scholarship}',             [ScholarshipController::class, 'destroy'])->name('destroy');
         Route::patch('/estado/{scholarship}',       [ScholarshipController::class, 'toggleStatus'])->name('toggle-status');
+
+        // Beneficiarios de Becas (PDF por periodo)
+        Route::prefix('beneficiarios')->name('beneficiaries.')->group(function () {
+            Route::post('/guardar',                 [ScholarshipBeneficiaryController::class, 'store'])->name('store');
+            Route::get('/editar/{beneficiary}',     [ScholarshipBeneficiaryController::class, 'edit'])->name('edit');
+            Route::put('/editar/{beneficiary}',     [ScholarshipBeneficiaryController::class, 'update'])->name('update');
+            Route::delete('/{beneficiary}',         [ScholarshipBeneficiaryController::class, 'destroy'])->name('destroy');
+            Route::patch('/estado/{beneficiary}',   [ScholarshipBeneficiaryController::class, 'toggleStatus'])->name('toggle-status');
+            Route::get('/descargar/{beneficiary}',  [ScholarshipBeneficiaryController::class, 'download'])->name('download');
+        });
+    });
+
+    // ── BIBLIOTECA VIRTUAL: Portal para Lectores (Docentes y Estudiantes) ──────
+    Route::prefix('biblioteca')->name('biblioteca.')->group(function () {
+        Route::get('/',                         [LibraryReaderController::class, 'index'])->name('index');
+        Route::get('/buscar',                   [LibraryReaderController::class, 'search'])->name('search');
+        Route::get('/mi-biblioteca',            [LibraryReaderController::class, 'myLibrary'])->name('favorites');
+        Route::get('/leer/{book:slug}',         [LibraryReaderController::class, 'read'])->name('read');
+        Route::get('/stream/{book:slug}',       [LibraryReaderController::class, 'stream'])->name('stream');
+        Route::post('/favorito/{book}',         [LibraryReaderController::class, 'toggleFavorite'])->name('favorite.toggle');
+    });
+
+    // ── BIBLIOTECA VIRTUAL: Panel de Gestión Administrativa ────────────────────
+    Route::prefix('admin-biblioteca')->name('admin.library.')->group(function () {
+        Route::get('/',                         [AdminLibraryController::class, 'index'])->name('index');
+        Route::get('/libros',                   [AdminLibraryController::class, 'index'])->name('books.index');
+        Route::get('/repositorio',              [AdminLibraryController::class, 'repository'])->name('repository');
+        Route::post('/guardar',                 [AdminLibraryController::class, 'store'])->name('store');
+        Route::get('/editar/{book}',            [AdminLibraryController::class, 'edit'])->name('edit');
+        Route::put('/editar/{book}',            [AdminLibraryController::class, 'update'])->name('update');
+        Route::delete('/{book}',                [AdminLibraryController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{book}',          [AdminLibraryController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/lectores',                 [AdminLibraryController::class, 'readers'])->name('readers');
+        Route::get('/administradores',          [AdminLibraryController::class, 'administrators'])->name('administrators');
+        Route::get('/reportes',                 [AdminLibraryController::class, 'reports'])->name('reports');
     });
 
     // tupa
@@ -439,7 +478,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin-inversiones')->name('admin.account-balances.')->group(function () {
         Route::get('/',              [AccountBalanceController::class, 'index'])->name('index');
         Route::post('/importar',     [AccountBalanceController::class, 'import'])->name('import');
-        // Vaciado de tabla: sólo Director / Administrador (permiso gestionar-inversiones)
+        // Borrar información de la tabla: sólo Director / Administrador (permiso gestionar-inversiones)
         Route::delete('/limpiar-tabla', [AccountBalanceController::class, 'truncateTable'])
             ->name('truncate')
             ->middleware('can:gestionar-inversiones');

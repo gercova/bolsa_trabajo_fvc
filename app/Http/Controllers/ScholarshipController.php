@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ScholarshipRequest;
 use App\Models\Scholarship;
+use App\Models\ScholarshipBeneficiary;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -31,10 +32,63 @@ class ScholarshipController extends Controller
             })
             ->orderBy('sort_order', 'asc')
             ->orderBy('name', 'asc')
-            ->paginate(10)
+            ->paginate(10, ['*'], 'scholarships_page')
             ->withQueryString();
 
-        return view('admin.scholarships.index', compact('scholarships', 'search', 'status'));
+        // Beneficiaries Query
+        $beneficiarySearch = $request->input('beneficiary_search');
+        $beneficiaryPeriod = $request->input('beneficiary_period');
+        $beneficiaryStatus = $request->input('beneficiary_status');
+
+        $beneficiariesQuery = ScholarshipBeneficiary::with('scholarship')
+            ->when($beneficiarySearch, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('title', 'LIKE', "%{$search}%")
+                      ->orWhere('resolution_number', 'LIKE', "%{$search}%")
+                      ->orWhere('description', 'LIKE', "%{$search}%");
+                });
+            })
+            ->when($beneficiaryPeriod, function ($query, $period) {
+                $query->where('academic_period', $period);
+            })
+            ->when($beneficiaryStatus !== null && $beneficiaryStatus !== '', function ($query) use ($beneficiaryStatus) {
+                $query->where('is_active', $beneficiaryStatus === 'active' || $beneficiaryStatus === '1');
+            })
+            ->orderBy('academic_period', 'desc')
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('created_at', 'desc');
+
+        $beneficiaries = $beneficiariesQuery->paginate(10, ['*'], 'beneficiaries_page')->withQueryString();
+
+        $allScholarships    = Scholarship::orderBy('sort_order')->orderBy('name')->get();
+        $periods            = ScholarshipBeneficiary::distinct()->orderBy('academic_period', 'desc')->pluck('academic_period');
+        $totalModalities    = Scholarship::count();
+        $totalBeneficiaries = ScholarshipBeneficiary::count();
+
+        // Active tab determination
+        $activeTab = $request->input('tab');
+        if (!$activeTab) {
+            if ($request->hasAny(['beneficiary_search', 'beneficiary_period', 'beneficiary_status', 'beneficiaries_page'])) {
+                $activeTab = 'beneficiaries';
+            } else {
+                $activeTab = 'modalities';
+            }
+        }
+
+        return view('admin.scholarships.index', compact(
+            'scholarships',
+            'search',
+            'status',
+            'beneficiaries',
+            'beneficiarySearch',
+            'beneficiaryPeriod',
+            'beneficiaryStatus',
+            'allScholarships',
+            'periods',
+            'totalModalities',
+            'totalBeneficiaries',
+            'activeTab'
+        ));
     }
 
     /**

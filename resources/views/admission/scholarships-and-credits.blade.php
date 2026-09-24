@@ -71,11 +71,12 @@
                                 aria-hidden="true"></i>
                             Becas Institucionales
                         </a>
-                        {{-- <a href="#becas-externas"
-                            class="inline-flex items-center justify-center px-6 py-4 text-base font-bold text-white border-2 border-blue-400/40 hover:bg-white/10 rounded-xl transition backdrop-blur-sm">
-                            <i class="bi bi-mortarboard-fill mr-2 text-lg text-blue-200" aria-hidden="true"></i>
-                            Beca 18 PRONABEC
-                        </a> --}}
+                        <a href="#padron-beneficiarios"
+                            class="inline-flex items-center justify-center px-6 py-4 text-base font-bold text-white border-2 border-blue-300/40 hover:bg-white/10 rounded-xl transition backdrop-blur-sm group">
+                            <i class="bi bi-file-earmark-pdf-fill mr-2 text-lg text-amber-300 group-hover:scale-110 transition-transform"
+                                aria-hidden="true"></i>
+                            Padrón de Beneficiarios (PDF)
+                        </a>
                     </div>
                 </div>
 
@@ -509,6 +510,210 @@
         </div>
     </section>
 
+    {{-- ═══ PADRÓN OFICIAL DE BENEFICIARIOS (PDF POR PERIODO / SEMESTRE) ═════ --}}
+    <section id="padron-beneficiarios" class="py-16 sm:py-24 bg-white border-b border-blue-100/70"
+        x-data="scholarshipBeneficiariesPublicApp()">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            {{-- Section Header --}}
+            <div class="text-center max-w-3xl mx-auto mb-14">
+                <span
+                    class="text-xs font-bold tracking-widest text-blue-700 uppercase bg-blue-100/80 px-4 py-1.5 rounded-full inline-flex items-center gap-1.5 border border-blue-200/60 shadow-xs">
+                    <i class="bi bi-shield-check text-blue-600"></i>
+                    Transparencia Institucional • Padrón de Adjudicados
+                </span>
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-blue-900 mt-4 font-sans tracking-tight">
+                    Relación de Estudiantes Beneficiarios <br class="hidden sm:inline">
+                    <span class="text-blue-600">de Becas y Exoneraciones</span>
+                </h2>
+                <div class="w-24 h-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 mx-auto mt-5 rounded-full"></div>
+                <p class="text-base sm:text-lg text-gray-600 mt-6 leading-relaxed">
+                    Ponemos a disposición de la comunidad educativa y público en general las resoluciones y nóminas oficiales con la relación de estudiantes que obtuvieron becas, medias becas o exoneraciones, clasificados por periodo académico o semestre.
+                </p>
+            </div>
+
+            {{-- Beneficiary Documents Content --}}
+            @if ($beneficiaries->count() > 0)
+                {{-- Period Filter Tabs --}}
+                @if ($beneficiaryPeriods->count() > 1)
+                    <div class="flex flex-wrap items-center justify-center gap-2 mb-12">
+                        <button type="button" @click="selectedPeriod = 'all'"
+                            :class="selectedPeriod === 'all' 
+                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25 font-black scale-105' 
+                                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold'"
+                            class="px-5 py-2.5 rounded-full text-xs sm:text-sm transition-all duration-200 flex items-center gap-2">
+                            <i class="bi bi-collection"></i>
+                            <span>Todos los Periodos</span>
+                            <span class="px-2 py-0.5 text-[11px] rounded-full"
+                                :class="selectedPeriod === 'all' ? 'bg-blue-800 text-blue-100' : 'bg-slate-200 text-slate-700'">
+                                {{ $beneficiaries->count() }}
+                            </span>
+                        </button>
+
+                        @foreach ($beneficiaryPeriods as $period)
+                            <button type="button" @click="selectedPeriod = '{{ $period }}'"
+                                :class="selectedPeriod === '{{ $period }}' 
+                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25 font-black scale-105' 
+                                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold'"
+                                class="px-5 py-2.5 rounded-full text-xs sm:text-sm transition-all duration-200 flex items-center gap-2">
+                                <i class="bi bi-calendar3"></i>
+                                <span>Periodo {{ $period }}</span>
+                                <span class="px-2 py-0.5 text-[11px] rounded-full"
+                                    :class="selectedPeriod === '{{ $period }}' ? 'bg-blue-800 text-blue-100' : 'bg-slate-200 text-slate-700'">
+                                    {{ isset($beneficiariesByPeriod[$period]) ? $beneficiariesByPeriod[$period]->count() : 0 }}
+                                </span>
+                            </button>
+                        @endforeach
+                    </div>
+                @endif
+
+                {{-- Cards Grid --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    @foreach ($beneficiaries as $ben)
+                        <div class="bg-gradient-to-b from-white via-white to-blue-50/30 rounded-3xl border border-blue-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group"
+                            x-show="selectedPeriod === 'all' || selectedPeriod === '{{ $ben->academic_period }}'"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100">
+                            
+                            <div class="p-6 sm:p-8 space-y-4">
+                                {{-- Card Header: Icon & Badges --}}
+                                <div class="flex items-center justify-between gap-3">
+                                    <div class="w-14 h-14 rounded-2xl bg-red-50 border border-red-100 text-red-600 flex items-center justify-center text-2xl shadow-sm group-hover:scale-110 group-hover:bg-red-600 group-hover:text-white transition-all duration-300 flex-shrink-0">
+                                        <i class="bi bi-file-earmark-pdf-fill"></i>
+                                    </div>
+                                    <div class="flex flex-col items-end gap-1.5">
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-purple-50 text-purple-800 border border-purple-200">
+                                            <i class="bi bi-calendar-check text-purple-600"></i>
+                                            Periodo {{ $ben->academic_period }}
+                                        </span>
+                                        @if ($ben->scholarship)
+                                            <span class="text-[11px] font-extrabold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-md line-clamp-1 max-w-[190px]">
+                                                {{ $ben->scholarship->name }}
+                                            </span>
+                                        @else
+                                            <span class="text-[11px] font-bold text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-md">
+                                                Todas las Modalidades
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                {{-- Title & Resolution --}}
+                                <div class="space-y-2">
+                                    <h3 class="text-xl font-bold text-blue-950 group-hover:text-blue-600 transition-colors leading-snug">
+                                        {{ $ben->title }}
+                                    </h3>
+                                    @if ($ben->resolution_number)
+                                        <div class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-900 bg-amber-50 border border-amber-200/90 px-2.5 py-1 rounded-lg">
+                                            <i class="bi bi-file-earmark-check-fill text-amber-600"></i>
+                                            <span>{{ $ben->resolution_number }}</span>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                {{-- Description --}}
+                                @if ($ben->description)
+                                    <p class="text-xs sm:text-sm text-gray-600 leading-relaxed line-clamp-3">
+                                        {{ $ben->description }}
+                                    </p>
+                                @endif
+
+                                {{-- Meta (Date and Size) --}}
+                                <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 font-medium">
+                                    <span class="flex items-center gap-1.5">
+                                        <i class="bi bi-clock-history text-gray-400"></i>
+                                        {{ $ben->publication_date ? $ben->publication_date->format('d/m/Y') : 'Oficial' }}
+                                    </span>
+                                    <span class="flex items-center gap-1 font-bold text-slate-700">
+                                        <i class="bi bi-filetype-pdf text-red-500"></i>
+                                        {{ $ben->formatted_file_size }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {{-- Card Footer Actions --}}
+                            <div class="px-6 py-4 bg-slate-50 border-t border-gray-100 flex items-center gap-3">
+                                <button type="button"
+                                    @click="openPdfReader('{{ $ben->file_url }}', '{{ addslashes($ben->title) }}')"
+                                    class="flex-1 py-3 px-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl transition shadow-md shadow-blue-600/20 flex items-center justify-center gap-2">
+                                    <i class="bi bi-eye-fill"></i>
+                                    <span>Visualizar PDF</span>
+                                </button>
+
+                                <a href="{{ $ben->file_url }}" download target="_blank"
+                                    class="py-3 px-4 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow-xs"
+                                    title="Descargar archivo PDF">
+                                    <i class="bi bi-download"></i>
+                                    <span class="hidden sm:inline">Descargar</span>
+                                </a>
+                            </div>
+
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                {{-- Empty State --}}
+                <div class="max-w-xl mx-auto bg-slate-50 border border-blue-100 rounded-3xl p-8 sm:p-12 text-center space-y-4 shadow-sm">
+                    <div class="w-16 h-16 rounded-2xl bg-blue-100/70 text-blue-600 mx-auto flex items-center justify-center text-3xl shadow-inner">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-blue-900">Padrones en proceso de actualización</h3>
+                    <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                        Las nóminas oficiales de estudiantes adjudicados son publicadas al finalizar cada convocatoria y ratificadas mediante Resolución Directoral. Próximamente se encontrarán disponibles para consulta pública.
+                    </p>
+                    <div class="pt-2">
+                        <a href="{{ route('mesa-de-partes') }}"
+                            class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700 transition shadow-sm">
+                            <i class="bi bi-envelope-paper"></i> Consultar en Mesa de Partes
+                        </a>
+                    </div>
+                </div>
+            @endif
+
+        </div>
+
+        {{-- ===== PDF READER MODAL ===== --}}
+        <div x-show="showPdfModal" x-transition.opacity
+            class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
+            style="display: none;" @keydown.escape.window="showPdfModal = false">
+            <div @click.away="showPdfModal = false"
+                class="bg-white rounded-3xl shadow-2xl w-full max-w-5xl h-[88vh] flex flex-col overflow-hidden border border-slate-200">
+                {{-- Modal Topbar --}}
+                <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-9 h-9 rounded-xl bg-red-500/20 border border-red-500/30 flex items-center justify-center flex-shrink-0">
+                            <i class="bi bi-file-earmark-pdf-fill text-red-400 text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-sm sm:text-base truncate" x-text="pdfReaderTitle"></h3>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a :href="pdfReaderUrl" download target="_blank"
+                            class="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5">
+                            <i class="bi bi-download"></i> Descargar
+                        </a>
+                        <button type="button" @click="showPdfModal = false"
+                            class="p-2 text-slate-400 hover:text-white rounded-lg transition-colors">
+                            <i class="bi bi-x-lg text-base"></i>
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Modal iFrame Body --}}
+                <div class="flex-1 bg-slate-100 relative min-h-0">
+                    <iframe :src="pdfReaderUrl" class="w-full h-full border-none" type="application/pdf">
+                        <div class="p-8 text-center text-gray-500">
+                            <p>Tu navegador no soporta la visualización integrada de archivos PDF.</p>
+                            <a :href="pdfReaderUrl" target="_blank" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">
+                                <i class="bi bi-box-arrow-up-right"></i> Abrir o descargar documento PDF
+                            </a>
+                        </div>
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
 
     {{-- ═══ PROGRAMAS EXTERNOS & BECA 18 PRONABEC ════════════════════════════ --}}
     {{-- <section id="becas-externas" class="py-16 bg-white">
@@ -827,5 +1032,40 @@
 
         </div>
     </section>
+
+    @push('scripts')
+        <script>
+            function scholarshipBeneficiariesPublicApp() {
+                return {
+                    selectedPeriod: 'all',
+                    showPdfModal: false,
+                    pdfReaderUrl: '',
+                    pdfReaderTitle: '',
+
+                    init() {
+                        this.$watch('showPdfModal', val => {
+                            document.body.style.overflow = val ? 'hidden' : '';
+                        });
+                    },
+
+                    openPdfReader(url, title) {
+                        if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+                            try {
+                                const parsed = new URL(url);
+                                if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1' || parsed.hostname === window.location.hostname) {
+                                    url = parsed.pathname;
+                                }
+                            } catch (e) {
+                                console.error('URL parse error:', e);
+                            }
+                        }
+                        this.pdfReaderUrl = url;
+                        this.pdfReaderTitle = title;
+                        this.showPdfModal = true;
+                    }
+                };
+            }
+        </script>
+    @endpush
 
 @endsection

@@ -51,20 +51,24 @@
         .step-card {
             position: relative;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: flex-start;
-            gap: 0.75rem;
+            gap: 1.25rem;
         }
         .step-card::after {
             content: '';
             position: absolute;
             top: 28px;
-            left: 28px;
+            left: 27px;
             width: 2px;
-            height: calc(100% + 24px);
+            height: calc(100% + 2rem);
             background: #bfdbfe;
+            z-index: 0;
         }
         .step-card:last-child::after { display: none; }
+        .step-card-extra::after {
+            background: #ddd6fe;
+        }
 
         /* ===== SCHEDULE CARD ===== */
         .schedule-card {
@@ -165,7 +169,7 @@
                 x-transition:enter-end="opacity-100 translate-y-0">
 
                 <div class="max-w-5xl mx-auto">
-                    <div class="bg-blue-50/70 border border-blue-200 rounded-3xl p-8 sm:p-10 mb-10 shadow-sm">
+                    <div class="bg-blue-50/70 border border-blue-200 rounded-3xl p-5 sm:p-8 lg:p-10 mb-10 shadow-sm">
                         <div class="flex items-start gap-4 mb-8">
                             <div class="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-md">
                                 <i class="bi bi-calendar2-check-fill text-2xl"></i>
@@ -177,11 +181,11 @@
                         </div>
 
                         {{-- Steps --}}
-                        <div class="space-y-8 pl-4">
+                        <div class="space-y-8 pl-0 sm:pl-2">
                             {{-- Step 1 --}}
-                            <div class="flex gap-5 step-card">
+                            <div class="flex gap-4 sm:gap-5 step-card">
                                 <div class="shrink-0 w-14 h-14 rounded-full bg-blue-600 text-white font-black text-lg flex items-center justify-center shadow-md z-10">01</div>
-                                <div class="bg-white rounded-2xl border border-blue-100 p-6 flex-1 shadow-sm">
+                                <div class="bg-white rounded-2xl border border-blue-100 p-5 sm:p-6 flex-1 min-w-0 shadow-sm">
                                     <h4 class="text-lg font-extrabold text-blue-950 mb-2 flex items-center gap-2">
                                         <i class="bi bi-bank text-blue-600"></i>
                                         Pago del Derecho de Matrícula
@@ -208,9 +212,9 @@
                             </div>
 
                             {{-- Step 2 --}}
-                            <div class="flex gap-5 step-card">
+                            <div class="flex gap-4 sm:gap-5 step-card">
                                 <div class="shrink-0 w-14 h-14 rounded-full bg-blue-600 text-white font-black text-lg flex items-center justify-center shadow-md z-10">02</div>
-                                <div class="bg-white rounded-2xl border border-blue-100 p-6 flex-1 shadow-sm">
+                                <div class="bg-white rounded-2xl border border-blue-100 p-5 sm:p-6 flex-1 min-w-0 shadow-sm">
                                     <h4 class="text-lg font-extrabold text-blue-950 mb-2 flex items-center gap-2">
                                         <i class="bi bi-receipt text-blue-600"></i>
                                         Presentar Voucher a Secretaría Académica
@@ -231,11 +235,11 @@
                             </div>
 
                             {{-- Step 3 --}}
-                            <div class="flex gap-5 step-card">
+                            <div class="flex gap-4 sm:gap-5 step-card">
                                 <div class="shrink-0 w-14 h-14 rounded-full bg-emerald-500 text-white font-black text-lg flex items-center justify-center shadow-md z-10">
                                     <i class="bi bi-check-lg text-2xl"></i>
                                 </div>
-                                <div class="bg-emerald-50 rounded-2xl border border-emerald-100 p-6 flex-1 shadow-sm">
+                                <div class="bg-emerald-50 rounded-2xl border border-emerald-100 p-5 sm:p-6 flex-1 min-w-0 shadow-sm">
                                     <h4 class="text-lg font-extrabold text-emerald-800 mb-2 flex items-center gap-2">
                                         <i class="bi bi-patch-check-fill text-emerald-600"></i>
                                         ¡Matrícula Completada!
@@ -258,7 +262,7 @@
                 x-transition:enter-end="opacity-100 translate-y-0">
 
                 <div class="max-w-5xl mx-auto">
-                    <div class="bg-purple-50/70 border border-purple-200 rounded-3xl p-8 sm:p-10 mb-10 shadow-sm">
+                    <div class="bg-purple-50/70 border border-purple-200 rounded-3xl p-5 sm:p-8 lg:p-10 mb-10 shadow-sm">
                         <div class="flex items-start gap-4 mb-8">
                             <div class="w-14 h-14 rounded-2xl bg-violet-700 text-white flex items-center justify-center shrink-0 shadow-md">
                                 <i class="bi bi-calendar2-x-fill text-2xl"></i>
@@ -291,11 +295,11 @@
                         </div>
 
                         {{-- Steps --}}
-                        <div class="space-y-8 pl-4">
+                        <div class="space-y-8 pl-0 sm:pl-2">
                             {{-- Step 1 --}}
-                            <div class="flex gap-5 step-card">
+                            <div class="flex gap-4 sm:gap-5 step-card step-card-extra">
                                 <div class="shrink-0 w-14 h-14 rounded-full bg-violet-700 text-white font-black text-lg flex items-center justify-center shadow-md z-10">01</div>
-                                <div class="bg-white rounded-2xl border border-purple-100 p-6 flex-1 shadow-sm">
+                                <div class="bg-white rounded-2xl border border-purple-100 p-5 sm:p-6 flex-1 min-w-0 shadow-sm">
                                     <h4 class="text-lg font-extrabold text-violet-950 mb-2 flex items-center gap-2">
                                         <i class="bi bi-bank text-violet-600"></i>
                                         Pago del Derecho de Matrícula
@@ -324,9 +328,9 @@
                             </div>
 
                             {{-- Step 2 --}}
-                            <div class="flex gap-5 step-card">
+                            <div class="flex gap-4 sm:gap-5 step-card step-card-extra">
                                 <div class="shrink-0 w-14 h-14 rounded-full bg-violet-700 text-white font-black text-lg flex items-center justify-center shadow-md z-10">02</div>
-                                <div class="bg-white rounded-2xl border border-purple-100 p-6 flex-1 shadow-sm">
+                                <div class="bg-white rounded-2xl border border-purple-100 p-5 sm:p-6 flex-1 min-w-0 shadow-sm">
                                     <h4 class="text-lg font-extrabold text-violet-950 mb-2 flex items-center gap-2">
                                         <i class="bi bi-file-earmark-medical text-violet-600"></i>
                                         Presentar FUT a la Oficina de Administración
@@ -349,9 +353,9 @@
                             </div>
 
                             {{-- Step 3 --}}
-                            <div class="flex gap-5 step-card">
+                            <div class="flex gap-4 sm:gap-5 step-card step-card-extra">
                                 <div class="shrink-0 w-14 h-14 rounded-full bg-violet-700 text-white font-black text-lg flex items-center justify-center shadow-md z-10">03</div>
-                                <div class="bg-white rounded-2xl border border-purple-100 p-6 flex-1 shadow-sm">
+                                <div class="bg-white rounded-2xl border border-purple-100 p-5 sm:p-6 flex-1 min-w-0 shadow-sm">
                                     <h4 class="text-lg font-extrabold text-violet-950 mb-2 flex items-center gap-2">
                                         <i class="bi bi-receipt text-violet-600"></i>
                                         Presentar Voucher a Secretaría Académica
@@ -372,11 +376,11 @@
                             </div>
 
                             {{-- Step 4 --}}
-                            <div class="flex gap-5 step-card">
+                            <div class="flex gap-4 sm:gap-5 step-card step-card-extra">
                                 <div class="shrink-0 w-14 h-14 rounded-full bg-emerald-500 text-white font-black text-lg flex items-center justify-center shadow-md z-10">
                                     <i class="bi bi-check-lg text-2xl"></i>
                                 </div>
-                                <div class="bg-emerald-50 rounded-2xl border border-emerald-100 p-6 flex-1 shadow-sm">
+                                <div class="bg-emerald-50 rounded-2xl border border-emerald-100 p-5 sm:p-6 flex-1 min-w-0 shadow-sm">
                                     <h4 class="text-lg font-extrabold text-emerald-800 mb-2 flex items-center gap-2">
                                         <i class="bi bi-patch-check-fill text-emerald-600"></i>
                                         ¡Matrícula Completada!

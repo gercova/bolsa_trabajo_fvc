@@ -297,7 +297,8 @@
                             @endphp
                             @if ($user)
                                 <div class="coordinator-card bg-white rounded-3xl border border-amber-200/90 shadow-md hover-card p-6 flex flex-col justify-between relative overflow-hidden group cursor-pointer"
-                                     @click="openTeacherModal('{{ addslashes($user->names) }}', '{{ addslashes($user->job_position ?? 'Docente y Coordinador') }}', '{{ addslashes($program ? $program->name : 'IESTP FVC') }}', '{{ addslashes($detail->specialty ?? 'Especialista Académico') }}', '{{ addslashes($user->email ?? '') }}', '{{ $user->photo_profile ? Storage::url($user->photo_profile) : '' }}', true, '{{ $user->cv_file ? S                                     {{-- Badge Overlay --}}
+                                     @click="openTeacherModal('{{ addslashes($user->names) }}', '{{ addslashes($user->job_position ?? 'Docente y Coordinador') }}', '{{ addslashes($program ? $program->name : 'IESTP FVC') }}', '{{ addslashes($detail->specialty ?? 'Especialista Académico') }}', '{{ addslashes($user->email ?? '') }}', '{{ $user->photo_profile ? Storage::url($user->photo_profile) : '' }}', true, '{{ $user->cv_file ? Storage::url($user->cv_file) : '' }}')">
+                                    {{-- Badge Overlay --}}
                                     <div class="absolute top-0 right-0 bg-amber-500 text-white text-xs font-black px-4 py-1.5 rounded-bl-2xl shadow-sm flex items-center gap-1.5">
                                         <i class="bi bi-star-fill text-yellow-200"></i>
                                         Coordinador
@@ -316,7 +317,7 @@
                                                         {{ strtoupper(substr($user->names, 0, 1)) }}
                                                     </div>
                                                 @endif
-                                            </div>                                   </div>
+                                            </div>
 
                                             <div class="pr-20 min-w-0">
                                                 <h3 class="text-lg font-black text-slate-900 group-hover:text-blue-600 transition-colors leading-snug">

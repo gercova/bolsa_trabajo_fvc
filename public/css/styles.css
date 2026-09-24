@@ -347,6 +347,10 @@ body {
     min-width: 240px;
 }
 
+.dropdown-panel--programs {
+    min-width: 340px;
+}
+
 .dropdown-panel-inner {
     display: flex;
     flex-direction: column;
@@ -376,6 +380,23 @@ body {
 .dp-item:hover {
     background: #EFF6FF;
     color: var(--blue-deep);
+}
+
+.dp-item.active {
+    background: #EFF6FF;
+    color: var(--blue-deep);
+    font-weight: 600;
+}
+
+.dp-item--all {
+    background: #F0F9FF;
+    color: #0369A1;
+    font-weight: 600;
+}
+
+.dp-item--all:hover {
+    background: #E0F2FE;
+    color: #0284C7;
 }
 
 .dp-item--danger {
@@ -719,6 +740,12 @@ body {
 
 .mobile-sub-link:hover {
     color: var(--blue-deep);
+    background: #EFF6FF;
+}
+
+.mobile-sub-link.active {
+    color: var(--blue-deep);
+    font-weight: 700;
     background: #EFF6FF;
 }
 

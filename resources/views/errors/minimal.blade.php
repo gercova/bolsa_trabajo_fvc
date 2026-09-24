@@ -40,8 +40,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
 
     <!-- Bootstrap Icons -->
@@ -82,7 +81,8 @@
     class="h-full text-slate-100 flex items-center justify-center p-4 relative antialiased selection:bg-blue-600 selection:text-white">
 
     <!-- Main Card -->
-    <div class="w-full max-w-xl solid-card rounded-3xl p-8 md:p-12 text-center relative z-10 fade-in-up overflow-hidden">
+    <div
+        class="w-full max-w-xl solid-card rounded-3xl p-8 md:p-12 text-center relative z-10 fade-in-up overflow-hidden">
         <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
 
         <!-- Institution Logo -->
@@ -92,7 +92,7 @@
                 <i class="bi bi-mortarboard-fill text-amber-500 text-2xl"></i>
             </div>
             <div class="text-left leading-none">
-                <span class="text-xs uppercase tracking-widest text-slate-400 font-bold">Bolsa de Trabajo</span>
+                <span class="text-xs uppercase tracking-widest text-slate-400 font-bold">Portal web</span>
                 <h2 class="text-sm font-sans font-bold text-slate-200 mt-0.5">IESTP <span
                         class="text-amber-500">Francisco Vigo Caballero</span></h2>
             </div>
@@ -105,8 +105,7 @@
         </div>
 
         <!-- Error Code -->
-        <h1
-            class="text-7xl md:text-8xl font-black tracking-tighter text-white mb-2">
+        <h1 class="text-7xl md:text-8xl font-black tracking-tighter text-white mb-2">
             @yield('code')
         </h1>
 

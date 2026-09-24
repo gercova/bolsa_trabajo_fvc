@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Enterprise;
+use App\Models\StudyProgram;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -24,6 +25,10 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('*', function ($view) {
             $view->with('enterprise', Enterprise::getDefault());
+        });
+
+        View::composer('admin.components.nav-header', function ($view) {
+            $view->with('headerPrograms', StudyProgram::where('is_active', true)->ordered()->with('meta')->get());
         });
 
         // Configuración de limitador de tasa (Rate Limiter) para login

@@ -1,6 +1,9 @@
 {{-- ═══════════════════════════════════════════════════════════
      SITE HEADER — Fixed, glassmorphism, scroll-aware
 ═══════════════════════════════════════════════════════════ --}}
+@php
+    $headerPrograms = $headerPrograms ?? \App\Models\StudyProgram::where('is_active', true)->ordered()->with('meta')->get();
+@endphp
 <header id="site-header" class="fixed top-0 left-0 right-0 z-50" x-data="{}">
 
     {{-- ── Top accent stripe (visible on scroll) ──────────────── --}}
@@ -64,11 +67,43 @@
             </div>
 
             {{-- Programas de Estudio --}}
-            <a href="{{ route('programas-de-estudio') }}"
-                class="nav-link {{ request()->routeIs('programas-de-estudio') ? 'active' : '' }}"
-                aria-current="{{ request()->routeIs('programas-de-estudio') ? 'page' : 'false' }}">
-                Programas
-            </a>
+            <div class="nav-dropdown" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false"
+                @click.outside="open = false">
+                <button type="button"
+                    class="nav-link nav-link--dropdown {{ request()->routeIs('programas-de-estudio*') ? 'active' : '' }}"
+                    @click="open = !open" :class="open ? 'active' : ''" :aria-expanded="open">
+                    Programas
+                    <i class="bi bi-chevron-down nav-chevron" :class="open ? 'rotated' : ''"></i>
+                </button>
+                <div class="dropdown-panel dropdown-panel--programs" x-show="open" x-transition:enter="dropdown-enter"
+                    x-transition:enter-start="dropdown-enter-start" x-transition:enter-end="dropdown-enter-end"
+                    x-transition:leave="dropdown-leave" x-transition:leave-start="dropdown-enter-end"
+                    x-transition:leave-end="dropdown-enter-start" style="display:none;">
+                    <div class="dropdown-panel-inner">
+                        <a href="{{ route('programas-de-estudio') }}"
+                            class="dp-item dp-item--all {{ request()->routeIs('programas-de-estudio') && !request()->routeIs('programas-de-estudio.detalle') ? 'active' : '' }}">
+                            <span class="dp-icon dp-icon--all"><i class="bi bi-grid-fill"></i></span>
+                            <span class="dp-label font-semibold text-sky-900">Ver todos los programas</span>
+                            <i class="bi bi-arrow-right text-xs text-sky-600 opacity-60 ml-auto"></i>
+                        </a>
+                        <div class="dp-divider"></div>
+                        @foreach ($headerPrograms as $prog)
+                            @php
+                                $progIcon = $prog->meta?->icon ?? ($prog->icon ?: 'bi-mortarboard-fill');
+                                $progColor = $prog->color_config;
+                                $isProgActive = request()->is('programas-de-estudios/' . $prog->slug);
+                            @endphp
+                            <a href="{{ route('programas-de-estudio.detalle', $prog->slug) }}"
+                                class="dp-item {{ $isProgActive ? 'active' : '' }}">
+                                <span class="dp-icon {{ $progColor['light_bg'] }} {{ $progColor['text'] }}">
+                                    <i class="bi {{ $progIcon }}"></i>
+                                </span>
+                                <span class="dp-label">{{ $prog->name }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
 
             {{-- Transparencia --}}
             <div class="nav-dropdown" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false"
@@ -330,9 +365,36 @@
         </div>
 
         {{-- Programas de Estudio --}}
-        <a href="{{ route('programas-de-estudio') }}" class="mobile-link {{ request()->routeIs('programas-de-estudio*') ? 'active' : '' }}">
-            <i class="bi bi-mortarboard"></i> Programas de Estudio
-        </a>
+        <div x-data="{ open: {{ request()->routeIs('programas-de-estudio*') ? 'true' : 'false' }} }" class="w-full">
+            <button @click="open = !open" class="mobile-link mobile-link--accordion w-full"
+                :class="open ? 'active' : ''" :aria-expanded="open">
+                <div class="flex items-center gap-3">
+                    <i class="bi bi-mortarboard"></i> Programas de Estudio
+                </div>
+                <i class="bi bi-chevron-down mobile-chevron" :class="open ? 'rotated' : ''"></i>
+            </button>
+            <div x-show="open" x-collapse style="display:none;" class="mobile-sub">
+                <a href="{{ route('programas-de-estudio') }}"
+                    class="mobile-sub-link font-semibold text-sky-800 bg-sky-50/70 border border-sky-100 flex items-center justify-between {{ request()->routeIs('programas-de-estudio') && !request()->routeIs('programas-de-estudio.detalle') ? 'active' : '' }}">
+                    <span class="flex items-center gap-2">
+                        <i class="bi bi-grid-fill text-sky-600"></i> Ver todos los programas
+                    </span>
+                    <i class="bi bi-arrow-right text-xs text-sky-600 opacity-60"></i>
+                </a>
+                @foreach ($headerPrograms as $prog)
+                    @php
+                        $progIcon = $prog->meta?->icon ?? ($prog->icon ?: 'bi-mortarboard-fill');
+                        $progColor = $prog->color_config;
+                        $isProgActive = request()->is('programas-de-estudios/' . $prog->slug);
+                    @endphp
+                    <a href="{{ route('programas-de-estudio.detalle', $prog->slug) }}"
+                        class="mobile-sub-link flex items-center gap-2 {{ $isProgActive ? 'active' : '' }}">
+                        <i class="bi {{ $progIcon }} {{ $progColor['text'] }} text-sm"></i>
+                        <span>{{ $prog->name }}</span>
+                    </a>
+                @endforeach
+            </div>
+        </div>
 
         {{-- Transparencia --}}
         <div x-data="{ open: {{ request()->routeIs('documentos-de-gestion', 'estadisticas', 'inversion-y-gestion', 'licenciamiento', 'libro-de-reclamaciones') ? 'true' : 'false' }} }" class="w-full">

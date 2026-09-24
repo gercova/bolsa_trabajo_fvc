@@ -62,9 +62,10 @@
                              :style="'background-image: url(' + (imagePreview || '{{ $carousel->image_url }}') + ')'">
                         </div>
 
-                        {{-- Multi-layered Dark Vignette --}}
-                        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 via-55% to-slate-950/30"></div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+                        {{-- Solid Scrim & Program Solid Accent Bar --}}
+                        <div class="absolute inset-0 bg-slate-950/85"></div>
+                        <div class="h-1.5 w-full absolute top-0 left-0 transition-colors duration-300"
+                             :class="getSolidAccentBarClass()"></div>
 
                         {{-- Content --}}
                         <div class="relative z-10 max-w-2xl space-y-3.5">
@@ -79,8 +80,8 @@
                             <h2 class="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight">
                                 <span x-text="title || 'Tu futuro profesional empieza aquí, en el'"></span>
                                 <br>
-                                <span class="text-transparent bg-clip-text bg-gradient-to-r transition-all"
-                                      :class="getGradientClasses()"
+                                <span class="transition-colors duration-300"
+                                      :class="getSolidHighlightClass()"
                                       x-text="highlight_text || 'IESTP Francisco Vigo Caballero'">
                                 </span>
                             </h2>
@@ -93,7 +94,7 @@
                             {{-- Buttons --}}
                             <div class="flex flex-wrap gap-2.5 pt-1">
                                 <template x-if="primary_button_text">
-                                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r text-white text-xs font-bold rounded-xl shadow-lg transition-all"
+                                    <div class="inline-flex items-center gap-2 px-4 py-2 text-white text-xs font-bold rounded-xl shadow-md transition-all"
                                          :class="getPrimaryButtonClasses()">
                                         <i class="bi" :class="primary_button_icon || 'bi-pencil-square'"></i>
                                         <span x-text="primary_button_text"></span>
@@ -139,13 +140,13 @@
                             {{-- Texto Resaltado --}}
                             <div class="space-y-1.5 md:col-span-2">
                                 <label for="highlight_text" class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                    Texto Resaltado (Con Degradado Luminoso)
+                                    Texto Resaltado (Color Sólido)
                                 </label>
                                 <input type="text" id="highlight_text" name="highlight_text" x-model="highlight_text"
                                     placeholder="Ej: IESTP Francisco Vigo Caballero"
                                     value="{{ old('highlight_text', $carousel->highlight_text) }}"
                                     class="w-full text-sm border border-gray-300 rounded-xl py-2.5 px-3.5 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all font-medium">
-                                <p class="text-[11px] text-gray-500">Este fragmento se mostrará debajo del título con un efecto degradado llamativo.</p>
+                                <p class="text-[11px] text-gray-500">Este fragmento se mostrará debajo del título con el color sólido de la carrera o tema.</p>
                             </div>
 
                             {{-- Etiqueta / Pill --}}
@@ -176,7 +177,7 @@
                             {{-- Paleta de Color / Acento --}}
                             <div class="space-y-1.5 md:col-span-2">
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                    Color de Acento & Degradados
+                                    Color Institucional / Programa de Estudio
                                 </label>
                                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
                                     @php
@@ -359,7 +360,7 @@
                             Cancelar
                         </a>
                         <button type="submit"
-                                class="px-7 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-purple-500/25 transition-all flex items-center gap-2 cursor-pointer">
+                                class="px-7 py-3 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer">
                             <i class="bi bi-check-circle-fill text-base"></i>
                             <span>Actualizar Diapositiva</span>
                         </button>
@@ -406,25 +407,36 @@
                 }
             },
 
-            getGradientClasses() {
+            getSolidHighlightClass() {
                 switch(this.tag_color) {
-                    case 'sky':     return 'from-sky-300 via-cyan-300 to-indigo-300';
-                    case 'rose':    return 'from-rose-300 via-pink-300 to-amber-300';
-                    case 'emerald': return 'from-emerald-300 via-teal-300 to-lime-300';
-                    case 'indigo':  return 'from-indigo-300 via-purple-300 to-sky-300';
-                    case 'purple':  return 'from-purple-300 via-pink-300 to-amber-300';
-                    default:        return 'from-amber-300 via-sky-300 to-cyan-300';
+                    case 'sky':     return 'text-sky-400';
+                    case 'rose':    return 'text-rose-400';
+                    case 'emerald': return 'text-emerald-400';
+                    case 'indigo':  return 'text-blue-400';
+                    case 'purple':  return 'text-purple-400';
+                    default:        return 'text-amber-400';
+                }
+            },
+
+            getSolidAccentBarClass() {
+                switch(this.tag_color) {
+                    case 'sky':     return 'bg-sky-600';
+                    case 'rose':    return 'bg-rose-600';
+                    case 'emerald': return 'bg-emerald-600';
+                    case 'indigo':  return 'bg-blue-700';
+                    case 'purple':  return 'bg-purple-700';
+                    default:        return 'bg-amber-600';
                 }
             },
 
             getPrimaryButtonClasses() {
                 switch(this.tag_color) {
-                    case 'sky':     return 'from-sky-500 to-blue-600 shadow-sky-500/25';
-                    case 'rose':    return 'from-rose-500 to-red-600 shadow-rose-500/25';
-                    case 'emerald': return 'from-emerald-500 to-teal-600 shadow-emerald-500/25';
-                    case 'indigo':  return 'from-indigo-500 to-purple-600 shadow-indigo-500/25';
-                    case 'purple':  return 'from-purple-500 to-indigo-600 shadow-purple-500/25';
-                    default:        return 'from-sky-500 to-blue-600 shadow-sky-500/25';
+                    case 'sky':     return 'bg-sky-600 hover:bg-sky-700';
+                    case 'rose':    return 'bg-rose-600 hover:bg-rose-700';
+                    case 'emerald': return 'bg-emerald-600 hover:bg-emerald-700';
+                    case 'indigo':  return 'bg-blue-700 hover:bg-blue-800';
+                    case 'purple':  return 'bg-purple-700 hover:bg-purple-800';
+                    default:        return 'bg-amber-600 hover:bg-amber-700';
                 }
             }
         }

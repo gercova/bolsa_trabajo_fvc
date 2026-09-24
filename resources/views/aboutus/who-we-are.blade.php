@@ -89,10 +89,8 @@
     @endphp
 
     {{-- ===== HERO SECTION ===== --}}
-    <section class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white py-24 overflow-hidden">
-        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)]"></div>
-        <div class="absolute -top-32 -right-32 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl"></div>
-        <div class="absolute -bottom-32 -left-32 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
+    <section class="relative bg-slate-900 text-white py-16 lg:py-20 overflow-hidden border-b border-slate-800">
+        <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
         <div class="container mx-auto px-6 relative z-10 text-center max-w-4xl">
             <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight leading-tight">
                 ¿Quiénes Somos?

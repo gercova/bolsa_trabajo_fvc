@@ -61,15 +61,13 @@
             'bar' => 'bg-blue-600',
             'badge' => 'bg-blue-50 text-blue-700 border-blue-100',
             'accent' => 'text-blue-600',
-            'btn_submit' => 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700',
+            'btn_submit' => 'bg-blue-600 hover:bg-blue-700',
         ];
     @endphp
 
     {{-- ===== HERO SECTION ===== --}}
-    <section class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white py-20 overflow-hidden">
-        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)]"></div>
-        <div class="absolute -top-32 -right-32 w-80 h-80 {{ $theme['glow'] }} rounded-full blur-3xl"></div>
-        <div class="absolute -bottom-32 -left-32 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl"></div>
+    <section class="relative bg-slate-900 text-white py-16 lg:py-20 overflow-hidden border-b border-slate-800">
+        <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
 
         <div class="container mx-auto px-6 relative z-10 text-center max-w-4xl">
             <span
@@ -144,8 +142,7 @@
 
                     {{-- Card right graphic / summary badge --}}
                     <div
-                        class="lg:col-span-4 bg-gradient-to-br from-slate-900 to-blue-950 text-white rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden">
-                        <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-500/20 rounded-full blur-xl"></div>
+                        class="lg:col-span-4 bg-slate-900 text-white rounded-2xl p-6 sm:p-8 space-y-6 border border-slate-800 shadow-sm relative overflow-hidden">
                         <div class="flex items-center justify-between">
                             <i class="bi bi-folder-check text-4xl text-blue-400"></i>
                             <span
@@ -330,7 +327,7 @@
 
             {{-- ===== SECTION 3: ACCIONES RÁPIDAS Y MESA DE PARTES ===== --}}
             <div
-                class="bg-gradient-to-r from-blue-900 to-slate-900 text-white rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden">
+                class="bg-slate-900 text-white rounded-3xl p-8 sm:p-10 shadow-lg border border-slate-800 relative overflow-hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                     <div class="lg:col-span-8 space-y-3">
                         <span

@@ -35,7 +35,7 @@ use App\Http\Controllers\Admin\LibraryController as AdminLibraryController;
 use App\Http\Controllers\LibraryReaderController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/',         [AppController::class, 'index'])->name('inicio');
+Route::get('/', [AppController::class, 'index'])->name('inicio');
 
 // Admisión y matrícula
 Route::get('/admision-y-matricula/cepre-fvc',           [AppController::class, 'ceprefvc'])->name('cepre-fvc');

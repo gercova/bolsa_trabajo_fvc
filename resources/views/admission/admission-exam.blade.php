@@ -3,29 +3,27 @@
 @section('content')
     {{-- Hero Section --}}
     <section
-        class="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600 text-white overflow-hidden py-16 lg:py-24">
-        <div
-            class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-700/30 via-transparent to-transparent">
-        </div>
+        class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                 <div class="lg:col-span-7 space-y-6">
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-white">
+                    <div class="w-16 h-1 bg-sky-500 rounded-full mb-2"></div>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-white font-sans">
                         Construye tu éxito <br>
-                        <span class="text-blue-200">Profesional Técnico</span>
+                        <span class="text-sky-400">Profesional Técnico</span>
                     </h1>
-                    <p class="text-lg sm:text-xl text-blue-100 max-w-2xl leading-relaxed">
+                    <p class="text-lg sm:text-xl text-slate-300 max-w-2xl leading-relaxed">
                         Inicia tu formación profesional tecnológica de 3 años. Elige tu carrera, inscríbete al examen de
                         admisión y obtén tu Título a Nombre de la Nación.
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 pt-4">
                         <a href="#active-processes"
-                            class="inline-flex items-center justify-center px-6 py-4 text-base font-bold text-blue-900 bg-white hover:bg-blue-50 rounded-xl transition shadow-lg hover:shadow-xl">
+                            class="inline-flex items-center justify-center px-6 py-4 text-base font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition shadow-md">
                             <i class="bi bi-calendar-event mr-2 text-lg"></i>
                             Convocatorias Vigentes
                         </a>
                         <a href="#modalidades"
-                            class="inline-flex items-center justify-center px-6 py-4 text-base font-bold text-white border-2 border-blue-400/40 hover:bg-white/10 rounded-xl transition">
+                            class="inline-flex items-center justify-center px-6 py-4 text-base font-bold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition">
                             <i class="bi bi-shield-check mr-2 text-lg"></i>
                             Modalidades de Ingreso
                         </a>
@@ -33,12 +31,9 @@
                 </div>
                 <div class="lg:col-span-5 relative">
                     <div class="relative mx-auto max-w-md lg:max-w-none">
-                        <div
-                            class="absolute -inset-4 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-3xl blur-2xl opacity-30">
-                        </div>
                         <img src="{{ $admisionImage ? $admisionImage->url : asset('images/admission_hero_banner.png') }}"
                             alt="Examen de Admisión IESTP Francisco Vigo Caballero"
-                            class="relative rounded-2xl shadow-2xl border-4 border-white/10 w-full object-cover aspect-square sm:aspect-video lg:aspect-square">
+                            class="relative rounded-2xl shadow-xl border border-slate-700 w-full object-cover aspect-square sm:aspect-video lg:aspect-square">
                     </div>
                 </div>
             </div>
@@ -160,7 +155,7 @@
                         </div>
 
                         {{-- 3. Vacantes Disponibles Netas --}}
-                        <div class="p-5 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white shadow-lg flex flex-col justify-between">
+                        <div class="p-5 rounded-2xl bg-emerald-700 text-white shadow-md flex flex-col justify-between">
                             <span class="text-xs font-bold text-emerald-100 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                                 <i class="bi bi-check-all text-white"></i> Vacantes Disponibles
                             </span>
@@ -179,7 +174,7 @@
                     @foreach ($exams as $exam)
                         <div class="bg-white rounded-3xl shadow-xl border border-blue-100 overflow-hidden">
                             <div
-                                class="bg-gradient-to-r {{ $exam->type === 'extraordinario' ? 'from-indigo-800 via-indigo-700 to-purple-800' : 'from-blue-700 to-blue-600' }} px-6 sm:px-8 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                class="{{ $exam->type === 'extraordinario' ? 'bg-indigo-800' : 'bg-blue-700' }} px-6 sm:px-8 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                 <div>
                                     <div class="flex items-center gap-2 mb-1">
                                         <span
@@ -384,7 +379,7 @@
 
             <div class="max-w-4xl mx-auto">
                 @if ($lastExamResults && $lastExamResults->results_url_pdf)
-                    <div class="bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 text-white rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden">
+                    <div class="bg-slate-900 text-white rounded-3xl p-8 sm:p-10 shadow-xl relative overflow-hidden border border-slate-800">
                         <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
                         <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                             <div class="space-y-4 text-center md:text-left">
@@ -480,9 +475,6 @@
 
     {{-- CTA Contacto --}}
     <section id="contact" class="py-16 bg-blue-900 text-white relative overflow-hidden">
-        <div
-            class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-blue-700/40 via-transparent to-transparent">
-        </div>
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-8">
             <h2 class="text-3xl sm:text-4xl font-extrabold">¿Tienes alguna duda sobre el proceso?</h2>
             <p class="text-lg sm:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">

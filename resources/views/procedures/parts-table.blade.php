@@ -62,7 +62,7 @@
             'bar' => 'bg-blue-600',
             'badge' => 'bg-blue-50 text-blue-600 border-blue-100',
             'accent' => 'text-blue-600',
-            'btn_submit' => 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-200'
+            'btn_submit' => 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-200'
         ];
 
         $receptionEmail = $enterprise->email ?? 'secretariageneral@franciscovigocaballero.edu.pe';
@@ -71,10 +71,8 @@
     @endphp
 
     {{-- ===== HERO SECTION ===== --}}
-    <section class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white py-20 overflow-hidden">
-        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)]"></div>
-        <div class="absolute -top-32 -right-32 w-80 h-80 {{ $theme['glow'] }} rounded-full blur-3xl"></div>
-        <div class="absolute -bottom-32 -left-32 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
+    <section class="relative bg-slate-900 text-white py-16 lg:py-20 overflow-hidden border-b border-slate-800">
+        <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
         <div class="container mx-auto px-6 relative z-10 text-center max-w-4xl">
             <span class="inline-flex items-center gap-1.5 py-1 px-4 rounded-full text-xs font-extrabold bg-blue-500/20 text-sky-300 border border-blue-400/30 uppercase tracking-widest mb-4">
                 <i class="bi bi-inbox-fill text-sky-400"></i>

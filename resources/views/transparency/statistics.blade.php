@@ -90,16 +90,13 @@
     }" class="bg-slate-50 min-h-screen">
 
         {{-- ===== HERO SECTION ===== --}}
-        <section class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white overflow-hidden py-16 lg:py-20 border-b border-blue-900/30">
-            {{-- Decorative Background Highlights --}}
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(56,189,248,0.15),transparent_50%)]"></div>
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(99,102,241,0.12),transparent_40%)]"></div>
-            <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)]"></div>
+        <section class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-20 border-b border-slate-800">
+            <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
                 {{-- Hero Heading --}}
                 <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-white max-w-5xl mx-auto">
-                    Estadísticas <span class="text-sky-400 bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">Institucionales</span>
+                    Estadísticas <span class="text-sky-400">Institucionales</span>
                 </h1>
 
                 <p class="text-base sm:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed font-normal">
@@ -159,14 +156,14 @@
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <nav class="flex flex-wrap gap-1.5 sm:gap-2" aria-label="Secciones Estadísticas">
                         <button type="button" @click="activeTab = 'general'"
-                            :class="activeTab === 'general' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-semibold'"
+                            :class="activeTab === 'general' ? 'bg-blue-700 text-white shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-semibold'"
                             class="px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-all duration-200 flex items-center gap-2">
                             <i class="bi bi-pie-chart-fill"></i>
                             <span>Resumen Consolidado</span>
                         </button>
 
                         <button type="button" @click="activeTab = 'matricula'"
-                            :class="activeTab === 'matricula' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-semibold'"
+                            :class="activeTab === 'matricula' ? 'bg-blue-700 text-white shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-semibold'"
                             class="px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-all duration-200 flex items-center gap-2">
                             <i class="bi bi-people-fill"></i>
                             <span>Matrícula por Periodo</span>
@@ -177,7 +174,7 @@
                         </button>
 
                         <button type="button" @click="activeTab = 'admision'"
-                            :class="activeTab === 'admision' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-semibold'"
+                            :class="activeTab === 'admision' ? 'bg-blue-700 text-white shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-semibold'"
                             class="px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-all duration-200 flex items-center gap-2">
                             <i class="bi bi-door-open-fill"></i>
                             <span>Admisión e Ingresantes</span>
@@ -190,7 +187,7 @@
                         </button>
 
                         <button type="button" @click="activeTab = 'titulos'"
-                            :class="activeTab === 'titulos' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-semibold'"
+                            :class="activeTab === 'titulos' ? 'bg-blue-700 text-white shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-semibold'"
                             class="px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-all duration-200 flex items-center gap-2">
                             <i class="bi bi-award-fill"></i>
                             <span>Grados y Títulos</span>
@@ -595,7 +592,7 @@
                         x-show="selectedPeriod === 'all' || selectedPeriod === '{{ $periodName }}'">
 
                         {{-- Period Header Banner --}}
-                        <div class="px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-slate-900 via-slate-800 to-blue-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="px-6 py-4 border-b border-slate-200 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div class="flex items-center gap-3">
                                 <span class="px-3 py-1 bg-blue-500 text-white font-mono font-black text-xs sm:text-sm rounded-lg shadow-sm">
                                     {{ $periodName }}
@@ -722,7 +719,7 @@
                             x-show="selectedAdmissionPeriod === 'all' || selectedAdmissionPeriod === '{{ $periodName }}'">
 
                             {{-- Header --}}
-                            <div class="px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="px-6 py-4 border-b border-slate-200 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div class="flex items-center gap-3">
                                     <span class="px-3 py-1 bg-indigo-500 text-white font-mono font-black text-xs sm:text-sm rounded-lg shadow-sm">
                                         {{ $periodName }}
@@ -897,7 +894,7 @@
                             x-show="selectedYear === 'all' || selectedYear === '{{ $yearName }}'">
 
                             {{-- Year Header Banner --}}
-                            <div class="px-6 py-3.5 border-b border-slate-200 bg-gradient-to-r from-slate-900 via-purple-950 to-indigo-950 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div class="px-6 py-3.5 border-b border-slate-200 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                                 <div class="flex items-center gap-3">
                                     <span class="px-3 py-1 bg-purple-500 text-white font-mono font-black text-xs sm:text-sm rounded-lg shadow-sm">
                                         Año {{ $yearName }}

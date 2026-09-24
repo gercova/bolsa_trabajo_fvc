@@ -187,18 +187,9 @@
 
         {{-- ═══ HERO SECTION ═══════════════════════════════════════════════════════════════ --}}
         <section
-            class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white pt-14 pb-24 overflow-hidden"
+            class="relative bg-slate-900 text-white pt-14 pb-24 overflow-hidden border-b border-slate-800"
             aria-label="Presentación de la Plana Jerárquica">
-            {{-- Decorative Background --}}
-            <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#fff 1px, transparent 1px);">
-            </div>
-            <div class="absolute -top-28 -right-28 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none">
-            </div>
-            <div class="absolute -bottom-28 -left-28 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl pointer-events-none">
-            </div>
-            <div
-                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-900/10 rounded-full blur-3xl pointer-events-none">
-            </div>
+            <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
@@ -345,14 +336,7 @@
                 <div x-show="(categoryFilter === 'all' || categoryFilter === 'direccion') && ('{{ $directorNames }}'.includes(searchQuery.toLowerCase()) || '{{ $directorPosition }}'.includes(searchQuery.toLowerCase()) || searchQuery === '')"
                     x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
                     x-transition:enter-end="opacity-100"
-                    class="relative rounded-3xl border-2 border-amber-400/60 p-6 sm:p-8 mb-10 overflow-hidden shadow-md"
-                    style="background: linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(30,27,75,0.04) 100%);">
-                    <div class="absolute inset-0 opacity-5"
-                        style="background-image: radial-gradient(#f59e0b 1px, transparent 1px); background-size: 20px 20px;">
-                    </div>
-                    <div
-                        class="absolute -top-16 -right-16 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl pointer-events-none">
-                    </div>
+                    class="relative rounded-3xl border-2 border-amber-400/60 p-6 sm:p-8 mb-10 overflow-hidden shadow-sm bg-amber-50/40">
 
                     <div class="flex flex-col md:flex-row items-center md:items-start gap-6 relative">
                         {{-- Avatar --}}
@@ -369,7 +353,7 @@
                                         ->implode('');
                                 @endphp
                                 <div
-                                    class="w-28 h-28 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 text-white font-extrabold text-4xl flex items-center justify-center shadow-xl font-display">
+                                    class="w-28 h-28 rounded-2xl bg-amber-600 text-white font-extrabold text-4xl flex items-center justify-center shadow-md">
                                     {{ strtoupper($dInitials) }}
                                 </div>
                             @endif
@@ -456,7 +440,7 @@
                             <div>
                                 <div class="flex items-start justify-between gap-3 mb-4">
                                     <div
-                                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-800 text-white font-extrabold text-base flex items-center justify-center shadow-md font-display flex-shrink-0">
+                                        class="w-12 h-12 rounded-xl bg-blue-700 text-white font-extrabold text-base flex items-center justify-center shadow-sm flex-shrink-0">
                                         {{ strtoupper($initials) }}
                                     </div>
                                     <span
@@ -544,7 +528,7 @@
                             <div>
                                 <div class="flex items-start justify-between gap-3 mb-4">
                                     <div
-                                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-800 text-white font-extrabold text-base flex items-center justify-center shadow-md font-display flex-shrink-0">
+                                        class="w-12 h-12 rounded-xl bg-emerald-600 text-white font-extrabold text-base flex items-center justify-center shadow-sm flex-shrink-0">
                                         {{ strtoupper($initials) }}
                                     </div>
                                     <span
@@ -1141,7 +1125,7 @@
                     class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden z-10">
 
                     {{-- Modal Header --}}
-                    <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 p-6 text-white">
+                    <div class="bg-slate-900 p-6 text-white border-b border-slate-800">
                         <button @click="closeDetail()" id="modal-close-jerarquica"
                             class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/80 hover:text-white transition-colors">
                             <i class="bi bi-x-lg text-sm"></i>
@@ -1150,7 +1134,7 @@
                         <template x-if="selectedLeader">
                             <div class="flex items-center gap-4 pr-10">
                                 <div
-                                    class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-700 text-white font-extrabold text-xl flex items-center justify-center shadow-lg flex-shrink-0 font-display">
+                                    class="w-14 h-14 rounded-2xl bg-amber-600 text-white font-extrabold text-xl flex items-center justify-center shadow-sm flex-shrink-0">
                                     <span
                                         x-text="selectedLeader.names ? selectedLeader.names.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase() : 'PJ'"></span>
                                 </div>

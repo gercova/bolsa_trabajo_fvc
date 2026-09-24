@@ -106,13 +106,8 @@
 @section('content')
     {{-- ═══ HERO ════════════════════════════════════════════════════════════ --}}
     <section aria-label="Portada Enlaces Institucionales"
-        class="relative bg-gradient-to-br from-blue-950 via-blue-900 to-blue-700 text-white overflow-hidden py-16 lg:py-24">
-        <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
-            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(96,165,250,0.25),transparent_55%)]">
-            </div>
-            <div class="absolute -bottom-32 -left-24 w-[28rem] h-[28rem] bg-blue-500/15 rounded-full blur-3xl"></div>
-            <div class="absolute top-10 right-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl"></div>
-        </div>
+        class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
+        <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -120,7 +115,7 @@
                 {{-- Left: Title + Intro --}}
                 <div class="lg:col-span-7 space-y-6">
                     <p
-                        class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-400/15 border border-blue-300/25 text-blue-100 text-xs sm:text-sm font-semibold tracking-wide backdrop-blur-sm">
+                        class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-sky-400 text-xs sm:text-sm font-semibold tracking-wide">
                         <i class="bi bi-shield-check text-emerald-400" aria-hidden="true"></i>
                         Portales Oficiales MINEDU & Educación Superior
                     </p>
@@ -128,8 +123,7 @@
                     <h1
                         class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-white font-sans">
                         Enlaces e Integración <br>
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-blue-50">Institucional
-                            Oficial</span>
+                        <span class="text-sky-400">Institucional Oficial</span>
                     </h1>
 
                     <p class="text-lg sm:text-xl text-blue-100 max-w-2xl leading-relaxed">
@@ -171,10 +165,8 @@
 
                 {{-- Right: Visual Info Graphic Panel --}}
                 <div class="lg:col-span-5 relative" aria-hidden="true">
-                    <div class="absolute -inset-4 bg-gradient-to-r from-blue-400/30 to-indigo-500/20 rounded-3xl blur-2xl">
-                    </div>
                     <div
-                        class="relative bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-3xl shadow-2xl space-y-5">
+                        class="relative bg-slate-800 border border-slate-700 p-8 rounded-3xl shadow-xl space-y-5">
 
                         <div class="flex items-center justify-between border-b border-white/10 pb-5">
                             <div class="flex items-center gap-3">
@@ -222,7 +214,7 @@
                 <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-950 mt-4 font-sans">
                     Acceso a los Sistemas Institucionales
                 </h2>
-                <div class="w-16 h-1.5 bg-gradient-to-r from-blue-600 to-blue-400 mx-auto mt-4 rounded-full"></div>
+                <div class="w-16 h-1.5 bg-blue-600 mx-auto mt-4 rounded-full"></div>
                 <p class="text-lg text-slate-600 mt-6 leading-relaxed">
                     Haga clic en cualquiera de las tarjetas para acceder directamente al sitio oficial del MINEDU
                     correspondiente a su trámite o consulta.
@@ -240,8 +232,8 @@
                             $subtitle = 'Sistema de Registro de Matrícula y Notas';
                             $description =
                                 'Plataforma del MINEDU para la administración y validación oficial de nóminas de matrícula, actas de evaluación modular e historial académico de estudiantes de IESTP a nivel nacional.';
-                            $barGradient = 'from-blue-600 to-indigo-700';
-                            $avatarGradient = 'from-blue-600 to-indigo-800';
+                            $barColor = 'bg-blue-600';
+                            $avatarColor = 'bg-blue-600';
                             $badgeClass = 'bg-blue-50 text-blue-800 border-blue-200';
                             $iconName = 'bi-pencil-square';
                             $targetAudience = 'Estudiantes, Docentes y Secretaría Académica';
@@ -249,8 +241,8 @@
                             $subtitle = 'Registro Nacional de Títulos Profesionales';
                             $description =
                                 'Portal oficial para la consulta pública, verificación y validación legal de títulos técnicos profesionales y certificados modulares emitidos a Nombre de la Nación.';
-                            $barGradient = 'from-emerald-600 to-teal-700';
-                            $avatarGradient = 'from-emerald-600 to-teal-800';
+                            $barColor = 'bg-emerald-600';
+                            $avatarColor = 'bg-emerald-600';
                             $badgeClass = 'bg-emerald-50 text-emerald-800 border-emerald-200';
                             $iconName = 'bi-award';
                             $targetAudience = 'Egresados, Empleadores y Público en General';
@@ -258,8 +250,8 @@
                             $subtitle = 'Plataforma de Articulación y Comunidad Tecnológica';
                             $description =
                                 'Red de interacción digital que vincula a estudiantes, docentes y graduados de Educación Superior Tecnológica con oportunidades formativas, recursos y redes de innovación.';
-                            $barGradient = 'from-purple-600 to-indigo-700';
-                            $avatarGradient = 'from-purple-600 to-indigo-800';
+                            $barColor = 'bg-indigo-600';
+                            $avatarColor = 'bg-indigo-600';
                             $badgeClass = 'bg-purple-50 text-purple-800 border-purple-200';
                             $iconName = 'bi-people';
                             $targetAudience = 'Estudiantes, Egresados y Comunidad Académica';
@@ -267,8 +259,8 @@
                             $subtitle = 'Sistema de Trayectoria y Desarrollo Profesional';
                             $description =
                                 'Herramienta de seguimiento del progreso laboral, desarrollo de competencias profesionales, formación continua y empleabilidad para técnicos del Perú.';
-                            $barGradient = 'from-amber-500 to-orange-600';
-                            $avatarGradient = 'from-amber-500 to-orange-700';
+                            $barColor = 'bg-amber-600';
+                            $avatarColor = 'bg-amber-600';
                             $badgeClass = 'bg-amber-50 text-amber-800 border-amber-200';
                             $iconName = 'bi-graph-up-arrow';
                             $targetAudience = 'Egresados Técnicos y Orientadores de Carrera';
@@ -276,8 +268,8 @@
                             $subtitle = 'Portal Oficial del Ministerio de Educación';
                             $description =
                                 'Enlace institucional oficial de consulta y trámite de la Educación Superior Tecnológica del Perú.';
-                            $barGradient = 'from-blue-600 to-blue-800';
-                            $avatarGradient = 'from-blue-600 to-blue-900';
+                            $barColor = 'bg-blue-700';
+                            $avatarColor = 'bg-blue-700';
                             $badgeClass = 'bg-blue-50 text-blue-800 border-blue-200';
                             $iconName = $link->icon ?: 'bi-link-45deg';
                             $targetAudience = 'Comunidad Institucional IESTP FVC';
@@ -291,7 +283,7 @@
                     <article
                         class="link-card bg-white rounded-3xl border border-slate-200/80 overflow-hidden flex flex-col justify-between shadow-sm relative group">
                         {{-- Accent Bar --}}
-                        <div class="card-accent-bar bg-gradient-to-r {{ $barGradient }}" role="presentation"></div>
+                        <div class="card-accent-bar {{ $barColor }}" role="presentation"></div>
                         <div class="p-7 sm:p-8 space-y-5 flex-1">
                             {{-- Top Badges --}}
                             <div class="flex items-center justify-between gap-2">
@@ -307,7 +299,7 @@
                             {{-- Main Title & Avatar --}}
                             <div class="flex items-start gap-4">
                                 <div
-                                    class="avatar-icon w-14 h-14 bg-gradient-to-br {{ $avatarGradient }} text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-md shrink-0">
+                                    class="avatar-icon w-14 h-14 {{ $avatarColor }} text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-sm shrink-0">
                                     <i class="bi {{ $customIcon }}"></i>
                                 </div>
                                 <div class="min-w-0 flex-1">
@@ -347,7 +339,7 @@
                             </span>
 
                             <a href="{{ $link->link }}" target="_blank" rel="noopener noreferrer"
-                                class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r {{ $barGradient }} hover:brightness-110 text-white font-extrabold text-xs sm:text-sm rounded-xl transition-all shadow-md shadow-blue-900/10 gap-2">
+                                class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 {{ $barColor }} hover:brightness-110 text-white font-extrabold text-xs sm:text-sm rounded-xl transition-all shadow-sm gap-2">
                                 <span>Ingresar a {{ $link->name }} MINEDU</span>
                                 <i class="bi bi-box-arrow-up-right text-xs"></i>
                             </a>
@@ -381,7 +373,7 @@
                 <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-950 mt-4 font-sans">
                     Servicios Digitales del IESTP FVC
                 </h2>
-                <div class="w-16 h-1.5 bg-gradient-to-r from-blue-600 to-blue-400 mx-auto mt-4 rounded-full"></div>
+                <div class="w-16 h-1.5 bg-blue-600 mx-auto mt-4 rounded-full"></div>
                 <p class="text-lg text-slate-600 mt-6 leading-relaxed">
                     Complemente sus trámites accediendo a las herramientas virtuales del propio instituto.
                 </p>
@@ -393,7 +385,7 @@
                 <div
                     class="bg-slate-50/60 hover:bg-white border border-slate-200/80 hover:border-blue-200 p-8 rounded-3xl transition-all duration-300 shadow-sm hover:shadow-md group">
                     <div
-                        class="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-md shadow-blue-600/20 group-hover:scale-110 transition-transform">
+                        class="w-14 h-14 bg-blue-700 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-sm group-hover:scale-110 transition-transform">
                         <i class="bi bi-inbox-fill" aria-hidden="true"></i>
                     </div>
                     <h3 class="text-xl font-extrabold text-blue-950 mb-3">Mesa de Partes Virtual</h3>
@@ -411,7 +403,7 @@
                 <div
                     class="bg-slate-50/60 hover:bg-white border border-slate-200/80 hover:border-blue-200 p-8 rounded-3xl transition-all duration-300 shadow-sm hover:shadow-md group">
                     <div
-                        class="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-md shadow-blue-600/20 group-hover:scale-110 transition-transform">
+                        class="w-14 h-14 bg-blue-700 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-sm group-hover:scale-110 transition-transform">
                         <i class="bi bi-book-half" aria-hidden="true"></i>
                     </div>
                     <h3 class="text-xl font-extrabold text-blue-950 mb-3">Biblioteca Virtual</h3>
@@ -430,7 +422,7 @@
                 <div
                     class="bg-slate-50/60 hover:bg-white border border-slate-200/80 hover:border-blue-200 p-8 rounded-3xl transition-all duration-300 shadow-sm hover:shadow-md group">
                     <div
-                        class="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-md shadow-blue-600/20 group-hover:scale-110 transition-transform">
+                        class="w-14 h-14 bg-blue-700 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-sm group-hover:scale-110 transition-transform">
                         <i class="bi bi-journal-bookmark" aria-hidden="true"></i>
                     </div>
                     <h3 class="text-xl font-extrabold text-blue-950 mb-3">TUPA Institucional</h3>
@@ -525,7 +517,7 @@
     <section aria-label="Soporte y contacto" class="py-16 bg-slate-950 text-white relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div
-                class="bg-gradient-to-r from-blue-950 via-blue-900 to-blue-800 rounded-3xl p-8 sm:p-12 border border-blue-700/40 shadow-2xl">
+                class="bg-blue-900 rounded-3xl p-8 sm:p-12 border border-blue-800 shadow-md">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
 
                     <div class="lg:col-span-8 space-y-4">

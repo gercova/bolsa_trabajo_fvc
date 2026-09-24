@@ -78,9 +78,6 @@
 
     <style>
         /* ── Transparency page custom styles ─────────────────── */
-        .invest-hero-gradient {
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #0c1a3a 100%);
-        }
         .stat-card {
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
@@ -139,27 +136,21 @@
 <div class="bg-slate-50 min-h-screen">
 
     {{-- ===== HERO SECTION ===================================================================== --}}
-    <section class="invest-hero-gradient relative text-white overflow-hidden py-16 lg:py-20 border-b border-indigo-900/30"
+    <section class="bg-slate-900 relative text-white overflow-hidden py-16 lg:py-20 border-b border-slate-800"
              aria-label="Encabezado de Inversión y Gestión">
-        {{-- Decorative blobs --}}
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(99,102,241,0.18),transparent_50%)]"></div>
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(56,189,248,0.10),transparent_40%)]"></div>
-        <div class="absolute inset-0 opacity-[0.07] bg-[radial-gradient(#fff_1px,transparent_1px)] bg-[size:28px_28px]"></div>
-        {{-- Floating decorative circles --}}
-        <div class="absolute top-8 right-12 w-40 h-40 rounded-full bg-indigo-600/10 blur-3xl pointer-events-none"></div>
-        <div class="absolute bottom-0 left-8  w-56 h-56 rounded-full bg-sky-600/8  blur-3xl pointer-events-none"></div>
+        <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
             {{-- Eyebrow badge --}}
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-bold uppercase tracking-widest animate-fade-in-up">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-sky-400 text-xs font-bold uppercase tracking-widest">
                 <i class="bi bi-shield-check"></i>
                 Portal de Transparencia
             </div>
 
             {{-- Main heading --}}
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight animate-fade-in-up animate-delay-100">
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
                 Inversión y
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-sky-400 to-blue-400">
+                <span class="text-sky-400">
                     Gestión Institucional
                 </span>
             </h1>
@@ -239,7 +230,7 @@
 
                 {{-- Total Registros --}}
                 <article class="stat-card bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex items-center gap-5">
-                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-indigo-200 shrink-0">
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-2xl shadow-sm shrink-0">
                         <i class="bi bi-receipt-cutoff"></i>
                     </div>
                     <div>
@@ -251,7 +242,7 @@
 
                 {{-- Total Desembolsado --}}
                 <article class="stat-card bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex items-center gap-5">
-                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-sky-200 shrink-0">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-2xl shadow-sm shrink-0">
                         <i class="bi bi-cash-stack"></i>
                     </div>
                     <div>
@@ -263,7 +254,7 @@
 
                 {{-- Categorías / Programas --}}
                 <article class="stat-card bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex items-center gap-5 sm:col-span-2 lg:col-span-1">
-                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-emerald-200 shrink-0">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-600 flex items-center justify-center text-white text-2xl shadow-sm shrink-0">
                         <i class="bi bi-grid-3x3-gap"></i>
                     </div>
                     <div>

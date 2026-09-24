@@ -62,7 +62,7 @@
             left: 28px;
             width: 2px;
             height: calc(100% + 24px);
-            background: linear-gradient(to bottom, #bfdbfe, transparent);
+            background: #bfdbfe;
         }
         .step-card:last-child::after { display: none; }
 
@@ -98,31 +98,30 @@
 @section('content')
 
     {{-- ═══ HERO ═══ --}}
-    <section class="relative bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-900 text-white overflow-hidden py-24 lg:py-36">
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-500/25 via-transparent to-transparent pointer-events-none"></div>
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-purple-600/15 via-transparent to-transparent pointer-events-none"></div>
+    <section class="relative bg-slate-900 text-white overflow-hidden py-20 lg:py-28 border-b border-slate-800">
+        <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
 
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-8">
-            <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-400/25 text-blue-300 text-sm font-bold px-5 py-2 rounded-full">
+            <div class="inline-flex items-center gap-2 bg-slate-800 border border-slate-700 text-sky-400 text-sm font-bold px-5 py-2 rounded-full">
                 <i class="bi bi-mortarboard-fill"></i>
                 Proceso Oficial de Matrícula Académica
             </div>
             <h1 class="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tight leading-none text-white max-w-5xl mx-auto">
-                Matrícula <span class="text-blue-300">Ordinaria</span> y
-                <span class="text-purple-300">Extraordinaria</span>
+                Matrícula <span class="text-sky-400">Ordinaria</span> y
+                <span class="text-violet-400">Extraordinaria</span>
             </h1>
-            <p class="text-lg sm:text-xl text-blue-100/80 max-w-3xl mx-auto leading-relaxed font-medium">
+            <p class="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-medium">
                 Accede a los cronogramas oficiales, costos reglamentarios y guías paso a paso del proceso de matrícula para el período vigente.
             </p>
             <div class="flex flex-col sm:flex-row justify-center gap-4 pt-4">
                 <a href="#tipos-matricula" id="btn-hero-tipos"
-                    class="inline-flex items-center justify-center px-8 py-4 text-base font-black text-blue-950 bg-white hover:bg-blue-50 rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
-                    <i class="bi bi-list-check mr-2.5 text-xl text-blue-600"></i>
+                    class="inline-flex items-center justify-center px-8 py-4 text-base font-black text-white bg-blue-700 hover:bg-blue-800 rounded-xl transition-all shadow-md hover:-translate-y-0.5">
+                    <i class="bi bi-list-check mr-2.5 text-xl text-white"></i>
                     Ver Tipos de Matrícula
                 </a>
                 <a href="#cronogramas" id="btn-hero-cronograma"
-                    class="inline-flex items-center justify-center px-8 py-4 text-base font-black text-white border-2 border-blue-400/30 hover:bg-white/10 rounded-xl transition-all">
-                    <i class="bi bi-calendar3 mr-2.5 text-xl"></i>
+                    class="inline-flex items-center justify-center px-8 py-4 text-base font-black text-white border-2 border-slate-700 hover:bg-slate-800 rounded-xl transition-all">
+                    <i class="bi bi-calendar3 mr-2.5 text-xl text-slate-300"></i>
                     Cronogramas Vigentes
                 </a>
             </div>
@@ -166,7 +165,7 @@
                 x-transition:enter-end="opacity-100 translate-y-0">
 
                 <div class="max-w-5xl mx-auto">
-                    <div class="bg-gradient-to-br from-blue-50 to-sky-50 border border-blue-100 rounded-3xl p-8 sm:p-10 mb-10 shadow-sm">
+                    <div class="bg-blue-50/70 border border-blue-200 rounded-3xl p-8 sm:p-10 mb-10 shadow-sm">
                         <div class="flex items-start gap-4 mb-8">
                             <div class="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-md">
                                 <i class="bi bi-calendar2-check-fill text-2xl"></i>
@@ -259,7 +258,7 @@
                 x-transition:enter-end="opacity-100 translate-y-0">
 
                 <div class="max-w-5xl mx-auto">
-                    <div class="bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-100 rounded-3xl p-8 sm:p-10 mb-10 shadow-sm">
+                    <div class="bg-purple-50/70 border border-purple-200 rounded-3xl p-8 sm:p-10 mb-10 shadow-sm">
                         <div class="flex items-start gap-4 mb-8">
                             <div class="w-14 h-14 rounded-2xl bg-violet-700 text-white flex items-center justify-center shrink-0 shadow-md">
                                 <i class="bi bi-calendar2-x-fill text-2xl"></i>
@@ -414,7 +413,7 @@
                         @php
                             $isOrdinaria = $schedule->enrollment_type === 'ordinaria';
                             $accentColor   = $isOrdinaria ? 'blue'   : 'violet';
-                            $bgGrad        = $isOrdinaria ? 'from-blue-800 to-blue-700'     : 'from-violet-800 to-violet-700';
+                            $headerBg      = $isOrdinaria ? 'bg-blue-800'                   : 'bg-violet-800';
                             $badgeBg       = $isOrdinaria ? 'bg-blue-900/60 text-blue-200'  : 'bg-violet-900/60 text-violet-200';
                             $cardBorder    = $isOrdinaria ? 'border-blue-100'                : 'border-violet-100';
                             $iconColor     = $isOrdinaria ? 'text-blue-400'                  : 'text-violet-400';
@@ -424,7 +423,7 @@
                         @endphp
                         <div class="schedule-card bg-white rounded-3xl border {{ $cardBorder }} shadow-md overflow-hidden">
                             {{-- Card Header --}}
-                            <div class="bg-gradient-to-r {{ $bgGrad }} px-7 py-5 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                            <div class="{{ $headerBg }} px-7 py-5 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                                 <div class="flex items-center gap-3">
                                     <span class="{{ $badgeBg }} text-sm font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
                                         {{ $schedule->type_label }}
@@ -520,7 +519,7 @@
                         <div class="relative pl-8 md:pl-12 group">
                             <div class="absolute -left-[14px] top-1.5 w-6 h-6 rounded-full bg-blue-600 border-4 border-white shadow group-hover:scale-110 transition-transform"></div>
                             <div class="bg-white rounded-2xl border border-blue-100 shadow-md overflow-hidden hover:shadow-lg transition duration-300">
-                                <div class="bg-gradient-to-r from-blue-800 to-blue-700 px-6 py-4 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                                <div class="bg-blue-800 px-6 py-4 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                                     <div class="flex items-center gap-3">
                                         <span class="bg-blue-900/60 text-blue-200 text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider">{{ $item->type }}</span>
                                         @if ($item->period)
@@ -612,8 +611,7 @@
     @endif
 
     {{-- ═══ CTA CONTACTO ═══ --}}
-    <section id="contact" class="py-20 bg-blue-900 text-white relative overflow-hidden">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-blue-700/40 via-transparent to-transparent"></div>
+    <section id="contact" class="py-20 bg-slate-900 text-white relative overflow-hidden border-t border-slate-800">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-8">
             <h2 class="text-3xl sm:text-5xl font-black">¿Tienes dudas sobre tu matrícula?</h2>
             <p class="text-lg sm:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed font-medium">

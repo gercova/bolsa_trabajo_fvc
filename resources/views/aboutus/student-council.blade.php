@@ -77,15 +77,12 @@
 @section('content')
     {{-- ===== HERO SECTION ===== --}}
     <section
-        class="relative bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-blue-900/30">
-        {{-- Elegant glow patterns --}}
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(56,189,248,0.15),transparent_50%)]"></div>
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(59,130,246,0.12),transparent_40%)]"></div>
+        class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
+        <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-8">
             <h1
                 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-none text-white max-w-5xl mx-auto">
-                Consejo de <span
-                    class="text-sky-400 bg-gradient-to-r from-sky-400 to-blue-400 bg-clip-text text-transparent">Estudiantes</span>
+                Consejo de <span class="text-sky-400">Estudiantes</span>
             </h1>
 
             <p class="text-xl sm:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-medium">
@@ -175,10 +172,7 @@
                             class="group bg-white rounded-3xl border border-slate-100 shadow-md hover-card overflow-hidden flex flex-col h-full">
                             {{-- Header Banner & Avatar --}}
                             <div
-                                class="h-48 relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-slate-950 flex items-center justify-center p-6">
-                                <div
-                                    class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.1),transparent_60%)]">
-                                </div>
+                                class="h-48 relative overflow-hidden bg-slate-900 flex items-center justify-center p-6 border-b border-slate-800">
 
                                 {{-- Position Tag --}}
                                 <div class="absolute top-4 left-4 z-20">
@@ -204,7 +198,7 @@
                                             class="w-24 h-24 rounded-2xl object-cover ring-4 ring-white/20 shadow-xl group-hover:scale-105 transition-transform duration-500">
                                     @else
                                         <div
-                                            class="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-600 to-sky-500 text-white flex items-center justify-center font-black text-3xl ring-4 ring-white/20 shadow-xl">
+                                            class="w-24 h-24 rounded-2xl bg-blue-700 text-white flex items-center justify-center font-black text-3xl ring-4 ring-white/20 shadow-sm">
                                             {{ strtoupper(substr($fullName, 0, 2)) }}
                                         </div>
                                     @endif
@@ -311,9 +305,9 @@
 
                         <div
                             class="group bg-white rounded-3xl border border-slate-100 shadow-md hover-card overflow-hidden flex flex-col h-full">
-                            {{-- Card Header Gradient --}}
+                            {{-- Card Header --}}
                             <div
-                                class="h-28 relative overflow-hidden bg-gradient-to-br from-slate-900 to-blue-950 p-4 flex items-start justify-between">
+                                class="h-28 relative overflow-hidden bg-slate-900 p-4 flex items-start justify-between border-b border-slate-800">
                                 <span
                                     class="px-3 py-1 text-xs font-black rounded-lg uppercase tracking-wider bg-blue-100 text-blue-900 shadow">
                                     {{ $secretary->position }}
@@ -333,7 +327,7 @@
                                             class="w-16 h-16 rounded-2xl object-cover ring-4 ring-white shadow-lg shrink-0">
                                     @else
                                         <div
-                                            class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-sky-500 text-white flex items-center justify-center font-black text-xl ring-4 ring-white shadow-lg shrink-0">
+                                            class="w-16 h-16 rounded-2xl bg-blue-700 text-white flex items-center justify-center font-black text-xl ring-4 ring-white shadow-sm shrink-0">
                                             {{ strtoupper(substr($name, 0, 2)) }}
                                         </div>
                                     @endif
@@ -477,7 +471,7 @@
     </section>
 
     {{-- ===== CTA / CANAL DE ATENCIÓN ESTUDIANTIL ===== --}}
-    <section class="py-20 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white">
+    <section class="py-20 bg-slate-900 text-white border-t border-slate-800">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
             <h2 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
                 ¿Tienes una consulta o iniciativa para tu carrera?

@@ -2,24 +2,24 @@
 @section('title', 'CEPRE-FVC — IESTP Francisco Vigo Caballero')
 @section('content')
     {{-- Hero Section --}}
-    <section class="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600 text-white overflow-hidden py-16 lg:py-24">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-700/30 via-transparent to-transparent"></div>
+    <section class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                 <div class="lg:col-span-7 space-y-6">
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-white">
+                    <div class="w-16 h-1 bg-sky-500 rounded-full mb-2"></div>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-white font-sans">
                         Tu ingreso directo al <br>
-                        <span class="text-blue-200">Futuro Profesional</span>
+                        <span class="text-sky-400">Futuro Profesional</span>
                     </h1>
-                    <p class="text-lg sm:text-xl text-blue-100 max-w-2xl leading-relaxed">
+                    <p class="text-lg sm:text-xl text-slate-300 max-w-2xl leading-relaxed">
                         Asegura tu ingreso directo al IESTP Francisco Vigo Caballero. Prepárate con nuestra plana docente especializada y accede a las vacantes exclusivas asignadas por orden de mérito.
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                        <a href="#active-processes" class="inline-flex items-center justify-center px-6 py-4 text-base font-bold text-blue-900 bg-white hover:bg-blue-50 rounded-xl transition shadow-lg hover:shadow-xl">
+                        <a href="#active-processes" class="inline-flex items-center justify-center px-6 py-4 text-base font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition shadow-md">
                             <i class="bi bi-calendar-event mr-2 text-lg"></i>
                             Ver Convocatorias
                         </a>
-                        <a href="#requirements" class="inline-flex items-center justify-center px-6 py-4 text-base font-bold text-white border-2 border-blue-400/40 hover:bg-white/10 rounded-xl transition">
+                        <a href="#requirements" class="inline-flex items-center justify-center px-6 py-4 text-base font-bold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition">
                             <i class="bi bi-journal-text mr-2 text-lg"></i>
                             Requisitos de Inscripción
                         </a>
@@ -27,10 +27,9 @@
                 </div>
                 <div class="lg:col-span-5 relative">
                     <div class="relative mx-auto max-w-md lg:max-w-none">
-                        <div class="absolute -inset-4 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-3xl blur-2xl opacity-30"></div>
                         <img src="{{ $cepreImage ? $cepreImage->url : asset('images/cepre_hero_banner.png') }}"
                             alt="CEPRE IESTP Francisco Vigo Caballero" 
-                            class="relative rounded-2xl shadow-2xl border-4 border-white/10 w-full object-cover aspect-square sm:aspect-video lg:aspect-square">
+                            class="relative rounded-2xl shadow-xl border border-slate-700 w-full object-cover aspect-square sm:aspect-video lg:aspect-square">
                     </div>
                 </div>
             </div>
@@ -102,7 +101,7 @@
                 <div class="space-y-12">
                     @foreach ($exams as $exam)
                         <div class="bg-white rounded-3xl shadow-xl border border-blue-100 overflow-hidden">
-                            <div class="bg-gradient-to-r from-blue-700 to-blue-600 px-6 sm:px-8 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div class="bg-blue-700 px-6 sm:px-8 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                 <div>
                                     <span class="inline-block text-xs font-bold tracking-widest text-blue-200 uppercase bg-blue-900/40 py-1 px-3 rounded-full mb-1">
                                         Período Proyectado
@@ -303,7 +302,7 @@
 
             <div class="max-w-4xl mx-auto">
                 @if ($latestResultExam && $latestResultExam->results_url_pdf)
-                    <div class="bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 text-white rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden">
+                    <div class="bg-emerald-800 text-white rounded-3xl p-8 sm:p-10 shadow-xl relative overflow-hidden border border-emerald-700">
                         <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
                         <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                             <div class="space-y-4 text-center md:text-left">
@@ -391,7 +390,6 @@
 
     {{-- CTA Contacto --}}
     <section id="contact" class="py-16 bg-blue-900 text-white relative overflow-hidden">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-blue-700/40 via-transparent to-transparent"></div>
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-8">
             <h2 class="text-3xl sm:text-4xl font-extrabold">¿Tienes alguna duda sobre el proceso?</h2>
             <p class="text-lg sm:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">

@@ -34,12 +34,8 @@
 @section('content')
     {{-- ═══ HERO SECTION ════════════════════════════════════════════════════ --}}
     <section
-        class="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600 text-white overflow-hidden py-16 lg:py-24">
-        {{-- Ambient Light Accents --}}
-        <div
-            class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-700/30 via-transparent to-transparent pointer-events-none">
-        </div>
-        <div class="absolute -bottom-24 -left-20 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
+        <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             
@@ -84,11 +80,7 @@
                 <div class="lg:col-span-5 relative">
                     <div class="relative mx-auto max-w-md lg:max-w-none">
                         <div
-                            class="absolute -inset-4 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-3xl blur-2xl opacity-30">
-                        </div>
-
-                        <div
-                            class="relative bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-3xl shadow-2xl text-white space-y-6">
+                            class="relative bg-slate-800 border border-slate-700 p-8 rounded-3xl shadow-xl text-white space-y-6">
                             <div class="flex items-center justify-between border-b border-white/10 pb-4">
                                 <div class="flex items-center space-x-3">
                                     <div
@@ -232,7 +224,7 @@
                                 {{-- Card Header: Icon & Badges --}}
                                 <div class="flex items-center justify-between mb-6">
                                     <div
-                                        class="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-700/20 group-hover:scale-110 transition-transform">
+                                        class="w-14 h-14 bg-blue-700 text-white rounded-2xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
                                         <i class="bi {{ $scholarship->icon ?? 'bi-award' }} text-2xl"
                                             aria-hidden="true"></i>
                                     </div>
@@ -257,7 +249,7 @@
 
                                 {{-- Discount Highlight Box --}}
                                 @if ($scholarship->discount_details || $scholarship->discount_percentage > 0)
-                                    <div class="mb-4 p-3.5 bg-gradient-to-r from-emerald-50/80 to-teal-50/80 rounded-2xl border border-emerald-200/80 text-emerald-950">
+                                    <div class="mb-4 p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200 text-emerald-950">
                                         <div class="flex items-center gap-2 mb-1">
                                             <span class="inline-flex items-center gap-1 bg-emerald-600 text-white text-[11px] font-black px-2.5 py-0.5 rounded-md shadow-xs">
                                                 <i class="bi bi-tag-fill text-[10px]"></i>
@@ -526,7 +518,7 @@
                     Relación de Estudiantes Beneficiarios <br class="hidden sm:inline">
                     <span class="text-blue-600">de Becas y Exoneraciones</span>
                 </h2>
-                <div class="w-24 h-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 mx-auto mt-5 rounded-full"></div>
+                <div class="w-24 h-1.5 bg-blue-600 mx-auto mt-5 rounded-full"></div>
                 <p class="text-base sm:text-lg text-gray-600 mt-6 leading-relaxed">
                     Ponemos a disposición de la comunidad educativa y público en general las resoluciones y nóminas oficiales con la relación de estudiantes que obtuvieron becas, medias becas o exoneraciones, clasificados por periodo académico o semestre.
                 </p>
@@ -570,7 +562,7 @@
                 {{-- Cards Grid --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     @foreach ($beneficiaries as $ben)
-                        <div class="bg-gradient-to-b from-white via-white to-blue-50/30 rounded-3xl border border-blue-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group"
+                        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group"
                             x-show="selectedPeriod === 'all' || selectedPeriod === '{{ $ben->academic_period }}'"
                             x-transition:enter="transition ease-out duration-300"
                             x-transition:enter-start="opacity-0 scale-95"
@@ -720,7 +712,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <div
-                class="bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-900 text-white rounded-3xl overflow-hidden shadow-2xl border border-blue-800">
+                class="bg-slate-900 text-white rounded-3xl overflow-hidden shadow-lg border border-slate-800">
                 <div class="grid grid-cols-1 lg:grid-cols-12 items-center">
                     
                     <div class="lg:col-span-7 p-8 sm:p-12 space-y-6">
@@ -770,7 +762,7 @@
                     </div>
 
                     <div
-                        class="lg:col-span-5 bg-gradient-to-t from-blue-900 to-transparent p-8 sm:p-12 flex flex-col justify-center items-center text-center border-t lg:border-t-0 lg:border-l border-white/10">
+                        class="lg:col-span-5 bg-slate-950/60 p-8 sm:p-12 flex flex-col justify-center items-center text-center border-t lg:border-t-0 lg:border-l border-slate-800">
                         <div
                             class="w-24 h-24 bg-white/10 text-amber-300 rounded-3xl flex items-center justify-center text-5xl mb-6 shadow-inner border border-white/20">
                             <i class="bi bi-award-fill"></i>
@@ -969,7 +961,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
             <div
-                class="bg-gradient-to-r from-blue-900 to-blue-800 rounded-3xl p-8 sm:p-12 border border-blue-700 shadow-2xl">
+                class="bg-blue-900 rounded-3xl p-8 sm:p-12 border border-blue-800 shadow-md">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
 
                     <div class="lg:col-span-8 space-y-4">

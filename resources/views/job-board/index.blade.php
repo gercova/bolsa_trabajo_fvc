@@ -73,10 +73,10 @@
             box-shadow: 0 4px 12px rgba(37,99,235,.3);
         }
         nav[aria-label="pagination"] span[aria-current="page"] span {
-            background: linear-gradient(135deg,#1d4ed8,#3b82f6);
+            background: #1d4ed8;
             color: #fff;
             border: none;
-            box-shadow: 0 4px 12px rgba(37,99,235,.35);
+            box-shadow: 0 4px 12px rgba(37,99,235,.25);
         }
         nav[aria-label="pagination"] span.text-gray-300 span,
         nav[aria-label="pagination"] span[aria-disabled] span {
@@ -161,12 +161,8 @@
 
 @section('content')
 {{-- ═══ HERO ════════════════════════════════════════════════════════════ --}}
-<section aria-label="Portada Bolsa de Trabajo" class="relative bg-gradient-to-br from-blue-950 via-blue-900 to-blue-700 text-white overflow-hidden py-16 lg:py-24">
-    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(96,165,250,0.25),transparent_55%)]"></div>
-        <div class="absolute -bottom-32 -left-24 w-[28rem] h-[28rem] bg-blue-500/15 rounded-full blur-3xl"></div>
-        <div class="absolute top-10 right-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl"></div>
-    </div>
+<section aria-label="Portada Bolsa de Trabajo" class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24">
+    <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
@@ -180,7 +176,7 @@
 
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-white font-sans">
                     Bolsa de Trabajo<br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-blue-50">e Inserción Laboral</span>
+                    <span class="text-sky-400">e Inserción Laboral</span>
                 </h1>
 
                 <p class="text-lg sm:text-xl text-blue-100 max-w-2xl leading-relaxed">
@@ -241,8 +237,7 @@
 
             {{-- Right: Info Panel --}}
             <div class="lg:col-span-5 relative" aria-hidden="true">
-                <div class="absolute -inset-4 bg-gradient-to-r from-blue-400/30 to-indigo-500/20 rounded-3xl blur-2xl"></div>
-                <div class="relative bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-3xl shadow-2xl space-y-5">
+                <div class="relative bg-slate-800/90 border border-slate-700 p-8 rounded-3xl shadow-2xl space-y-5">
 
                     <div class="flex items-center justify-between border-b border-white/10 pb-5">
                         <div class="flex items-center gap-3">
@@ -282,7 +277,7 @@
 
 
 {{-- ═══ FILTROS ═════════════════════════════════════════════════════════ --}}
-<section id="ofertas" aria-label="Filtros de búsqueda laboral" class="py-10 bg-gradient-to-b from-slate-100 to-slate-50 -mt-6 relative z-20">
+<section id="ofertas" aria-label="Filtros de búsqueda laboral" class="py-10 bg-slate-100 -mt-6 relative z-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <div class="bg-white rounded-3xl shadow-2xl shadow-blue-900/5 border border-blue-100/60 p-6 sm:p-8">
@@ -394,34 +389,34 @@
 
                     // Palette per source
                     if (str_contains($sl, 'computrabajo')) {
-                        $bar   = 'from-amber-500 to-orange-500';
+                        $bar   = 'bg-amber-600';
                         $badge = 'bg-amber-50 text-amber-800 border-amber-200';
                         $bIcon = 'bi-globe2 text-amber-600';
-                        $avt   = 'from-amber-500 to-orange-600';
+                        $avt   = 'bg-amber-600';
                         $ring  = 'focus-visible:ring-amber-400';
                     } elseif (str_contains($sl, 'bumeran')) {
-                        $bar   = 'from-violet-500 to-purple-600';
-                        $badge = 'bg-violet-50 text-violet-800 border-violet-200';
-                        $bIcon = 'bi-briefcase-fill text-violet-600';
-                        $avt   = 'from-violet-600 to-indigo-700';
-                        $ring  = 'focus-visible:ring-violet-400';
+                        $bar   = 'bg-purple-600';
+                        $badge = 'bg-purple-50 text-purple-800 border-purple-200';
+                        $bIcon = 'bi-briefcase-fill text-purple-600';
+                        $avt   = 'bg-purple-600';
+                        $ring  = 'focus-visible:ring-purple-400';
                     } elseif (str_contains($sl, 'convenio')) {
-                        $bar   = 'from-emerald-500 to-teal-600';
+                        $bar   = 'bg-emerald-600';
                         $badge = 'bg-emerald-50 text-emerald-800 border-emerald-200';
                         $bIcon = 'bi-award-fill text-emerald-600';
-                        $avt   = 'from-emerald-600 to-teal-700';
+                        $avt   = 'bg-emerald-600';
                         $ring  = 'focus-visible:ring-emerald-400';
                     } elseif (str_contains($sl, 'convocatoria') || str_contains($sl, 'publica')) {
-                        $bar   = 'from-rose-500 to-pink-600';
+                        $bar   = 'bg-rose-600';
                         $badge = 'bg-rose-50 text-rose-800 border-rose-200';
                         $bIcon = 'bi-building text-rose-600';
-                        $avt   = 'from-rose-600 to-pink-700';
+                        $avt   = 'bg-rose-600';
                         $ring  = 'focus-visible:ring-rose-400';
                     } else {
-                        $bar   = 'from-blue-600 to-blue-800';
+                        $bar   = 'bg-blue-700';
                         $badge = 'bg-blue-50 text-blue-800 border-blue-200';
                         $bIcon = 'bi-star-fill text-blue-600';
-                        $avt   = 'from-blue-600 to-blue-900';
+                        $avt   = 'bg-blue-700';
                         $ring  = 'focus-visible:ring-blue-400';
                     }
 
@@ -436,8 +431,8 @@
                     <meta itemprop="validThrough" content="{{ $job->created_at->addDays(30)->toIso8601String() }}">
                     <meta itemprop="employmentType" content="FULL_TIME">
 
-                    {{-- Gradient Accent Bar --}}
-                    <div class="card-accent-bar bg-gradient-to-r {{ $bar }}" role="presentation"></div>
+                    {{-- Solid Accent Bar --}}
+                    <div class="card-accent-bar {{ $bar }}" role="presentation"></div>
 
                     <div class="p-6 sm:p-7 flex flex-col gap-4 flex-1">
 
@@ -463,7 +458,7 @@
 
                         {{-- Company Avatar + Title --}}
                         <div class="flex items-start gap-3.5">
-                            <div class="avatar-letter w-13 h-13 w-[3.25rem] h-[3.25rem] bg-gradient-to-br {{ $avt }} text-white rounded-2xl flex items-center justify-center text-xl font-black shadow-md shrink-0 select-none"
+                            <div class="avatar-letter w-[3.25rem] h-[3.25rem] {{ $avt }} text-white rounded-2xl flex items-center justify-center text-xl font-black shadow-sm shrink-0 select-none"
                                  aria-hidden="true">
                                 {{ $initial }}
                             </div>
@@ -515,7 +510,7 @@
 
                         <a href="{{ $job->url }}" target="_blank" rel="noopener noreferrer"
                            itemprop="url"
-                           class="px-4 py-2 bg-gradient-to-r {{ $bar }} hover:brightness-110 text-white text-[13px] font-extrabold rounded-xl transition-all shadow-md flex items-center gap-1.5">
+                           class="px-4 py-2 {{ $bar }} hover:brightness-110 text-white text-[13px] font-extrabold rounded-xl transition-all shadow-sm flex items-center gap-1.5">
                             Postular <i class="bi bi-box-arrow-up-right text-[10px]" aria-hidden="true"></i>
                         </a>
                     </div>
@@ -539,12 +534,12 @@
                              @click.outside="activeModal = null">
 
                             {{-- Modal Accent Bar --}}
-                            <div class="h-1.5 bg-gradient-to-r {{ $bar }} rounded-t-3xl flex-shrink-0"></div>
+                            <div class="h-1.5 {{ $bar }} rounded-t-3xl flex-shrink-0"></div>
 
                             <div class="p-6 sm:p-8 space-y-5">
                                 {{-- Header --}}
                                 <div class="flex items-start gap-4 pr-8">
-                                    <div class="w-14 h-14 bg-gradient-to-br {{ $avt }} text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-md shrink-0">
+                                    <div class="w-14 h-14 {{ $avt }} text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-sm shrink-0">
                                         {{ $initial }}
                                     </div>
                                     <div>
@@ -588,7 +583,7 @@
                                 {{-- Footer Actions --}}
                                 <div class="flex items-center justify-end gap-3 pt-2 border-t border-slate-100">
                                     <a href="{{ $job->url }}" target="_blank" rel="noopener noreferrer"
-                                       class="px-6 py-3 bg-gradient-to-r {{ $bar }} hover:brightness-110 text-white font-extrabold text-xs rounded-xl transition shadow-md flex items-center gap-2">
+                                       class="px-6 py-3 {{ $bar }} hover:brightness-110 text-white font-extrabold text-xs rounded-xl transition shadow-sm flex items-center gap-2">
                                         Ir a la Convocatoria Oficial <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
                                     </a>
                                     <button @click="activeModal = null"
@@ -652,7 +647,7 @@
 
 
 {{-- ═══ TALENTO Y EGRESADOS FVC (PARA EMPRESAS) ════════════════════════ --}}
-<section id="egresados" aria-label="Egresados y Estudiantes con Potencial" class="py-20 bg-gradient-to-b from-slate-50 to-slate-100/70 border-t border-slate-200/80"
+<section id="egresados" aria-label="Egresados y Estudiantes con Potencial" class="py-20 bg-slate-50 border-t border-slate-200/80"
     x-data="{ selectedProgram: 'all', activeGraduateModal: null }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -665,7 +660,7 @@
             <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-950 font-sans leading-tight">
                 Egresados y Estudiantes con Potencial
             </h2>
-            <div class="w-20 h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto mt-4 rounded-full"></div>
+            <div class="w-20 h-1.5 bg-blue-600 mx-auto mt-4 rounded-full"></div>
             <p class="text-base sm:text-lg text-slate-600 mt-4 leading-relaxed">
                 Directorio de graduados y estudiantes técnicos capacitados con formación práctica y competencias certificadas. Revisa sus perfiles, contáctalos directamente o consulta su <strong>Currículum Vitae (PDF)</strong>.
             </p>
@@ -738,7 +733,7 @@
                                     <img src="{{ Storage::url($grad->photo_profile) }}" alt="{{ $grad->names }}"
                                         class="w-14 h-14 rounded-2xl object-cover shadow-md border-2 border-white ring-2 ring-blue-100 flex-shrink-0">
                                 @else
-                                    <div class="w-14 h-14 bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 text-white rounded-2xl flex items-center justify-center text-lg font-black shadow-md flex-shrink-0">
+                                    <div class="w-14 h-14 bg-blue-700 text-white rounded-2xl flex items-center justify-center text-lg font-black shadow-sm flex-shrink-0">
                                         {{ $initials }}
                                     </div>
                                 @endif
@@ -834,7 +829,7 @@
                             <div class="bg-white rounded-3xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 flex flex-col"
                                 @click.outside="activeGraduateModal = null">
 
-                                <div class="h-2 bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-600 rounded-t-3xl flex-shrink-0"></div>
+                                <div class="h-2 bg-blue-700 rounded-t-3xl flex-shrink-0"></div>
 
                                 <div class="p-6 sm:p-8 space-y-6">
                                     {{-- Modal Header --}}
@@ -843,7 +838,7 @@
                                             <img src="{{ Storage::url($grad->photo_profile) }}" alt="{{ $grad->names }}"
                                                 class="w-16 h-16 rounded-2xl object-cover shadow-md border border-slate-200 flex-shrink-0">
                                         @else
-                                            <div class="w-16 h-16 bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 text-white rounded-2xl flex items-center justify-center text-xl font-black shadow-md flex-shrink-0">
+                                            <div class="w-16 h-16 bg-blue-700 text-white rounded-2xl flex items-center justify-center text-xl font-black shadow-sm flex-shrink-0">
                                                 {{ $initials }}
                                             </div>
                                         @endif
@@ -888,7 +883,7 @@
                                     </div>
 
                                     {{-- CV Presentation Banner --}}
-                                    <div class="bg-gradient-to-br from-blue-950 to-indigo-950 text-white p-5 rounded-2xl shadow-md space-y-3">
+                                    <div class="bg-slate-900 text-white p-5 rounded-2xl shadow-md space-y-3">
                                         <div class="flex items-center gap-3">
                                             <div class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-xl border border-red-400/30 shrink-0">
                                                 <i class="bi bi-file-earmark-pdf-fill"></i>
@@ -971,7 +966,7 @@
             <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-950 mt-4 font-sans">
                 Potencia tu Empleabilidad Profesional
             </h2>
-            <div class="w-16 h-1.5 bg-gradient-to-r from-blue-600 to-blue-400 mx-auto mt-4 rounded-full"></div>
+            <div class="w-16 h-1.5 bg-blue-600 mx-auto mt-4 rounded-full"></div>
             <p class="text-lg text-slate-600 mt-6 leading-relaxed">
                 Brindamos herramientas y asesoría personalizada a egresados y estudiantes para ingresar con éxito al mercado laboral técnico.
             </p>
@@ -984,7 +979,7 @@
                 ['icon'=>'bi-building-check','title'=>'Red de Empresas Aliadas','desc'=>'Convenios con empresas agroindustriales, centros de salud, entidades financieras, municipalidades y firmas tecnológicas de la región.'],
             ] as $svc)
                 <div class="bg-slate-50/60 hover:bg-white border border-slate-200/80 hover:border-blue-200 p-8 rounded-3xl transition-all duration-300 shadow-sm hover:shadow-md group">
-                    <div class="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-md shadow-blue-600/20 group-hover:scale-110 transition-transform">
+                    <div class="w-14 h-14 bg-blue-700 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-sm group-hover:scale-110 transition-transform">
                         <i class="bi {{ $svc['icon'] }}" aria-hidden="true"></i>
                     </div>
                     <h3 class="text-xl font-extrabold text-blue-950 mb-3">{{ $svc['title'] }}</h3>
@@ -1001,7 +996,7 @@
 <section id="publicar-oferta" aria-label="Publicar vacante — Para empresas" class="py-16 bg-slate-950 text-white relative overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-        <div class="bg-gradient-to-r from-blue-950 via-blue-900 to-blue-800 rounded-3xl p-8 sm:p-12 border border-blue-700/40 shadow-2xl">
+        <div class="bg-blue-900 rounded-3xl p-8 sm:p-12 border border-blue-700/40 shadow-2xl">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
 
                 <div class="lg:col-span-8 space-y-4">

@@ -67,11 +67,8 @@
     @endphp
 
     {{-- ===== HERO SECTION ===== --}}
-    <section class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white py-20 overflow-hidden">
-        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)]">
-        </div>
-        <div class="absolute -top-32 -right-32 w-80 h-80 {{ $theme['glow'] }} rounded-full blur-3xl"></div>
-        <div class="absolute -bottom-32 -left-32 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
+    <section class="relative bg-slate-900 text-white py-16 lg:py-20 overflow-hidden border-b border-slate-800">
+        <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
         <div class="container mx-auto px-6 relative z-10 text-center max-w-4xl">
             <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight leading-tight">
                 Libro de Reclamaciones Virtual
@@ -248,7 +245,7 @@
                             {{-- Action buttons --}}
                             <div class="pt-6 border-t border-slate-100 flex justify-end">
                                 <button type="submit"
-                                    class="px-6 py-3.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-bold rounded-xl flex items-center justify-center gap-2 shadow-md transition-all">
+                                    class="px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all">
                                     <i class="bi bi-send-fill text-base"></i>
                                     Registrar Reclamación
                                 </button>
@@ -317,9 +314,9 @@
 
                     {{-- Mesa de Partes Shortcut --}}
                     <div
-                        class="bg-gradient-to-br from-slate-900 to-blue-950 rounded-3xl p-6 text-white space-y-5 shadow-xl">
+                        class="bg-slate-900 rounded-3xl p-6 text-white space-y-5 border border-slate-800 shadow-sm">
                         <div
-                            class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                            class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-blue-400">
                             <i class="bi bi-send-fill text-xl"></i>
                         </div>
                         <div>

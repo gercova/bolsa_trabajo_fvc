@@ -145,7 +145,7 @@
                 'bg_badge'  => 'bg-emerald-50 text-emerald-800 border-emerald-100',
                 'tag'       => 'Producción & Campo',
                 'color_bar' => 'bg-emerald-500',
-                'avatar_bg' => 'from-emerald-600 to-teal-700 text-white',
+                'avatar_bg' => 'bg-emerald-600 text-white',
             ],
             'Enfermería Técnica' => [
                 'icon'      => 'bi-heart-pulse-fill',
@@ -153,7 +153,7 @@
                 'bg_badge'  => 'bg-rose-50 text-rose-800 border-rose-100',
                 'tag'       => 'Ciencias de la Salud',
                 'color_bar' => 'bg-rose-500',
-                'avatar_bg' => 'from-rose-600 to-pink-700 text-white',
+                'avatar_bg' => 'bg-rose-600 text-white',
             ],
             'Administración de Redes y Comunicaciones' => [
                 'icon'      => 'bi-router-fill',
@@ -161,15 +161,15 @@
                 'bg_badge'  => 'bg-sky-50 text-sky-800 border-sky-100',
                 'tag'       => 'Soporte e Infraestructura TI',
                 'color_bar' => 'bg-sky-500',
-                'avatar_bg' => 'from-sky-600 to-blue-700 text-white',
+                'avatar_bg' => 'bg-sky-600 text-white',
             ],
             'Asistencia Administrativa' => [
                 'icon'      => 'bi-briefcase-fill',
-                'accent'    => 'blue',
-                'bg_badge'  => 'bg-blue-50 text-blue-800 border-blue-100',
+                'accent'    => 'amber',
+                'bg_badge'  => 'bg-amber-50 text-amber-800 border-amber-100',
                 'tag'       => 'Administración & Finanzas',
-                'color_bar' => 'bg-blue-600',
-                'avatar_bg' => 'from-blue-600 to-indigo-700 text-white',
+                'color_bar' => 'bg-amber-600',
+                'avatar_bg' => 'bg-amber-600 text-white',
             ],
             'Manejo Forestal' => [
                 'icon'      => 'bi-globe-americas',
@@ -177,7 +177,7 @@
                 'bg_badge'  => 'bg-teal-50 text-teal-800 border-teal-100',
                 'tag'       => 'Recursos Naturales',
                 'color_bar' => 'bg-teal-500',
-                'avatar_bg' => 'from-teal-600 to-emerald-700 text-white',
+                'avatar_bg' => 'bg-teal-700 text-white',
             ],
         ];
 
@@ -187,7 +187,7 @@
             'bg_badge' => 'bg-blue-50 text-blue-800 border-blue-100',
             'tag' => 'Educación Técnica',
             'color_bar' => 'bg-blue-500',
-            'avatar_bg' => 'from-blue-600 to-indigo-700 text-white',
+            'avatar_bg' => 'bg-blue-700 text-white',
         ];
 
         $transversalMeta = [
@@ -196,7 +196,7 @@
             'bg_badge' => 'bg-indigo-50 text-indigo-800 border-indigo-100',
             'tag' => 'Formación General & Transversal',
             'color_bar' => 'bg-indigo-600',
-            'avatar_bg' => 'from-indigo-600 to-slate-800 text-white',
+            'avatar_bg' => 'bg-indigo-700 text-white',
         ];
     @endphp
 
@@ -237,15 +237,13 @@
     }" @keydown.escape.window="closeModal()" class="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased">
 
         {{-- ===== HERO SECTION ===== --}}
-        <section class="relative bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-blue-900/30">
-            {{-- Elegant glow patterns --}}
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(56,189,248,0.15),transparent_50%)]"></div>
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(59,130,246,0.12),transparent_40%)]"></div>
+        <section class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
+            <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-8">
 
                 <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-none text-white max-w-5xl mx-auto">
-                    Plana Docente y <span class="text-sky-400 bg-gradient-to-r from-sky-400 to-blue-400 bg-clip-text text-transparent">Equipo Académico</span>
+                    Plana Docente y <span class="text-sky-400">Equipo Académico</span>
                 </h1>
 
                 <p class="text-xl sm:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-medium">
@@ -299,10 +297,8 @@
                             @endphp
                             @if ($user)
                                 <div class="coordinator-card bg-white rounded-3xl border border-amber-200/90 shadow-md hover-card p-6 flex flex-col justify-between relative overflow-hidden group cursor-pointer"
-                                     @click="openTeacherModal('{{ addslashes($user->names) }}', '{{ addslashes($user->job_position ?? 'Docente y Coordinador') }}', '{{ addslashes($program ? $program->name : 'IESTP FVC') }}', '{{ addslashes($detail->specialty ?? 'Especialista Académico') }}', '{{ addslashes($user->email ?? '') }}', '{{ $user->photo_profile ? Storage::url($user->photo_profile) : '' }}', true, '{{ $user->cv_file ? Storage::url($user->cv_file) : '' }}')">
-
-                                    {{-- Badge Overlay --}}
-                                    <div class="absolute top-0 right-0 bg-gradient-to-l from-amber-500 to-amber-600 text-white text-xs font-black px-4 py-1.5 rounded-bl-2xl shadow-sm flex items-center gap-1.5">
+                                     @click="openTeacherModal('{{ addslashes($user->names) }}', '{{ addslashes($user->job_position ?? 'Docente y Coordinador') }}', '{{ addslashes($program ? $program->name : 'IESTP FVC') }}', '{{ addslashes($detail->specialty ?? 'Especialista Académico') }}', '{{ addslashes($user->email ?? '') }}', '{{ $user->photo_profile ? Storage::url($user->photo_profile) : '' }}', true, '{{ $user->cv_file ? S                                     {{-- Badge Overlay --}}
+                                    <div class="absolute top-0 right-0 bg-amber-500 text-white text-xs font-black px-4 py-1.5 rounded-bl-2xl shadow-sm flex items-center gap-1.5">
                                         <i class="bi bi-star-fill text-yellow-200"></i>
                                         Coordinador
                                     </div>
@@ -316,11 +312,11 @@
                                                         loading="lazy"
                                                         class="w-full h-full object-cover">
                                                 @else
-                                                    <div class="w-full h-full bg-gradient-to-br {{ $pMeta['avatar_bg'] }} flex items-center justify-center text-2xl font-black">
+                                                    <div class="w-full h-full {{ $pMeta['avatar_bg'] }} flex items-center justify-center text-2xl font-black">
                                                         {{ strtoupper(substr($user->names, 0, 1)) }}
                                                     </div>
                                                 @endif
-                                            </div>
+                                            </div>                                   </div>
 
                                             <div class="pr-20 min-w-0">
                                                 <h3 class="text-lg font-black text-slate-900 group-hover:text-blue-600 transition-colors leading-snug">
@@ -480,7 +476,7 @@
                         {{-- Program Header Bar --}}
                         <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                             <div class="flex items-center gap-4">
-                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center text-2xl font-black shadow-md shrink-0">
+                                <div class="w-14 h-14 rounded-2xl bg-blue-700 text-white flex items-center justify-center text-2xl font-black shadow-sm shrink-0">
                                     <i class="bi {{ $pMeta['icon'] }}"></i>
                                 </div>
                                 <div>
@@ -530,7 +526,7 @@
                                                                 loading="lazy"
                                                                 class="w-full h-full object-cover">
                                                         @else
-                                                            <div class="w-full h-full bg-gradient-to-br {{ $pMeta['avatar_bg'] }} flex items-center justify-center text-xl font-black">
+                                                            <div class="w-full h-full {{ $pMeta['avatar_bg'] }} flex items-center justify-center text-xl font-black">
                                                                 {{ strtoupper(substr($user->names, 0, 1)) }}
                                                             </div>
                                                         @endif
@@ -606,7 +602,7 @@
                         {{-- Transversales Section Header Bar --}}
                         <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                             <div class="flex items-center gap-4">
-                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-slate-900 text-white flex items-center justify-center text-2xl font-black shadow-md shrink-0">
+                                <div class="w-14 h-14 rounded-2xl bg-indigo-700 text-white flex items-center justify-center text-2xl font-black shadow-sm shrink-0">
                                     <i class="bi bi-diagram-3-fill"></i>
                                 </div>
                                 <div>
@@ -648,7 +644,7 @@
                                                         loading="lazy"
                                                         class="w-full h-full object-cover">
                                                 @else
-                                                    <div class="w-full h-full bg-gradient-to-br from-indigo-600 to-slate-800 text-white flex items-center justify-center text-xl font-black">
+                                                    <div class="w-full h-full bg-indigo-700 text-white flex items-center justify-center text-xl font-black">
                                                         {{ strtoupper(substr($teacher->names, 0, 1)) }}
                                                     </div>
                                                 @endif
@@ -774,8 +770,7 @@
         </section>
 
         {{-- ===== CTA SECTION ===== --}}
-        <section class="py-24 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white text-center relative overflow-hidden border-t border-blue-900/30">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.1),transparent_40%)]"></div>
+        <section class="py-24 bg-slate-900 text-white text-center relative overflow-hidden border-t border-slate-800">
             <div class="container mx-auto px-4 relative z-10 space-y-8">
                 <h2 class="text-3xl sm:text-5xl font-black tracking-tight max-w-4xl mx-auto leading-tight">
                     ¿Listo para iniciar tu desarrollo profesional?
@@ -820,7 +815,7 @@
                 class="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 relative text-slate-800">
 
                 {{-- Modal Header Banner --}}
-                <div class="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 p-6 text-white relative">
+                <div class="bg-slate-900 p-6 text-white relative">
                     <button @click="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl transition-colors p-1 rounded-lg">
                         <i class="bi bi-x-lg"></i>
                     </button>
@@ -864,7 +859,7 @@
                         </p>
                         <template x-if="activeTeacher && activeTeacher.cvUrl">
                             <a :href="activeTeacher.cvUrl" target="_blank" rel="noopener noreferrer"
-                               class="flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-red-500/10 via-rose-500/10 to-blue-500/10 border border-red-200/80 hover:border-red-400 hover:shadow-md transition-all group/cv">
+                               class="flex items-center justify-between p-3.5 rounded-2xl bg-red-50/70 border border-red-200 hover:border-red-400 hover:shadow-sm transition-all group/cv">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center text-lg shadow-sm shrink-0 group-hover/cv:scale-105 transition-transform">
                                         <i class="bi bi-file-earmark-pdf-fill"></i>

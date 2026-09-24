@@ -80,17 +80,15 @@
 
 @section('content')
     {{-- ===== HERO HEADER SECTION ===== --}}
-    <section class="bg-gradient-to-br from-slate-900 via-slate-950 to-blue-950 text-white py-20 relative overflow-hidden">
-        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)]"></div>
-        <div class="absolute -top-40 -right-40 w-96 h-96 {{ $glowClass }} rounded-full blur-3xl"></div>
-        <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
-
+    @php $color = $program->color_config; @endphp
+    <section class="bg-slate-900 text-white py-20 relative overflow-hidden border-b border-slate-800">
         <div class="container mx-auto px-6 relative z-10">
             <div class="flex flex-col lg:flex-row items-center gap-12">
                 {{-- Text column --}}
                 <div class="lg:w-7/12 text-left">
+                    <div class="w-16 h-1 {{ $color['bar'] }} rounded-full mb-4"></div>
                     <span
-                        class="inline-flex items-center gap-1.5 {{ $badgeClass }} text-sm font-bold px-4 py-2 rounded-full uppercase tracking-widest mb-6 border">
+                        class="inline-flex items-center gap-1.5 {{ $color['badge'] }} text-sm font-bold px-4 py-2 rounded-full uppercase tracking-widest mb-6 border">
                         <i class="bi {{ $icon }} text-sm"></i>
                         {{ $badge }}
                     </span>
@@ -106,18 +104,18 @@
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-6 border-t border-white/10 max-w-xl">
                         <div>
                             <p class="text-sm text-gray-400 uppercase font-semibold tracking-wider">Duración</p>
-                            <p class="text-xl font-bold {{ $accentText }} mt-1">3 Años</p>
-                            <p class="text-sm text-gray-500">6 Ciclos Académicos</p>
+                            <p class="text-xl font-bold {{ $color['text'] }} mt-1">3 Años</p>
+                            <p class="text-sm text-gray-400">6 Ciclos Académicos</p>
                         </div>
                         <div>
                             <p class="text-sm text-gray-400 uppercase font-semibold tracking-wider">Certificaciones</p>
-                            <p class="text-xl font-bold {{ $accentText }} mt-1">Modulares</p>
-                            <p class="text-sm text-gray-500">Anuales de Minedu</p>
+                            <p class="text-xl font-bold {{ $color['text'] }} mt-1">Modulares</p>
+                            <p class="text-sm text-gray-400">Anuales de Minedu</p>
                         </div>
                         <div class="col-span-2 sm:col-span-1">
                             <p class="text-sm text-gray-400 uppercase font-semibold tracking-wider">Inversión</p>
-                            <p class="text-xl font-bold {{ $accentText }} mt-1">Gratuito</p>
-                            <p class="text-sm text-gray-500">Educación Pública</p>
+                            <p class="text-xl font-bold {{ $color['text'] }} mt-1">Gratuito</p>
+                            <p class="text-sm text-gray-400">Educación Pública</p>
                         </div>
                     </div>
                 </div>
@@ -125,18 +123,14 @@
                 {{-- Visual column (Cover Image) --}}
                 <div class="lg:w-5/12 w-full">
                     <div class="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent z-10">
-                        </div>
-
                         @if ($program->logo_path)
                             <img src="{{ Str::startsWith($program->logo_path, ['http://', 'https://']) ? $program->logo_path : asset('storage/' . $program->logo_path) }}"
                                 alt="{{ $program->name }}"
                                 class="w-full h-80 lg:h-96 object-cover transform scale-105 hover:scale-100 transition-transform duration-700">
                         @else
                             <div
-                                class="w-full h-80 lg:h-96 bg-gradient-to-br {{ $ctaBgClass }} flex items-center justify-center">
-                                <i class="bi {{ $icon }} text-9xl text-white/20"></i>
+                                class="w-full h-80 lg:h-96 {{ $color['solid_bg'] }} flex items-center justify-center">
+                                <i class="bi {{ $icon }} text-9xl text-white/30"></i>
                             </div>
                         @endif
                     </div>
@@ -251,11 +245,7 @@
                                 @php
                                     $itineraryUrl = $program->training_itinerary_url;
                                 @endphp
-                                <div class="p-6 md:p-8 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white border border-slate-700/60 shadow-lg relative overflow-hidden">
-                                    {{-- Ambient decorative background lights --}}
-                                    <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none"></div>
-                                    <div class="absolute -left-10 -top-10 w-48 h-48 bg-purple-500/15 rounded-full blur-2xl pointer-events-none"></div>
-
+                                <div class="p-6 md:p-8 rounded-2xl bg-slate-900 text-white border border-slate-700/60 shadow-lg relative overflow-hidden">
                                     <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
                                         <div class="flex items-start gap-4">
                                             <div class="w-14 h-14 rounded-2xl bg-red-500/20 border border-red-400/30 text-red-400 flex items-center justify-center text-3xl shrink-0 shadow-inner">
@@ -277,14 +267,14 @@
                                         <div class="flex items-center gap-3 w-full lg:w-auto shrink-0 flex-wrap sm:flex-nowrap">
                                             {{-- Botón 1: Ver documento en nueva pestaña --}}
                                             <a href="{{ $itineraryUrl }}" target="_blank" rel="noopener noreferrer"
-                                                class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs md:text-sm border border-white/20 backdrop-blur-sm transition-all duration-200 shadow-sm hover:scale-[1.02] active:scale-[0.98]">
+                                                class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs md:text-sm border border-white/20 transition-all duration-200 shadow-sm hover:scale-[1.02] active:scale-[0.98]">
                                                 <i class="bi bi-box-arrow-up-right text-sm"></i>
                                                 <span>Ver Documento</span>
                                             </a>
 
                                             {{-- Botón 2: Descargar documento --}}
                                             <a href="{{ $itineraryUrl }}" download="{{ Str::slug($program->name) }}-itinerario-formativo.pdf"
-                                                class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs md:text-sm transition-all duration-200 shadow-md hover:shadow-purple-500/25 hover:scale-[1.02] active:scale-[0.98]">
+                                                class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs md:text-sm transition-all duration-200 shadow-md hover:scale-[1.02] active:scale-[0.98]">
                                                 <i class="bi bi-download text-sm"></i>
                                                 <span>Descargar PDF</span>
                                             </a>
@@ -518,13 +508,10 @@
 
                     {{-- CTA Box --}}
                     <div
-                        class="bg-gradient-to-br {{ $ctaBgClass }} rounded-3xl p-6 text-white text-center shadow-lg relative overflow-hidden">
-                        <div
-                            class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px] z-0">
-                        </div>
+                        class="{{ $color['solid_bg'] ?? 'bg-blue-800' }} rounded-3xl p-6 text-white text-center shadow-lg relative overflow-hidden">
                         <div class="relative z-10">
                             <h4 class="font-extrabold text-xl mb-3">¿Deseas iniciar tu inscripción?</h4>
-                            <p class="text-sm text-white/80 leading-relaxed mb-6">
+                            <p class="text-sm text-white/90 leading-relaxed mb-6">
                                 Las vacantes son limitadas y no pagas mensualidad alguna durante toda la carrera técnica.
                                 ¡Asegura tu futuro!
                             </p>

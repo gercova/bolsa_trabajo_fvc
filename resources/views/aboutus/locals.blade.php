@@ -63,22 +63,18 @@
 @section('content')
     {{-- ===== HERO SECTION ===== --}}
     <section
-        class="relative bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-blue-900/30">
-        {{-- Glow patterns --}}
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(56,189,248,0.15),transparent_50%)]"></div>
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(59,130,246,0.12),transparent_40%)]"></div>
+        class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
+        <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-8">
-            <div class="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-400/30 text-sky-300 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase">
+            <div class="inline-flex items-center gap-2 bg-slate-800 border border-slate-700 text-sky-400 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase">
                 <i class="bi bi-geo-alt-fill text-sky-400"></i>
                 Campus & Infraestructura Educativa
             </div>
 
             <h1
                 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-none text-white max-w-5xl mx-auto">
-                Nuestros <span
-                    class="text-sky-400 bg-gradient-to-r from-sky-400 to-blue-400 bg-clip-text text-transparent">Locales
-                    e Instalaciones</span>
+                Nuestros <span class="text-sky-400">Locales e Instalaciones</span>
             </h1>
 
             <p class="text-xl sm:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-medium">
@@ -166,8 +162,7 @@
                         </div>
                     </div>
 
-                    <div class="lg:col-span-5 bg-slate-900 relative min-h-[320px] flex items-center justify-center overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-slate-900/90 to-slate-950 z-10"></div>
+                    <div class="lg:col-span-5 bg-slate-900 relative min-h-[320px] flex items-center justify-center overflow-hidden border-t lg:border-t-0 lg:border-l border-slate-800">
                         <div class="relative z-20 text-center p-8 space-y-4">
                             <div class="w-20 h-20 bg-blue-500/20 border border-blue-400/30 rounded-3xl flex items-center justify-center mx-auto shadow-2xl">
                                 <i class="bi bi-building-fill text-4xl text-sky-400"></i>
@@ -281,7 +276,7 @@
                             <div class="space-y-2.5 pt-2">
                                 <a href="https://www.google.com/maps/place/FRANCISCO+VIGO+CABALLERO/@-8.4505844,-76.465598,16z/data=!4m6!3m5!1s0x91af63dcf2a7d793:0x39afb5dd2aae7783!8m2!3d-8.4490562!4d-76.4660333!16s%2Fg%2F11hzzr2wh2?entry=ttu&g_ep=EgoyMDI2MDgxOS4wIKXMDSoASAFQAw%3D%3D"
                                    target="_blank" rel="noopener noreferrer"
-                                   class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold py-3.5 px-4 rounded-xl transition shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-xs sm:text-sm text-center">
+                                   class="w-full bg-blue-700 hover:bg-blue-800 text-white font-extrabold py-3.5 px-4 rounded-xl transition shadow-sm flex items-center justify-center gap-2 text-xs sm:text-sm text-center">
                                     <i class="bi bi-cursor-fill text-sky-200"></i>
                                     Abrir en Google Maps (Ruta GPS)
                                 </a>
@@ -526,8 +521,7 @@
 
     {{-- ===== CTA SECTION ===== --}}
     <section
-        class="py-24 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white text-center relative overflow-hidden border-t border-blue-900/30">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.1),transparent_40%)]"></div>
+        class="py-24 bg-slate-900 text-white text-center relative overflow-hidden border-t border-slate-800">
         <div class="container mx-auto px-4 relative z-10 space-y-8">
             <h2 class="text-3xl sm:text-5xl font-black tracking-tight max-w-4xl mx-auto leading-tight">
                 ¿Deseas conocer nuestro campus presencialmente?

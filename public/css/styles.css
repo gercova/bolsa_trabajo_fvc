@@ -79,7 +79,7 @@ body {
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--blue-deep) 0%, var(--sky) 55%, #38BDF8 100%);
+    background: var(--blue-deep);
     opacity: 0;
     transition: opacity .3s ease;
     z-index: 1;
@@ -177,7 +177,7 @@ body {
 }
 
 .logo-name {
-    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     font-size: 14.5px;
     font-weight: 700;
     color: var(--ink);
@@ -446,7 +446,7 @@ body {
 .dp-user-avatar {
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, var(--blue-mid), var(--blue-deep));
+    background: var(--blue-deep);
     border-radius: 9px;
     display: flex;
     align-items: center;
@@ -546,7 +546,7 @@ body {
     font-size: 12.5px;
     font-weight: 700;
     color: #ffffff;
-    background: linear-gradient(135deg, var(--blue-mid), var(--blue-deep));
+    background: var(--blue-mid);
     text-decoration: none;
     border-radius: 10px;
     border: 1.5px solid var(--blue-mid);
@@ -567,7 +567,7 @@ body {
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, var(--blue-deep), #1E40AF);
+    background: var(--blue-deep);
     border-color: var(--blue-deep);
     box-shadow: 0 4px 14px rgba(37, 99, 235, .34);
     transform: translateY(-1px);
@@ -597,7 +597,7 @@ body {
 .user-avatar {
     width: 28px;
     height: 28px;
-    background: linear-gradient(135deg, var(--blue-mid), var(--blue-deep));
+    background: var(--blue-deep);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -892,7 +892,7 @@ body {
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--gold-vivid) 0%, #2563EB 40%, transparent 100%);
+    background: var(--blue-deep);
 }
 
 .footer-grid {
@@ -938,7 +938,7 @@ body {
 }
 
 .footer-title {
-    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     font-size: 18px;
     color: var(--white);
     line-height: 1.2;
@@ -1135,7 +1135,7 @@ body {
            UTILITIES
         ═══════════════════════════════════════════ */
 .hero-gradient {
-    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    background: #0F172A;
 }
 
 .card-hover {

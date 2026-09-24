@@ -79,7 +79,7 @@
                     </div>
 
                     <a href="{{ route('inicio') }}" target="_blank"
-                       class="inline-flex items-center gap-2 text-xs font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-4 py-2 rounded-xl transition shadow-md shadow-purple-500/20 hover:shadow-purple-500/35">
+                       class="inline-flex items-center gap-2 text-xs font-bold bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-xl transition shadow-md">
                         <i class="bi bi-box-arrow-up-right"></i>
                         <span>Ver Portal Web</span>
                     </a>
@@ -91,11 +91,8 @@
         <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden space-y-8 max-w-7xl mx-auto w-full">
 
             {{-- ═══ HERO BANNER: Bienvenida & Status Institucional ═══ --}}
-            <div class="bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 rounded-3xl p-6 sm:p-8 lg:p-10 text-white shadow-2xl shadow-indigo-950/20 relative overflow-hidden border border-slate-800/80">
-                {{-- Decorative glow orbs --}}
-                <div class="glow-blob w-72 h-72 bg-purple-600/20 -top-20 -right-20"></div>
-                <div class="glow-blob w-64 h-64 bg-indigo-600/20 -bottom-20 left-10"></div>
-                <div class="glow-blob w-40 h-40 bg-sky-500/15 top-1/2 right-1/4"></div>
+            <div class="bg-slate-900 rounded-3xl p-6 sm:p-8 lg:p-10 text-white shadow-xl relative overflow-hidden border border-slate-800">
+                <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
 
                 <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                     <div class="space-y-3 max-w-2xl">
@@ -105,7 +102,7 @@
                         </div>
 
                         <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight text-white">
-                            Hola, <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-sky-300 to-cyan-300">{{ explode(' ', Auth::user()->names ?? 'Administrador')[0] }}</span>
+                            Hola, <span class="text-sky-400">{{ explode(' ', Auth::user()->names ?? 'Administrador')[0] }}</span>
                         </h2>
 
                         <p class="text-slate-300 text-sm sm:text-base leading-relaxed font-normal">
@@ -471,7 +468,7 @@
                             @forelse($recentUsers as $u)
                                 <div class="flex items-center justify-between py-2.5 first:pt-0 last:pb-0 gap-3">
                                     <div class="flex items-center gap-3 min-w-0">
-                                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white font-black text-xs flex items-center justify-center shadow-sm flex-shrink-0">
+                                        <div class="w-10 h-10 rounded-2xl bg-blue-700 text-white font-black text-xs flex items-center justify-center shadow-sm flex-shrink-0">
                                             {{ strtoupper(substr($u->names ?? $u->name ?? 'U', 0, 1)) }}
                                         </div>
                                         <div class="min-w-0">
@@ -617,21 +614,21 @@
                 <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
                     @php
                         $hubs = [
-                            ['route' => route('admin.carousel.index'),     'icon' => 'bi-images',             'label' => 'Carrusel',    'color' => 'from-purple-500 to-indigo-600'],
-                            ['route' => route('admin.programs.index'),     'icon' => 'bi-book-fill',          'label' => 'Programas',   'color' => 'from-emerald-500 to-teal-600'],
-                            ['route' => route('admin.exams.index'),        'icon' => 'bi-mortarboard-fill',   'label' => 'Admisión',    'color' => 'from-amber-500 to-orange-600'],
-                            ['route' => route('admin.enrollments.index'),  'icon' => 'bi-calendar-check-fill','label' => 'Matrículas',  'color' => 'from-rose-500 to-red-600'],
-                            ['route' => route('admin.works.index'),        'icon' => 'bi-briefcase-fill',     'label' => 'Bolsa Empleo','color' => 'from-blue-500 to-indigo-600'],
-                            ['route' => route('admin.tupa.index'),         'icon' => 'bi-file-earmark-ruled', 'label' => 'TUPA',        'color' => 'from-indigo-500 to-purple-600'],
-                            ['route' => route('admin.users.index'),        'icon' => 'bi-people-fill',        'label' => 'Usuarios',    'color' => 'from-violet-500 to-fuchsia-600'],
-                            ['route' => route('admin.enterprise.edit'),    'icon' => 'bi-gear-wide-connected','label' => 'Empresa',     'color' => 'from-slate-600 to-slate-800'],
+                            ['route' => route('admin.carousel.index'),     'icon' => 'bi-images',             'label' => 'Carrusel',    'color' => 'bg-purple-600'],
+                            ['route' => route('admin.programs.index'),     'icon' => 'bi-book-fill',          'label' => 'Programas',   'color' => 'bg-emerald-600'],
+                            ['route' => route('admin.exams.index'),        'icon' => 'bi-mortarboard-fill',   'label' => 'Admisión',    'color' => 'bg-amber-600'],
+                            ['route' => route('admin.enrollments.index'),  'icon' => 'bi-calendar-check-fill','label' => 'Matrículas',  'color' => 'bg-rose-600'],
+                            ['route' => route('admin.works.index'),        'icon' => 'bi-briefcase-fill',     'label' => 'Bolsa Empleo','color' => 'bg-blue-700'],
+                            ['route' => route('admin.tupa.index'),         'icon' => 'bi-file-earmark-ruled', 'label' => 'TUPA',        'color' => 'bg-indigo-600'],
+                            ['route' => route('admin.users.index'),        'icon' => 'bi-people-fill',        'label' => 'Usuarios',    'color' => 'bg-purple-700'],
+                            ['route' => route('admin.enterprise.edit'),    'icon' => 'bi-gear-wide-connected','label' => 'Empresa',     'color' => 'bg-slate-700'],
                         ];
                     @endphp
 
                     @foreach($hubs as $hub)
                         <a href="{{ $hub['route'] }}"
                            class="stat-card bg-white rounded-2xl border border-slate-200/80 p-4 text-center flex flex-col items-center justify-center gap-2 group hover:border-purple-300">
-                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br {{ $hub['color'] }} text-white flex items-center justify-center text-lg shadow-md group-hover:scale-110 transition-transform">
+                            <div class="w-10 h-10 rounded-xl {{ $hub['color'] }} text-white flex items-center justify-center text-lg shadow-sm group-hover:scale-110 transition-transform">
                                 <i class="bi {{ $hub['icon'] }}"></i>
                             </div>
                             <span class="text-xs font-bold text-slate-800 group-hover:text-purple-600 transition-colors">{{ $hub['label'] }}</span>
@@ -641,7 +638,7 @@
             </section>
 
             {{-- ═══ SECCIÓN 5: Estado de los Servicios & Infraestructura ══ --}}
-            <section class="bg-gradient-to-br from-slate-900 to-slate-950 rounded-3xl p-6 sm:p-8 text-white border border-slate-800 shadow-xl space-y-6">
+            <section class="bg-slate-900 rounded-3xl p-6 sm:p-8 text-white border border-slate-800 shadow-xl space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-5">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-emerald-400 text-xl">

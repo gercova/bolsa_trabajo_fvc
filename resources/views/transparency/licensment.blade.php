@@ -93,12 +93,9 @@
 
 @section('content')
 <div x-data="licensingApp()" class="min-h-screen bg-slate-50">
-    {{-- HERO SECTION: Modern Gradient, Badges, Global Progress         --}}
-    <section class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white overflow-hidden py-16 lg:py-24 border-b border-indigo-900/30">
-        {{-- Ambient Glow Effects --}}
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(99,102,241,0.18),transparent_50%)]"></div>
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(14,165,233,0.15),transparent_40%)]"></div>
-        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)]"></div>
+    {{-- HERO SECTION: Modern Solid Institutional, Badges, Global Progress --}}
+    <section class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
+        <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="text-center space-y-6 max-w-4xl mx-auto">
@@ -113,7 +110,7 @@
 
                 {{-- Hero Heading --}}
                 <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-tight text-white">
-                    Licenciamiento <span class="bg-gradient-to-r from-sky-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">Institucional</span>
+                    Licenciamiento <span class="text-sky-400">Institucional</span>
                 </h1>
 
                 <p class="text-base sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-normal">
@@ -144,7 +141,7 @@
                             {{ $globalProgress }}%
                         </p>
                         <div class="w-full bg-white/10 h-1.5 rounded-full mt-2 overflow-hidden">
-                            <div class="bg-gradient-to-r from-sky-400 to-indigo-500 h-full rounded-full transition-all duration-1000" style="width: {{ $globalProgress }}%"></div>
+                            <div class="bg-sky-500 h-full rounded-full transition-all duration-1000" style="width: {{ $globalProgress }}%"></div>
                         </div>
                     </div>
 
@@ -196,7 +193,7 @@
             <div class="relative">
                 {{-- Desktop Connecting Progress Bar --}}
                 <div class="hidden lg:block absolute top-1/2 -translate-y-6 left-12 right-12 h-1 bg-slate-200 z-0">
-                    <div class="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-slate-200 transition-all duration-700"
+                    <div class="h-full bg-emerald-500 transition-all duration-700"
                         style="width: {{ $currentPhase ? min(100, (($currentPhase->phase_number - 0.5) / max(1, $totalPhases)) * 100) : 20 }}%"></div>
                 </div>
 
@@ -222,9 +219,9 @@
                             <div class="flex items-center justify-between gap-2">
                                 <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg transition-transform duration-300 group-hover:scale-105
                                     {{ $isCurrent 
-                                        ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-slate-950 shadow-md shadow-amber-500/30 ring-4 ring-amber-200' 
+                                        ? 'bg-amber-500 text-slate-950 shadow-md ring-4 ring-amber-200' 
                                         : ($isCompleted 
-                                            ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' 
+                                            ? 'bg-emerald-600 text-white shadow-md' 
                                             : 'bg-slate-100 text-slate-600 border border-slate-300') }}">
                                     @if ($isCompleted)
                                         <i class="bi bi-check2 text-2xl font-bold"></i>
@@ -285,11 +282,9 @@
     </section>
     {{-- SECTION 2: CURRENT STAGE (P) SPOTLIGHT FOCUS CARD              --}}
     @if ($currentPhase)
-    <section class="py-12 sm:py-16 bg-gradient-to-b from-slate-50 to-amber-50/30">
+    <section class="py-12 sm:py-16 bg-slate-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white rounded-3xl p-6 sm:p-10 lg:p-12 shadow-xl border border-amber-400/30 relative overflow-hidden">
-                {{-- Decorative Glow --}}
-                <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="bg-slate-900 text-white rounded-3xl p-6 sm:p-10 lg:p-12 shadow-xl border border-slate-800 relative overflow-hidden">
                 <div class="absolute top-0 right-0 p-8 opacity-10">
                     <i class="bi bi-patch-check-fill text-9xl text-amber-400"></i>
                 </div>
@@ -438,7 +433,7 @@
                                 <span class="font-bold {{ $isCbcComplete ? 'text-emerald-600' : 'text-amber-600' }}">{{ $cbcProgress }}%</span>
                             </div>
                             <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                                <div class="h-full rounded-full transition-all duration-700 {{ $isCbcComplete ? 'bg-emerald-500' : 'bg-gradient-to-r from-amber-400 to-amber-500' }}"
+                                <div class="h-full rounded-full transition-all duration-700 {{ $isCbcComplete ? 'bg-emerald-500' : 'bg-amber-500' }}"
                                     style="width: {{ $cbcProgress }}%"></div>
                             </div>
                         </div>

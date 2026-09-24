@@ -101,13 +101,13 @@
             @endif
 
             {{-- User Hero Card Summary --}}
-            <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-purple-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-indigo-900/40 relative overflow-hidden">
-                <div class="absolute right-0 top-0 translate-x-12 -translate-y-12 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 relative overflow-hidden">
+                <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
                 <div class="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-6">
                     
                     {{-- User Avatar Thumbnail --}}
                     <div class="relative group shrink-0">
-                        <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden bg-gradient-to-tr from-purple-600 to-indigo-500 p-1 shadow-2xl">
+                        <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden bg-blue-700 p-1 shadow-md">
                             @if($user->photo_profile)
                                 <img src="{{ Storage::url($user->photo_profile) }}" alt="{{ $user->names }}" class="w-full h-full object-cover rounded-[22px]">
                             @else
@@ -490,7 +490,7 @@
                                     </a>
                                     <button 
                                         type="submit" 
-                                        class="px-7 py-3 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-700 hover:to-indigo-800 text-white rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50 transition-all flex items-center gap-2">
+                                        class="px-7 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-2">
                                         <i class="bi bi-floppy-fill"></i>
                                         <span>Guardar Cambios del Perfil</span>
                                     </button>

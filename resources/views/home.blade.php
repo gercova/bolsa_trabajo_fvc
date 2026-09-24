@@ -149,12 +149,16 @@
     </style>
 @endpush
 @section('content')
-    {{-- ═══ HERO CAROUSEL — UNSM STYLE ════════════════════════════════════ --}}
+    {{-- ═══ HERO CAROUSEL — SOLID PROGRAM THEMED ════════════════════════════════════ --}}
     @php
         $carouselsCount = $carousels->count();
         $slidesData = $carousels->map(function ($c, $idx) {
+            $styles = $c->theme_styles;
             return [
-                'label' => $c->indicator_label ?: ($c->tag ?: 'Slide ' . ($idx + 1)),
+                'label'       => $c->indicator_label ?: ($c->tag ?: 'Slide ' . ($idx + 1)),
+                'color'       => $styles['color_key'] ?? 'amber',
+                'pill_active' => $styles['pill_active'] ?? 'bg-amber-500 text-slate-950 font-bold',
+                'dot_color'   => $styles['dot_color'] ?? 'bg-amber-400',
             ];
         })->values()->toJson();
     @endphp
@@ -179,26 +183,28 @@
                         style="background-image: url('{{ $slide->image_url }}');">
                     </div>
 
-                    {{-- Multi-layered Dark Vignette & Gradient Overlays --}}
-                    <div class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 via-55% to-slate-950/30"></div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+                    {{-- Solid High-Contrast Overlay Scrim (replacing gradients) --}}
+                    <div class="absolute inset-0 bg-slate-950/85"></div>
 
                     {{-- Content --}}
                     <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center pt-8 pb-24 sm:pt-10 sm:pb-24 lg:py-0">
                         <div class="max-w-3xl space-y-4 sm:space-y-6">
+                            {{-- Solid Program Color Accent Bar --}}
+                            <div class="w-16 h-1 {{ $styles['solid_accent_bar'] ?? 'bg-amber-500' }} rounded-full"></div>
+
                             @if($slide->tag)
-                                <div class="inline-flex items-center gap-2 px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full {{ $styles['badge_bg'] }} border {{ $styles['badge_border'] }} {{ $styles['badge_text'] }} text-xs sm:text-sm font-bold tracking-wide backdrop-blur-md">
+                                <div class="inline-flex items-center gap-2 px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full {{ $styles['badge_bg'] }} border {{ $styles['badge_border'] }} {{ $styles['badge_text'] }} text-xs sm:text-sm font-bold tracking-wide">
                                     <i class="bi {{ $slide->tag_icon ?? 'bi-mortarboard-fill' }} {{ $styles['badge_icon'] }}"></i>
                                     <span>{{ $slide->tag }}</span>
                                 </div>
                             @endif
 
                             <h{{ $index === 0 ? '1' : '2' }}
-                                class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] text-white font-display">
+                                class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] text-white font-sans">
                                 {{ $slide->title }}
                                 @if($slide->highlight_text)
                                     <br class="hidden sm:inline">
-                                    <span class="text-transparent bg-clip-text bg-gradient-to-r {{ $styles['gradient_text'] }} block sm:inline">
+                                    <span class="{{ $styles['solid_highlight'] ?? 'text-amber-400' }} font-black block sm:inline">
                                         {{ $slide->highlight_text }}
                                     </span>
                                 @endif
@@ -214,15 +220,15 @@
                                 <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-3.5 pt-1 sm:pt-2">
                                     @if($slide->primary_button_text)
                                         <a href="{{ $slide->primary_button_link }}"
-                                            class="inline-flex items-center justify-center gap-2 px-5 py-3 sm:px-7 sm:py-3.5 bg-gradient-to-r {{ $styles['btn_primary'] }} text-white font-bold rounded-xl shadow-lg transition-all text-xs sm:text-sm md:text-base group w-full sm:w-auto">
-                                            <i class="bi {{ $slide->primary_button_icon ?? 'bi-pencil-square' }} text-base sm:text-lg group-hover:scale-110 transition-transform"></i>
+                                            class="inline-flex items-center justify-center gap-2 px-5 py-3 sm:px-7 sm:py-3.5 {{ $styles['btn_primary'] }} font-bold rounded-xl shadow-md transition-colors text-xs sm:text-sm md:text-base group w-full sm:w-auto">
+                                            <i class="bi {{ $slide->primary_button_icon ?? 'bi-pencil-square' }} text-base sm:text-lg group-hover:scale-105 transition-transform"></i>
                                             <span>{{ $slide->primary_button_text }}</span>
                                         </a>
                                     @endif
 
                                     @if($slide->secondary_button_text)
                                         <a href="{{ $slide->secondary_button_link }}"
-                                            class="inline-flex items-center justify-center gap-2 px-5 py-3 sm:px-7 sm:py-3.5 bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold rounded-xl backdrop-blur-md transition-all text-xs sm:text-sm md:text-base w-full sm:w-auto">
+                                            class="inline-flex items-center justify-center gap-2 px-5 py-3 sm:px-7 sm:py-3.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white font-bold rounded-xl transition-colors text-xs sm:text-sm md:text-base w-full sm:w-auto">
                                             <i class="bi {{ $slide->secondary_button_icon ?? 'bi-grid-3x3-gap-fill' }} {{ $styles['btn_sec_icon'] }}"></i>
                                             <span>{{ $slide->secondary_button_text }}</span>
                                         </a>
@@ -236,7 +242,7 @@
                 {{-- Fallback Slide --}}
                 <div class="absolute inset-0 flex items-center justify-center bg-slate-900 text-white">
                     <div class="text-center space-y-4 max-w-xl px-4">
-                        <h1 class="text-3xl sm:text-5xl font-extrabold font-display">IESTP Francisco Vigo Caballero</h1>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold font-sans">IESTP Francisco Vigo Caballero</h1>
                         <p class="text-slate-300 text-base sm:text-lg">Formación Técnica Superior de Calidad en Uchiza, San Martín.</p>
                     </div>
                 </div>
@@ -247,30 +253,30 @@
         @if($carouselsCount > 1)
             {{-- Carousel Navigation Controls (Left / Right Floating Arrows - hidden on small mobile to avoid text collision) --}}
             <button type="button" @click="prevSlide()"
-                class="hidden sm:flex absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/60 hover:bg-white/25 border border-white/20 text-white items-center justify-center backdrop-blur-md transition-all duration-200 shadow-xl hover:scale-110 focus:outline-none cursor-pointer"
+                class="hidden sm:flex absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white items-center justify-center transition-all duration-200 shadow-xl hover:scale-105 focus:outline-none cursor-pointer"
                 aria-label="Diapositiva anterior">
                 <i class="bi bi-chevron-left text-xl sm:text-2xl"></i>
             </button>
 
             <button type="button" @click="nextSlide()"
-                class="hidden sm:flex absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/60 hover:bg-white/25 border border-white/20 text-white items-center justify-center backdrop-blur-md transition-all duration-200 shadow-xl hover:scale-110 focus:outline-none cursor-pointer"
+                class="hidden sm:flex absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white items-center justify-center transition-all duration-200 shadow-xl hover:scale-105 focus:outline-none cursor-pointer"
                 aria-label="Siguiente diapositiva">
                 <i class="bi bi-chevron-right text-xl sm:text-2xl"></i>
             </button>
 
-            {{-- Bottom Slide Indicator Bar (UNSM Portal Style) --}}
+            {{-- Bottom Slide Indicator Bar --}}
             <div class="absolute bottom-4 sm:bottom-8 left-0 right-0 z-30 pointer-events-none">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-                    {{-- Slide Pills / Indicators --}}
+                    {{-- Slide Pills / Indicators with Study Program Solid Colors --}}
                     <div
-                        class="flex items-center gap-1.5 sm:gap-3 bg-slate-900/80 border border-white/20 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full backdrop-blur-md pointer-events-auto shadow-lg">
+                        class="flex items-center gap-1.5 sm:gap-2.5 bg-slate-900/90 border border-slate-800 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full pointer-events-auto shadow-lg">
                         <template x-for="(slide, index) in slides" :key="index">
                             <button type="button" @click="goToSlide(index)"
                                 class="px-2.5 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                                :class="currentSlide === index ? 'bg-white text-slate-950 shadow-md scale-105' :
-                                    'text-slate-300 hover:text-white hover:bg-white/10'">
+                                :class="currentSlide === index ? (slide.pill_active + ' shadow-md scale-105') :
+                                    'text-slate-300 hover:text-white hover:bg-slate-800'">
                                 <span class="w-1.5 h-1.5 rounded-full"
-                                    :class="currentSlide === index ? 'bg-blue-600' : 'bg-slate-500'"></span>
+                                    :class="currentSlide === index ? 'bg-white' : 'bg-slate-400'"></span>
                                 <span class="hidden sm:inline" x-text="slide.label"></span>
                                 <span class="sm:hidden" x-text="index + 1"></span>
                             </button>
@@ -279,7 +285,7 @@
 
                     {{-- Play/Pause & Counter indicator --}}
                     <div
-                        class="hidden md:flex items-center gap-3 bg-slate-900/80 border border-white/20 px-4 py-1.5 rounded-full backdrop-blur-md text-xs font-semibold text-slate-300 pointer-events-auto shadow-lg">
+                        class="hidden md:flex items-center gap-3 bg-slate-900/90 border border-slate-800 px-4 py-1.5 rounded-full text-xs font-semibold text-slate-300 pointer-events-auto shadow-lg">
                         <button type="button" @click="isPaused = !isPaused"
                             class="hover:text-white transition-colors cursor-pointer"
                             :title="isPaused ? 'Reanudar carrusel' : 'Pausar carrusel'">
@@ -294,9 +300,9 @@
 
     </section>
 
-    {{-- ═══ INSTITUTIONAL QUICK ACCESS BAR (UNSM STYLE) ════════════════════ --}}
+    {{-- ═══ INSTITUTIONAL QUICK ACCESS BAR ════════════════════ --}}
     <section
-        class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white border-y border-blue-700/40 py-4 shadow-md relative z-30">
+        class="bg-slate-900 text-white border-y border-slate-800 py-4 shadow-sm relative z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                 <a href="{{ route('examen-de-admision') }}"
@@ -370,38 +376,43 @@
                 <div
                     class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-{{ min($programs->count(), 4) }} gap-6">
                     @foreach ($programs as $i => $program)
+                        @php $color = $program->color_config; @endphp
                         <a href="{{ route('programas-de-estudio.detalle', $program->slug) }}"
-                            class="card-lift reveal group bg-white rounded-2xl border border-sky-100 shadow-sm overflow-hidden flex flex-col"
+                            class="card-lift reveal group bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col"
                             style="transition-delay:{{ ($i % 4) * 70 }}ms">
-                            {{-- Header con gradiente --}}
+                            {{-- Header con color sólido institucional por carrera --}}
                             <div
-                                class="h-36 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center p-4 relative overflow-hidden">
-                                <div class="absolute -bottom-6 -right-6 w-28 h-28 bg-white/10 rounded-full"></div>
-                                <div class="absolute -top-6 -left-6 w-20 h-20 bg-white/10 rounded-full"></div>
+                                class="h-36 {{ $color['solid_bg'] }} flex items-center justify-center p-4 relative overflow-hidden">
                                 @if ($program->logo_path)
                                     <img src="{{ Storage::url($program->logo_path) }}" alt="{{ $program->name }}"
-                                        class="h-20 w-20 object-contain drop-shadow-lg z-10" loading="lazy">
+                                        class="h-20 w-20 object-contain drop-shadow-md z-10" loading="lazy">
                                 @else
                                     <i class="bi bi-mortarboard-fill text-5xl text-white/90 z-10 relative"></i>
                                 @endif
+                                <div class="absolute top-3 left-3 z-20">
+                                    <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider bg-white/20 text-white">
+                                        {{ $color['key'] === 'sky' ? 'Redes & TI' : ($color['key'] === 'rose' ? 'Salud' : ($color['key'] === 'emerald' ? 'Agro' : ($color['key'] === 'teal' ? 'Forestal' : ($color['key'] === 'amber' ? 'Gestión' : 'Técnico')))) }}
+                                    </span>
+                                </div>
                             </div>
                             {{-- Cuerpo --}}
                             <div class="p-5 flex flex-col flex-grow">
                                 <h3
-                                    class="font-bold text-blue-900 text-base leading-snug mb-2 group-hover:text-sky-600 transition-colors">
+                                    class="font-bold text-slate-900 text-base leading-snug mb-2 group-hover:text-blue-700 transition-colors">
                                     {{ $program->name }}
                                 </h3>
+                                <div class="w-12 h-1 {{ $color['bar'] }} rounded-full mb-3"></div>
                                 @if ($program->description)
-                                    <p class="text-gray-500 text-sm line-clamp-3 flex-grow">{{ $program->description }}
+                                    <p class="text-gray-600 text-sm line-clamp-3 flex-grow">{{ $program->description }}
                                     </p>
                                 @else
                                     <p class="text-gray-400 text-sm italic flex-grow">Sin descripción disponible.</p>
                                 @endif
-                                <div class="mt-4 pt-4 border-t border-sky-50 flex items-center justify-between">
-                                    <span class="text-xs text-sky-600 font-semibold uppercase tracking-wide">Ver
+                                <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                                    <span class="text-xs {{ $color['text'] }} font-bold uppercase tracking-wide">Ver
                                         programa</span>
                                     <i
-                                        class="bi bi-arrow-right text-sky-500 group-hover:translate-x-1 transition-transform"></i>
+                                        class="bi bi-arrow-right {{ $color['text'] }} group-hover:translate-x-1 transition-transform"></i>
                                 </div>
                             </div>
                         </a>
@@ -418,8 +429,8 @@
         </section>
     @endif
 
-    {{-- 3. ACCESOS RÁPIDOS — Grid inspirado en el menú de navegación --}}
-    <section class="bg-gradient-to-b from-sky-50 to-white py-20" aria-label="Accesos rápidos a secciones">
+    {{-- 3. ACCESOS RÁPIDOS — Grid de navegación --}}
+    <section class="bg-slate-50 py-20" aria-label="Accesos rápidos a secciones">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <div class="text-center mb-14 reveal">
@@ -577,7 +588,7 @@
     </section>
 
     {{-- 5. ¿POR QUÉ ELEGIRNOS? — 3 propuestas de valor --}}
-    <section class="py-20 bg-gradient-to-b from-sky-50 to-white" aria-label="Propuesta de valor institucional">
+    <section class="py-20 bg-white" aria-label="Propuesta de valor institucional">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-14 reveal">
                 <span class="section-pill bg-cyan-100 text-cyan-800 mb-3">Nuestra propuesta</span>
@@ -673,14 +684,8 @@
     </section>
 
     {{-- 7. BLOG / NOTICIAS — Últimas publicaciones --}}
-    <section class="py-20 bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-950 relative overflow-hidden"
+    <section class="py-20 bg-slate-900 relative overflow-hidden"
         aria-label="Blog institucional y noticias">
-        {{-- Decoración fondo --}}
-        <div class="absolute inset-0 opacity-[.05]"
-            style="background-image:radial-gradient(circle, #fff 1px, transparent 1px); background-size:32px 32px;"
-            aria-hidden="true"></div>
-        <div class="absolute top-0 right-0 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl" aria-hidden="true"></div>
-        <div class="absolute bottom-0 left-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl" aria-hidden="true"></div>
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-14">
                 <div class="reveal">
@@ -689,14 +694,13 @@
                     <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-2">Noticias y Novedades</h2>
                     <div class="w-20 h-1.5 bg-sky-400 mt-4 rounded-full"></div>
                 </div>
-                {{-- Aquí puedes agregar un enlace a /blog cuando esté disponible --}}
             </div>
 
             @if ($blogs->isNotEmpty())
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach ($blogs as $i => $post)
                         <article
-                            class="reveal card-lift bg-white/8 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden flex flex-col hover:bg-white/12 hover:border-sky-400/30 transition-all"
+                            class="reveal card-lift bg-slate-800/80 border border-slate-700 rounded-2xl overflow-hidden flex flex-col hover:border-sky-400/50 transition-all"
                             style="transition-delay:{{ $i * 80 }}ms">
                             {{-- Imagen del post o placeholder --}}
                             @php $cover = $post->coverImage(); @endphp
@@ -708,7 +712,7 @@
                                 </div>
                             @else
                                 <div
-                                    class="h-44 bg-gradient-to-br from-blue-800 to-indigo-800 flex items-center justify-center">
+                                    class="h-44 bg-slate-800 flex items-center justify-center">
                                     <i class="bi bi-newspaper text-5xl text-white/30"></i>
                                 </div>
                             @endif
@@ -812,17 +816,11 @@
     </section>
 
     {{-- 9. CTA FINAL — Llamada a la acción --}}
-    <section class="relative py-24 bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 overflow-hidden"
+    <section class="relative py-24 bg-blue-800 overflow-hidden text-white"
         aria-label="Llamada a la acción">
-        <div class="absolute inset-0 opacity-10"
-            style="background-image:radial-gradient(circle, #fff 1px, transparent 1px); background-size:24px 24px;"
-            aria-hidden="true"></div>
-        <div class="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full blur-3xl" aria-hidden="true"></div>
-        <div class="absolute bottom-0 left-0 w-60 h-60 bg-blue-900/20 rounded-full blur-3xl" aria-hidden="true"></div>
-
         <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center reveal">
             <div
-                class="inline-flex items-center gap-2 bg-white/20 border border-white/30 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-6">
+                class="inline-flex items-center gap-2 bg-blue-900/60 border border-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-6">
                 <i class="bi bi-mortarboard-fill"></i>
                 Admisión 2026 Abierta
             </div>
@@ -853,38 +851,21 @@
         $totalVisits = $totalVisits ?? \App\Models\VisitorCounter::getTotalVisits();
         $visitDigits = $visitDigits ?? \App\Models\VisitorCounter::getPaddedDigits($totalVisits, 6);
     @endphp
-    <section class="relative py-16 bg-slate-950 text-white overflow-hidden border-t border-sky-900/40"
+    <section class="relative py-16 bg-slate-950 text-white overflow-hidden border-t border-slate-800"
         aria-label="Contador de visitas al portal institucional" id="visitor-counter-section">
-        {{-- Background glowing mesh pattern --}}
-        <div class="absolute inset-0 opacity-20 pointer-events-none"
-            style="background-image:radial-gradient(circle, rgba(56, 189, 248, 0.2) 1px, transparent 1px); background-size:32px 32px;"
-            aria-hidden="true"></div>
-        <div
-            class="absolute -top-24 left-1/2 -translate-x-1/2 w-[650px] h-[300px] bg-gradient-to-r from-sky-500/20 via-blue-600/20 to-cyan-400/20 rounded-full blur-3xl pointer-events-none">
-        </div>
-
         <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center reveal">
-            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white font-display tracking-tight">
-                Impacto y Presencia Digital del <span
-                    class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-cyan-300 to-blue-300">IESTP
-                    FVC</span>
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white font-sans tracking-tight">
+                Impacto y Presencia Digital del <span class="text-sky-400 font-black">IESTP FVC</span>
             </h2>
-            <p class="text-slate-300/80 text-sm sm:text-base mt-2.5 max-w-xl mx-auto leading-relaxed">
+            <p class="text-slate-300 text-sm sm:text-base mt-2.5 max-w-xl mx-auto leading-relaxed">
                 Monitoreo permanente de consultas y accesos a nuestra plataforma educativa institucional.
             </p>
 
-            {{-- Main Glass Counter Board --}}
+            {{-- Main Counter Board --}}
             <div
-                class="mt-8 bg-gradient-to-b from-slate-900/90 to-slate-950/90 border border-sky-500/30 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl shadow-sky-950/80 backdrop-blur-xl relative overflow-hidden group">
-                {{-- Decorative corner accents --}}
-                <div class="absolute top-0 left-0 w-28 h-28 bg-sky-500/10 rounded-br-full blur-xl pointer-events-none">
-                </div>
-                <div
-                    class="absolute bottom-0 right-0 w-28 h-28 bg-blue-500/10 rounded-tl-full blur-xl pointer-events-none">
-                </div>
-
+                class="mt-8 bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 md:p-10 shadow-xl relative overflow-hidden">
                 <p
-                    class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-sky-400/90 mb-4 flex items-center justify-center gap-2">
+                    class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-sky-400 mb-4 flex items-center justify-center gap-2">
                     <i class="bi bi-eye-fill text-sky-400"></i>
                     <span>Total Acumulado de Visitas</span>
                 </p>
@@ -894,18 +875,14 @@
                     id="visitor-digits-container" aria-label="Contador: {{ $totalVisits }} visitas">
                     @foreach ($visitDigits as $index => $digit)
                         <div
-                            class="relative flex flex-col items-center justify-center w-10 h-14 sm:w-14 sm:h-20 md:w-16 md:h-24 bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950 border-2 border-sky-500/40 rounded-xl sm:rounded-2xl shadow-lg shadow-black/60 overflow-hidden transform hover:-translate-y-1 transition-all duration-300 select-none">
-                            {{-- Top Gloss Reflection --}}
-                            <div
-                                class="absolute top-0 inset-x-0 h-1/2 bg-white/5 border-b border-white/10 pointer-events-none">
-                            </div>
+                            class="relative flex flex-col items-center justify-center w-10 h-14 sm:w-14 sm:h-20 md:w-16 md:h-24 bg-slate-800 border-2 border-slate-700 rounded-xl sm:rounded-2xl shadow-md overflow-hidden transform hover:-translate-y-1 transition-all select-none">
                             {{-- Center split line for odometer look --}}
-                            <div class="absolute inset-x-0 top-1/2 h-[1px] bg-sky-950/80 shadow-sm pointer-events-none">
+                            <div class="absolute inset-x-0 top-1/2 h-[1px] bg-slate-700 shadow-sm pointer-events-none">
                             </div>
 
                             {{-- Digit Number --}}
                             <span
-                                class="visitor-digit relative z-10 font-mono font-black text-2xl sm:text-4xl md:text-5xl text-transparent bg-clip-text bg-gradient-to-b from-white via-sky-100 to-cyan-300 tabular-nums drop-shadow-[0_2px_10px_rgba(56,189,248,0.4)]"
+                                class="visitor-digit relative z-10 font-mono font-black text-2xl sm:text-4xl md:text-5xl text-sky-400 tabular-nums"
                                 data-target-digit="{{ $digit }}">
                                 {{ $digit }}
                             </span>

@@ -22,16 +22,11 @@
 @section('content')
     {{-- ===== HERO SECTION ===== --}}
     <section
-        class="relative bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-blue-900/30">
-        {{-- Elegant glow patterns --}}
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(56,189,248,0.15),transparent_50%)]"></div>
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(59,130,246,0.12),transparent_40%)]"></div>
+        class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-8">
             <h1
                 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-none text-white max-w-5xl mx-auto">
-                Nuestros <span
-                    class="text-sky-400 bg-gradient-to-r from-sky-400 to-blue-400 bg-clip-text text-transparent">Programas
-                    de Estudio</span>
+                Nuestros <span class="text-sky-400">Programas de Estudio</span>
             </h1>
             <p class="text-xl sm:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-medium">
                 Descubre carreras profesionales acreditadas diseñadas para responder con éxito a las demandas del mercado
@@ -80,37 +75,36 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
                     @foreach ($programs as $program)
                         @php
+                            $color    = $program->color_config;
                             $metaObj  = $program->meta;
-                            $accent   = $metaObj?->accent ?? $program->accent ?? 'blue';
                             $icon     = $metaObj?->icon ?? $program->icon ?? 'bi-mortarboard-fill';
-                            $tag      = $metaObj?->tag ?? $program->tag ?? 'Educación Técnica';
-                            $bgBadge  = $metaObj?->bg_badge ?? $program->bg_badge ?? "bg-{$accent}-50 text-{$accent}-800 border-{$accent}-100";
-                            $colorBar = $metaObj?->color_bar ?? $program->color_bar ?? "bg-{$accent}-500";
+                            $tag      = $metaObj?->tag ?? $program->tag ?? $color['name'];
+                            $bgBadge  = $color['badge'];
+                            $colorBar = $color['bar'];
 
                             $mainImage = $program->images->first(fn($img) => $img->is_main) ?? $program->images->first();
                             $imagePath = $mainImage ? $mainImage->path : null;
                         @endphp
 
                         <div
-                            class="group bg-white rounded-3xl border border-slate-100 shadow-md hover-card overflow-hidden flex flex-col h-full">
-                            {{-- Header image / gradient --}}
-                            <div class="h-60 relative overflow-hidden bg-slate-900 flex items-center justify-center">
+                            class="group bg-white rounded-3xl border border-slate-200 shadow-sm hover-card overflow-hidden flex flex-col h-full">
+                            {{-- Header con color sólido por programa --}}
+                            <div class="h-60 relative overflow-hidden {{ $color['solid_bg'] }} flex items-center justify-center">
                                 @if ($program->logo_path)
                                     <img src="{{ Str::startsWith($program->logo_path, ['http://', 'https://']) ? $program->logo_path : asset('storage/' . $program->logo_path) }}"
                                         alt="{{ $program->name }}"
                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90">
                                     <div
-                                        class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent">
+                                        class="absolute inset-0 bg-slate-950/40">
                                     </div>
                                 @else
-                                    <div class="absolute inset-0 bg-gradient-to-br from-blue-900 to-slate-950"></div>
-                                    <i class="bi {{ $icon }} text-7xl text-white/40 drop-shadow z-10"></i>
+                                    <i class="bi {{ $icon }} text-7xl text-white/50 drop-shadow z-10"></i>
                                 @endif
 
                                 {{-- Floated Category tag --}}
                                 <div class="absolute top-4 left-4 z-20">
                                     <span
-                                        class="px-3.5 py-1.5 text-xs font-black rounded-lg uppercase tracking-wider shadow border {{ $bgBadge }}">
+                                        class="px-3.5 py-1.5 text-xs font-bold rounded-lg uppercase tracking-wider shadow border {{ $bgBadge }}">
                                         {{ $tag }}
                                     </span>
                                 </div>
@@ -120,7 +114,7 @@
                             <div class="p-8 flex flex-col flex-grow space-y-6">
                                 <div>
                                     <h3
-                                        class="text-2xl font-black text-slate-900 group-hover:text-blue-600 transition-colors leading-tight mb-2">
+                                        class="text-2xl font-black text-slate-900 group-hover:{{ $color['text'] }} transition-colors leading-tight mb-2">
                                         {{ $program->name }}
                                     </h3>
                                     <div class="w-16 h-1 {{ $colorBar }} rounded-full"></div>
@@ -440,8 +434,7 @@
 
     {{-- ===== CTA SECTION ===== --}}
     <section
-        class="py-24 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white text-center relative overflow-hidden border-t border-blue-900/30">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.1),transparent_40%)]"></div>
+        class="py-24 bg-slate-900 text-white text-center relative overflow-hidden border-t border-slate-800">
         <div class="container mx-auto px-4 relative z-10 space-y-8">
             <h2 class="text-3xl sm:text-5xl font-black tracking-tight max-w-4xl mx-auto leading-tight">
                 ¿Listo para iniciar tu desarrollo profesional?

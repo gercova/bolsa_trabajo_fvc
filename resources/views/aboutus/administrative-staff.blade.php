@@ -133,11 +133,8 @@
 
         {{-- ═══ HERO SECTION ═══════════════════════════════════════════════════════════════ --}}
         <section
-            class="relative bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white pt-14 pb-20 overflow-hidden">
-            {{-- Background decorative shapes --}}
-            <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#3b82f6_1px,transparent_1px)]"></div>
-            <div class="absolute -top-24 -right-24 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
-            <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl"></div>
+            class="relative bg-slate-900 text-white pt-14 pb-20 overflow-hidden border-b border-slate-800">
+            <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
@@ -286,7 +283,7 @@
                                             class="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-md">
                                     @else
                                         <div
-                                            class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-800 text-white font-extrabold text-xl flex items-center justify-center shadow-md font-display">
+                                            class="w-16 h-16 rounded-2xl bg-blue-700 text-white font-extrabold text-xl flex items-center justify-center shadow-sm">
                                             {{ strtoupper($initials) }}
                                         </div>
                                     @endif
@@ -986,7 +983,7 @@
                         <div>
                             <div class="flex items-center gap-4 mb-6">
                                 <div
-                                    class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-800 text-white font-extrabold text-xl flex items-center justify-center shadow-md font-display">
+                                    class="w-16 h-16 rounded-2xl bg-blue-700 text-white font-extrabold text-xl flex items-center justify-center shadow-sm">
                                     <span
                                         x-text="selectedStaff.names ? selectedStaff.names.substring(0,2).toUpperCase() : 'AP'"></span>
                                 </div>

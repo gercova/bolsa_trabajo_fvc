@@ -200,14 +200,12 @@
 @section('content')
     {{-- ===== HERO SECTION (Consistent with app.blade.php & theme design pattern) ===== --}}
     <section
-        class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white py-20 overflow-hidden">
-        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)]"></div>
-        <div class="absolute -top-32 -right-32 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl"></div>
-        <div class="absolute -bottom-32 -left-32 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
+        class="relative bg-slate-900 text-white py-16 lg:py-20 overflow-hidden border-b border-slate-800">
+        <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
 
         <div class="container mx-auto px-6 relative z-10 text-center max-w-4xl">
             <span
-                class="inline-flex items-center gap-2 bg-blue-500/20 text-blue-300 text-xs sm:text-sm font-bold px-4 py-2 rounded-full uppercase tracking-widest mb-6 border border-blue-500/30">
+                class="inline-flex items-center gap-2 bg-slate-800 text-sky-400 text-xs sm:text-sm font-bold px-4 py-2 rounded-full uppercase tracking-widest mb-6 border border-slate-700">
                 <i class="bi bi-diagram-3 text-base"></i>
                 Estructura Orgánica Institucional
             </span>
@@ -801,7 +799,7 @@
 
     {{-- ===== CTA SECTION ===== --}}
     <section
-        class="py-16 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white text-center relative overflow-hidden border-t border-blue-900/30">
+        class="py-16 bg-slate-900 text-white text-center relative overflow-hidden border-t border-slate-800">
         <div class="container mx-auto px-4 relative z-10 space-y-6">
             <h2 class="text-3xl sm:text-4xl font-black tracking-tight max-w-3xl mx-auto leading-tight font-sans">
                 ¿Deseas conocer más sobre el IESTP Francisco Vigo Caballero?

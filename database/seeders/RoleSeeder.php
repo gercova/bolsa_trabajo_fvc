@@ -55,7 +55,8 @@ class RoleSeeder extends Seeder
             'Admin' => [ // Compatibilidad
                 'ver-dashboard', 'gestionar-examenes', 'gestionar-programas', 'gestionar-tupa',
                 'gestionar-trabajos', 'gestionar-usuarios', 'gestionar-roles', 'gestionar-reclamos',
-                'gestionar-empresa', 'gestionar-partners'
+                'gestionar-empresa', 'gestionar-partners', 'gestionar-investigacion',
+                'gestionar-educacion-continua', 'gestionar-inversiones',
             ],
             'Docente' => [
                 'ver-dashboard', 'gestionar-programas', 'gestionar-examenes'

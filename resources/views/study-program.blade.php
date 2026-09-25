@@ -122,16 +122,15 @@
 
                 {{-- Visual column (Cover Image) --}}
                 <div class="lg:w-5/12 w-full">
-                    <div class="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+                    <div class="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl aspect-[16/10] w-full {{ $color['solid_bg'] }} flex items-center justify-center group"
+                        style="aspect-ratio: 16/10;">
                         @if ($program->logo_path)
                             <img src="{{ Str::startsWith($program->logo_path, ['http://', 'https://']) ? $program->logo_path : asset('storage/' . $program->logo_path) }}"
                                 alt="{{ $program->name }}"
-                                class="w-full h-80 lg:h-96 object-cover transform scale-105 hover:scale-100 transition-transform duration-700">
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90">
+                            <div class="absolute inset-0 bg-slate-950/40"></div>
                         @else
-                            <div
-                                class="w-full h-80 lg:h-96 {{ $color['solid_bg'] }} flex items-center justify-center">
-                                <i class="bi {{ $icon }} text-9xl text-white/30"></i>
-                            </div>
+                            <i class="bi {{ $icon }} text-9xl text-white/40 drop-shadow z-10"></i>
                         @endif
                     </div>
                 </div>

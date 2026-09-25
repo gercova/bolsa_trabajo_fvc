@@ -376,22 +376,34 @@
                 <div
                     class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-{{ min($programs->count(), 4) }} gap-6">
                     @foreach ($programs as $i => $program)
-                        @php $color = $program->color_config; @endphp
+                        @php
+                            $color   = $program->color_config;
+                            $metaObj = $program->meta;
+                            $icon    = $metaObj?->icon ?? $program->icon ?? 'bi-mortarboard-fill';
+                            $tag     = $metaObj?->tag ?? $program->tag ?? $color['name'];
+                            $bgBadge = $color['badge'];
+                        @endphp
                         <a href="{{ route('programas-de-estudio.detalle', $program->slug) }}"
                             class="card-lift reveal group bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col"
                             style="transition-delay:{{ ($i % 4) * 70 }}ms">
                             {{-- Header con color sólido institucional por carrera --}}
                             <div
-                                class="h-36 {{ $color['solid_bg'] }} flex items-center justify-center p-4 relative overflow-hidden">
+                                class="aspect-[16/10] w-full relative overflow-hidden {{ $color['solid_bg'] }} flex items-center justify-center"
+                                style="aspect-ratio: 16/10;">
                                 @if ($program->logo_path)
-                                    <img src="{{ Storage::url($program->logo_path) }}" alt="{{ $program->name }}"
-                                        class="h-20 w-20 object-contain drop-shadow-md z-10" loading="lazy">
+                                    <img src="{{ Str::startsWith($program->logo_path, ['http://', 'https://']) ? $program->logo_path : asset('storage/' . $program->logo_path) }}"
+                                        alt="{{ $program->name }}"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                                        loading="lazy">
+                                    <div
+                                        class="absolute inset-0 bg-slate-950/40">
+                                    </div>
                                 @else
-                                    <i class="bi bi-mortarboard-fill text-5xl text-white/90 z-10 relative"></i>
+                                    <i class="bi {{ $icon }} text-7xl text-white/50 drop-shadow z-10"></i>
                                 @endif
                                 <div class="absolute top-3 left-3 z-20">
-                                    <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider bg-white/20 text-white">
-                                        {{ $color['key'] === 'sky' ? 'Redes & TI' : ($color['key'] === 'rose' ? 'Salud' : ($color['key'] === 'emerald' ? 'Agro' : ($color['key'] === 'teal' ? 'Forestal' : ($color['key'] === 'amber' ? 'Gestión' : 'Técnico')))) }}
+                                    <span class="px-3 py-1 text-xs font-bold rounded-lg uppercase tracking-wider shadow border {{ $bgBadge }}">
+                                        {{ $tag }}
                                     </span>
                                 </div>
                             </div>

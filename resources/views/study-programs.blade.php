@@ -89,7 +89,8 @@
                         <div
                             class="group bg-white rounded-3xl border border-slate-200 shadow-sm hover-card overflow-hidden flex flex-col h-full">
                             {{-- Header con color sólido por programa --}}
-                            <div class="h-60 relative overflow-hidden {{ $color['solid_bg'] }} flex items-center justify-center">
+                            <div class="aspect-[16/10] w-full relative overflow-hidden {{ $color['solid_bg'] }} flex items-center justify-center"
+                                style="aspect-ratio: 16/10;">
                                 @if ($program->logo_path)
                                     <img src="{{ Str::startsWith($program->logo_path, ['http://', 'https://']) ? $program->logo_path : asset('storage/' . $program->logo_path) }}"
                                         alt="{{ $program->name }}"

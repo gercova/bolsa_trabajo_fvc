@@ -43,7 +43,7 @@ class AppController extends Controller {
 
     // inicio
     public function index(): View {
-        $programs    = StudyProgram::where('is_active', true)->orderBy('order', 'asc')->orderBy('name', 'asc')->get();
+        $programs    = StudyProgram::where('is_active', true)->orderBy('order', 'asc')->orderBy('name', 'asc')->with(['meta'])->get();
         $partners    = Partner::where('is_active', true)->get();
         $jobOffers   = JobOffer::where('is_active', true)->get();
         $users       = User::where('is_active', true)->get();

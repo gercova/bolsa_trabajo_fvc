@@ -73,6 +73,15 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                        {{-- Clear all table button --}}
+                        <button id="btn-clear-table" type="button" onclick="confirmClearAll()"
+                            @if(($totalJobs ?? 0) === 0) disabled @endif
+                            class="inline-flex items-center justify-center px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-sm rounded-xl transition-all gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:shadow cursor-pointer"
+                            title="Eliminar permanentemente todos los registros de la tabla">
+                            <i class="bi bi-trash3-fill text-base text-rose-600"></i>
+                            <span>Vaciar Tabla</span>
+                        </button>
+
                         {{-- Auto-Fetch button --}}
                         <button id="btn-fetch-jobs" type="button" onclick="runAutoFetch()"
                             class="inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-sm rounded-xl shadow-md shadow-emerald-500/20 hover:from-emerald-700 hover:to-teal-700 transition-all gap-2">
@@ -183,12 +192,62 @@
                     </form>
                 </div>
 
+                {{-- Bulk Action Floating Bar --}}
+                <div id="bulk-action-bar" class="hidden bg-slate-900 text-white p-4 rounded-2xl shadow-xl border border-slate-800 flex flex-wrap items-center justify-between gap-4 transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-600/30 border border-purple-500/30 text-purple-300 flex items-center justify-center text-lg font-bold">
+                            <i class="bi bi-check2-square"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-white flex items-center gap-2">
+                                <span id="selected-count-badge" class="px-2.5 py-0.5 rounded-full bg-purple-600 text-white text-xs font-black">0</span>
+                                <span id="selected-count-label">ofertas seleccionadas</span>
+                            </p>
+                            <p class="text-xs text-slate-400" id="selection-scope-desc">Registros marcados para eliminación</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2.5">
+                        <button type="button" onclick="deselectAll()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition cursor-pointer">
+                            <i class="bi bi-x-circle mr-1"></i> Desmarcar todo
+                        </button>
+                        <button type="button" onclick="confirmBulkDelete()" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-rose-600/30 hover:scale-105 active:scale-95 cursor-pointer">
+                            <i class="bi bi-trash-fill text-sm"></i>
+                            <span>Eliminar Seleccionados</span>
+                        </button>
+                    </div>
+                </div>
+
                 {{-- Table Container --}}
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    {{-- Pagination Scope Banner (Gmail-style across all pages) --}}
+                    @if($jobs->total() > $jobs->count())
+                        <div id="select-all-pages-banner" class="hidden bg-purple-50 border-b border-purple-200 px-6 py-3 text-center text-xs text-purple-900 font-semibold transition-all">
+                            <span id="banner-msg-partial">
+                                Has seleccionado los <strong>{{ $jobs->count() }}</strong> registros de esta página.
+                            </span>
+                            <button type="button" id="btn-select-all-scope" onclick="selectAllMatchingAcrossPages()" class="font-bold underline text-purple-700 hover:text-purple-950 ml-1.5 cursor-pointer">
+                                ¿Deseas seleccionar las {{ $jobs->total() }} ofertas laborales de todas las páginas?
+                            </button>
+                            <span id="banner-msg-all" class="hidden">
+                                <i class="bi bi-check-all text-purple-700 text-sm mr-1"></i>
+                                Se han seleccionado <strong>todas las {{ $jobs->total() }} ofertas laborales</strong> coincidentes de todas las páginas.
+                                <button type="button" onclick="deselectAll()" class="font-bold underline text-purple-700 hover:text-purple-950 ml-2 cursor-pointer">
+                                    Desmarcar todo
+                                </button>
+                            </span>
+                        </div>
+                    @endif
+
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-left border-collapse min-w-[750px]">
                             <thead>
                                 <tr class="bg-gray-50/80 border-b border-gray-200 text-xs uppercase tracking-wider text-gray-500 font-semibold">
+                                    <th class="p-4 w-12 text-center">
+                                        <input type="checkbox" id="selectAllPageCheckbox" onchange="toggleSelectAllPage(this)"
+                                            class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 transition cursor-pointer"
+                                            title="Seleccionar todas las ofertas de esta página">
+                                    </th>
                                     <th class="p-4">Puesto & Empresa</th>
                                     <th class="p-4">Ubicación</th>
                                     <th class="p-4">Fuente / Convocatoria</th>
@@ -198,7 +257,13 @@
                             </thead>
                             <tbody class="divide-y divide-gray-200 text-sm">
                                 @forelse($jobs as $job)
-                                    <tr class="hover:bg-purple-50/30 transition-colors">
+                                    <tr class="hover:bg-purple-50/30 transition-colors" data-job-id="{{ $job->id }}">
+                                        {{-- Checkbox --}}
+                                        <td class="p-4 text-center">
+                                            <input type="checkbox" class="job-checkbox w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 transition cursor-pointer"
+                                                value="{{ $job->id }}"
+                                                onchange="onRowCheckboxChange(this)">
+                                        </td>
                                         {{-- Job Title & Company --}}
                                         <td class="p-4">
                                             <div class="flex items-center gap-3">
@@ -277,7 +342,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="p-12 text-center text-gray-500">
+                                        <td colspan="6" class="p-12 text-center text-gray-500">
                                             <div class="max-w-sm mx-auto space-y-3">
                                                 <i class="bi bi-briefcase text-4xl text-gray-300"></i>
                                                 <p class="text-base font-bold text-gray-700">No se encontraron ofertas laborales</p>
@@ -469,5 +534,417 @@ async function runAutoFetch() {
         }
     });
 }
+
+/**
+ * =====================================================================
+ * BULK ACTIONS & CLEAR TABLE MANAGEMENT WITH PAGINATION SUPPORT
+ * =====================================================================
+ */
+const TOTAL_MATCHING_JOBS = {{ (int) $jobs->total() }};
+const PAGE_JOBS_COUNT     = {{ (int) $jobs->count() }};
+const TOTAL_ALL_JOBS      = {{ (int) ($totalJobs ?? 0) }};
+
+const CURRENT_SEARCH = @json(request('search', ''));
+const CURRENT_STATUS = @json(request('status', ''));
+const CURRENT_SOURCE = @json(request('source', ''));
+
+const BULK_DELETE_URL = '{{ route("admin.works.bulk-delete") }}';
+const CLEAR_ALL_URL   = '{{ route("admin.works.clear-all") }}';
+
+const STORAGE_KEY_IDS         = 'fvc_selected_job_offers';
+const STORAGE_KEY_SELECT_ALL  = 'fvc_selected_job_offers_all_pages';
+
+function getStoredIds() {
+    try {
+        const stored = sessionStorage.getItem(STORAGE_KEY_IDS);
+        return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function setStoredIds(ids) {
+    sessionStorage.setItem(STORAGE_KEY_IDS, JSON.stringify(ids));
+}
+
+function isSelectAllAcrossPagesActive() {
+    return sessionStorage.getItem(STORAGE_KEY_SELECT_ALL) === 'true';
+}
+
+function setSelectAllAcrossPagesActive(value) {
+    if (value) {
+        sessionStorage.setItem(STORAGE_KEY_SELECT_ALL, 'true');
+    } else {
+        sessionStorage.removeItem(STORAGE_KEY_SELECT_ALL);
+    }
+}
+
+function clearStoredState() {
+    sessionStorage.removeItem(STORAGE_KEY_IDS);
+    sessionStorage.removeItem(STORAGE_KEY_SELECT_ALL);
+}
+
+/**
+ * Synchronizes the UI elements (master checkbox, row checkboxes,
+ * floating bulk action bar, and multi-page banner) with state.
+ */
+function syncUI() {
+    const rowCheckboxes  = Array.from(document.querySelectorAll('.job-checkbox'));
+    const masterCheckbox = document.getElementById('selectAllPageCheckbox');
+    const bulkActionBar  = document.getElementById('bulk-action-bar');
+    const badge          = document.getElementById('selected-count-badge');
+    const label          = document.getElementById('selected-count-label');
+    const scopeDesc      = document.getElementById('selection-scope-desc');
+    const banner         = document.getElementById('select-all-pages-banner');
+    const bannerPartial  = document.getElementById('banner-msg-partial');
+    const bannerAll      = document.getElementById('banner-msg-all');
+
+    if (rowCheckboxes.length === 0) {
+        if (bulkActionBar) bulkActionBar.classList.add('hidden');
+        if (banner) banner.classList.add('hidden');
+        return;
+    }
+
+    const selectAllPages = isSelectAllAcrossPagesActive();
+    const storedIds      = getStoredIds();
+
+    if (selectAllPages) {
+        // All matching records across all pages are selected
+        rowCheckboxes.forEach(cb => { cb.checked = true; });
+        if (masterCheckbox) {
+            masterCheckbox.checked = true;
+            masterCheckbox.indeterminate = false;
+        }
+
+        if (bulkActionBar) {
+            bulkActionBar.classList.remove('hidden');
+            if (badge) badge.textContent = TOTAL_MATCHING_JOBS;
+            if (label) label.textContent = 'todas las ofertas seleccionadas';
+            if (scopeDesc) scopeDesc.textContent = `Se eliminarán todas las ${TOTAL_MATCHING_JOBS} ofertas coincidentes de todas las páginas`;
+        }
+
+        if (banner) {
+            banner.classList.remove('hidden');
+            if (bannerPartial) bannerPartial.classList.add('hidden');
+            if (bannerAll) bannerAll.classList.remove('hidden');
+        }
+    } else {
+        // Individual selections (handles pagination persistence via storedIds)
+        let checkedOnPageCount = 0;
+        rowCheckboxes.forEach(cb => {
+            const valNum = parseInt(cb.value, 10);
+            const isChecked = storedIds.includes(valNum) || storedIds.includes(cb.value);
+            cb.checked = isChecked;
+            if (isChecked) checkedOnPageCount++;
+        });
+
+        const totalSelectedCount = storedIds.length;
+
+        if (masterCheckbox) {
+            if (checkedOnPageCount === 0) {
+                masterCheckbox.checked = false;
+                masterCheckbox.indeterminate = false;
+            } else if (checkedOnPageCount === rowCheckboxes.length) {
+                masterCheckbox.checked = true;
+                masterCheckbox.indeterminate = false;
+            } else {
+                masterCheckbox.checked = false;
+                masterCheckbox.indeterminate = true;
+            }
+        }
+
+        if (totalSelectedCount > 0) {
+            if (bulkActionBar) {
+                bulkActionBar.classList.remove('hidden');
+                if (badge) badge.textContent = totalSelectedCount;
+                if (label) label.textContent = totalSelectedCount === 1 ? 'oferta seleccionada' : 'ofertas seleccionadas';
+                if (scopeDesc) {
+                    if (totalSelectedCount > checkedOnPageCount) {
+                        scopeDesc.textContent = `${checkedOnPageCount} en esta página, ${totalSelectedCount - checkedOnPageCount} en otras páginas`;
+                    } else {
+                        scopeDesc.textContent = 'Registros marcados para eliminación';
+                    }
+                }
+            }
+        } else {
+            if (bulkActionBar) bulkActionBar.classList.add('hidden');
+        }
+
+        // Show banner only if all items on current page are checked AND total matching records exceed page count
+        if (banner) {
+            if (checkedOnPageCount === rowCheckboxes.length && rowCheckboxes.length > 0 && TOTAL_MATCHING_JOBS > rowCheckboxes.length) {
+                banner.classList.remove('hidden');
+                if (bannerPartial) bannerPartial.classList.remove('hidden');
+                if (bannerAll) bannerAll.classList.add('hidden');
+            } else {
+                banner.classList.add('hidden');
+            }
+        }
+    }
+}
+
+/**
+ * Master checkbox toggle for the current page.
+ */
+function toggleSelectAllPage(master) {
+    const rowCheckboxes = Array.from(document.querySelectorAll('.job-checkbox'));
+    let stored = getStoredIds();
+
+    if (master.checked) {
+        rowCheckboxes.forEach(cb => {
+            const id = parseInt(cb.value, 10);
+            if (!stored.includes(id)) {
+                stored.push(id);
+            }
+        });
+        setStoredIds(stored);
+        setSelectAllAcrossPagesActive(false);
+    } else {
+        const pageIds = rowCheckboxes.map(cb => parseInt(cb.value, 10));
+        stored = stored.filter(id => !pageIds.includes(id));
+        setStoredIds(stored);
+        setSelectAllAcrossPagesActive(false);
+    }
+
+    syncUI();
+}
+
+/**
+ * Handle individual row checkbox toggle.
+ */
+function onRowCheckboxChange(cb) {
+    let stored = getStoredIds();
+    const id = parseInt(cb.value, 10);
+
+    if (isSelectAllAcrossPagesActive()) {
+        // Disengage all-pages mode and fall back to explicitly checked items
+        setSelectAllAcrossPagesActive(false);
+        const rowCheckboxes = Array.from(document.querySelectorAll('.job-checkbox'));
+        stored = rowCheckboxes.filter(c => c.checked).map(c => parseInt(c.value, 10));
+        setStoredIds(stored);
+    } else {
+        if (cb.checked) {
+            if (!stored.includes(id)) stored.push(id);
+        } else {
+            stored = stored.filter(item => item !== id);
+        }
+        setStoredIds(stored);
+    }
+
+    syncUI();
+}
+
+/**
+ * Select all matching records across all pages.
+ */
+function selectAllMatchingAcrossPages() {
+    setSelectAllAcrossPagesActive(true);
+    syncUI();
+}
+
+/**
+ * Deselect all selected items.
+ */
+function deselectAll() {
+    clearStoredState();
+    syncUI();
+}
+
+/**
+ * Execute mass deletion with SweetAlert2 confirmation.
+ */
+async function confirmBulkDelete() {
+    const selectAllAcrossPages = isSelectAllAcrossPagesActive();
+    const storedIds = getStoredIds();
+    const count = selectAllAcrossPages ? TOTAL_MATCHING_JOBS : storedIds.length;
+
+    if (count === 0) {
+        Swal.fire({
+            title: 'Sin selección',
+            text: 'Por favor selecciona al menos una oferta laboral para eliminar.',
+            icon: 'info',
+            confirmButtonColor: '#7c3aed',
+        });
+        return;
+    }
+
+    const titleText = selectAllAcrossPages
+        ? `¿Eliminar las ${count} ofertas coincidentes?`
+        : (count === 1 ? '¿Eliminar 1 oferta laboral?' : `¿Eliminar ${count} ofertas laborales?`);
+
+    const htmlText = selectAllAcrossPages
+        ? `<div class="text-left text-sm text-gray-700 space-y-2">
+            <p>Se eliminarán permanentemente las <b>${count}</b> ofertas laborales de todas las páginas que coinciden con los filtros aplicados.</p>
+            <p class="text-xs text-rose-600 font-semibold"><i class="bi bi-exclamation-triangle-fill mr-1"></i> Esta acción no se puede deshacer.</p>
+           </div>`
+        : `<div class="text-left text-sm text-gray-700 space-y-2">
+            <p>Se eliminarán permanentemente las <b>${count}</b> ofertas seleccionadas en la tabla.</p>
+            <p class="text-xs text-rose-600 font-semibold"><i class="bi bi-exclamation-triangle-fill mr-1"></i> Esta acción no se puede deshacer.</p>
+           </div>`;
+
+    const result = await Swal.fire({
+        title: titleText,
+        html: htmlText,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e11d48',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: '<i class="bi bi-trash-fill mr-1"></i> Sí, eliminar ofertas',
+        cancelButtonText: 'Cancelar',
+        focusCancel: true,
+        width: '32rem',
+    });
+
+    if (!result.isConfirmed) return;
+
+    Swal.fire({
+        title: 'Eliminando ofertas...',
+        html: 'Por favor espera mientras se procesa la eliminación masiva.',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    const payload = selectAllAcrossPages ? {
+        select_all: true,
+        search: CURRENT_SEARCH,
+        status: CURRENT_STATUS,
+        source: CURRENT_SOURCE,
+    } : {
+        ids: storedIds,
+    };
+
+    try {
+        const response = await fetch(BULK_DELETE_URL, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            clearStoredState();
+            await Swal.fire({
+                title: '¡Eliminado exitosamente!',
+                text: data.message || 'Las ofertas seleccionadas fueron eliminadas.',
+                icon: 'success',
+                confirmButtonColor: '#7c3aed',
+            });
+            window.location.reload();
+        } else {
+            throw new Error(data.message || 'No se pudo completar la eliminación masiva.');
+        }
+    } catch (err) {
+        console.error('bulkDelete error:', err);
+        Swal.fire({
+            title: 'Error',
+            text: err.message || 'Ocurrió un error al intentar eliminar las ofertas.',
+            icon: 'error',
+            confirmButtonColor: '#e11d48',
+        });
+    }
+}
+
+/**
+ * Execute complete table clear with SweetAlert2 confirmation.
+ */
+async function confirmClearAll() {
+    if (TOTAL_ALL_JOBS === 0) {
+        Swal.fire({
+            title: 'Tabla vacía',
+            text: 'La tabla de ofertas laborales ya se encuentra vacía.',
+            icon: 'info',
+            confirmButtonColor: '#7c3aed',
+        });
+        return;
+    }
+
+    const result = await Swal.fire({
+        title: '¿VACIAR TODA LA TABLA?',
+        html: `
+            <div class="text-left text-sm text-gray-700 space-y-3">
+                <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs">
+                    <p class="font-bold flex items-center gap-1.5 text-rose-700">
+                        <i class="bi bi-exclamation-octagon-fill text-base"></i> ACCIÓN IRREVERSIBLE
+                    </p>
+                    <p class="mt-1">
+                        Estás a punto de eliminar definitivamente <strong>TODOS los registros (${TOTAL_ALL_JOBS} ofertas laborales)</strong> de la base de datos.
+                    </p>
+                </div>
+                <p class="text-xs text-gray-500">
+                    Se restablecerá la tabla de ofertas laborales por completo. Esta operación no se puede deshacer.
+                </p>
+            </div>
+        `,
+        icon: 'error',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: '<i class="bi bi-trash3-fill mr-1"></i> Sí, vaciar tabla completa',
+        cancelButtonText: 'Cancelar',
+        focusCancel: true,
+        width: '32rem',
+    });
+
+    if (!result.isConfirmed) return;
+
+    Swal.fire({
+        title: 'Vaciando tabla...',
+        html: 'Eliminando todos los registros de ofertas laborales...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    try {
+        const response = await fetch(CLEAR_ALL_URL, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            clearStoredState();
+            await Swal.fire({
+                title: '¡Tabla vaciada!',
+                text: data.message || 'Se han eliminado todos los registros de la tabla.',
+                icon: 'success',
+                confirmButtonColor: '#7c3aed',
+            });
+            window.location.reload();
+        } else {
+            throw new Error(data.message || 'No se pudo vaciar la tabla de ofertas.');
+        }
+    } catch (err) {
+        console.error('clearAll error:', err);
+        Swal.fire({
+            title: 'Error',
+            text: err.message || 'Ocurrió un error al intentar vaciar la tabla.',
+            icon: 'error',
+            confirmButtonColor: '#dc2626',
+        });
+    }
+}
+
+// Initialize state sync on page load
+document.addEventListener('DOMContentLoaded', () => {
+    syncUI();
+});
 </script>
 @endpush

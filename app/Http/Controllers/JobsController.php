@@ -8,6 +8,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
@@ -312,6 +313,177 @@ class JobsController extends Controller
             }
 
             return back()->with('error', 'No se pudo eliminar la oferta laboral.');
+        }
+    }
+
+    /**
+     * Bulk delete selected job offers or all matching filtered records.
+     * Takes pagination into account by supporting either an array of specific IDs
+     * or a select_all flag with active filters.
+     */
+    public function bulkDelete(Request $request): JsonResponse|RedirectResponse
+    {
+        try {
+            $selectAll = $request->boolean('select_all');
+            $ids       = $request->input('ids', []);
+
+            if ($selectAll) {
+                // Delete all records matching the current active query/filters across all pages
+                $query = JobOffer::query();
+
+                $search = $request->input('search');
+                if (!empty($search)) {
+                    $query->where(function ($q) use ($search) {
+                        $q->where('title', 'like', "%{$search}%")
+                          ->orWhere('company', 'like', "%{$search}%")
+                          ->orWhere('location', 'like', "%{$search}%")
+                          ->orWhere('description', 'like', "%{$search}%");
+                    });
+                }
+
+                $status = $request->input('status');
+                if ($status !== null && $status !== '') {
+                    if ($status === 'active' || $status === '1') {
+                        $query->where('is_active', true);
+                    } elseif ($status === 'inactive' || $status === '0') {
+                        $query->where('is_active', false);
+                    }
+                }
+
+                $source = $request->input('source');
+                if (!empty($source)) {
+                    $query->where('source', 'like', "%{$source}%");
+                }
+
+                $count = $query->count();
+                if ($count === 0) {
+                    if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'No se encontraron registros para eliminar con los filtros seleccionados.',
+                        ], 404);
+                    }
+                    return back()->with('info', 'No se encontraron registros para eliminar.');
+                }
+
+                $query->delete();
+
+                $message = "Se han eliminado exitosamente {$count} ofertas laborales.";
+            } else {
+                // Delete explicitly selected IDs (from one or multiple pages)
+                if (empty($ids) || !is_array($ids)) {
+                    if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Debe seleccionar al menos una oferta laboral para eliminar.',
+                        ], 422);
+                    }
+                    return back()->with('error', 'Debe seleccionar al menos un registro.');
+                }
+
+                $validIds = array_filter(array_map('intval', $ids));
+                if (empty($validIds)) {
+                    if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Identificadores de oferta inválidos.',
+                        ], 422);
+                    }
+                    return back()->with('error', 'Identificadores inválidos.');
+                }
+
+                $count = JobOffer::whereIn('id', $validIds)->delete();
+
+                if ($count === 0) {
+                    if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'No se encontraron los registros seleccionados para eliminar.',
+                        ], 404);
+                    }
+                    return back()->with('info', 'No se encontraron los registros seleccionados.');
+                }
+
+                $message = $count === 1
+                    ? 'Se ha eliminado 1 oferta laboral seleccionada.'
+                    : "Se han eliminado exitosamente {$count} ofertas laborales seleccionadas.";
+            }
+
+            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'count'   => $count,
+                ], 200);
+            }
+
+            return redirect()->route('admin.works.index')->with('success', $message);
+
+        } catch (\Exception $e) {
+            Log::error('Error en eliminación masiva de ofertas laborales: ' . $e->getMessage());
+
+            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ocurrió un error al procesar la eliminación masiva: ' . $e->getMessage(),
+                ], 500);
+            }
+
+            return back()->with('error', 'Error al eliminar las ofertas laborales seleccionadas.');
+        }
+    }
+
+    /**
+     * Completely clear (truncate) all records from the job_offers table.
+     */
+    public function clearAll(Request $request): JsonResponse|RedirectResponse
+    {
+        try {
+            $totalCount = JobOffer::count();
+
+            if ($totalCount === 0) {
+                if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'La tabla de ofertas laborales ya se encuentra vacía.',
+                        'count'   => 0,
+                    ], 200);
+                }
+                return back()->with('info', 'La tabla ya se encuentra vacía.');
+            }
+
+            try {
+                DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+                JobOffer::truncate();
+                DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            } catch (\Exception $truncateEx) {
+                Log::warning('Truncate failed, falling back to delete: ' . $truncateEx->getMessage());
+                JobOffer::query()->delete();
+            }
+
+            $message = "Se han eliminado todas las ofertas laborales ({$totalCount} registros). La tabla ha quedado completamente limpia.";
+
+            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'count'   => $totalCount,
+                ], 200);
+            }
+
+            return redirect()->route('admin.works.index')->with('success', $message);
+
+        } catch (\Exception $e) {
+            Log::error('Error al vaciar tabla de ofertas laborales: ' . $e->getMessage());
+
+            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al vaciar la tabla: ' . $e->getMessage(),
+                ], 500);
+            }
+
+            return back()->with('error', 'No se pudo vaciar la tabla de ofertas laborales.');
         }
     }
 

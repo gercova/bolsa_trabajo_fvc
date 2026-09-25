@@ -324,6 +324,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/convocatorias-internas',   [JobsController::class, 'internalCalls'])->name('internal-calls');
         Route::get('/crear-oferta',             [JobsController::class, 'create'])->name('create');
         Route::post('/guardar',                 [JobsController::class, 'store'])->name('store');
+        Route::post('/eliminar-masivo',          [JobsController::class, 'bulkDelete'])->name('bulk-delete');
+        Route::delete('/vaciar-tabla',          [JobsController::class, 'clearAll'])->name('clear-all');
         Route::get('/{offer}/editar-oferta',    [JobsController::class, 'edit'])->name('edit');
         Route::put('/{offer}',                  [JobsController::class, 'update'])->name('update');
         Route::delete('/{offer}',               [JobsController::class, 'destroy'])->name('destroy');

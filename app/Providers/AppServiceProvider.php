@@ -6,6 +6,7 @@ use App\Models\Enterprise;
 use App\Models\StudyProgram;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -23,6 +24,17 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Otorgar acceso implícito a todos los permisos para roles administrativos
+        Gate::before(function ($user, $ability) {
+            if ($user && (
+                in_array($user->role, ['Admin', 'Administrador', 'Director']) ||
+                (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['Admin', 'Administrador', 'Director']))
+            )) {
+                return true;
+            }
+            return null;
+        });
+
         View::composer('*', function ($view) {
             $view->with('enterprise', Enterprise::getDefault());
         });

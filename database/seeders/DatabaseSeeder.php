@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
         $this->call(InstitutionalCarouselSeeder::class);
         $this->call(LicensingPhaseSeeder::class);
         $this->call(CourseSeeder::class);
+        $this->call(AccountBalanceSeeder::class);
     }
 }
 

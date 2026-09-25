@@ -193,4 +193,69 @@ class AccountBalanceManagementTest extends TestCase
 
         $this->assertDatabaseCount('account_balances', 0);
     }
+
+    public function test_clear_period_via_json_ajax_returns_json_and_deletes_only_target_year(): void
+    {
+        $admin = $this->createAdminUser();
+
+        AccountBalance::create([
+            'month'          => 'ENERO',
+            'date'           => '2025-01-01',
+            'receipt_number' => '101',
+            'client'         => 'Juan Pérez',
+            'amount'         => 100.00,
+        ]);
+        AccountBalance::create([
+            'month'          => 'NOVIEMBRE',
+            'date'           => '2024-11-01',
+            'receipt_number' => '102',
+            'client'         => 'María López',
+            'amount'         => 200.00,
+        ]);
+
+        $this->assertDatabaseCount('account_balances', 2);
+
+        $response = $this->actingAs($admin)
+            ->deleteJson('/admin-inversiones/limpiar-periodo', [
+                'year' => 2025,
+            ]);
+
+        $response->assertOk()
+            ->assertJson([
+                'success' => true,
+                'count'   => 1,
+                'year'    => 2025,
+            ]);
+
+        $this->assertDatabaseCount('account_balances', 1);
+        $this->assertDatabaseHas('account_balances', ['receipt_number' => '102']);
+    }
+
+    public function test_clear_all_via_json_ajax_returns_json_and_truncates_table(): void
+    {
+        $admin = $this->createAdminUser();
+
+        AccountBalance::create([
+            'month'          => 'ENERO',
+            'date'           => '2025-01-01',
+            'receipt_number' => '101',
+            'client'         => 'Juan Pérez',
+            'amount'         => 100.00,
+        ]);
+
+        $this->assertDatabaseCount('account_balances', 1);
+
+        $response = $this->actingAs($admin)
+            ->deleteJson('/admin-inversiones/limpiar-tabla', [
+                'year' => 'all',
+            ]);
+
+        $response->assertOk()
+            ->assertJson([
+                'success' => true,
+                'count'   => 1,
+            ]);
+
+        $this->assertDatabaseCount('account_balances', 0);
+    }
 }

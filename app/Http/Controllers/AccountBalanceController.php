@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AccountBalanceImportRequest;
 use App\Imports\AccountBalanceImport;
 use App\Models\AccountBalance;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -35,28 +36,41 @@ class AccountBalanceController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // KPI aggregates (same filters, no pagination)
+        // KPI aggregates (filtered query, no pagination)
         $baseQuery = AccountBalance::query()
             ->filterByYear($year)
             ->filterByMonth($month)
             ->filterByCategory($category)
             ->search($search);
 
-        $totalRecords   = $baseQuery->count();
-        $totalAmount    = (float) $baseQuery->sum('amount');
+        $totalRecords = $baseQuery->count();
+        $totalAmount  = (float) $baseQuery->sum('amount');
+
+        // Unfiltered total records in entire table
+        $totalTableRecords = AccountBalance::count();
 
         // Available filter options
         $availableYears      = AccountBalance::availableYears();
         $availableMonths     = AccountBalance::availableMonths();
         $availableCategories = AccountBalance::availableCategories();
 
+        // Record counts grouped by year for modal and direct clear buttons
+        $yearCounts = AccountBalance::query()
+            ->selectRaw('YEAR(date) as yr, COUNT(*) as cnt')
+            ->whereNotNull('date')
+            ->groupBy('yr')
+            ->pluck('cnt', 'yr')
+            ->toArray();
+
         return view('admin.account-balances.index', compact(
             'records',
             'totalRecords',
             'totalAmount',
+            'totalTableRecords',
             'availableYears',
             'availableMonths',
             'availableCategories',
+            'yearCounts',
         ));
     }
 
@@ -77,12 +91,24 @@ class AccountBalanceController extends Controller
      * - If 'year' parameter is provided (e.g. 2025), deletes only records for that period.
      * - If 'all' or empty, truncates the entire table.
      * Restricted to users with the 'gestionar-inversiones' permission
-     * (Director / Administrador roles only).
+     * or administrative roles (Director / Administrador / Admin).
      */
-    public function truncateTable(Request $request): RedirectResponse
+    public function truncateTable(Request $request): JsonResponse|RedirectResponse
     {
-        // Double-check permission even if the route middleware already guards it
-        if (! auth()->user()?->can('gestionar-inversiones')) {
+        $user = auth()->user();
+        $isAuthorized = $user && (
+            in_array($user->role, ['Admin', 'Administrador', 'Director'])
+            || (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['Admin', 'Administrador', 'Director']))
+            || $user->can('gestionar-inversiones')
+        );
+
+        if (! $isAuthorized) {
+            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No tienes permiso para realizar esta acción.',
+                ], 403);
+            }
             abort(403, 'No tienes permiso para realizar esta acción.');
         }
 
@@ -90,26 +116,74 @@ class AccountBalanceController extends Controller
 
         try {
             if ($year && $year !== 'all') {
-                $count = AccountBalance::whereYear('date', (int) $year)->delete();
+                $yearInt = (int) $year;
+                $count = AccountBalance::whereYear('date', $yearInt)->delete();
+
+                $message = $count === 1
+                    ? "Se ha eliminado 1 registro correspondiente al período {$yearInt}."
+                    : "Se han eliminado exitosamente {$count} registros correspondientes al período {$yearInt}.";
+
+                if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => $message,
+                        'count'   => $count,
+                        'year'    => $yearInt,
+                    ], 200);
+                }
 
                 return redirect()
                     ->route('admin.account-balances.index')
-                    ->with('success', "Se han eliminado exitosamente {$count} registros correspondientes al período {$year}.");
+                    ->with('success', $message);
             }
 
             $totalCount = AccountBalance::count();
-            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-            AccountBalance::truncate();
-            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            if ($totalCount === 0) {
+                $message = 'La tabla de Inversión y Gastos ya se encuentra vacía.';
+                if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => $message,
+                        'count'   => 0,
+                    ], 200);
+                }
+                return redirect()->route('admin.account-balances.index')->with('info', $message);
+            }
+
+            try {
+                DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+                AccountBalance::truncate();
+                DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            } catch (\Exception $truncateEx) {
+                AccountBalance::query()->delete();
+            }
+
+            $message = "La tabla de Inversión y Gastos ha sido vaciada completamente ({$totalCount} registros eliminados).";
+
+            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'count'   => $totalCount,
+                ], 200);
+            }
 
             return redirect()
                 ->route('admin.account-balances.index')
-                ->with('success', "La tabla de Inversión y Gastos ha sido vaciada completamente ({$totalCount} registros eliminados).");
+                ->with('success', $message);
 
         } catch (\Exception $e) {
+            $errorMsg = 'Error al procesar la eliminación: ' . $e->getMessage();
+            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMsg,
+                ], 500);
+            }
+
             return redirect()
                 ->route('admin.account-balances.index')
-                ->with('error', 'Error al procesar la eliminación: ' . $e->getMessage());
+                ->with('error', $errorMsg);
         }
     }
 

@@ -10,8 +10,12 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        $docType = \App\Models\DocumentType::first();
+        $docTypeId = $docType ? $docType->id : null;
+
         // Usuario administrador
-        User::create([
+        $admin = User::create([
+            'document_type_id' => $docTypeId,
             'dni' => '12345678',
             'names' => 'Administrador del Sistema',
             'email' => 'admin@example.com',
@@ -23,6 +27,8 @@ class UserSeeder extends Seeder
             'role' => 'Admin',
             'email_verified_at' => now(),
         ]);
+        $admin->assignRole('Admin');
+        $admin->assignRole('Administrador');
 
         // Datos completos con nombres y apellidos correctamente formateados
         $users = [
@@ -363,7 +369,8 @@ class UserSeeder extends Seeder
 
         // Insertar todos los usuarios
         foreach ($users as $userData) {
-            User::create([
+            $user = User::create([
+                'document_type_id' => $docTypeId,
                 'dni'           => $userData['dni'],
                 'names'         => $userData['names'],
                 'email'         => strtolower($userData['email']),
@@ -375,6 +382,10 @@ class UserSeeder extends Seeder
                 'role'          => $userData['role'],
                 'email_verified_at' => now(),
             ]);
+
+            if (!empty($userData['role']) && \Spatie\Permission\Models\Role::where('name', $userData['role'])->exists()) {
+                $user->assignRole($userData['role']);
+            }
         }
     }
 }

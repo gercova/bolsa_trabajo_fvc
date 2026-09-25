@@ -108,9 +108,9 @@
                                         </label>
                                         <select name="year" x-model="clearYear"
                                             class="w-full text-sm border border-gray-300 rounded-xl py-2.5 px-3 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition bg-white text-gray-800 font-semibold">
-                                            <option value="all">⚠️ Vaciar TODA la tabla (Historial completo)</option>
+                                            <option value="all">⚠️ Vaciar TODA la tabla (Historial completo — {{ number_format($totalTableRecords) }} registros)</option>
                                             @foreach ($availableYears as $y)
-                                                <option value="{{ $y }}">Solo registros del año {{ $y }}</option>
+                                                <option value="{{ $y }}">Solo registros del año {{ $y }} ({{ number_format($yearCounts[$y] ?? 0) }} registros)</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -121,7 +121,7 @@
                                             <template x-if="clearYear === 'all'">
                                                 <div>
                                                     <p class="font-bold text-red-900">Estás a punto de vaciar TODA la tabla de inversiones.</p>
-                                                    <p class="mt-0.5">Se eliminarán permanentemente <strong class="font-black text-red-700">{{ number_format($totalRecords) }} registros</strong> históricos. Esta acción no se puede deshacer.</p>
+                                                    <p class="mt-0.5">Se eliminarán permanentemente <strong class="font-black text-red-700">{{ number_format($totalTableRecords) }} registros</strong> históricos. Esta acción no se puede deshacer.</p>
                                                 </div>
                                             </template>
                                             <template x-if="clearYear !== 'all'">
@@ -272,7 +272,7 @@
                         {{-- Action Buttons Row --}}
                         <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-100">
                             <span class="text-xs font-semibold text-gray-500">
-                                Mostrando {{ $records->total() }} registros encontrados
+                                Mostrando {{ $records->total() }} de {{ number_format($totalTableRecords) }} registros en total
                             </span>
                             <div class="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
                                 {{-- Import Button --}}
@@ -283,20 +283,36 @@
                                 </button>
 
                                 @can('gestionar-inversiones')
-                                    {{-- Truncate / Clear Table or Period Buttons --}}
-                                    @if ($totalRecords > 0)
+                                    @if (($totalTableRecords ?? 0) > 0)
+                                        {{-- 1. Limpiar por Período / Año --}}
                                         @if(request('year'))
-                                            <button type="button" id="open-truncate-period-btn"
-                                                @click="clearYear = '{{ request('year') }}'; truncateModal = true"
-                                                class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-xs sm:text-sm font-bold shadow-xs hover:shadow transition-all">
-                                                <i class="bi bi-calendar-x-fill text-amber-600"></i>
+                                            <button type="button" id="btn-clear-current-year"
+                                                onclick="confirmClearPeriod('{{ request('year') }}', {{ $yearCounts[request('year')] ?? 0 }})"
+                                                class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs sm:text-sm font-bold shadow-sm hover:shadow-md transition-all"
+                                                title="Eliminar únicamente los registros del año {{ request('year') }}">
+                                                <i class="bi bi-calendar-x-fill"></i>
                                                 <span>Limpiar Año {{ request('year') }}</span>
+                                                <span class="ml-1 bg-amber-700/60 text-white px-2 py-0.5 rounded-full text-[11px]">
+                                                    {{ number_format($yearCounts[request('year')] ?? 0) }}
+                                                </span>
+                                            </button>
+                                        @else
+                                            <button type="button" id="btn-open-clear-period-dialog"
+                                                onclick="openClearPeriodDialog()"
+                                                class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs sm:text-sm font-bold shadow-xs hover:shadow transition-all"
+                                                title="Seleccionar un período específico para vaciar">
+                                                <i class="bi bi-calendar-x-fill text-amber-600"></i>
+                                                <span>Limpiar por Período</span>
                                             </button>
                                         @endif
-                                        <button type="button" id="open-truncate-modal-btn"
-                                            @click="clearYear = '{{ request('year') ?: 'all' }}'; truncateModal = true"
-                                            class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all">
-                                            <i class="bi bi-trash3-fill"></i> Vaciar Tabla
+
+                                        {{-- 2. Vaciar Toda la Tabla --}}
+                                        <button type="button" id="btn-clear-all-table"
+                                            onclick="confirmClearAll()"
+                                            class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all"
+                                            title="Vaciar completamente la tabla de registros">
+                                            <i class="bi bi-trash3-fill"></i>
+                                            <span>Vaciar Tabla</span>
                                         </button>
                                     @endif
                                 @endcan
@@ -519,3 +535,248 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    const TRUNCATE_URL = "{{ route('admin.account-balances.truncate') }}";
+    const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || "{{ csrf_token() }}";
+    const TOTAL_TABLE_RECORDS = {{ (int) ($totalTableRecords ?? 0) }};
+    const AVAILABLE_YEARS = @json(array_values($availableYears ?? []));
+    const YEAR_COUNTS = @json($yearCounts ?? []);
+
+    /**
+     * Clear records for a specific period (year).
+     */
+    async function confirmClearPeriod(year, count = null) {
+        if (!year) return;
+        const recordCount = count !== null ? count : (YEAR_COUNTS[year] || 0);
+
+        const result = await Swal.fire({
+            title: `¿Limpiar registros del año ${year}?`,
+            html: `
+                <div class="text-left text-sm text-gray-700 space-y-3">
+                    <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs leading-relaxed">
+                        <p class="font-bold flex items-center gap-1.5 text-amber-800 mb-1">
+                            <i class="bi bi-exclamation-triangle-fill text-base text-amber-600"></i>
+                            ELIMINACIÓN POR PERÍODO
+                        </p>
+                        <p>
+                            Estás a punto de eliminar definitivamente <strong>${recordCount} registro(s)</strong> correspondientes al año <strong>${year}</strong>.
+                        </p>
+                        <p class="mt-1 text-amber-700">
+                            ✓ Los registros de otros períodos (años) permanecerán intactos en la base de datos.
+                        </p>
+                    </div>
+                    <p class="text-xs text-gray-500">
+                        Esta acción no se puede deshacer. ¿Deseas continuar?
+                    </p>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d97706',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: `<i class="bi bi-calendar-x-fill mr-1"></i> Sí, eliminar año ${year}`,
+            cancelButtonText: 'Cancelar',
+            focusCancel: true,
+            width: '32rem',
+        });
+
+        if (!result.isConfirmed) return;
+
+        Swal.fire({
+            title: `Eliminando registros de ${year}...`,
+            html: 'Procesando la solicitud en la base de datos...',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        try {
+            const response = await fetch(TRUNCATE_URL, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN,
+                },
+                body: JSON.stringify({ year: year })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                await Swal.fire({
+                    title: '¡Período limpiado!',
+                    text: data.message || `Se eliminaron los registros del año ${year}.`,
+                    icon: 'success',
+                    confirmButtonColor: '#059669',
+                });
+                window.location.reload();
+            } else {
+                throw new Error(data.message || 'No se pudo completar la eliminación.');
+            }
+        } catch (error) {
+            Swal.fire({
+                title: 'Error',
+                text: error.message || 'Ocurrió un error inesperado al eliminar los registros.',
+                icon: 'error',
+                confirmButtonColor: '#e11d48',
+            });
+        }
+    }
+
+    /**
+     * Clear all records in the account_balances table completely.
+     */
+    async function confirmClearAll() {
+        if (TOTAL_TABLE_RECORDS === 0) {
+            Swal.fire({
+                title: 'Tabla vacía',
+                text: 'La tabla de inversión y gastos ya se encuentra vacía.',
+                icon: 'info',
+                confirmButtonColor: '#7c3aed',
+            });
+            return;
+        }
+
+        const result = await Swal.fire({
+            title: '¿VACIAR TODA LA TABLA?',
+            html: `
+                <div class="text-left text-sm text-gray-700 space-y-3">
+                    <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-900 text-xs leading-relaxed">
+                        <p class="font-bold flex items-center gap-1.5 text-rose-700 mb-1">
+                            <i class="bi bi-exclamation-octagon-fill text-base"></i>
+                            ACCIÓN IRREVERSIBLE — HISTORIAL COMPLETO
+                        </p>
+                        <p>
+                            Estás a punto de eliminar permanentemente <strong>TODOS los registros (${TOTAL_TABLE_RECORDS} registros)</strong> de la tabla de Inversión y Gastos.
+                        </p>
+                        <p class="mt-1 text-rose-700">
+                            ⚠️ Se restablecerá la tabla por completo. No quedará ningún registro en la base de datos.
+                        </p>
+                    </div>
+                    <p class="text-xs text-gray-500">
+                        Esta operación es permanente e irreversible. ¿Confirmas el vaciado total?
+                    </p>
+                </div>
+            `,
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: '<i class="bi bi-trash3-fill mr-1"></i> Sí, vaciar tabla completa',
+            cancelButtonText: 'Cancelar',
+            focusCancel: true,
+            width: '32rem',
+        });
+
+        if (!result.isConfirmed) return;
+
+        Swal.fire({
+            title: 'Vaciando tabla completa...',
+            html: 'Eliminando todos los registros de la base de datos...',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        try {
+            const response = await fetch(TRUNCATE_URL, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN,
+                },
+                body: JSON.stringify({ year: 'all' })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                await Swal.fire({
+                    title: '¡Tabla vaciada!',
+                    text: data.message || 'La tabla de inversión y gastos ha sido vaciada exitosamente.',
+                    icon: 'success',
+                    confirmButtonColor: '#059669',
+                });
+                window.location.reload();
+            } else {
+                throw new Error(data.message || 'No se pudo vaciar la tabla.');
+            }
+        } catch (error) {
+            Swal.fire({
+                title: 'Error',
+                text: error.message || 'Ocurrió un error inesperado al vaciar la tabla.',
+                icon: 'error',
+                confirmButtonColor: '#e11d48',
+            });
+        }
+    }
+
+    /**
+     * Open interactive dialog to select either a specific year or entire table.
+     */
+    async function openClearPeriodDialog() {
+        if (TOTAL_TABLE_RECORDS === 0) {
+            Swal.fire({
+                title: 'Tabla vacía',
+                text: 'No hay registros en la tabla para eliminar.',
+                icon: 'info',
+                confirmButtonColor: '#7c3aed',
+            });
+            return;
+        }
+
+        let optionsHtml = '';
+        if (AVAILABLE_YEARS.length > 0) {
+            AVAILABLE_YEARS.forEach(y => {
+                const count = YEAR_COUNTS[y] || 0;
+                optionsHtml += `<option value="${y}">Solo registros del año ${y} (${count} registros)</option>`;
+            });
+        }
+        optionsHtml += `<option value="all">⚠️ Vaciar TODA la tabla completa (${TOTAL_TABLE_RECORDS} registros)</option>`;
+
+        const { value: selectedScope } = await Swal.fire({
+            title: 'Limpieza de Registros',
+            html: `
+                <div class="text-left text-sm text-gray-700 space-y-3">
+                    <p class="text-xs text-gray-500">
+                        Selecciona si deseas eliminar los registros de un año específico o vaciar toda la tabla:
+                    </p>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                            Alcance de la eliminación:
+                        </label>
+                        <select id="swal-select-scope" class="w-full text-sm border border-gray-300 rounded-xl py-2.5 px-3 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition bg-white text-gray-800 font-semibold">
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#d97706',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Continuar <i class="bi bi-arrow-right ml-1"></i>',
+            cancelButtonText: 'Cancelar',
+            preConfirm: () => {
+                const sel = document.getElementById('swal-select-scope');
+                return sel ? sel.value : null;
+            }
+        });
+
+        if (!selectedScope) return;
+
+        if (selectedScope === 'all') {
+            confirmClearAll();
+        } else {
+            confirmClearPeriod(selectedScope);
+        }
+    }
+</script>
+@endpush

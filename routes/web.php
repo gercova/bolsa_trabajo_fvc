@@ -487,6 +487,9 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/clean-table',   [AccountBalanceController::class, 'truncateTable'])
             ->name('clean-table')
             ->middleware('can:gestionar-inversiones');
+        Route::delete('/limpiar-periodo', [AccountBalanceController::class, 'truncateTable'])
+            ->name('clear-period')
+            ->middleware('can:gestionar-inversiones');
         Route::delete('/{accountBalance}', [AccountBalanceController::class, 'destroy'])->name('destroy');
     });
 });

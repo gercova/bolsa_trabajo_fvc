@@ -73,30 +73,43 @@ class AccountBalanceController extends Controller
     }
 
     /**
-     * Truncate (clear) the entire account_balances table.
+     * Clear records from the account_balances table:
+     * - If 'year' parameter is provided (e.g. 2025), deletes only records for that period.
+     * - If 'all' or empty, truncates the entire table.
      * Restricted to users with the 'gestionar-inversiones' permission
      * (Director / Administrador roles only).
      */
-    public function truncateTable(): RedirectResponse
+    public function truncateTable(Request $request): RedirectResponse
     {
         // Double-check permission even if the route middleware already guards it
         if (! auth()->user()?->can('gestionar-inversiones')) {
             abort(403, 'No tienes permiso para realizar esta acción.');
         }
 
+        $year = $request->input('year');
+
         try {
+            if ($year && $year !== 'all') {
+                $count = AccountBalance::whereYear('date', (int) $year)->delete();
+
+                return redirect()
+                    ->route('admin.account-balances.index')
+                    ->with('success', "Se han eliminado exitosamente {$count} registros correspondientes al período {$year}.");
+            }
+
+            $totalCount = AccountBalance::count();
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             AccountBalance::truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
             return redirect()
                 ->route('admin.account-balances.index')
-                ->with('success', 'La tabla de Inversión y Gastos ha sido vaciada completamente.');
+                ->with('success', "La tabla de Inversión y Gastos ha sido vaciada completamente ({$totalCount} registros eliminados).");
 
         } catch (\Exception $e) {
             return redirect()
                 ->route('admin.account-balances.index')
-                ->with('error', 'Error al vaciar la tabla: ' . $e->getMessage());
+                ->with('error', 'Error al procesar la eliminación: ' . $e->getMessage());
         }
     }
 
@@ -112,7 +125,7 @@ class AccountBalanceController extends Controller
 
             $msg = "Importación completada: {$importer->importedCount} registros importados";
             if ($importer->skippedCount > 0) {
-                $msg .= ", {$importer->skippedCount} filas omitidas (vacías).";
+                $msg .= ", {$importer->skippedCount} filas omitidas (encabezados o vacías).";
             } else {
                 $msg .= '.';
             }
@@ -148,18 +161,38 @@ class AccountBalanceController extends Controller
     {
         $selectedYear = $request->integer('year') ?: null;
 
-        // Paginated table data
+        // KPI aggregates
+        $baseQuery    = AccountBalance::query()->filterByYear($selectedYear);
+        $totalRecords = $baseQuery->count();
+        $totalAmount  = (float) $baseQuery->sum('amount');
+
+        // Grouped by Category (Column F) with summary metrics
+        $categoryGroups = AccountBalance::query()
+            ->filterByYear($selectedYear)
+            ->whereNotNull('category')
+            ->where('category', '!=', '')
+            ->selectRaw('category, COUNT(*) as count, SUM(amount) as total_amount')
+            ->groupBy('category')
+            ->orderByDesc('total_amount')
+            ->get();
+
+        // Detailed records grouped by category for the accordion/grouped view
+        $recordsByCategory = AccountBalance::query()
+            ->filterByYear($selectedYear)
+            ->orderByDesc('date')
+            ->orderByDesc('id')
+            ->get()
+            ->groupBy(function ($item) {
+                return !empty($item->category) ? trim($item->category) : 'OTROS / SIN CATEGORÍA';
+            });
+
+        // Flat paginated table data
         $records = AccountBalance::query()
             ->filterByYear($selectedYear)
             ->orderByDesc('date')
             ->orderByDesc('id')
             ->paginate(20)
             ->withQueryString();
-
-        // KPI aggregates
-        $baseQuery    = AccountBalance::query()->filterByYear($selectedYear);
-        $totalRecords = $baseQuery->count();
-        $totalAmount  = (float) $baseQuery->sum('amount');
 
         // Chart data: monthly totals (month name → total amount)
         $monthlyTotals = AccountBalance::query()
@@ -184,6 +217,8 @@ class AccountBalanceController extends Controller
 
         return view('transparency.investment-and-management', compact(
             'records',
+            'categoryGroups',
+            'recordsByCategory',
             'totalRecords',
             'totalAmount',
             'monthlyTotals',

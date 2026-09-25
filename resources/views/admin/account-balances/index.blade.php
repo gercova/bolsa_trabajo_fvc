@@ -29,7 +29,7 @@
 
             {{-- ── Main Content ─────────────────────────────────────────────────── --}}
             <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden"
-                  x-data="{ importModal: false, importLoading: false, importFileName: '', truncateModal: false, truncateLoading: false }">
+                  x-data="{ importModal: false, importLoading: false, importFileName: '', truncateModal: false, truncateLoading: false, clearYear: '{{ request('year') ?: 'all' }}' }">
                 <div class="max-w-7xl mx-auto space-y-6">
 
                     {{-- Alert Messages --}}
@@ -58,7 +58,7 @@
                         </div>
                     @endif
 
-                        {{-- ══ TRUNCATE CONFIRMATION MODAL ══════════════════════════════════════ --}}
+                        {{-- ══ TRUNCATE / CLEAR BY PERIOD MODAL ══════════════════════════════════════ --}}
                         @can('gestionar-inversiones')
                         <div x-show="truncateModal" x-cloak
                             x-transition:enter="transition ease-out duration-200"
@@ -74,17 +74,17 @@
                                 x-transition:enter="transition ease-out duration-200"
                                 x-transition:enter-start="opacity-0 scale-95"
                                 x-transition:enter-end="opacity-100 scale-100"
-                                class="bg-white rounded-2xl shadow-2xl border border-red-200 w-full max-w-md">
+                                class="bg-white rounded-2xl shadow-2xl border border-red-200 w-full max-w-lg">
 
                                 {{-- Modal Header --}}
                                 <div class="flex items-center justify-between px-6 py-4 border-b border-red-100 bg-red-50 rounded-t-2xl">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-xl">
-                                            <i class="bi bi-exclamation-triangle-fill"></i>
+                                            <i class="bi bi-trash3-fill"></i>
                                         </div>
                                         <div>
-                                            <h3 class="text-sm font-extrabold text-red-900">Acción Irreversible</h3>
-                                            <p class="text-xs text-red-600">Vaciado completo de la tabla</p>
+                                            <h3 class="text-sm font-extrabold text-red-900">Limpieza de Registros</h3>
+                                            <p class="text-xs text-red-600">Vaciar por período específico o tabla completa</p>
                                         </div>
                                     </div>
                                     <button id="close-truncate-modal-btn"
@@ -95,38 +95,50 @@
                                     </button>
                                 </div>
 
-                                {{-- Warning Body --}}
-                                <div class="px-6 py-5 space-y-4">
-                                    <div class="flex items-start gap-3 bg-amber-50 border border-amber-300 rounded-xl p-4">
-                                        <i class="bi bi-shield-exclamation text-amber-500 text-xl mt-0.5 shrink-0"></i>
-                                        <div class="text-sm text-amber-800 space-y-1">
-                                            <p class="font-bold">Estás a punto de eliminar TODOS los registros.</p>
-                                            <p>Se eliminarán permanentemente
-                                                <span class="font-black text-red-700">
-                                                    {{ number_format($totalRecords) }} registros
-                                                </span>
-                                                de la tabla de Inversión y Gastos.
-                                            </p>
-                                            <p class="text-xs text-amber-700">Esta acción <strong>no se puede deshacer</strong>. Asegúrate de haber exportado los datos si los necesitas.</p>
+                                {{-- Warning Body & Form --}}
+                                <form action="{{ route('admin.account-balances.truncate') }}" method="POST"
+                                    @submit="truncateLoading = true"
+                                    class="p-6 space-y-4">
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                            Selecciona el alcance a eliminar:
+                                        </label>
+                                        <select name="year" x-model="clearYear"
+                                            class="w-full text-sm border border-gray-300 rounded-xl py-2.5 px-3 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition bg-white text-gray-800 font-semibold">
+                                            <option value="all">⚠️ Vaciar TODA la tabla (Historial completo)</option>
+                                            @foreach ($availableYears as $y)
+                                                <option value="{{ $y }}">Solo registros del año {{ $y }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl p-4 text-xs text-red-800 space-y-1">
+                                        <i class="bi bi-shield-exclamation text-red-500 text-xl mt-0.5 shrink-0"></i>
+                                        <div>
+                                            <template x-if="clearYear === 'all'">
+                                                <div>
+                                                    <p class="font-bold text-red-900">Estás a punto de vaciar TODA la tabla de inversiones.</p>
+                                                    <p class="mt-0.5">Se eliminarán permanentemente <strong class="font-black text-red-700">{{ number_format($totalRecords) }} registros</strong> históricos. Esta acción no se puede deshacer.</p>
+                                                </div>
+                                            </template>
+                                            <template x-if="clearYear !== 'all'">
+                                                <div>
+                                                    <p class="font-bold text-red-900">Estás a punto de eliminar únicamente los registros del año <span x-text="clearYear" class="font-black underline"></span>.</p>
+                                                    <p class="mt-0.5">Los registros de otros años permanecerán intactos en la base de datos.</p>
+                                                </div>
+                                            </template>
                                         </div>
                                     </div>
 
-                                    <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-600">
-                                        <p class="font-bold text-slate-700 mb-1">Solo los siguientes roles pueden realizar esta acción:</p>
-                                        <ul class="space-y-0.5">
-                                            <li class="flex items-center gap-1.5"><i class="bi bi-shield-fill-check text-purple-500"></i> Director</li>
-                                            <li class="flex items-center gap-1.5"><i class="bi bi-shield-fill-check text-purple-500"></i> Administrador</li>
-                                        </ul>
+                                    <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-600">
+                                        <p class="font-bold text-slate-700 mb-0.5">Autorización requerida:</p>
+                                        <p>Esta acción está restringida exclusivamente a usuarios con rol <strong>Director</strong> o <strong>Administrador</strong>.</p>
                                     </div>
-                                </div>
 
-                                {{-- Truncate Form --}}
-                                <form action="{{ route('admin.account-balances.truncate') }}" method="POST"
-                                    @submit="truncateLoading = true"
-                                    class="px-6 pb-6">
-                                    @csrf
-                                    @method('DELETE')
-                                    <div class="flex items-center justify-end gap-3">
+                                    <div class="flex items-center justify-end gap-3 pt-2">
                                         <button type="button" id="cancel-truncate-btn"
                                             @click="!truncateLoading && (truncateModal = false)"
                                             :disabled="truncateLoading"
@@ -140,7 +152,7 @@
                                             class="px-5 py-2.5 bg-gradient-to-r from-red-600 to-rose-700 text-white rounded-xl text-sm font-black shadow transition flex items-center gap-2">
                                             <i class="bi bi-trash3-fill" x-show="!truncateLoading"></i>
                                             <i class="bi bi-arrow-repeat animate-spin" x-show="truncateLoading"></i>
-                                            <span x-text="truncateLoading ? 'Vaciando...' : 'Sí, vaciar todo'"></span>
+                                            <span x-text="truncateLoading ? 'Eliminando...' : (clearYear === 'all' ? 'Sí, vaciar todo' : 'Sí, eliminar año ' + clearYear)"></span>
                                         </button>
                                     </div>
                                 </form>
@@ -271,10 +283,18 @@
                                 </button>
 
                                 @can('gestionar-inversiones')
-                                    {{-- Truncate / Clear Table Button --}}
+                                    {{-- Truncate / Clear Table or Period Buttons --}}
                                     @if ($totalRecords > 0)
+                                        @if(request('year'))
+                                            <button type="button" id="open-truncate-period-btn"
+                                                @click="clearYear = '{{ request('year') }}'; truncateModal = true"
+                                                class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-xs sm:text-sm font-bold shadow-xs hover:shadow transition-all">
+                                                <i class="bi bi-calendar-x-fill text-amber-600"></i>
+                                                <span>Limpiar Año {{ request('year') }}</span>
+                                            </button>
+                                        @endif
                                         <button type="button" id="open-truncate-modal-btn"
-                                            @click="truncateModal = true"
+                                            @click="clearYear = '{{ request('year') ?: 'all' }}'; truncateModal = true"
                                             class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all">
                                             <i class="bi bi-trash3-fill"></i> Vaciar Tabla
                                         </button>

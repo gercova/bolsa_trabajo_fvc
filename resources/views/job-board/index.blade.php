@@ -160,28 +160,28 @@
 @endpush
 
 @section('content')
+<div x-data="{
+     mainActiveTab: window.location.hash === '#estudiantes' ? 'estudiantes' : 'ofertas',
+     activeModal: null,
+     selectedProgram: 'all',
+     activeGraduateModal: null
+ }"
+ x-init="
+     $watch('mainActiveTab', value => {
+         window.location.hash = '#' + value;
+     });
+     window.addEventListener('hashchange', () => {
+         const hash = window.location.hash.substring(1);
+         if (hash === 'estudiantes' || hash === 'ofertas') {
+             mainActiveTab = hash;
+         }
+     });
+ ">
 {{-- ═══ HERO ════════════════════════════════════════════════════════════ --}}
 <section aria-label="Portada Bolsa de Trabajo" class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24">
     <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10" 
-         x-data="{ 
-             mainActiveTab: window.location.hash === '#estudiantes' ? 'estudiantes' : 'ofertas',
-             activeModal: null,
-             selectedProgram: 'all',
-             activeGraduateModal: null
-         }"
-         x-init="
-             $watch('mainActiveTab', value => {
-                 window.location.hash = '#' + value;
-             });
-             window.addEventListener('hashchange', () => {
-                 const hash = window.location.hash.substring(1);
-                 if (hash === 'estudiantes' || hash === 'ofertas') {
-                     mainActiveTab = hash;
-                 }
-             });
-         ">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {{-- Left: H1 + CTA --}}
@@ -1143,5 +1143,7 @@
 
     </div>
 </section>
+
+</div>{{-- END x-data wrapper --}}
 
 @endsection

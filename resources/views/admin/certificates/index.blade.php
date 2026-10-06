@@ -777,6 +777,21 @@
                                 class="sr-only">
                         </div>
 
+                        {{-- Download Template --}}
+                        <div class="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+                            <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                                <i class="bi bi-file-earmark-arrow-down text-base"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-bold text-blue-900">¿Primera vez importando?</p>
+                                <p class="text-[11px] text-blue-600 leading-snug">Descarga la plantilla con instrucciones incluidas dentro del archivo.</p>
+                            </div>
+                            <a href="{{ route('admin.certificates.template') }}"
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-sm transition-all whitespace-nowrap shrink-0">
+                                <i class="bi bi-download"></i> Descargar plantilla
+                            </a>
+                        </div>
+
                         {{-- Column Reference --}}
                         <details class="group">
                             <summary class="cursor-pointer text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5 select-none">

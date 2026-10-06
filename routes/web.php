@@ -38,37 +38,37 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [AppController::class, 'index'])->name('inicio');
 
 // Admisión y matrícula
-Route::get('/admision-y-matricula/cepre-fvc', [AppController::class, 'ceprefvc'])->name('cepre-fvc');
-Route::get('/admision-y-matricula/examen-de-admision', [AppController::class, 'admissionExam'])->name('examen-de-admision');
-Route::get('/admision-y-matricula/matriculas', [AppController::class, 'enrollments'])->name('matriculas');
-Route::get('/admision-y-matriculas/becas-y-creditos', [AppController::class, 'scholarshipsAndCredits'])->name('becas-y-creditos');
+Route::get('/admision-y-matricula/cepre-fvc',           [AppController::class, 'ceprefvc'])->name('cepre-fvc');
+Route::get('/admision-y-matricula/examen-de-admision',  [AppController::class, 'admissionExam'])->name('examen-de-admision');
+Route::get('/admision-y-matricula/matriculas',          [AppController::class, 'enrollments'])->name('matriculas');
+Route::get('/admision-y-matriculas/becas-y-creditos',   [AppController::class, 'scholarshipsAndCredits'])->name('becas-y-creditos');
 Route::redirect('/becas-y-creditos', '/admision-y-matriculas/becas-y-creditos');
 
 // programas de estudio
-Route::get('/programas-de-estudios', [AppController::class, 'studyPrograms'])->name('programas-de-estudio');
-Route::get('/programas-de-estudios/{program:slug}', [AppController::class, 'program'])->name('programas-de-estudio.detalle');
+Route::get('/programas-de-estudios',                    [AppController::class, 'studyPrograms'])->name('programas-de-estudio');
+Route::get('/programas-de-estudios/{program:slug}',     [AppController::class, 'program'])->name('programas-de-estudio.detalle');
 
 // Transparencia
-Route::get('/transparencia/documentos-de-gestion', [AppController::class, 'documentsManagement'])->name('documentos-de-gestion');
-Route::get('/transparencia/estadisticas', [AppController::class, 'statistics'])->name('estadisticas');
-Route::get('/transparencia/inversion-y-gestion', [AppController::class, 'managementReports'])->name('inversion-y-gestion');
-Route::get('/transparencia/licenciamiento', [AppController::class, 'licensment'])->name('licenciamiento');
-Route::get('/transparencia/libro-de-reclamaciones', [AppController::class, 'complaintsBook'])->name('libro-de-reclamaciones');
-Route::post('/transparencia/libro-de-reclamaciones', [AppController::class, 'storeClaim'])->name('libro-de-reclamaciones.store')->middleware('throttle:5,1');
+Route::get('/transparencia/documentos-de-gestion',      [AppController::class, 'documentsManagement'])->name('documentos-de-gestion');
+Route::get('/transparencia/estadisticas',               [AppController::class, 'statistics'])->name('estadisticas');
+Route::get('/transparencia/inversion-y-gestion',        [AppController::class, 'managementReports'])->name('inversion-y-gestion');
+Route::get('/transparencia/licenciamiento',             [AppController::class, 'licensment'])->name('licenciamiento');
+Route::get('/transparencia/libro-de-reclamaciones',     [AppController::class, 'complaintsBook'])->name('libro-de-reclamaciones');
+Route::post('/transparencia/libro-de-reclamaciones',    [AppController::class, 'storeClaim'])->name('libro-de-reclamaciones.store')->middleware('throttle:5,1');
 
 // Trámites
-Route::get('/tramites/mesa-de-partes', [AppController::class, 'partsTable'])->name('mesa-de-partes');
-Route::get('/tramites/tupa', [AppController::class, 'tupa'])->name('tupa');
+Route::get('/tramites/mesa-de-partes',  [AppController::class, 'partsTable'])->name('mesa-de-partes');
+Route::get('/tramites/tupa',            [AppController::class, 'tupa'])->name('tupa');
 
 // Nosotros
-Route::get('/nosotros/quienes-somos', [AppController::class, 'whoWeAre'])->name('quienes-somos');
-Route::get('/nosotros/historia', [AppController::class, 'history'])->name('historia');
-Route::get('/nosotros/organigrama-institucional', [AppController::class, 'institutionalOrganizationChart'])->name('organigrama-institucional');
-Route::get('/nosotros/plana-jerarquica', [AppController::class, 'hierarchicalStaff'])->name('plana-jerarquica');
-Route::get('/nosotros/plana-de-docentes', [AppController::class, 'teachersStaff'])->name('plana-de-docentes');
-Route::get('/nosotros/plana-administrativa', [AppController::class, 'administrativeStaff'])->name('plana-administrativa');
-Route::get('/nosotros/consejo-de-estudiantes', [AppController::class, 'studentCouncil'])->name('consejo-de-estudiantes');
-Route::get('/nosotros/locales', [AppController::class, 'locales'])->name('locales');
+Route::get('/nosotros/quienes-somos',               [AppController::class, 'whoWeAre'])->name('quienes-somos');
+Route::get('/nosotros/historia',                    [AppController::class, 'history'])->name('historia');
+Route::get('/nosotros/organigrama-institucional',   [AppController::class, 'institutionalOrganizationChart'])->name('organigrama-institucional');
+Route::get('/nosotros/plana-jerarquica',            [AppController::class, 'hierarchicalStaff'])->name('plana-jerarquica');
+Route::get('/nosotros/plana-de-docentes',           [AppController::class, 'teachersStaff'])->name('plana-de-docentes');
+Route::get('/nosotros/plana-administrativa',        [AppController::class, 'administrativeStaff'])->name('plana-administrativa');
+Route::get('/nosotros/consejo-de-estudiantes',      [AppController::class, 'studentCouncil'])->name('consejo-de-estudiantes');
+Route::get('/nosotros/locales',                     [AppController::class, 'locales'])->name('locales');
 
 // servicios
 Route::get('/servicios/bolsa-de-trabajo', [AppController::class, 'offers'])->name('bolsa-de-trabajo');
@@ -86,405 +86,406 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::prefix('admin-perfil')->name('admin.profile.')->group(function () {
-        Route::get('/{user?}', [ProfileController::class, 'edit'])->name('edit');
-        Route::put('/{user?}', [ProfileController::class, 'update'])->name('update');
-        Route::patch('/{user?}', [ProfileController::class, 'update'])->name('update.patch');
-        Route::delete('/{user?}', [ProfileController::class, 'destroy'])->name('destroy');
+        Route::get('/{user?}',      [ProfileController::class, 'edit'])->name('edit');
+        Route::put('/{user?}',      [ProfileController::class, 'update'])->name('update');
+        Route::patch('/{user?}',    [ProfileController::class, 'update'])->name('update.patch');
+        Route::delete('/{user?}',   [ProfileController::class, 'destroy'])->name('destroy');
     });
 
     // blogs
     Route::prefix('admin-blogs')->name('admin.blogs.')->group(function () {
-        Route::get('/', [BlogController::class, 'index'])->name('index');
-        Route::get('/crear-blog', [BlogController::class, 'create'])->name('create');
-        Route::post('/guardar', [BlogController::class, 'store'])->name('store');
-        Route::get('/editar-blog/{blog}', [BlogController::class, 'edit'])->name('edit');
-        Route::put('/editar-blog/{blog}', [BlogController::class, 'update'])->name('update');
-        Route::delete('/{blog}', [BlogController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{blog}', [BlogController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/',                     [BlogController::class, 'index'])->name('index');
+        Route::get('/crear-blog',           [BlogController::class, 'create'])->name('create');
+        Route::post('/guardar',             [BlogController::class, 'store'])->name('store');
+        Route::get('/editar-blog/{blog}',   [BlogController::class, 'edit'])->name('edit');
+        Route::put('/editar-blog/{blog}',   [BlogController::class, 'update'])->name('update');
+        Route::delete('/{blog}',            [BlogController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{blog}',      [BlogController::class, 'toggleStatus'])->name('toggle-status');
     });
 
     // examenes, matrículas
     Route::prefix('admin-exams')->name('admin.exams.')->group(function () {
-        Route::get('/', [AdmissionsController::class, 'index'])->name('index');
-        Route::get('/crear-examen', [AdmissionsController::class, 'create'])->name('create');
-        Route::post('/guardar', [AdmissionsController::class, 'store'])->name('store');
-        Route::get('/editar-examen/{admission}', [AdmissionsController::class, 'edit'])->name('edit');
-        Route::put('/editar-examen/{admission}', [AdmissionsController::class, 'update'])->name('update');
-        Route::delete('/{admission}', [AdmissionsController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{admission}', [AdmissionsController::class, 'toggleStatus'])->name('toggle-status');
-        Route::post('/imagen-cepre', [AdmissionsController::class, 'updateCepreImage'])->name('update-cepre-image');
-        Route::post('/imagen-admision', [AdmissionsController::class, 'updateAdmissionImage'])->name('update-admission-image');
+        Route::get('/',                             [AdmissionsController::class, 'index'])->name('index');
+        Route::get('/crear-examen',                 [AdmissionsController::class, 'create'])->name('create');
+        Route::post('/guardar',                     [AdmissionsController::class, 'store'])->name('store');
+        Route::get('/editar-examen/{admission}',    [AdmissionsController::class, 'edit'])->name('edit');
+        Route::put('/editar-examen/{admission}',    [AdmissionsController::class, 'update'])->name('update');
+        Route::delete('/{admission}',               [AdmissionsController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{admission}',         [AdmissionsController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('/imagen-cepre',                [AdmissionsController::class, 'updateCepreImage'])->name('update-cepre-image');
+        Route::post('/imagen-admision',             [AdmissionsController::class, 'updateAdmissionImage'])->name('update-admission-image');
     });
 
     // becas
     Route::prefix('admin-scholarships')->name('admin.scholarships.')->group(function () {
-        Route::get('/', [ScholarshipController::class, 'index'])->name('index');
-        Route::get('/crear-beca', [ScholarshipController::class, 'create'])->name('create');
-        Route::post('/guardar', [ScholarshipController::class, 'store'])->name('store');
-        Route::get('/editar-beca/{scholarship}', [ScholarshipController::class, 'edit'])->name('edit');
-        Route::put('/editar-beca/{scholarship}', [ScholarshipController::class, 'update'])->name('update');
-        Route::delete('/{scholarship}', [ScholarshipController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{scholarship}', [ScholarshipController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/',                             [ScholarshipController::class, 'index'])->name('index');
+        Route::get('/crear-beca',                   [ScholarshipController::class, 'create'])->name('create');
+        Route::post('/guardar',                     [ScholarshipController::class, 'store'])->name('store');
+        Route::get('/editar-beca/{scholarship}',    [ScholarshipController::class, 'edit'])->name('edit');
+        Route::put('/editar-beca/{scholarship}',    [ScholarshipController::class, 'update'])->name('update');
+        Route::delete('/{scholarship}',             [ScholarshipController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{scholarship}',       [ScholarshipController::class, 'toggleStatus'])->name('toggle-status');
 
         // Beneficiarios de Becas (PDF por periodo)
         Route::prefix('beneficiarios')->name('beneficiaries.')->group(function () {
-            Route::post('/guardar', [ScholarshipBeneficiaryController::class, 'store'])->name('store');
-            Route::get('/editar/{beneficiary}', [ScholarshipBeneficiaryController::class, 'edit'])->name('edit');
-            Route::put('/editar/{beneficiary}', [ScholarshipBeneficiaryController::class, 'update'])->name('update');
-            Route::delete('/{beneficiary}', [ScholarshipBeneficiaryController::class, 'destroy'])->name('destroy');
-            Route::patch('/estado/{beneficiary}', [ScholarshipBeneficiaryController::class, 'toggleStatus'])->name('toggle-status');
-            Route::get('/descargar/{beneficiary}', [ScholarshipBeneficiaryController::class, 'download'])->name('download');
+            Route::post('/guardar',                 [ScholarshipBeneficiaryController::class, 'store'])->name('store');
+            Route::get('/editar/{beneficiary}',     [ScholarshipBeneficiaryController::class, 'edit'])->name('edit');
+            Route::put('/editar/{beneficiary}',     [ScholarshipBeneficiaryController::class, 'update'])->name('update');
+            Route::delete('/{beneficiary}',         [ScholarshipBeneficiaryController::class, 'destroy'])->name('destroy');
+            Route::patch('/estado/{beneficiary}',   [ScholarshipBeneficiaryController::class, 'toggleStatus'])->name('toggle-status');
+            Route::get('/descargar/{beneficiary}',  [ScholarshipBeneficiaryController::class, 'download'])->name('download');
         });
     });
 
     // ── BIBLIOTECA VIRTUAL: Portal para Lectores (Docentes y Estudiantes) ──────
     Route::prefix('biblioteca')->name('biblioteca.')->group(function () {
-        Route::get('/', [LibraryReaderController::class, 'index'])->name('index');
-        Route::get('/buscar', [LibraryReaderController::class, 'search'])->name('search');
-        Route::get('/mi-biblioteca', [LibraryReaderController::class, 'myLibrary'])->name('favorites');
-        Route::get('/leer/{book:slug}', [LibraryReaderController::class, 'read'])->name('read');
-        Route::get('/stream/{book:slug}', [LibraryReaderController::class, 'stream'])->name('stream');
-        Route::post('/favorito/{book}', [LibraryReaderController::class, 'toggleFavorite'])->name('favorite.toggle');
+        Route::get('/',                     [LibraryReaderController::class, 'index'])->name('index');
+        Route::get('/buscar',               [LibraryReaderController::class, 'search'])->name('search');
+        Route::get('/mi-biblioteca',        [LibraryReaderController::class, 'myLibrary'])->name('favorites');
+        Route::get('/leer/{book:slug}',     [LibraryReaderController::class, 'read'])->name('read');
+        Route::get('/stream/{book:slug}',   [LibraryReaderController::class, 'stream'])->name('stream');
+        Route::post('/favorito/{book}',     [LibraryReaderController::class, 'toggleFavorite'])->name('favorite.toggle');
     });
 
     // ── BIBLIOTECA VIRTUAL: Panel de Gestión Administrativa ────────────────────
     Route::prefix('admin-biblioteca')->name('admin.library.')->group(function () {
-        Route::get('/', [AdminLibraryController::class, 'index'])->name('index');
-        Route::get('/libros', [AdminLibraryController::class, 'index'])->name('books.index');
-        Route::get('/repositorio', [AdminLibraryController::class, 'repository'])->name('repository');
-        Route::post('/guardar', [AdminLibraryController::class, 'store'])->name('store');
-        Route::get('/editar/{book}', [AdminLibraryController::class, 'edit'])->name('edit');
-        Route::put('/editar/{book}', [AdminLibraryController::class, 'update'])->name('update');
-        Route::delete('/{book}', [AdminLibraryController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{book}', [AdminLibraryController::class, 'toggleStatus'])->name('toggle-status');
-        Route::get('/lectores', [AdminLibraryController::class, 'readers'])->name('readers');
-        Route::get('/administradores', [AdminLibraryController::class, 'administrators'])->name('administrators');
-        Route::get('/reportes', [AdminLibraryController::class, 'reports'])->name('reports');
+        Route::get('/',                 [AdminLibraryController::class, 'index'])->name('index');
+        Route::get('/libros',           [AdminLibraryController::class, 'index'])->name('books.index');
+        Route::get('/repositorio',      [AdminLibraryController::class, 'repository'])->name('repository');
+        Route::post('/guardar',         [AdminLibraryController::class, 'store'])->name('store');
+        Route::get('/editar/{book}',    [AdminLibraryController::class, 'edit'])->name('edit');
+        Route::put('/editar/{book}',    [AdminLibraryController::class, 'update'])->name('update');
+        Route::delete('/{book}',        [AdminLibraryController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{book}',  [AdminLibraryController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/lectores',         [AdminLibraryController::class, 'readers'])->name('readers');
+        Route::get('/administradores',  [AdminLibraryController::class, 'administrators'])->name('administrators');
+        Route::get('/reportes',         [AdminLibraryController::class, 'reports'])->name('reports');
     });
 
     // tupa
     Route::prefix('admin-tupa')->name('admin.tupa.')->group(function () {
         // Documentos TUPA
-        Route::get('/', [TupaController::class, 'index'])->name('index');
-        Route::get('/crear-tupa', [TupaController::class, 'create'])->name('create');
-        Route::post('/guardar', [TupaController::class, 'store'])->name('store');
-        Route::get('/editar-tupa/{tupa}', [TupaController::class, 'edit'])->name('edit');
-        Route::put('/editar-tupa/{tupa}', [TupaController::class, 'update'])->name('update');
-        Route::delete('/{tupa}', [TupaController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{tupa}', [TupaController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/',                     [TupaController::class, 'index'])->name('index');
+        Route::get('/crear-tupa',           [TupaController::class, 'create'])->name('create');
+        Route::post('/guardar',             [TupaController::class, 'store'])->name('store');
+        Route::get('/editar-tupa/{tupa}',   [TupaController::class, 'edit'])->name('edit');
+        Route::put('/editar-tupa/{tupa}',   [TupaController::class, 'update'])->name('update');
+        Route::delete('/{tupa}',            [TupaController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{tupa}',      [TupaController::class, 'toggleStatus'])->name('toggle-status');
 
         // Categorías TUPA
         Route::prefix('categorias')->name('categories.')->group(function () {
-            Route::get('/crear', [TupaController::class, 'createCategory'])->name('create');
-            Route::post('/guardar', [TupaController::class, 'storeCategory'])->name('store');
-            Route::get('/editar/{category}', [TupaController::class, 'editCategory'])->name('edit');
-            Route::put('/editar/{category}', [TupaController::class, 'updateCategory'])->name('update');
-            Route::delete('/{category}', [TupaController::class, 'destroyCategory'])->name('destroy');
-            Route::patch('/estado/{category}', [TupaController::class, 'toggleCategoryStatus'])->name('toggle-status');
+            Route::get('/crear',                [TupaController::class, 'createCategory'])->name('create');
+            Route::post('/guardar',             [TupaController::class, 'storeCategory'])->name('store');
+            Route::get('/editar/{category}',    [TupaController::class, 'editCategory'])->name('edit');
+            Route::put('/editar/{category}',    [TupaController::class, 'updateCategory'])->name('update');
+            Route::delete('/{category}',        [TupaController::class, 'destroyCategory'])->name('destroy');
+            Route::patch('/estado/{category}',  [TupaController::class, 'toggleCategoryStatus'])->name('toggle-status');
         });
 
         // Procedimientos TUPA
         Route::prefix('procedimientos')->name('procedures.')->group(function () {
-            Route::get('/crear', [TupaController::class, 'createProcedure'])->name('create');
-            Route::post('/guardar', [TupaController::class, 'storeProcedure'])->name('store');
-            Route::get('/editar/{procedure}', [TupaController::class, 'editProcedure'])->name('edit');
-            Route::put('/editar/{procedure}', [TupaController::class, 'updateProcedure'])->name('update');
-            Route::delete('/{procedure}', [TupaController::class, 'destroyProcedure'])->name('destroy');
+            Route::get('/crear',                [TupaController::class, 'createProcedure'])->name('create');
+            Route::post('/guardar',             [TupaController::class, 'storeProcedure'])->name('store');
+            Route::get('/editar/{procedure}',   [TupaController::class, 'editProcedure'])->name('edit');
+            Route::put('/editar/{procedure}',   [TupaController::class, 'updateProcedure'])->name('update');
+            Route::delete('/{procedure}',       [TupaController::class, 'destroyProcedure'])->name('destroy');
             Route::patch('/estado/{procedure}', [TupaController::class, 'toggleProcedureStatus'])->name('toggle-status');
         });
     });
 
     // documentos de gestión
     Route::prefix('admin-documentos')->name('admin.documents.')->group(function () {
-        Route::get('/', [ManagementDocumentController::class, 'index'])->name('index');
-        Route::get('/crear', [ManagementDocumentController::class, 'create'])->name('create');
-        Route::post('/guardar', [ManagementDocumentController::class, 'store'])->name('store');
-        Route::get('/editar/{managementDocument}', [ManagementDocumentController::class, 'edit'])->name('edit');
-        Route::put('/editar/{managementDocument}', [ManagementDocumentController::class, 'update'])->name('update');
-        Route::delete('/{managementDocument}', [ManagementDocumentController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{managementDocument}', [ManagementDocumentController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/',                             [ManagementDocumentController::class, 'index'])->name('index');
+        Route::get('/crear',                        [ManagementDocumentController::class, 'create'])->name('create');
+        Route::post('/guardar',                     [ManagementDocumentController::class, 'store'])->name('store');
+        Route::get('/editar/{managementDocument}',  [ManagementDocumentController::class, 'edit'])->name('edit');
+        Route::put('/editar/{managementDocument}',  [ManagementDocumentController::class, 'update'])->name('update');
+        Route::delete('/{managementDocument}',      [ManagementDocumentController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{managementDocument}',[ManagementDocumentController::class, 'toggleStatus'])->name('toggle-status');
     });
 
     // Áreas Institucionales
     Route::prefix('admin-areas')->name('admin.areas.')->group(function () {
-        Route::get('/', [AreaController::class, 'index'])->name('index');
-        Route::get('/crear', [AreaController::class, 'create'])->name('create');
-        Route::post('/guardar', [AreaController::class, 'store'])->name('store');
-        Route::get('/editar/{area}', [AreaController::class, 'edit'])->name('edit');
-        Route::put('/editar/{area}', [AreaController::class, 'update'])->name('update');
-        Route::delete('/{area}', [AreaController::class, 'destroy'])->name('destroy');
+        Route::get('/',                 [AreaController::class, 'index'])->name('index');
+        Route::get('/crear',            [AreaController::class, 'create'])->name('create');
+        Route::post('/guardar',         [AreaController::class, 'store'])->name('store');
+        Route::get('/editar/{area}',    [AreaController::class, 'edit'])->name('edit');
+        Route::put('/editar/{area}',    [AreaController::class, 'update'])->name('update');
+        Route::delete('/{area}',        [AreaController::class, 'destroy'])->name('destroy');
     });
 
     // programas de estudio
     Route::prefix('admin-programas')->name('admin.programs.')->group(function () {
         // Programas de Estudio
-        Route::get('/', [StudyProgramsController::class, 'index'])->name('index');
-        Route::get('/crear-programa', [StudyProgramsController::class, 'create'])->name('create');
-        Route::post('/guardar', [StudyProgramsController::class, 'store'])->name('store');
-        Route::get('/editar-programa/{program}', [StudyProgramsController::class, 'edit'])->name('edit');
-        Route::put('/editar-programa/{program}', [StudyProgramsController::class, 'update'])->name('update');
-        Route::delete('/{program}', [StudyProgramsController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{program}', [StudyProgramsController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/',                             [StudyProgramsController::class, 'index'])->name('index');
+        Route::get('/crear-programa',               [StudyProgramsController::class, 'create'])->name('create');
+        Route::post('/guardar',                     [StudyProgramsController::class, 'store'])->name('store');
+        Route::get('/editar-programa/{program}',    [StudyProgramsController::class, 'edit'])->name('edit');
+        Route::put('/editar-programa/{program}',    [StudyProgramsController::class, 'update'])->name('update');
+        Route::delete('/{program}',                 [StudyProgramsController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{program}',           [StudyProgramsController::class, 'toggleStatus'])->name('toggle-status');
 
         // Certificaciones Modulares (modular_certification)
         Route::prefix('modulos')->name('modules.')->group(function () {
-            Route::get('/crear', [StudyProgramsController::class, 'createModule'])->name('create');
-            Route::post('/guardar', [StudyProgramsController::class, 'storeModule'])->name('store');
-            Route::get('/editar/{module}', [StudyProgramsController::class, 'editModule'])->name('edit');
-            Route::put('/editar/{module}', [StudyProgramsController::class, 'updateModule'])->name('update');
-            Route::delete('/{module}', [StudyProgramsController::class, 'destroyModule'])->name('destroy');
-            Route::patch('/estado/{module}', [StudyProgramsController::class, 'toggleModuleStatus'])->name('toggle-status');
+            Route::get('/crear',                [StudyProgramsController::class, 'createModule'])->name('create');
+            Route::post('/guardar',             [StudyProgramsController::class, 'storeModule'])->name('store');
+            Route::get('/editar/{module}',      [StudyProgramsController::class, 'editModule'])->name('edit');
+            Route::put('/editar/{module}',      [StudyProgramsController::class, 'updateModule'])->name('update');
+            Route::delete('/{module}',          [StudyProgramsController::class, 'destroyModule'])->name('destroy');
+            Route::patch('/estado/{module}',    [StudyProgramsController::class, 'toggleModuleStatus'])->name('toggle-status');
         });
 
         // Competencias (program_competencies)
         Route::prefix('competencias')->name('competencies.')->group(function () {
-            Route::get('/crear', [StudyProgramsController::class, 'createCompetency'])->name('create');
-            Route::post('/guardar', [StudyProgramsController::class, 'storeCompetency'])->name('store');
-            Route::get('/editar/{competency}', [StudyProgramsController::class, 'editCompetency'])->name('edit');
-            Route::put('/editar/{competency}', [StudyProgramsController::class, 'updateCompetency'])->name('update');
-            Route::delete('/{competency}', [StudyProgramsController::class, 'destroyCompetency'])->name('destroy');
-            Route::patch('/estado/{competency}', [StudyProgramsController::class, 'toggleCompetencyStatus'])->name('toggle-status');
+            Route::get('/crear',                    [StudyProgramsController::class, 'createCompetency'])->name('create');
+            Route::post('/guardar',                 [StudyProgramsController::class, 'storeCompetency'])->name('store');
+            Route::get('/editar/{competency}',      [StudyProgramsController::class, 'editCompetency'])->name('edit');
+            Route::put('/editar/{competency}',      [StudyProgramsController::class, 'updateCompetency'])->name('update');
+            Route::delete('/{competency}',          [StudyProgramsController::class, 'destroyCompetency'])->name('destroy');
+            Route::patch('/estado/{competency}',    [StudyProgramsController::class, 'toggleCompetencyStatus'])->name('toggle-status');
         });
 
         // Campo Laboral (program_job_fields)
         Route::prefix('campo-laboral')->name('job-fields.')->group(function () {
-            Route::get('/crear', [StudyProgramsController::class, 'createJobField'])->name('create');
-            Route::post('/guardar', [StudyProgramsController::class, 'storeJobField'])->name('store');
-            Route::get('/editar/{jobField}', [StudyProgramsController::class, 'editJobField'])->name('edit');
-            Route::put('/editar/{jobField}', [StudyProgramsController::class, 'updateJobField'])->name('update');
-            Route::delete('/{jobField}', [StudyProgramsController::class, 'destroyJobField'])->name('destroy');
-            Route::patch('/estado/{jobField}', [StudyProgramsController::class, 'toggleJobFieldStatus'])->name('toggle-status');
+            Route::get('/crear',                [StudyProgramsController::class, 'createJobField'])->name('create');
+            Route::post('/guardar',             [StudyProgramsController::class, 'storeJobField'])->name('store');
+            Route::get('/editar/{jobField}',    [StudyProgramsController::class, 'editJobField'])->name('edit');
+            Route::put('/editar/{jobField}',    [StudyProgramsController::class, 'updateJobField'])->name('update');
+            Route::delete('/{jobField}',        [StudyProgramsController::class, 'destroyJobField'])->name('destroy');
+            Route::patch('/estado/{jobField}',  [StudyProgramsController::class, 'toggleJobFieldStatus'])->name('toggle-status');
         });
 
         // Metadata de Presentación (program_metas)
         Route::prefix('metadatos')->name('meta.')->group(function () {
-            Route::get('/crear', [StudyProgramsController::class, 'createMeta'])->name('create');
-            Route::post('/guardar', [StudyProgramsController::class, 'storeMeta'])->name('store');
-            Route::get('/editar/{meta}', [StudyProgramsController::class, 'editMeta'])->name('edit');
-            Route::put('/editar/{meta}', [StudyProgramsController::class, 'updateMeta'])->name('update');
-            Route::delete('/{meta}', [StudyProgramsController::class, 'destroyMeta'])->name('destroy');
+            Route::get('/crear',            [StudyProgramsController::class, 'createMeta'])->name('create');
+            Route::post('/guardar',         [StudyProgramsController::class, 'storeMeta'])->name('store');
+            Route::get('/editar/{meta}',    [StudyProgramsController::class, 'editMeta'])->name('edit');
+            Route::put('/editar/{meta}',    [StudyProgramsController::class, 'updateMeta'])->name('update');
+            Route::delete('/{meta}',        [StudyProgramsController::class, 'destroyMeta'])->name('destroy');
         });
 
         // Requisitos (program_requirements)
         Route::prefix('requisitos')->name('requirements.')->group(function () {
-            Route::get('/crear', [StudyProgramsController::class, 'createRequirement'])->name('create');
-            Route::post('/guardar', [StudyProgramsController::class, 'storeRequirement'])->name('store');
-            Route::get('/editar/{requirement}', [StudyProgramsController::class, 'editRequirement'])->name('edit');
-            Route::put('/editar/{requirement}', [StudyProgramsController::class, 'updateRequirement'])->name('update');
-            Route::delete('/{requirement}', [StudyProgramsController::class, 'destroyRequirement'])->name('destroy');
-            Route::patch('/estado/{requirement}', [StudyProgramsController::class, 'toggleRequirementStatus'])->name('toggle-status');
+            Route::get('/crear',                    [StudyProgramsController::class, 'createRequirement'])->name('create');
+            Route::post('/guardar',                 [StudyProgramsController::class, 'storeRequirement'])->name('store');
+            Route::get('/editar/{requirement}',     [StudyProgramsController::class, 'editRequirement'])->name('edit');
+            Route::put('/editar/{requirement}',     [StudyProgramsController::class, 'updateRequirement'])->name('update');
+            Route::delete('/{requirement}',         [StudyProgramsController::class, 'destroyRequirement'])->name('destroy');
+            Route::patch('/estado/{requirement}',   [StudyProgramsController::class, 'toggleRequirementStatus'])->name('toggle-status');
         });
     });
 
     // ─── Certificaciones (Cursos, Módulos, Certificados, Itinerarios) ─────
     // Cursos
     Route::prefix('admin-cursos')->name('admin.courses.')->group(function () {
-        Route::get('/', [CourseController::class, 'index'])->name('index');
-        Route::post('/', [CourseController::class, 'store'])->name('store');
-        Route::put('/{course}', [CourseController::class, 'update'])->name('update');
-        Route::delete('/{course}', [CourseController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{course}', [CourseController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/',                     [CourseController::class, 'index'])->name('index');
+        Route::post('/',                    [CourseController::class, 'store'])->name('store');
+        Route::put('/{course}',             [CourseController::class, 'update'])->name('update');
+        Route::delete('/{course}',          [CourseController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{course}',    [CourseController::class, 'toggleStatus'])->name('toggle-status');
     });
 
     // Módulos
     Route::prefix('admin-modulos')->name('admin.modules.')->group(function () {
-        Route::get('/', [ModuleController::class, 'index'])->name('index');
-        Route::post('/', [ModuleController::class, 'store'])->name('store');
-        Route::put('/{module}', [ModuleController::class, 'update'])->name('update');
-        Route::delete('/{module}', [ModuleController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{module}', [ModuleController::class, 'toggleStatus'])->name('toggle-status');
-        Route::get('/por-curso/{course}', [ModuleController::class, 'byCourse'])->name('by-course');
+        Route::get('/',                     [ModuleController::class, 'index'])->name('index');
+        Route::post('/',                    [ModuleController::class, 'store'])->name('store');
+        Route::put('/{module}',             [ModuleController::class, 'update'])->name('update');
+        Route::delete('/{module}',          [ModuleController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{module}',    [ModuleController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/por-curso/{course}',   [ModuleController::class, 'byCourse'])->name('by-course');
     });
 
     // Certificados
     Route::prefix('admin-certificados')->name('admin.certificates.')->group(function () {
-        Route::get('/', [CertificateController::class, 'index'])->name('index');
-        Route::post('/', [CertificateController::class, 'store'])->name('store');
-        Route::post('/importar', [CertificateController::class, 'import'])->name('import');
-        Route::get('/{certificate}', [CertificateController::class, 'show'])->name('show');
-        Route::put('/{certificate}', [CertificateController::class, 'update'])->name('update');
-        Route::delete('/{certificate}', [CertificateController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{certificate}', [CertificateController::class, 'toggleStatus'])->name('toggle-status');
-        Route::post('/{certificate}/detalles', [CertificateController::class, 'storeDetail'])->name('details.store');
-        Route::delete('/detalles/{detail}', [CertificateController::class, 'destroyDetail'])->name('details.destroy');
+        Route::get('/',                         [CertificateController::class, 'index'])->name('index');
+        Route::post('/',                        [CertificateController::class, 'store'])->name('store');
+        Route::get('/plantilla',                [CertificateController::class, 'downloadTemplate'])->name('template');
+        Route::post('/importar',                [CertificateController::class, 'import'])->name('import');
+        Route::get('/{certificate}',            [CertificateController::class, 'show'])->name('show');
+        Route::put('/{certificate}',            [CertificateController::class, 'update'])->name('update');
+        Route::delete('/{certificate}',         [CertificateController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{certificate}',   [CertificateController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('/{certificate}/detalles',  [CertificateController::class, 'storeDetail'])->name('details.store');
+        Route::delete('/detalles/{detail}',     [CertificateController::class, 'destroyDetail'])->name('details.destroy');
     });
 
     // Itinerarios
     Route::prefix('admin-itinerarios')->name('admin.itineraries.')->group(function () {
-        Route::get('/', [ItineraryController::class, 'index'])->name('index');
-        Route::post('/', [ItineraryController::class, 'store'])->name('store');
-        Route::put('/{itinerary}', [ItineraryController::class, 'update'])->name('update');
-        Route::delete('/{itinerary}', [ItineraryController::class, 'destroy'])->name('destroy');
+        Route::get('/',                     [ItineraryController::class, 'index'])->name('index');
+        Route::post('/',                    [ItineraryController::class, 'store'])->name('store');
+        Route::put('/{itinerary}',          [ItineraryController::class, 'update'])->name('update');
+        Route::delete('/{itinerary}',       [ItineraryController::class, 'destroy'])->name('destroy');
         Route::patch('/estado/{itinerary}', [ItineraryController::class, 'toggleStatus'])->name('toggle-status');
     });
 
     // bolsa de trabajo
     Route::prefix('admin-trabajos')->name('admin.works.')->group(function () {
-        Route::get('/', [JobsController::class, 'index'])->name('index');
-        Route::get('/convocatorias-internas', [JobsController::class, 'internalCalls'])->name('internal-calls');
-        Route::get('/crear-oferta', [JobsController::class, 'create'])->name('create');
-        Route::post('/guardar', [JobsController::class, 'store'])->name('store');
-        Route::post('/eliminar-masivo', [JobsController::class, 'bulkDelete'])->name('bulk-delete');
-        Route::delete('/vaciar-tabla', [JobsController::class, 'clearAll'])->name('clear-all');
-        Route::get('/{offer}/editar-oferta', [JobsController::class, 'edit'])->name('edit');
-        Route::put('/{offer}', [JobsController::class, 'update'])->name('update');
-        Route::delete('/{offer}', [JobsController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{offer}', [JobsController::class, 'toggleStatus'])->name('toggle-status');
-        Route::post('/buscar-automatico', [JobsController::class, 'fetchJobs'])->name('fetch-jobs');
+        Route::get('/',                         [JobsController::class, 'index'])->name('index');
+        Route::get('/convocatorias-internas',   [JobsController::class, 'internalCalls'])->name('internal-calls');
+        Route::get('/crear-oferta',             [JobsController::class, 'create'])->name('create');
+        Route::post('/guardar',                 [JobsController::class, 'store'])->name('store');
+        Route::post('/eliminar-masivo',         [JobsController::class, 'bulkDelete'])->name('bulk-delete');
+        Route::delete('/vaciar-tabla',          [JobsController::class, 'clearAll'])->name('clear-all');
+        Route::get('/{offer}/editar-oferta',    [JobsController::class, 'edit'])->name('edit');
+        Route::put('/{offer}',                  [JobsController::class, 'update'])->name('update');
+        Route::delete('/{offer}',               [JobsController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{offer}',         [JobsController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('/buscar-automatico',       [JobsController::class, 'fetchJobs'])->name('fetch-jobs');
     });
 
     // usuarios
     Route::prefix('admin-usuarios')->name('admin.users.')->group(function () {
-        Route::get('/', [UsersController::class, 'index'])->name('index');
-        Route::get('/crear', [UsersController::class, 'create'])->name('create');
-        Route::get('/{user}/editar/', [UsersController::class, 'edit'])->name('edit');
-        Route::post('/', [UsersController::class, 'store'])->name('store');
-        Route::put('/{user}', [UsersController::class, 'update'])->name('update');
-        Route::patch('/estado/{user}', [UsersController::class, 'toggleStatus'])->name('toggle-status');
-        Route::delete('/{user}', [UsersController::class, 'destroy'])->name('destroy');
+        Route::get('/',                 [UsersController::class, 'index'])->name('index');
+        Route::get('/crear',            [UsersController::class, 'create'])->name('create');
+        Route::get('/{user}/editar/',   [UsersController::class, 'edit'])->name('edit');
+        Route::post('/',                [UsersController::class, 'store'])->name('store');
+        Route::put('/{user}',           [UsersController::class, 'update'])->name('update');
+        Route::patch('/estado/{user}',  [UsersController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{user}',        [UsersController::class, 'destroy'])->name('destroy');
     });
 
     // Teacher role details
     Route::prefix('admin-docentes-roles')->name('admin.teacher-roles.')->group(function () {
-        Route::get('/', [TeacherRoleController::class, 'index'])->name('index');
-        Route::post('/guardar', [TeacherRoleController::class, 'store'])->name('store');
-        Route::put('/{teacherRole}', [TeacherRoleController::class, 'update'])->name('update');
-        Route::patch('/estado/{teacherRole}', [TeacherRoleController::class, 'toggleStatus'])->name('toggle-status');
-        Route::delete('/{teacherRole}', [TeacherRoleController::class, 'destroy'])->name('destroy');
+        Route::get('/',                         [TeacherRoleController::class, 'index'])->name('index');
+        Route::post('/guardar',                 [TeacherRoleController::class, 'store'])->name('store');
+        Route::put('/{teacherRole}',            [TeacherRoleController::class, 'update'])->name('update');
+        Route::patch('/estado/{teacherRole}',   [TeacherRoleController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{teacherRole}',         [TeacherRoleController::class, 'destroy'])->name('destroy');
     });
 
     // consejo estudiantil
     Route::prefix('admin-consejo-estudiantil')->name('admin.student-council.')->group(function () {
-        Route::get('/', [StudentCouncilController::class, 'index'])->name('index');
-        Route::post('/guardar', [StudentCouncilController::class, 'store'])->name('store');
-        Route::put('/{studentCouncil}', [StudentCouncilController::class, 'update'])->name('update');
-        Route::patch('/estado/{studentCouncil}', [StudentCouncilController::class, 'toggleStatus'])->name('toggle-status');
-        Route::delete('/{studentCouncil}', [StudentCouncilController::class, 'destroy'])->name('destroy');
+        Route::get('/',                             [StudentCouncilController::class, 'index'])->name('index');
+        Route::post('/guardar',                     [StudentCouncilController::class, 'store'])->name('store');
+        Route::put('/{studentCouncil}',             [StudentCouncilController::class, 'update'])->name('update');
+        Route::patch('/estado/{studentCouncil}',    [StudentCouncilController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{studentCouncil}',          [StudentCouncilController::class, 'destroy'])->name('destroy');
     });
 
     // enlaces institucionales
     Route::prefix('admin-enlaces')->name('admin.links.')->group(function () {
-        Route::get('/', [ExternalInstitutionalLinkController::class, 'index'])->name('index');
-        Route::get('/crear', [ExternalInstitutionalLinkController::class, 'create'])->name('create');
-        Route::post('/guardar', [ExternalInstitutionalLinkController::class, 'store'])->name('store');
-        Route::get('/{link}/editar', [ExternalInstitutionalLinkController::class, 'edit'])->name('edit');
-        Route::put('/{link}', [ExternalInstitutionalLinkController::class, 'update'])->name('update');
-        Route::patch('/estado/{link}', [ExternalInstitutionalLinkController::class, 'toggleStatus'])->name('toggle-status');
-        Route::delete('/{link}', [ExternalInstitutionalLinkController::class, 'destroy'])->name('destroy');
+        Route::get('/',                 [ExternalInstitutionalLinkController::class, 'index'])->name('index');
+        Route::get('/crear',            [ExternalInstitutionalLinkController::class, 'create'])->name('create');
+        Route::post('/guardar',         [ExternalInstitutionalLinkController::class, 'store'])->name('store');
+        Route::get('/{link}/editar',    [ExternalInstitutionalLinkController::class, 'edit'])->name('edit');
+        Route::put('/{link}',           [ExternalInstitutionalLinkController::class, 'update'])->name('update');
+        Route::patch('/estado/{link}',  [ExternalInstitutionalLinkController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{link}',        [ExternalInstitutionalLinkController::class, 'destroy'])->name('destroy');
     });
 
     // roles
     Route::prefix('admin-roles')->name('admin.roles.')->group(function () {
-        Route::get('/', [RoleController::class, 'index'])->name('index');
-        Route::get('/crear', [RoleController::class, 'create'])->name('create');
-        Route::post('/guardar', [RoleController::class, 'store'])->name('store');
-        Route::get('/{role}/editar', [RoleController::class, 'edit'])->name('edit');
-        Route::put('/{role}', [RoleController::class, 'update'])->name('update');
-        Route::delete('/{role}', [RoleController::class, 'destroy'])->name('destroy');
+        Route::get('/',                 [RoleController::class, 'index'])->name('index');
+        Route::get('/crear',            [RoleController::class, 'create'])->name('create');
+        Route::post('/guardar',         [RoleController::class, 'store'])->name('store');
+        Route::get('/{role}/editar',    [RoleController::class, 'edit'])->name('edit');
+        Route::put('/{role}',           [RoleController::class, 'update'])->name('update');
+        Route::delete('/{role}',        [RoleController::class, 'destroy'])->name('destroy');
     });
 
     // reclamos
     Route::prefix('admin-reclamos')->name('admin.claims.')->group(function () {
-        Route::get('/', [ClaimsController::class, 'index'])->name('index');
-        Route::get('/{claim}', [ClaimsController::class, 'show'])->name('show');
+        Route::get('/',                 [ClaimsController::class, 'index'])->name('index');
+        Route::get('/{claim}',          [ClaimsController::class, 'show'])->name('show');
         Route::patch('/estado/{claim}', [ClaimsController::class, 'status'])->name('status');
     });
 
     // estadísticas y registros estudiantiles (Transparencia)
     Route::prefix('admin-estadisticas')->name('admin.statistics.')->group(function () {
-        Route::get('/', [StadisticController::class, 'index'])->name('index');
-        Route::get('/crear', [StadisticController::class, 'create'])->name('create');
-        Route::post('/guardar', [StadisticController::class, 'store'])->name('store');
-        Route::post('/importar', [StadisticController::class, 'import'])->name('import');
-        Route::get('/ver/{studentRecord}', [StadisticController::class, 'show'])->name('show');
-        Route::get('/editar/{studentRecord}', [StadisticController::class, 'edit'])->name('edit');
-        Route::put('/editar/{studentRecord}', [StadisticController::class, 'update'])->name('update');
-        Route::delete('/{studentRecord}', [StadisticController::class, 'destroy'])->name('destroy');
+        Route::get('/',                         [StadisticController::class, 'index'])->name('index');
+        Route::get('/crear',                    [StadisticController::class, 'create'])->name('create');
+        Route::post('/guardar',                 [StadisticController::class, 'store'])->name('store');
+        Route::post('/importar',                [StadisticController::class, 'import'])->name('import');
+        Route::get('/ver/{studentRecord}',      [StadisticController::class, 'show'])->name('show');
+        Route::get('/editar/{studentRecord}',   [StadisticController::class, 'edit'])->name('edit');
+        Route::put('/editar/{studentRecord}',   [StadisticController::class, 'update'])->name('update');
+        Route::delete('/{studentRecord}',       [StadisticController::class, 'destroy'])->name('destroy');
     });
 
     // grados y títulos (Transparencia)
     Route::prefix('admin-titulos')->name('admin.degree-records.')->group(function () {
-        Route::get('/', [DegreeRecordsController::class, 'index'])->name('index');
-        Route::get('/crear', [DegreeRecordsController::class, 'create'])->name('create');
-        Route::post('/guardar', [DegreeRecordsController::class, 'store'])->name('store');
-        Route::post('/importar', [DegreeRecordsController::class, 'import'])->name('import');
-        Route::get('/ver/{degreeRecord}', [DegreeRecordsController::class, 'show'])->name('show');
-        Route::get('/editar/{degreeRecord}', [DegreeRecordsController::class, 'edit'])->name('edit');
-        Route::put('/editar/{degreeRecord}', [DegreeRecordsController::class, 'update'])->name('update');
-        Route::delete('/{degreeRecord}', [DegreeRecordsController::class, 'destroy'])->name('destroy');
+        Route::get('/',                         [DegreeRecordsController::class, 'index'])->name('index');
+        Route::get('/crear',                    [DegreeRecordsController::class, 'create'])->name('create');
+        Route::post('/guardar',                 [DegreeRecordsController::class, 'store'])->name('store');
+        Route::post('/importar',                [DegreeRecordsController::class, 'import'])->name('import');
+        Route::get('/ver/{degreeRecord}',       [DegreeRecordsController::class, 'show'])->name('show');
+        Route::get('/editar/{degreeRecord}',    [DegreeRecordsController::class, 'edit'])->name('edit');
+        Route::put('/editar/{degreeRecord}',    [DegreeRecordsController::class, 'update'])->name('update');
+        Route::delete('/{degreeRecord}',        [DegreeRecordsController::class, 'destroy'])->name('destroy');
     });
 
     // licenciamiento (Transparencia)
     Route::prefix('admin-licenciamiento')->name('admin.licensing.')->group(function () {
-        Route::get('/', [LicensingController::class, 'index'])->name('index');
-        Route::get('/crear', [LicensingController::class, 'create'])->name('create');
-        Route::post('/guardar', [LicensingController::class, 'store'])->name('store');
-        Route::get('/editar/{licensing}', [LicensingController::class, 'edit'])->name('edit');
-        Route::put('/editar/{licensing}', [LicensingController::class, 'update'])->name('update');
-        Route::delete('/{licensing}', [LicensingController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{licensing}', [LicensingController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/',                         [LicensingController::class, 'index'])->name('index');
+        Route::get('/crear',                    [LicensingController::class, 'create'])->name('create');
+        Route::post('/guardar',                 [LicensingController::class, 'store'])->name('store');
+        Route::get('/editar/{licensing}',       [LicensingController::class, 'edit'])->name('edit');
+        Route::put('/editar/{licensing}',       [LicensingController::class, 'update'])->name('update');
+        Route::delete('/{licensing}',           [LicensingController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{licensing}',     [LicensingController::class, 'toggleStatus'])->name('toggle-status');
         Route::patch('/etapa-actual/{licensing}', [LicensingController::class, 'setCurrentStage'])->name('set-current');
     });
 
     // partners
     Route::prefix('admin-socios')->name('admin.partners.')->group(function () {
-        Route::get('/', [PartnersController::class, 'index'])->name('index');
-        Route::get('/crear', [PartnersController::class, 'create'])->name('create');
-        Route::post('/guardar', [PartnersController::class, 'store'])->name('store');
-        Route::get('/{partner}/editar', [PartnersController::class, 'edit'])->name('edit');
-        Route::put('/{partner}', [PartnersController::class, 'update'])->name('update');
-        Route::patch('/estado/{partner}', [PartnersController::class, 'toggleStatus'])->name('toggle-status');
-        Route::delete('/{partner}', [PartnersController::class, 'destroy'])->name('destroy');
+        Route::get('/',                     [PartnersController::class, 'index'])->name('index');
+        Route::get('/crear',                [PartnersController::class, 'create'])->name('create');
+        Route::post('/guardar',             [PartnersController::class, 'store'])->name('store');
+        Route::get('/{partner}/editar',     [PartnersController::class, 'edit'])->name('edit');
+        Route::put('/{partner}',            [PartnersController::class, 'update'])->name('update');
+        Route::patch('/estado/{partner}',   [PartnersController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{partner}',         [PartnersController::class, 'destroy'])->name('destroy');
     });
 
     // Rutas para gestión de empresa
     Route::prefix('admin-empresa')->name('admin.enterprise.')->group(function () {
-        Route::get('/editar', [EnterpriseController::class, 'edit'])->name('edit');
+        Route::get('/editar',       [EnterpriseController::class, 'edit'])->name('edit');
         Route::put('/{enterprise}', [EnterpriseController::class, 'update'])->name('update');
     });
 
     // Cronogramas de matrícula
     Route::prefix('admin-matriculas')->name('admin.enrollments.')->group(function () {
-        Route::get('/', [EnrollmentScheduleController::class, 'index'])->name('index');
-        Route::get('/crear', [EnrollmentScheduleController::class, 'create'])->name('create');
-        Route::post('/guardar', [EnrollmentScheduleController::class, 'store'])->name('store');
-        Route::get('/editar/{schedule}', [EnrollmentScheduleController::class, 'edit'])->name('edit');
-        Route::put('/editar/{schedule}', [EnrollmentScheduleController::class, 'update'])->name('update');
-        Route::delete('/{schedule}', [EnrollmentScheduleController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{schedule}', [EnrollmentScheduleController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/',                     [EnrollmentScheduleController::class, 'index'])->name('index');
+        Route::get('/crear',                [EnrollmentScheduleController::class, 'create'])->name('create');
+        Route::post('/guardar',             [EnrollmentScheduleController::class, 'store'])->name('store');
+        Route::get('/editar/{schedule}',    [EnrollmentScheduleController::class, 'edit'])->name('edit');
+        Route::put('/editar/{schedule}',    [EnrollmentScheduleController::class, 'update'])->name('update');
+        Route::delete('/{schedule}',        [EnrollmentScheduleController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{schedule}',  [EnrollmentScheduleController::class, 'toggleStatus'])->name('toggle-status');
     });
 
     // Gestión de Historia Institucional
     Route::prefix('admin-historia')->name('admin.history.')->group(function () {
-        Route::get('/', [HistoricalReviewController::class, 'index'])->name('index');
-        Route::get('/crear', [HistoricalReviewController::class, 'create'])->name('create');
-        Route::post('/guardar', [HistoricalReviewController::class, 'store'])->name('store');
-        Route::get('/editar/{history}', [HistoricalReviewController::class, 'edit'])->name('edit');
-        Route::put('/editar/{history}', [HistoricalReviewController::class, 'update'])->name('update');
-        Route::delete('/{history}', [HistoricalReviewController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{history}', [HistoricalReviewController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/',                     [HistoricalReviewController::class, 'index'])->name('index');
+        Route::get('/crear',                [HistoricalReviewController::class, 'create'])->name('create');
+        Route::post('/guardar',             [HistoricalReviewController::class, 'store'])->name('store');
+        Route::get('/editar/{history}',     [HistoricalReviewController::class, 'edit'])->name('edit');
+        Route::put('/editar/{history}',     [HistoricalReviewController::class, 'update'])->name('update');
+        Route::delete('/{history}',         [HistoricalReviewController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{history}',   [HistoricalReviewController::class, 'toggleStatus'])->name('toggle-status');
     });
 
     // Gestión del Carrusel Institucional (Portada)
     Route::prefix('admin-carrusel')->name('admin.carousel.')->group(function () {
-        Route::get('/', [CarouselController::class, 'index'])->name('index');
-        Route::get('/crear', [CarouselController::class, 'create'])->name('create');
-        Route::post('/guardar', [CarouselController::class, 'store'])->name('store');
-        Route::get('/editar/{carousel}', [CarouselController::class, 'edit'])->name('edit');
-        Route::put('/editar/{carousel}', [CarouselController::class, 'update'])->name('update');
-        Route::delete('/{carousel}', [CarouselController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{carousel}', [CarouselController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/',                     [CarouselController::class, 'index'])->name('index');
+        Route::get('/crear',                [CarouselController::class, 'create'])->name('create');
+        Route::post('/guardar',             [CarouselController::class, 'store'])->name('store');
+        Route::get('/editar/{carousel}',    [CarouselController::class, 'edit'])->name('edit');
+        Route::put('/editar/{carousel}',    [CarouselController::class, 'update'])->name('update');
+        Route::delete('/{carousel}',        [CarouselController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{carousel}',  [CarouselController::class, 'toggleStatus'])->name('toggle-status');
     });
 
     // Inversión y Gestión (Transparencia)
     Route::prefix('admin-inversiones')->name('admin.account-balances.')->group(function () {
-        Route::get('/', [AccountBalanceController::class, 'index'])->name('index');
-        Route::post('/importar', [AccountBalanceController::class, 'import'])->name('import');
+        Route::get('/',                     [AccountBalanceController::class, 'index'])->name('index');
+        Route::post('/importar',            [AccountBalanceController::class, 'import'])->name('import');
         // Borrar información de la tabla: sólo Director / Administrador (permiso gestionar-inversiones)
-        Route::delete('/limpiar-tabla', [AccountBalanceController::class, 'truncateTable'])->name('truncate')->middleware('can:gestionar-inversiones');
-        Route::delete('/clean-table', [AccountBalanceController::class, 'truncateTable'])->name('clean-table')->middleware('can:gestionar-inversiones');
-        Route::delete('/limpiar-periodo', [AccountBalanceController::class, 'truncateTable'])->name('clear-period')->middleware('can:gestionar-inversiones');
-        Route::delete('/{accountBalance}', [AccountBalanceController::class, 'destroy'])->name('destroy');
+        Route::delete('/limpiar-tabla',     [AccountBalanceController::class, 'truncateTable'])->name('truncate')->middleware('can:gestionar-inversiones');
+        Route::delete('/clean-table',       [AccountBalanceController::class, 'truncateTable'])->name('clean-table')->middleware('can:gestionar-inversiones');
+        Route::delete('/limpiar-periodo',   [AccountBalanceController::class, 'truncateTable'])->name('clear-period')->middleware('can:gestionar-inversiones');
+        Route::delete('/{accountBalance}',  [AccountBalanceController::class, 'destroy'])->name('destroy');
     });
 });
 

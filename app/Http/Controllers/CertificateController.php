@@ -16,6 +16,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CertificateController extends Controller
 {
@@ -24,11 +26,11 @@ class CertificateController extends Controller
      */
     public function index(Request $request): View
     {
-        $search   = $request->input('search');
+        $search = $request->input('search');
         $courseId = $request->input('course_id');
-        $userId   = $request->input('user_id');
+        $userId = $request->input('user_id');
         $modality = $request->input('modality');
-        $status   = $request->input('status');
+        $status = $request->input('status');
 
         $query = Certificate::with(['user', 'course', 'details.module'])
             ->when($search, function ($q) use ($search) {
@@ -57,16 +59,16 @@ class CertificateController extends Controller
             ->orderByDesc('id');
 
         $certificates = $query->paginate(10)->appends($request->only(['search', 'course_id', 'user_id', 'modality', 'status']));
-        $courses      = Course::where('is_active', true)->with('modules')->orderBy('name')->get();
-        $users        = User::where('is_active', true)->orderBy('names')->get(['id', 'names', 'dni', 'email']);
+        $courses = Course::where('is_active', true)->with('modules')->orderBy('name')->get();
+        $users = User::where('is_active', true)->orderBy('names')->get(['id', 'names', 'dni', 'email']);
 
         // Stat counters
-        $totalCertificates    = Certificate::count();
-        $activeCertificates   = Certificate::where('is_active', true)->count();
-        $presencialCount      = Certificate::where('modality', 'Presencial')->count();
+        $totalCertificates = Certificate::count();
+        $activeCertificates = Certificate::where('is_active', true)->count();
+        $presencialCount = Certificate::where('modality', 'Presencial')->count();
         $virtualSemipresCount = Certificate::whereIn('modality', ['Virtual', 'Semipresencial'])->count();
-        $totalDownloads       = (int) Certificate::sum('download_count');
-        $issuedCoursesCount   = Certificate::distinct('course_id')->count('course_id');
+        $totalDownloads = (int) Certificate::sum('download_count');
+        $issuedCoursesCount = Certificate::distinct('course_id')->count('course_id');
 
         return view('admin.certificates.index', compact(
             'certificates',
@@ -100,8 +102,8 @@ class CertificateController extends Controller
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
-                    'success'     => true,
-                    'message'     => "El certificado '{$certificate->certificate_code}' ha sido registrado exitosamente.",
+                    'success' => true,
+                    'message' => "El certificado '{$certificate->certificate_code}' ha sido registrado exitosamente.",
                     'certificate' => $certificate->load(['user', 'course']),
                 ], 201);
             }
@@ -110,12 +112,12 @@ class CertificateController extends Controller
                 ->with('success', "El certificado '{$certificate->certificate_code}' ha sido registrado exitosamente.");
 
         } catch (\Exception $e) {
-            Log::error('Error registrando certificado: ' . $e->getMessage());
+            Log::error('Error registrando certificado: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ocurrió un error al registrar el certificado: ' . $e->getMessage(),
+                    'message' => 'Ocurrió un error al registrar el certificado: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -129,6 +131,7 @@ class CertificateController extends Controller
     public function show(Certificate $certificate): JsonResponse
     {
         $certificate->load(['user', 'course.modules', 'details.module']);
+
         return response()->json($certificate);
     }
 
@@ -145,8 +148,8 @@ class CertificateController extends Controller
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
-                    'success'     => true,
-                    'message'     => "El certificado '{$certificate->certificate_code}' ha sido actualizado exitosamente.",
+                    'success' => true,
+                    'message' => "El certificado '{$certificate->certificate_code}' ha sido actualizado exitosamente.",
                     'certificate' => $certificate->load(['user', 'course']),
                 ], 200);
             }
@@ -155,12 +158,12 @@ class CertificateController extends Controller
                 ->with('success', "El certificado '{$certificate->certificate_code}' ha sido actualizado exitosamente.");
 
         } catch (\Exception $e) {
-            Log::error('Error actualizando certificado: ' . $e->getMessage());
+            Log::error('Error actualizando certificado: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ocurrió un error al actualizar el certificado: ' . $e->getMessage(),
+                    'message' => 'Ocurrió un error al actualizar el certificado: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -188,7 +191,7 @@ class CertificateController extends Controller
                 ->with('success', "El certificado '{$code}' ha sido eliminado correctamente.");
 
         } catch (\Exception $e) {
-            Log::error('Error eliminando certificado: ' . $e->getMessage());
+            Log::error('Error eliminando certificado: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
@@ -206,14 +209,14 @@ class CertificateController extends Controller
      */
     public function toggleStatus(Certificate $certificate): JsonResponse|RedirectResponse
     {
-        $certificate->is_active = !$certificate->is_active;
+        $certificate->is_active = ! $certificate->is_active;
         $certificate->save();
 
         if (request()->expectsJson() || request()->ajax()) {
             return response()->json([
-                'success'   => true,
+                'success' => true,
                 'is_active' => $certificate->is_active,
-                'message'   => 'Estado actualizado correctamente.',
+                'message' => 'Estado actualizado correctamente.',
             ]);
         }
 
@@ -232,7 +235,7 @@ class CertificateController extends Controller
             $detail = $certificate->details()->updateOrCreate(
                 ['module_id' => $data['module_id']],
                 [
-                    'score'     => $data['score'] ?? null,
+                    'score' => $data['score'] ?? null,
                     'is_active' => $data['is_active'],
                 ]
             );
@@ -241,19 +244,19 @@ class CertificateController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Detalle de módulo registrado correctamente.',
-                    'detail'  => $detail->load('module'),
+                    'detail' => $detail->load('module'),
                 ], 200);
             }
 
             return back()->with('success', 'Detalle de módulo agregado correctamente.');
 
         } catch (\Exception $e) {
-            Log::error('Error registrando detalle de certificado: ' . $e->getMessage());
+            Log::error('Error registrando detalle de certificado: '.$e->getMessage());
 
             if ($request->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al registrar el módulo: ' . $e->getMessage(),
+                    'message' => 'Error al registrar el módulo: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -279,7 +282,7 @@ class CertificateController extends Controller
             return back()->with('success', 'Módulo eliminado del certificado.');
 
         } catch (\Exception $e) {
-            Log::error('Error eliminando detalle de certificado: ' . $e->getMessage());
+            Log::error('Error eliminando detalle de certificado: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
@@ -290,6 +293,105 @@ class CertificateController extends Controller
 
             return back()->with('error', 'No se pudo eliminar el detalle.');
         }
+    }
+
+    /**
+     * Download a pre-filled CSV template with per-column instructions embedded in the file.
+     *
+     * The file intentionally starts with several instruction rows so that anyone who opens
+     * it in Excel or LibreOffice Calc sees clear guidance before the actual data area.
+     * The importer is configured with WithStartRow(2) and skips rows until it detects the
+     * real header (col B = "DNI…"). To avoid confusing the importer, the template's data
+     * section begins at row 2 with a clearly labelled header, matching what the importer
+     * already expects.
+     */
+    public function downloadTemplate(): StreamedResponse
+    {
+        $filename = 'plantilla_certificados_'.date('Y-m-d').'.csv';
+
+        return response()->streamDownload(function () {
+            $out = fopen('php://output', 'w');
+
+            // ── BOM so Excel opens UTF-8 correctly ────────────────────────────
+            fwrite($out, "\xEF\xBB\xBF");
+
+            // ── Title block ───────────────────────────────────────────────────
+            fputcsv($out, ['PLANTILLA DE IMPORTACIÓN DE CERTIFICADOS — FVC']);
+            fputcsv($out, ['Generado:', date('d/m/Y H:i'), '', '', '', '', '', '', '', '', '', '', '', '']);
+            fputcsv($out, ['']);
+
+            // ── Instructions block ────────────────────────────────────────────
+            fputcsv($out, ['=== INSTRUCCIONES ===']);
+            fputcsv($out, ['1. NO modifiques ni elimines la fila de encabezados (fila con "N°", "DNI / N° Documento", etc.)']);
+            fputcsv($out, ['2. Ingresa los datos de cada certificado a partir de la fila siguiente al encabezado.']);
+            fputcsv($out, ['3. Las columnas marcadas como REQUERIDO no pueden estar vacías.']);
+            fputcsv($out, ['4. Las fechas deben tener formato YYYY-MM-DD  (ej: 2026-03-15).']);
+            fputcsv($out, ['5. La Modalidad acepta exactamente: Presencial / Virtual / Semipresencial.']);
+            fputcsv($out, ['6. El Código de Certificado se genera automáticamente si la columna está vacía.']);
+            fputcsv($out, ['7. Las columnas J, L y M son ignoradas durante la importación.']);
+            fputcsv($out, ['']);
+
+            // ── Column legend ─────────────────────────────────────────────────
+            fputcsv($out, ['=== DETALLE DE COLUMNAS ===']);
+            fputcsv($out, ['Columna', 'Nombre', 'Requerido', 'Descripción / Ejemplo']);
+            fputcsv($out, ['A', 'N°', 'No', 'Número correlativo de fila. Ignorado al importar.']);
+            fputcsv($out, ['B', 'DNI / N° Documento', 'SÍ', 'DNI del estudiante. Si no existe en el sistema se creará automáticamente.  Ej: 74123456']);
+            fputcsv($out, ['C', 'Apellidos y Nombres', 'No', 'Nombre completo del estudiante. Solo referencia — ignorado (se usa el registro del sistema).']);
+            fputcsv($out, ['D', 'Curso', 'SÍ', 'Nombre exacto del curso tal como está registrado en el sistema.  Ej: Excel Avanzado']);
+            fputcsv($out, ['E', 'Fecha de Inicio', 'No', 'Fecha de inicio del certificado en formato YYYY-MM-DD.  Ej: 2026-01-10']);
+            fputcsv($out, ['F', 'Fecha de Término', 'No', 'Fecha de término del certificado en formato YYYY-MM-DD.  Ej: 2026-03-20']);
+            fputcsv($out, ['G', 'Fecha de Emisión', 'SÍ', 'Fecha en que se emite el certificado en formato YYYY-MM-DD.  Ej: 2026-03-21']);
+            fputcsv($out, ['H', 'Horas / Duración', 'No', 'Duración del curso.  Ej: 120 Horas']);
+            fputcsv($out, ['I', 'Calificación I (numérica)', 'No', 'Nota numérica del Módulo 1 del curso.  Ej: 17']);
+            fputcsv($out, ['J', 'Calificación Letras I', '—', '*** IGNORADA *** (calificación en letras del módulo 1)']);
+            fputcsv($out, ['K', 'Calificación II (numérica)', 'No', 'Nota numérica del Módulo 2 del curso.  Ej: 19']);
+            fputcsv($out, ['L', 'Calificación Letras II', '—', '*** IGNORADA *** (calificación en letras del módulo 2)']);
+            fputcsv($out, ['M', 'Promedio', '—', '*** IGNORADA *** (calculado automáticamente por el sistema)']);
+            fputcsv($out, ['N', 'Modalidad', 'SÍ', 'Presencial / Virtual / Semipresencial']);
+            fputcsv($out, ['']);
+
+            // ── Actual data header (this is the row the importer reads as header) ──
+            fputcsv($out, [
+                'N°',
+                'DNI / N° Documento',
+                'Apellidos y Nombres',
+                'Curso',
+                'Fecha de Inicio',
+                'Fecha de Término',
+                'Fecha de Emisión',
+                'Horas',
+                'Calificación I (numérica)',
+                'Calificación Letras I',
+                'Calificación II (numérica)',
+                'Calificación Letras II',
+                'Promedio',
+                'Modalidad',
+            ]);
+
+            // ── Sample data row ───────────────────────────────────────────────
+            fputcsv($out, [
+                '1',
+                '74123456',
+                'García López, María',
+                'Excel Avanzado',
+                '2026-01-10',
+                '2026-03-20',
+                '2026-03-21',
+                '120 Horas',
+                '17',
+                'DIECISIETE',
+                '19',
+                'DIECINUEVE',
+                '18',
+                'Presencial',
+            ]);
+
+            fclose($out);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Cache-Control' => 'no-store, no-cache',
+        ]);
     }
 
     /**
@@ -322,12 +424,13 @@ class CertificateController extends Controller
                 if ($prevErrorHandler !== null) {
                     return (bool) call_user_func($prevErrorHandler, $errno, $errstr, $errfile);
                 }
+
                 return false;
             }
         );
 
         try {
-            $importer = new CertificateImport();
+            $importer = new CertificateImport;
             Excel::import($importer, $request->file('file'));
 
             // ── Build success message ─────────────────────────────────────────
@@ -347,7 +450,7 @@ class CertificateController extends Controller
                 $parts[] = "{$importer->skippedCount} fila(s) omitida(s)";
             }
 
-            $msg = 'Importación completada: ' . implode(', ', $parts) . '.';
+            $msg = 'Importación completada: '.implode(', ', $parts).'.';
 
             $redirect = redirect()->route('admin.certificates.index')->with('success', $msg);
 
@@ -357,9 +460,9 @@ class CertificateController extends Controller
 
             return $redirect;
 
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        } catch (ValidationException $e) {
             $failures = collect($e->failures())
-                ->map(fn ($f) => "Fila {$f->row()}: " . implode(', ', $f->errors()))
+                ->map(fn ($f) => "Fila {$f->row()}: ".implode(', ', $f->errors()))
                 ->take(10)
                 ->implode(' | ');
 
@@ -368,11 +471,11 @@ class CertificateController extends Controller
                 ->with('error', "Error de validación en el archivo: {$failures}");
 
         } catch (\Exception $e) {
-            Log::error('Error importando certificados: ' . $e->getMessage());
+            Log::error('Error importando certificados: '.$e->getMessage());
 
             return redirect()
                 ->route('admin.certificates.index')
-                ->with('error', 'Error al procesar el archivo: ' . $e->getMessage());
+                ->with('error', 'Error al procesar el archivo: '.$e->getMessage());
 
         } finally {
             restore_error_handler();

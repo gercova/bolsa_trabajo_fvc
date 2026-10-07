@@ -8,6 +8,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -61,5 +62,9 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perMinute(10)->by($request->ip()),
             ];
         });
+
+        if (app()->environment('production')) {
+            URL::forceScheme('https');
+        }
     }
 }

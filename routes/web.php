@@ -80,6 +80,25 @@ Route::get('/validar-certificado/{certificate_code}/imprimir', [AppController::c
 // Links institucionales
 Route::get('/servicios/enlaces-institucionales', [AppController::class, 'institutionalLinks'])->name('enlaces-institucionales');
 
+// Ruta de respaldo para servir archivos de almacenamiento (en entornos compartidos o sin enlace simbólico funcional)
+Route::get('/storage/{path}', function (string $path) {
+    $publicDiskPath = storage_path('app/public');
+    $targetPath = $publicDiskPath.'/'.$path;
+    $realPublicDisk = realpath($publicDiskPath);
+    $realTarget = realpath($targetPath);
+
+    if (! $realTarget || ! $realPublicDisk || ! str_starts_with($realTarget, $realPublicDisk) || ! is_file($realTarget)) {
+        abort(404);
+    }
+
+    $mime = mime_content_type($realTarget) ?: 'application/octet-stream';
+
+    return response()->file($realTarget, [
+        'Content-Type' => $mime,
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*')->name('storage.fallback');
+
 // Rutas de autenticación (definidas canónicamente en routes/auth.php)
 Route::middleware(['auth'])->group(function () {
     Route::prefix('admin-dashboard')->name('admin.dashboard.')->group(function () {

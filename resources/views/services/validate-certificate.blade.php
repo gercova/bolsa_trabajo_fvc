@@ -248,25 +248,20 @@
     {{-- ═══ HERO & SEARCH SECTION (HIDDEN IN PRINT) ════════════════ --}}
     <section class="hero-section no-print relative bg-slate-900 text-white overflow-hidden py-14 lg:py-18 border-b border-slate-800">
         <div class="h-1.5 w-full bg-emerald-600 absolute top-0 left-0"></div>
-
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
-
             {{-- Badge --}}
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs sm:text-sm font-semibold backdrop-blur-md shadow-inner">
                 <i class="bi bi-patch-check-fill text-emerald-400 text-base"></i>
                 <span>Sistema Oficial de Validación Digital por QR &amp; Código</span>
             </div>
-
             {{-- Main Heading --}}
             <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight font-display">
                 Validación de <span class="text-emerald-400">Certificados</span> Institucionales
             </h1>
-
             <p class="text-sm sm:text-base lg:text-lg text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed">
                 Consulte y verifique la autenticidad de los certificados modulares y académicos emitidos por el 
                 <strong class="text-white font-semibold">{{ $enterprise->trade_name ?? 'IESTP Francisco Vigo Caballero' }}</strong>. Ingrese el código impreso, escanee el código QR o busque por DNI.
             </p>
-
             {{-- Search Bar --}}
             <div class="max-w-2xl mx-auto pt-2">
                 <form action="{{ route('validar-certificado') }}" method="GET" class="relative flex items-center shadow-2xl rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 p-2 focus-within:border-emerald-400 focus-within:ring-4 focus-within:ring-emerald-500/20 transition-all">
@@ -294,24 +289,20 @@
                     <span><i class="bi bi-lightning-charge-fill text-amber-400"></i> Resultados en tiempo real</span>
                 </div>
             </div>
-
         </div>
     </section>
-
     {{-- ═══ CERTIFICATE VALIDATION RESULT (IF SEARCHED) ═══════════════ --}}
     @if($searched)
         <div class="certificate-result-wrapper max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20 mb-12">
-
             @if($certificate)
                 {{-- Valid Certificate Card --}}
                 <div id="certificate-print-card" class="bg-white rounded-3xl shadow-xl border border-emerald-200/80 overflow-hidden transition-all animate-fade-in">
-                    
                     {{-- Official Institutional Letterhead (Visible in Print) --}}
                     <div class="print-only border-b-2 border-emerald-600 bg-slate-50 px-6 py-4">
                         <div class="print-header-flex items-center justify-between gap-4">
                             <div class="flex items-center gap-3">
-                                @if($enterprise->logo_path)
-                                    <img src="{{ asset($enterprise->logo_path) }}" alt="Logo IESTP FVC" class="h-14 w-auto object-contain">
+                                @if($enterprise->logo_base64 || $enterprise->logo_path)
+                                    <img src="{{ $enterprise->logo_base64 ?? asset($enterprise->logo_path) }}" alt="Logo IESTP FVC" class="h-14 w-auto object-contain">
                                 @else
                                     <div class="w-12 h-12 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-xl font-bold">
                                         <i class="bi bi-mortarboard-fill"></i>
@@ -329,7 +320,6 @@
                             </div>
                         </div>
                     </div>
-
                     {{-- Status Banner --}}
                     <div class="bg-emerald-700 text-white px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
                         <div class="flex items-center gap-3">
@@ -350,10 +340,8 @@
                             </span>
                         </div>
                     </div>
-
                     {{-- Card Body --}}
                     <div class="print-card-body p-6 sm:p-8 space-y-6 sm:space-y-8 bg-white">
-
                         {{-- Main Certificate Header Data --}}
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center border-b border-slate-100 pb-5">
                             <div class="md:col-span-2 space-y-2">
@@ -368,7 +356,6 @@
                                     {{ $certificate->description ?: ($certificate->course->description ?: 'Certificado emitido a favor del participante por haber completado satisfactoriamente los módulos de formación y evaluación modular.') }}
                                 </p>
                             </div>
-
                             {{-- QR and Stamp Badge --}}
                             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-xs">
                                 <div class="w-16 h-16 rounded-xl bg-white border border-slate-200 shadow-inner p-1 flex items-center justify-center mb-1.5 overflow-hidden">
@@ -383,7 +370,6 @@
                                 </span>
                             </div>
                         </div>
-
                         {{-- Beneficiary & Course Metadata Grid --}}
                         <div class="print-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
@@ -391,7 +377,6 @@
                                 <p class="text-xs sm:text-sm font-extrabold text-slate-900 mt-0.5 uppercase leading-tight">{{ $certificate->user->names ?? 'No especificado' }}</p>
                                 <span class="text-[11px] text-slate-500 mt-0.5 block font-mono">DNI: {{ $certificate->user->dni ?? '—' }}</span>
                             </div>
-
                             <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
                                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                                     {{ $certificate->isTraining() ? 'Condición de Participación' : 'Modalidad & Horas' }}
@@ -402,7 +387,6 @@
                                 </p>
                                 <span class="text-[11px] text-slate-500 mt-0.5 block">Duración: <strong>{{ $certificate->duration ?: ($certificate->isTraining() ? '90 horas pedagógicas' : '128 Horas') }}</strong></span>
                             </div>
-
                             <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
                                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Periodo &amp; Emisión</span>
                                 <p class="text-[11px] sm:text-xs font-bold text-slate-800 mt-0.5 leading-tight">
@@ -410,14 +394,12 @@
                                 </p>
                                 <span class="text-[10px] text-slate-500 mt-0.5 block">Emisión: <strong>{{ $certificate->issue_date ? \Carbon\Carbon::parse($certificate->issue_date)->format('d/m/Y') : '—' }}</strong></span>
                             </div>
-
                             <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
                                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Institución &amp; Sede</span>
                                 <p class="text-[11px] sm:text-xs font-bold text-slate-800 mt-0.5 leading-tight">{{ $enterprise->trade_name ?? 'IESTP Francisco Vigo Caballero' }}</p>
                                 <span class="text-[10px] text-slate-500 mt-0.5 block">{{ $certificate->city ?? 'Uchiza' }}, San Martín</span>
                             </div>
                         </div>
-
                         {{-- Details Section: Training Syllabus vs Modular Grades --}}
                         @if($certificate->isTraining())
                             {{-- Training Certificate Temario Card (No grade field required) --}}
@@ -538,7 +520,6 @@
                                 </div>
                             </div>
                         @endif
-
                         {{-- Official Print Footer Notes (Visible in Print) --}}
                         <div class="print-only border-t border-slate-200 pt-3 text-[8.5pt] text-slate-500 space-y-1">
                             <div class="flex justify-between items-center">
@@ -581,7 +562,6 @@
                                 <i class="bi bi-arrow-repeat"></i> Validar otro documento
                             </a>
                         </div>
-
                     </div>
                 </div>
             @else
@@ -613,7 +593,6 @@
                     </div>
                 </div>
             @endif
-
         </div>
     @endif
 
@@ -1019,9 +998,7 @@
                         @endforeach
                     </div>
                 </div>
-
             </div>
-
         </div>
 
         {{-- Institutional Legal & Security Notice Card --}}

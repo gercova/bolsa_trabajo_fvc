@@ -165,4 +165,27 @@ class CertificateFormatAndValidationTest extends TestCase
         $response->assertSee('CERTIFICADO');
         $response->assertSee('JOSE DANIEL CHAVEZ HERRERA');
     }
+
+    public function test_printable_certificate_embeds_logo_as_base64_data_uri(): void
+    {
+        $response = $this->get('/validar-certificado/'.$this->certificate->certificate_code.'/imprimir');
+
+        $response->assertStatus(200);
+        $response->assertSee('data:image/', false);
+    }
+
+    public function test_storage_fallback_route_serves_public_disk_files(): void
+    {
+        $response = $this->get('/storage/enterprise/favicons/logo-iestpfvc.png');
+
+        $response->assertStatus(200);
+        $response->assertHeader('Content-Type', 'image/png');
+    }
+
+    public function test_storage_fallback_route_prevents_directory_traversal(): void
+    {
+        $response = $this->get('/storage/../../.env');
+
+        $response->assertStatus(404);
+    }
 }

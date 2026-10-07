@@ -1,10 +1,13 @@
+@php
+    $logoSrc = $enterprise?->logo_base64 ?? asset('storage/enterprise/favicons/logo-iestpfvc.png');
+@endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Certificado — {{ $certificate->certificate_code }} — {{ $certificate->user->names ?? 'Estudiante' }}</title>
-    <link rel="icon" type="image/png" href="{{ asset('storage/enterprise/favicons/logo-iestpfvc.png') }}">
+    <link rel="icon" type="image/png" href="{{ $logoSrc }}">
 
     <!-- Google Fonts for High-Fidelity Official Printing -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -572,7 +575,7 @@
 
             <!-- ── Centered Watermark Shield ── -->
             <img 
-                src="{{ asset('storage/enterprise/favicons/logo-iestpfvc.png') }}" 
+                src="{{ $logoSrc }}" 
                 alt="Marca de agua institucional" 
                 class="watermark"
             >
@@ -580,7 +583,7 @@
             <!-- ── Header Section ── -->
             <header class="cert-header">
                 <img 
-                    src="{{ asset('storage/enterprise/favicons/logo-iestpfvc.png') }}" 
+                    src="{{ $logoSrc }}" 
                     alt="Logo IESTP FVC" 
                     class="cert-logo"
                 >

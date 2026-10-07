@@ -242,6 +242,16 @@
                                             </td>
                                             <td class="px-4 py-3">
                                                 <div class="font-bold text-gray-800">{{ $course->name }}</div>
+                                                <div class="flex items-center gap-1.5 mt-1">
+                                                    <span class="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded {{ $course->certificate_type === 'capacitacion' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-blue-50 text-blue-700 border border-blue-200' }}">
+                                                        {{ $course->certificate_type === 'capacitacion' ? 'Capacitación' : 'Modular' }}
+                                                    </span>
+                                                    @if($course->studyProgram)
+                                                        <span class="inline-flex items-center text-[10px] text-gray-500 font-medium truncate max-w-xs">
+                                                            <i class="bi bi-mortarboard mr-1 text-gray-400"></i>{{ $course->studyProgram->name }}
+                                                        </span>
+                                                    @endif
+                                                </div>
                                             </td>
                                             <td class="px-4 py-3">
                                                 @if ($course->description)
@@ -367,17 +377,54 @@
                             Nombre del Curso <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="name" x-model="form.name" required maxlength="255"
-                            placeholder="Ej: INGLÉS A NIVEL BÁSICO"
+                            placeholder="Ej: SEMANA TÉCNICA: ADMINISTRACIÓN DE REDES Y COMUNICACIONES"
                             class="w-full text-sm border border-gray-300 rounded-xl py-2.5 px-3.5 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 font-bold uppercase text-gray-800">
+                    </div>
+
+                    {{-- Certificate Format & Study Program Row --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Formato de Certificado
+                            </label>
+                            <select name="certificate_type" x-model="form.certificate_type"
+                                class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-medium">
+                                <option value="capacitacion">Capacitación (Con Temario y Código QR)</option>
+                                <option value="modular">Modular (Con Módulos, Notas y Créditos)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Programa de Estudios Vinculado
+                            </label>
+                            <select name="study_program_id" x-model="form.study_program_id"
+                                class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-medium">
+                                <option value="">-- General / Institucional --</option>
+                                @foreach($studyPrograms ?? [] as $sp)
+                                    <option value="{{ $sp->id }}">{{ $sp->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- Event Name --}}
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                            Marco / Nombre del Evento (Opcional)
+                        </label>
+                        <input type="text" name="event_name" x-model="form.event_name" maxlength="255"
+                            placeholder="Ej: Semana Técnica 2026"
+                            class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 font-medium">
                     </div>
 
                     {{-- Description --}}
                     <div>
                         <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                            Descripción
+                            Descripción / Mención
                         </label>
-                        <textarea name="description" x-model="form.description" rows="3" maxlength="1000"
-                            placeholder="Descripción breve del alcance del curso..."
+                        <textarea name="description" x-model="form.description" rows="2" maxlength="1000"
+                            placeholder="Descripción breve del alcance del curso o mención académica..."
                             class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"></textarea>
                     </div>
 
@@ -424,6 +471,9 @@
             form: {
                 id: null,
                 name: '',
+                certificate_type: 'capacitacion',
+                study_program_id: '',
+                event_name: '',
                 description: '',
                 is_active: true,
             },
@@ -434,6 +484,9 @@
                 this.form = {
                     id: null,
                     name: '',
+                    certificate_type: 'capacitacion',
+                    study_program_id: '',
+                    event_name: 'Semana Técnica 2026',
                     description: '',
                     is_active: true,
                 };
@@ -446,6 +499,9 @@
                 this.form = {
                     id: course.id,
                     name: course.name || '',
+                    certificate_type: course.certificate_type || 'capacitacion',
+                    study_program_id: course.study_program_id || '',
+                    event_name: course.event_name || '',
                     description: course.description || '',
                     is_active: Boolean(course.is_active),
                 };

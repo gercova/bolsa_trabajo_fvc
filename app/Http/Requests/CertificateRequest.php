@@ -25,6 +25,35 @@ class CertificateRequest extends FormRequest
                 'required',
                 'exists:courses,id',
             ],
+            'certificate_type' => [
+                'nullable',
+                'string',
+                Rule::in(['capacitacion', 'modular']),
+            ],
+            'participation_type' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+            'event_name' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'study_program_id' => [
+                'nullable',
+                'exists:study_programs,id',
+            ],
+            'institution_name' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'city' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
             'certificate_code' => [
                 'required',
                 'string',
@@ -69,30 +98,30 @@ class CertificateRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'user_id.required'          => 'Debe seleccionar un estudiante/usuario.',
-            'user_id.exists'            => 'El usuario seleccionado no existe.',
-            'course_id.required'        => 'Debe seleccionar un curso.',
-            'course_id.exists'          => 'El curso seleccionado no existe.',
+            'user_id.required' => 'Debe seleccionar un estudiante/usuario.',
+            'user_id.exists' => 'El usuario seleccionado no existe.',
+            'course_id.required' => 'Debe seleccionar un curso.',
+            'course_id.exists' => 'El curso seleccionado no existe.',
             'certificate_code.required' => 'El código del certificado es obligatorio.',
-            'certificate_code.unique'   => 'Este código de certificado ya está registrado.',
-            'issue_date.required'       => 'La fecha de emisión es obligatoria.',
-            'issue_date.date'           => 'La fecha de emisión no es válida.',
-            'end_date.after_or_equal'   => 'La fecha de fin debe ser igual o posterior a la fecha de inicio.',
+            'certificate_code.unique' => 'Este código de certificado ya está registrado.',
+            'issue_date.required' => 'La fecha de emisión es obligatoria.',
+            'issue_date.date' => 'La fecha de emisión no es válida.',
+            'end_date.after_or_equal' => 'La fecha de fin debe ser igual o posterior a la fecha de inicio.',
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'user_id'          => 'estudiante / usuario',
-            'course_id'        => 'curso',
+            'user_id' => 'estudiante / usuario',
+            'course_id' => 'curso',
             'certificate_code' => 'código de certificado',
-            'description'      => 'descripción',
-            'start_date'       => 'fecha de inicio',
-            'end_date'         => 'fecha de fin',
-            'duration'         => 'duración / horas académicas',
-            'issue_date'       => 'fecha de emisión',
-            'is_active'        => 'estado activo',
+            'description' => 'descripción',
+            'start_date' => 'fecha de inicio',
+            'end_date' => 'fecha de fin',
+            'duration' => 'duración / horas académicas',
+            'issue_date' => 'fecha de emisión',
+            'is_active' => 'estado activo',
         ];
     }
 }

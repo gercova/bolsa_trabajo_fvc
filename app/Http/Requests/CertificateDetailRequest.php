@@ -15,8 +15,17 @@ class CertificateDetailRequest extends FormRequest
     {
         return [
             'module_id' => [
-                'required',
+                'nullable',
                 'exists:modules,id',
+            ],
+            'topic_name' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'order' => [
+                'nullable',
+                'integer',
             ],
             'score' => [
                 'nullable',
@@ -34,7 +43,7 @@ class CertificateDetailRequest extends FormRequest
     {
         return [
             'module_id.required' => 'Debe seleccionar un módulo.',
-            'module_id.exists'   => 'El módulo seleccionado no existe.',
+            'module_id.exists' => 'El módulo seleccionado no existe.',
         ];
     }
 
@@ -42,7 +51,7 @@ class CertificateDetailRequest extends FormRequest
     {
         return [
             'module_id' => 'módulo',
-            'score'     => 'calificación / nota',
+            'score' => 'calificación / nota',
             'is_active' => 'estado activo',
         ];
     }

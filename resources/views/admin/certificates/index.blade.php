@@ -340,10 +340,20 @@
                                             </td>
                                             <td class="px-4 py-3 text-center whitespace-nowrap">
                                                 <div class="flex items-center justify-center gap-1.5">
+                                                    <a href="{{ route('admin.certificates.print', $cert) }}" target="_blank"
+                                                        class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                                        title="Ver / Imprimir Certificado Oficial">
+                                                        <i class="bi bi-printer text-base"></i>
+                                                    </a>
+                                                    <a href="{{ route('validar-certificado', $cert->certificate_code) }}" target="_blank"
+                                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        title="Validación Pública QR">
+                                                        <i class="bi bi-qr-code text-base"></i>
+                                                    </a>
                                                     <button type="button" @click="openDetailsModal({{ json_encode($cert) }})"
                                                         class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                                                        title="Ver / Gestionar Calificaciones">
-                                                        <i class="bi bi-eye text-base"></i>
+                                                        title="Ver / Gestionar Calificaciones y Temario">
+                                                        <i class="bi bi-card-checklist text-base"></i>
                                                     </button>
                                                     <button type="button" @click="openEditModal({{ json_encode($cert) }})"
                                                         class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
@@ -449,6 +459,38 @@
                                     <option value="{{ $c->id }}">{{ $c->name }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                    </div>
+
+                    {{-- Format & Participation Row --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Formato Certificado
+                            </label>
+                            <select name="certificate_type" x-model="form.certificate_type"
+                                class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-medium">
+                                <option value="capacitacion">Capacitación (Con Temario y QR)</option>
+                                <option value="modular">Modular (Con Notas y Créditos)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Calidad / Condición
+                            </label>
+                            <input type="text" name="participation_type" x-model="form.participation_type"
+                                placeholder="Ej: ASISTENTE, PONENTE"
+                                class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 uppercase font-semibold">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Marco / Evento
+                            </label>
+                            <input type="text" name="event_name" x-model="form.event_name"
+                                placeholder="Ej: Semana Técnica 2026"
+                                class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 font-semibold">
                         </div>
                     </div>
 
@@ -873,6 +915,9 @@
                 id: null,
                 user_id: '',
                 course_id: '',
+                certificate_type: 'capacitacion',
+                participation_type: 'ASISTENTE',
+                event_name: '',
                 certificate_code: '',
                 description: '',
                 start_date: '',
@@ -890,11 +935,14 @@
                     id: null,
                     user_id: '',
                     course_id: '',
+                    certificate_type: 'capacitacion',
+                    participation_type: 'ASISTENTE',
+                    event_name: 'Semana Técnica 2026',
                     certificate_code: this.generateCodeStr(),
                     description: '',
                     start_date: '',
                     end_date: '',
-                    duration: '120 Horas',
+                    duration: '90 horas pedagógicas',
                     modality: 'Presencial',
                     issue_date: '{{ date('Y-m-d') }}',
                     is_active: true,
@@ -909,6 +957,9 @@
                     id: cert.id,
                     user_id: cert.user_id || '',
                     course_id: cert.course_id || '',
+                    certificate_type: cert.certificate_type || cert.course?.certificate_type || 'capacitacion',
+                    participation_type: cert.participation_type || 'ASISTENTE',
+                    event_name: cert.event_name || cert.course?.event_name || '',
                     certificate_code: cert.certificate_code || '',
                     description: cert.description || '',
                     start_date: cert.start_date ? cert.start_date.substring(0, 10) : '',

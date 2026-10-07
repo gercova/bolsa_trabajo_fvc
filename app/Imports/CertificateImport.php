@@ -14,13 +14,17 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
-class CertificateImport implements ToCollection, WithStartRow, WithChunkReading
+class CertificateImport implements ToCollection, WithChunkReading, WithStartRow
 {
-    public int $importedCount  = 0;
-    public int $skippedCount   = 0;
-    public int $detailCount    = 0;
-    public int $createdUsers   = 0;
-    public array $errors       = [];
+    public int $importedCount = 0;
+
+    public int $skippedCount = 0;
+
+    public int $detailCount = 0;
+
+    public int $createdUsers = 0;
+
+    public array $errors = [];
 
     /**
      * Data rows begin at row 2 (row 1 is the header).
@@ -58,7 +62,7 @@ class CertificateImport implements ToCollection, WithStartRow, WithChunkReading
     public function collection(Collection $rows): void
     {
         // Pre-load users (keyed by DNI) and courses with modules (keyed by lowercase name)
-        $users   = User::pluck('id', 'dni');
+        $users = User::pluck('id', 'dni');
         $courses = Course::with(['modules' => fn ($q) => $q->orderBy('id')])
             ->get()
             ->keyBy(fn ($c) => strtolower(trim($c->name)));
@@ -66,12 +70,13 @@ class CertificateImport implements ToCollection, WithStartRow, WithChunkReading
         foreach ($rows as $rowIndex => $row) {
             $rowNum = $rowIndex + 2; // 1-based Excel row (header = row 1)
 
-            $dni   = $this->cleanString($row[1] ?? null);
+            $dni = $this->cleanString($row[1] ?? null);
             $names = $this->cleanString($row[2] ?? null);
 
             // Skip completely blank rows (no DNI)
             if (empty($dni)) {
                 $this->skippedCount++;
+
                 continue;
             }
 
@@ -82,11 +87,11 @@ class CertificateImport implements ToCollection, WithStartRow, WithChunkReading
                 try {
                     $newUser = User::create([
                         'document_type_id' => 1,                     // DNI (default)
-                        'dni'              => $dni,
-                        'names'            => $names ?? $dni,        // fallback to DNI if no name
-                        'password'         => Hash::make($dni),      // temp password = DNI
-                        'role'             => 'Solicitante',
-                        'is_active'        => true,
+                        'dni' => $dni,
+                        'names' => $names ?? $dni,        // fallback to DNI if no name
+                        'password' => Hash::make($dni),      // temp password = DNI
+                        'role' => 'Solicitante',
+                        'is_active' => true,
                     ]);
 
                     $userId = $newUser->id;
@@ -94,21 +99,23 @@ class CertificateImport implements ToCollection, WithStartRow, WithChunkReading
                     $this->createdUsers++;
 
                 } catch (\Exception $e) {
-                    $this->errors[] = "Fila {$rowNum}: No se pudo crear el usuario con DNI '{$dni}' — " . $e->getMessage();
+                    $this->errors[] = "Fila {$rowNum}: No se pudo crear el usuario con DNI '{$dni}' — ".$e->getMessage();
                     $this->skippedCount++;
+
                     continue;
                 }
             }
 
             // ── 2. Resolve course by name (case-insensitive) ──────────────────
             $courseNameRaw = $this->cleanString($row[3] ?? null);
-            $course        = $courseNameRaw
+            $course = $courseNameRaw
                 ? $courses->get(strtolower(trim($courseNameRaw)))
                 : null;
 
             if (! $course) {
                 $this->errors[] = "Fila {$rowNum}: Curso '{$courseNameRaw}' no encontrado — fila omitida.";
                 $this->skippedCount++;
+
                 continue;
             }
 
@@ -116,30 +123,34 @@ class CertificateImport implements ToCollection, WithStartRow, WithChunkReading
 
             // ── 3. Auto-generate certificate code ────────────────────────────
             // Convention: CERT-{student DNI}-{course ID}
-            $code = 'CERT-' . $dni . '-' . $courseId;
+            $code = 'CERT-'.$dni.'-'.$courseId;
 
             // ── 4. Parse remaining fields ─────────────────────────────────────
             $startDate = $this->parseDate($row[4] ?? null);
-            $endDate   = $this->parseDate($row[5] ?? null);
+            $endDate = $this->parseDate($row[5] ?? null);
             $issueDate = $this->parseDate($row[6] ?? null) ?? now()->toDateString();
-            $horasRaw  = $this->cleanString($row[7] ?? null);
-            $duration  = $horasRaw !== null ? $horasRaw . ' Horas' : null;
-            $modality  = $this->parseModality($this->cleanString($row[13] ?? null));
+            $horasRaw = $this->cleanString($row[7] ?? null);
+            $duration = $horasRaw !== null ? $horasRaw.' Horas' : null;
+            $modality = $this->parseModality($this->cleanString($row[13] ?? null));
 
             // ── 5. Create or update certificate ──────────────────────────────
             try {
                 $certificate = Certificate::updateOrCreate(
                     ['certificate_code' => $code],
                     [
-                        'user_id'     => $userId,
-                        'course_id'   => $courseId,
-                        'description' => null,
-                        'start_date'  => $startDate,
-                        'end_date'    => $endDate,
-                        'duration'    => $duration,
-                        'modality'    => $modality,
-                        'issue_date'  => $issueDate,
-                        'is_active'   => true,
+                        'user_id' => $userId,
+                        'course_id' => $courseId,
+                        'certificate_type' => $course->certificate_type ?? 'capacitacion',
+                        'participation_type' => 'ASISTENTE',
+                        'event_name' => $course->event_name,
+                        'study_program_id' => $course->study_program_id,
+                        'description' => $course->description,
+                        'start_date' => $startDate,
+                        'end_date' => $endDate,
+                        'duration' => $duration,
+                        'modality' => $modality,
+                        'issue_date' => $issueDate,
+                        'is_active' => true,
                     ]
                 );
 
@@ -152,7 +163,7 @@ class CertificateImport implements ToCollection, WithStartRow, WithChunkReading
                 $modules = $course->modules->values();
 
                 $scoreMap = [
-                    0 => $this->cleanString($row[8]  ?? null), // Módulo 1
+                    0 => $this->cleanString($row[8] ?? null), // Módulo 1
                     1 => $this->cleanString($row[10] ?? null), // Módulo 2
                 ];
 
@@ -166,10 +177,10 @@ class CertificateImport implements ToCollection, WithStartRow, WithChunkReading
                     CertificateDetail::updateOrCreate(
                         [
                             'certificate_id' => $certificate->id,
-                            'module_id'      => $module->id,
+                            'module_id' => $module->id,
                         ],
                         [
-                            'score'     => $score,
+                            'score' => $score,
                             'is_active' => true,
                         ]
                     );
@@ -178,7 +189,7 @@ class CertificateImport implements ToCollection, WithStartRow, WithChunkReading
                 }
 
             } catch (\Exception $e) {
-                $this->errors[] = "Fila {$rowNum}: Error — " . $e->getMessage();
+                $this->errors[] = "Fila {$rowNum}: Error — ".$e->getMessage();
                 $this->skippedCount++;
             }
         }

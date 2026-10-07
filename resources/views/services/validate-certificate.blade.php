@@ -371,8 +371,10 @@
 
                             {{-- QR and Stamp Badge --}}
                             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-xs">
-                                <div class="w-14 h-14 rounded-xl bg-white border border-slate-200 shadow-inner flex items-center justify-center mb-1.5">
-                                    <i class="bi bi-qr-code text-2xl sm:text-3xl text-slate-800"></i>
+                                <div class="w-16 h-16 rounded-xl bg-white border border-slate-200 shadow-inner p-1 flex items-center justify-center mb-1.5 overflow-hidden">
+                                    <div class="w-full h-full [&>svg]:w-full [&>svg]:h-full [&>svg]:block">
+                                        {!! $certificate->qr_code_svg !!}
+                                    </div>
                                 </div>
                                 <span class="text-[10px] font-bold text-slate-700">Verificación Digital QR</span>
                                 <span class="text-[9px] text-slate-400 font-mono mt-0.5">{{ $certificate->certificate_code }}</span>
@@ -391,110 +393,151 @@
                             </div>
 
                             <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Modalidad &amp; Horas</span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                                    {{ $certificate->isTraining() ? 'Condición de Participación' : 'Modalidad & Horas' }}
+                                </span>
                                 <p class="text-xs sm:text-sm font-extrabold text-indigo-700 mt-0.5 flex items-center gap-1.5 leading-tight">
-                                    <i class="bi {{ $certificate->modality === 'Virtual' ? 'bi-laptop' : ($certificate->modality === 'Semipresencial' ? 'bi-shuffle' : 'bi-building') }}"></i>
-                                    {{ $certificate->modality }}
+                                    <i class="bi {{ $certificate->isTraining() ? 'bi-person-badge-fill' : ($certificate->modality === 'Virtual' ? 'bi-laptop' : ($certificate->modality === 'Semipresencial' ? 'bi-shuffle' : 'bi-building')) }}"></i>
+                                    {{ $certificate->isTraining() ? ($certificate->participation_type ?? 'ASISTENTE') : $certificate->modality }}
                                 </p>
-                                <span class="text-[11px] text-slate-500 mt-0.5 block">Duración: <strong>{{ $certificate->duration ?: '128 Horas' }}</strong></span>
+                                <span class="text-[11px] text-slate-500 mt-0.5 block">Duración: <strong>{{ $certificate->duration ?: ($certificate->isTraining() ? '90 horas pedagógicas' : '128 Horas') }}</strong></span>
                             </div>
 
                             <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Periodo de Ejecución</span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Periodo &amp; Emisión</span>
                                 <p class="text-[11px] sm:text-xs font-bold text-slate-800 mt-0.5 leading-tight">
-                                    {{ $certificate->start_date ? \Carbon\Carbon::parse($certificate->start_date)->format('d/m/Y') : '—' }}
-                                    al
-                                    {{ $certificate->end_date ? \Carbon\Carbon::parse($certificate->end_date)->format('d/m/Y') : '—' }}
+                                    {{ $certificate->formatted_date_range ?: ($certificate->start_date ? \Carbon\Carbon::parse($certificate->start_date)->format('d/m/Y') : '—') }}
                                 </p>
                                 <span class="text-[10px] text-slate-500 mt-0.5 block">Emisión: <strong>{{ $certificate->issue_date ? \Carbon\Carbon::parse($certificate->issue_date)->format('d/m/Y') : '—' }}</strong></span>
                             </div>
 
                             <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Institución Emisora</span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Institución &amp; Sede</span>
                                 <p class="text-[11px] sm:text-xs font-bold text-slate-800 mt-0.5 leading-tight">{{ $enterprise->trade_name ?? 'IESTP Francisco Vigo Caballero' }}</p>
-                                <span class="text-[10px] text-slate-500 mt-0.5 block">Uchiza, San Martín</span>
+                                <span class="text-[10px] text-slate-500 mt-0.5 block">{{ $certificate->city ?? 'Uchiza' }}, San Martín</span>
                             </div>
                         </div>
 
-                        {{-- Modular Evaluation Details Table --}}
-                        <div class="space-y-2.5">
-                            <div class="flex items-center justify-between">
-                                <h4 class="text-xs sm:text-sm font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                                    <i class="bi bi-journal-check text-indigo-600"></i>
-                                    Detalle de Calificaciones Modulares
-                                </h4>
-                                <span class="text-[11px] text-slate-500">Escala vigesimal (0 a 20)</span>
-                            </div>
+                        {{-- Details Section: Training Syllabus vs Modular Grades --}}
+                        @if($certificate->isTraining())
+                            {{-- Training Certificate Temario Card (No grade field required) --}}
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-xs sm:text-sm font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                                        <i class="bi bi-list-check text-indigo-600"></i>
+                                        Temario y Contenidos Desarrollados
+                                    </h4>
+                                    <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                                        <i class="bi bi-check-circle-fill text-[9px] mr-1"></i> Curso de Capacitación Aprobado
+                                    </span>
+                                </div>
 
-                            <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs bg-white">
-                                <table class="w-full text-left border-collapse text-xs">
-                                    <thead>
-                                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[10px] sm:text-[11px] tracking-wider">
-                                            <th class="px-3.5 py-2.5 text-center w-10">#</th>
-                                            <th class="px-3.5 py-2.5">Módulo / Unidad de Competencia</th>
-                                            <th class="px-3.5 py-2.5 text-center">Créditos</th>
-                                            <th class="px-3.5 py-2.5 text-center">Calificación</th>
-                                            <th class="px-3.5 py-2.5 text-center">Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
-                                        @php
-                                            $totalScore = 0;
-                                            $scoreCount = 0;
-                                        @endphp
-                                        @forelse($certificate->details as $index => $detail)
-                                            @php
-                                                $numericScore = is_numeric($detail->score) ? (float)$detail->score : null;
-                                                if ($numericScore !== null) {
-                                                    $totalScore += $numericScore;
-                                                    $scoreCount++;
-                                                }
-                                            @endphp
-                                            <tr class="hover:bg-slate-50/80 transition-colors">
-                                                <td class="px-3.5 py-2.5 text-center font-mono font-bold text-slate-400">{{ $index + 1 }}</td>
-                                                <td class="px-3.5 py-2.5 font-semibold text-slate-900">
-                                                    {{ $detail->module->name ?? ('Módulo ' . ($index + 1)) }}
-                                                </td>
-                                                <td class="px-3.5 py-2.5 text-center font-mono text-slate-600">
-                                                    {{ $detail->module->credits ?? 3 }}
-                                                </td>
-                                                <td class="px-3.5 py-2.5 text-center">
-                                                    <span class="inline-flex items-center justify-center font-mono font-bold px-2 py-0.5 rounded {{ ($numericScore >= 13 || $detail->score >= 13) ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200' }}">
-                                                        {{ $detail->score }}
-                                                    </span>
-                                                </td>
-                                                <td class="px-3.5 py-2.5 text-center">
-                                                    <span class="inline-flex items-center gap-1 text-[11px] font-bold {{ ($numericScore >= 13 || $detail->score >= 13) ? 'text-emerald-700' : 'text-red-600' }}">
-                                                        <i class="bi bi-check-circle-fill"></i> Aprobado
-                                                    </span>
-                                                </td>
-                                            </tr>
+                                <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs bg-slate-50/50 p-4 sm:p-5">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        @forelse($certificate->topics_list as $index => $topic)
+                                            <div class="flex items-start gap-2.5 bg-white p-3 rounded-xl border border-slate-200/80 shadow-2xs">
+                                                <span class="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                                                    {{ $index + 1 }}
+                                                </span>
+                                                <span class="text-xs font-medium text-slate-800 leading-snug">
+                                                    {{ $topic }}
+                                                </span>
+                                            </div>
                                         @empty
-                                            <tr>
-                                                <td colspan="5" class="px-4 py-5 text-center text-slate-400 italic">
-                                                    No se registran detalles individuales de notas para este certificado.
-                                                </td>
-                                            </tr>
+                                            <p class="col-span-2 text-xs text-slate-500 italic text-center py-3">
+                                                Temario general del curso de capacitación institucional.
+                                            </p>
                                         @endforelse
-                                    </tbody>
-                                    @if($scoreCount > 0)
-                                        <tfoot>
-                                            <tr class="bg-indigo-50/50 border-t-2 border-indigo-100 font-bold text-slate-900">
-                                                <td colspan="3" class="px-3.5 py-2.5 text-right uppercase text-[10px] sm:text-xs tracking-wider text-indigo-900">
-                                                    Promedio Modular Ponderado:
-                                                </td>
-                                                <td class="px-3.5 py-2.5 text-center font-mono font-black text-indigo-950 text-sm">
-                                                    {{ number_format($totalScore / $scoreCount, 2) }}
-                                                </td>
-                                                <td class="px-3.5 py-2.5 text-center text-[11px] font-extrabold text-emerald-700">
-                                                    APROBADO
-                                                </td>
-                                            </tr>
-                                        </tfoot>
+                                    </div>
+                                    @if($certificate->event_name ?? $certificate->course?->event_name)
+                                        <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between text-xs text-slate-600">
+                                            <span><strong>Marco Institucional:</strong> {{ $certificate->event_name ?? $certificate->course->event_name }}</span>
+                                            <span><strong>Duración Certificada:</strong> {{ $certificate->duration ?? '90 horas pedagógicas' }}</span>
+                                        </div>
                                     @endif
-                                </table>
+                                </div>
                             </div>
-                        </div>
+                        @else
+                            {{-- Modular Evaluation Details Table (Grades included) --}}
+                            <div class="space-y-2.5">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-xs sm:text-sm font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                                        <i class="bi bi-journal-check text-indigo-600"></i>
+                                        Detalle de Calificaciones Modulares
+                                    </h4>
+                                    <span class="text-[11px] text-slate-500">Escala vigesimal (0 a 20)</span>
+                                </div>
+
+                                <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs bg-white">
+                                    <table class="w-full text-left border-collapse text-xs">
+                                        <thead>
+                                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[10px] sm:text-[11px] tracking-wider">
+                                                <th class="px-3.5 py-2.5 text-center w-10">#</th>
+                                                <th class="px-3.5 py-2.5">Módulo / Unidad de Competencia</th>
+                                                <th class="px-3.5 py-2.5 text-center">Créditos</th>
+                                                <th class="px-3.5 py-2.5 text-center">Calificación</th>
+                                                <th class="px-3.5 py-2.5 text-center">Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                                            @php
+                                                $totalScore = 0;
+                                                $scoreCount = 0;
+                                            @endphp
+                                            @forelse($certificate->details as $index => $detail)
+                                                @php
+                                                    $numericScore = is_numeric($detail->score) ? (float)$detail->score : null;
+                                                    if ($numericScore !== null) {
+                                                        $totalScore += $numericScore;
+                                                        $scoreCount++;
+                                                    }
+                                                @endphp
+                                                <tr class="hover:bg-slate-50/80 transition-colors">
+                                                    <td class="px-3.5 py-2.5 text-center font-mono font-bold text-slate-400">{{ $index + 1 }}</td>
+                                                    <td class="px-3.5 py-2.5 font-semibold text-slate-900">
+                                                        {{ $detail->module->name ?? ('Módulo ' . ($index + 1)) }}
+                                                    </td>
+                                                    <td class="px-3.5 py-2.5 text-center font-mono text-slate-600">
+                                                        {{ $detail->module->credits ?? 3 }}
+                                                    </td>
+                                                    <td class="px-3.5 py-2.5 text-center">
+                                                        <span class="inline-flex items-center justify-center font-mono font-bold px-2 py-0.5 rounded {{ ($numericScore >= 13 || $detail->score >= 13) ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200' }}">
+                                                            {{ $detail->score }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-3.5 py-2.5 text-center">
+                                                        <span class="inline-flex items-center gap-1 text-[11px] font-bold {{ ($numericScore >= 13 || $detail->score >= 13) ? 'text-emerald-700' : 'text-red-600' }}">
+                                                            <i class="bi bi-check-circle-fill"></i> Aprobado
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="5" class="px-4 py-5 text-center text-slate-400 italic">
+                                                        No se registran detalles individuales de notas para este certificado.
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                        @if($scoreCount > 0)
+                                            <tfoot>
+                                                <tr class="bg-indigo-50/50 border-t-2 border-indigo-100 font-bold text-slate-900">
+                                                    <td colspan="3" class="px-3.5 py-2.5 text-right uppercase text-[10px] sm:text-xs tracking-wider text-indigo-900">
+                                                        Promedio Modular Ponderado:
+                                                    </td>
+                                                    <td class="px-3.5 py-2.5 text-center font-mono font-black text-indigo-950 text-sm">
+                                                        {{ number_format($totalScore / $scoreCount, 2) }}
+                                                    </td>
+                                                    <td class="px-3.5 py-2.5 text-center text-[11px] font-extrabold text-emerald-700">
+                                                        APROBADO
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                        @endif
+                                    </table>
+                                </div>
+                            </div>
+                        @endif
 
                         {{-- Official Print Footer Notes (Visible in Print) --}}
                         <div class="print-only border-t border-slate-200 pt-3 text-[8.5pt] text-slate-500 space-y-1">
@@ -509,13 +552,20 @@
 
                         {{-- Action Buttons (No-print) --}}
                         <div class="no-print flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
-                            <div class="flex items-center gap-2">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <a 
+                                    href="{{ route('validar-certificado.print', $certificate->certificate_code) }}"
+                                    target="_blank"
+                                    class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2">
+                                    <i class="bi bi-award-fill"></i>
+                                    <span>Ver Certificado Oficial (Formato Original)</span>
+                                </a>
                                 <button 
                                     type="button" 
                                     onclick="window.print()" 
                                     class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2">
                                     <i class="bi bi-printer-fill"></i>
-                                    <span>Imprimir Constancia</span>
+                                    <span>Imprimir Ficha</span>
                                 </button>
                                 <button 
                                     type="button" 
@@ -915,12 +965,20 @@
                                         {{ number_format($row->total_students) }}
                                     </td>
                                     <td class="px-4 py-3.5 text-center">
-                                        <span class="inline-flex items-center justify-center font-mono font-bold px-2.5 py-0.5 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-100">
-                                            {{ number_format($row->avg_score, 2) }}
-                                        </span>
+                                        @if($row->avg_score !== null)
+                                            <span class="inline-flex items-center justify-center font-mono font-bold px-2.5 py-0.5 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-100">
+                                                {{ number_format((float)$row->avg_score, 2) }}
+                                            </span>
+                                        @else
+                                            <span class="text-xs text-slate-400 font-medium italic">Capacitación</span>
+                                        @endif
                                     </td>
                                     <td class="px-4 py-3.5 text-center font-mono text-xs text-slate-500">
-                                        {{ number_format($row->min_score, 0) }} - {{ number_format($row->max_score, 0) }}
+                                        @if($row->min_score !== null && $row->max_score !== null)
+                                            {{ number_format((float)$row->min_score, 0) }} - {{ number_format((float)$row->max_score, 0) }}
+                                        @else
+                                            —
+                                        @endif
                                     </td>
                                     <td class="px-4 py-3.5 text-center font-mono font-semibold text-emerald-700">
                                         {{ number_format($row->active_count) }}

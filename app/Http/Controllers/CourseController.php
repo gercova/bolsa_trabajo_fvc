@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CourseRequest;
 use App\Models\Course;
+use App\Models\StudyProgram;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -21,6 +22,7 @@ class CourseController extends Controller
         $status = $request->input('status');
 
         $query = Course::withCount(['modules', 'certificates', 'itineraries'])
+            ->with('studyProgram')
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sq) use ($search) {
                     $sq->where('name', 'LIKE', "%{$search}%")
@@ -33,6 +35,7 @@ class CourseController extends Controller
             ->orderBy('name', 'asc');
 
         $courses = $query->paginate(10)->appends($request->only(['search', 'status']));
+        $studyPrograms = StudyProgram::where('is_active', true)->orderBy('name')->get();
 
         // Stat counters
         $totalCourses = Course::count();
@@ -42,6 +45,7 @@ class CourseController extends Controller
 
         return view('admin.courses.index', compact(
             'courses',
+            'studyPrograms',
             'totalCourses',
             'activeCourses',
             'withModulesCount',

@@ -9,6 +9,7 @@ use App\Imports\CertificateImport;
 use App\Models\Certificate;
 use App\Models\CertificateDetail;
 use App\Models\Course;
+use App\Models\Enterprise;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -98,6 +99,17 @@ class CertificateController extends Controller
             $data['is_active'] = $request->boolean('is_active', true);
             $data['download_count'] = 0;
 
+            if (empty($data['certificate_type'])) {
+                $course = Course::find($data['course_id']);
+                $data['certificate_type'] = $course?->certificate_type ?? 'capacitacion';
+                if (empty($data['study_program_id']) && $course?->study_program_id) {
+                    $data['study_program_id'] = $course->study_program_id;
+                }
+                if (empty($data['event_name']) && $course?->event_name) {
+                    $data['event_name'] = $course->event_name;
+                }
+            }
+
             $certificate = Certificate::create($data);
 
             if ($request->expectsJson() || $request->ajax()) {
@@ -130,9 +142,28 @@ class CertificateController extends Controller
      */
     public function show(Certificate $certificate): JsonResponse
     {
-        $certificate->load(['user', 'course.modules', 'details.module']);
+        $certificate->load(['user', 'course.modules', 'details.module', 'studyProgram', 'course.studyProgram']);
 
         return response()->json($certificate);
+    }
+
+    /**
+     * Display the official printable certificate document with QR validation.
+     */
+    public function print(Certificate $certificate): View
+    {
+        $certificate->load([
+            'user',
+            'course.modules',
+            'course.itineraries',
+            'studyProgram',
+            'course.studyProgram',
+            'details.module',
+        ]);
+
+        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
+
+        return view('admin.certificates.print', compact('certificate', 'enterprise'));
     }
 
     /**
@@ -232,9 +263,19 @@ class CertificateController extends Controller
             $data = $request->validated();
             $data['is_active'] = $request->boolean('is_active', true);
 
+            $match = [];
+            if (! empty($data['module_id'])) {
+                $match['module_id'] = $data['module_id'];
+            } elseif (! empty($data['topic_name'])) {
+                $match['topic_name'] = $data['topic_name'];
+            }
+
             $detail = $certificate->details()->updateOrCreate(
-                ['module_id' => $data['module_id']],
+                $match,
                 [
+                    'module_id' => $data['module_id'] ?? null,
+                    'topic_name' => $data['topic_name'] ?? null,
+                    'order' => $data['order'] ?? null,
                     'score' => $data['score'] ?? null,
                     'is_active' => $data['is_active'],
                 ]

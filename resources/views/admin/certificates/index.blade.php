@@ -528,15 +528,16 @@
                             class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"></textarea>
                     </div>
 
-                    {{-- Active Toggle — same pattern as /admin-programas/editar-programa --}}
-                    <div class="pt-1">
-                        <label class="inline-flex items-center cursor-pointer gap-3 p-3 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100/80 transition-colors w-full">
-                            <input type="checkbox" name="is_active" value="1" x-model="form.is_active" class="sr-only peer">
-                            <div class="relative w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-purple-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600 shrink-0"></div>
-                            <div>
-                                <span class="text-sm font-bold text-gray-900 block">Certificado Válido / Activo</span>
-                                <span class="text-xs text-gray-500 block">Los certificados activos son visibles y verificables en el portal institucional.</span>
-                            </div>
+                    {{-- Active Toggle --}}
+                    <div class="p-4 bg-purple-50/60 border border-purple-100 rounded-xl flex items-center justify-between">
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-800">Certificado Válido / Activo</h4>
+                            <p class="text-xs text-gray-500">Los certificados activos son visibles y verificables en el portal institucional.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="hidden" name="is_active" value="0">
+                            <input type="checkbox" id="cert_is_active" name="is_active" value="1" x-model="form.is_active" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
                         </label>
                     </div>
 

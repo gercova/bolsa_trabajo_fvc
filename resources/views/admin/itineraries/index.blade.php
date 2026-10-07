@@ -383,11 +383,15 @@
                     </div>
 
                     {{-- Active Toggle --}}
-                    <div class="flex items-center gap-3 pt-2">
+                    <div class="p-4 bg-purple-50/60 border border-purple-100 rounded-xl flex items-center justify-between">
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-800">Itinerario Activo</h4>
+                            <p class="text-xs text-gray-500">Determina si la sesión o tema del itinerario está habilitado en el plan de estudios.</p>
+                        </div>
                         <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" name="is_active" value="1" x-model="form.is_active" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:width-5 after:transition-all peer-checked:bg-purple-600"></div>
-                            <span class="ml-3 text-xs font-bold text-gray-700">Itinerario Activo</span>
+                            <input type="hidden" name="is_active" value="0">
+                            <input type="checkbox" id="itin_is_active" name="is_active" value="1" x-model="form.is_active" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
                         </label>
                     </div>
 

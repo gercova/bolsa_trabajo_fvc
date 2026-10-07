@@ -265,10 +265,12 @@ class CertificateFormatAndValidationTest extends TestCase
         $response->assertSee('sheet-reverso');
         $response->assertSee('MODULOS Y CONTENIDOS');
         $response->assertSee('Greatings and farewells');
-        $response->assertSee('Demostrative Pronuons A.N.I form');
         $response->assertSee('Ambas Caras');
         $response->assertSee('Frente');
         $response->assertSee('Reverso');
+        $response->assertSee('english-front-watermark');
+        $response->assertSee('english-table-watermark');
+        $response->assertDontSee('english-laurel-watermark');
     }
 
     public function test_basic_english_public_validation_shows_academic_record_table(): void

@@ -540,15 +540,17 @@
             display: block;
         }
 
-        .english-laurel-watermark {
+        .english-front-watermark {
             position: absolute;
-            top: 52%;
+            top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 145mm;
-            height: 130mm;
+            width: 140mm;
+            height: 140mm;
+            opacity: 0.08;
             pointer-events: none;
-            z-index: 2;
+            z-index: 1;
+            object-fit: contain;
         }
 
         .english-content-container {
@@ -560,7 +562,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding: 24mm 36mm 14mm 36mm;
+            padding: 24mm 38mm 16mm 38mm;
             text-align: center;
             box-sizing: border-box;
         }
@@ -570,20 +572,20 @@
             font-size: 38pt;
             font-weight: 800;
             color: #102a54;
-            letter-spacing: 3px;
+            letter-spacing: 2.5px;
             line-height: 1;
             margin: 0;
             text-transform: uppercase;
         }
 
         .english-cert-granted {
-            font-family: 'Cinzel', 'Montserrat', serif;
-            font-size: 14pt;
+            font-family: 'Cinzel', 'Times New Roman', serif;
+            font-size: 13.5pt;
             font-weight: 700;
             color: #b88628;
             letter-spacing: 4px;
             line-height: 1;
-            margin: 3.5mm 0 2.5mm 0;
+            margin: 3.5mm 0 2mm 0;
             text-transform: uppercase;
         }
 
@@ -593,16 +595,17 @@
             font-weight: 700;
             font-size: 26pt;
             color: #143360;
-            line-height: 1.15;
-            margin: 1mm 0 4mm 0;
-            max-width: 210mm;
+            line-height: 1.2;
+            margin: 1.5mm 0 3.5mm 0;
+            max-width: 215mm;
             letter-spacing: 0.5px;
         }
 
         .english-intro-text {
             font-family: 'Inter', sans-serif;
             font-size: 11pt;
-            color: #222e40;
+            font-weight: 400;
+            color: #1e293b;
             line-height: 1.4;
             margin: 0;
         }
@@ -610,7 +613,7 @@
         .english-course-title {
             font-family: 'Montserrat', sans-serif;
             font-size: 16pt;
-            font-weight: 900;
+            font-weight: 800;
             color: #0d2852;
             letter-spacing: 1.5px;
             line-height: 1.3;
@@ -619,10 +622,12 @@
         }
 
         .english-narrative-box {
-            max-width: 180mm;
+            width: 100%;
+            max-width: 190mm;
             font-family: 'Inter', sans-serif;
             font-size: 10.5pt;
-            color: #222e40;
+            font-weight: 400;
+            color: #1e293b;
             line-height: 1.6;
             margin: 0 auto;
         }
@@ -631,42 +636,26 @@
             margin: 0;
         }
 
-        .english-narrative-box .range-spacing {
-            margin: 0 4px;
-        }
-
         .english-closing {
-            margin-top: 3mm !important;
+            margin-top: 3.5mm !important;
         }
 
         .english-date-location {
+            margin-top: 8mm;
             align-self: flex-end;
-            margin-top: auto;
-            padding-right: 2mm;
+            padding-right: 22mm;
             font-family: 'Inter', sans-serif;
             font-size: 11pt;
-            font-weight: 800;
+            font-weight: 700;
             color: #0f2347;
+            text-align: right;
         }
 
         /* ── Back Page (Reverso) ── */
         .english-sheet-back {
             padding: 14mm 16mm 14mm 16mm;
             justify-content: center;
-        }
-
-        .english-back-watermark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 140mm;
-            height: 140mm;
-            opacity: 0.10;
-            pointer-events: none;
-            z-index: 1;
-            object-fit: contain;
-            filter: grayscale(10%);
+            background: #ffffff;
         }
 
         .english-back-grid {
@@ -716,7 +705,7 @@
         }
 
         .english-qr-caption {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             font-size: 6pt;
             font-weight: 800;
             color: #475569;
@@ -726,18 +715,35 @@
         }
 
         .english-table-column {
+            position: relative;
             flex: 1;
             height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            align-items: center;
+        }
+
+        .english-table-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140mm;
+            height: 140mm;
+            opacity: 0.16;
+            pointer-events: none;
+            z-index: 1;
+            object-fit: contain;
         }
 
         .english-academic-table {
+            position: relative;
+            z-index: 2;
             width: 100%;
             border-collapse: collapse;
             border: 1.5px solid #000000;
-            background: #ffffff;
+            background: transparent;
         }
 
         .english-academic-table th, 
@@ -747,15 +753,19 @@
         }
 
         .english-academic-table thead th {
-            font-family: 'Inter', 'Montserrat', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             font-size: 8.5pt;
             font-weight: 800;
             color: #000000;
             text-align: center;
             vertical-align: middle;
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.40);
             line-height: 1.25;
             text-transform: uppercase;
+        }
+
+        .english-academic-table tbody td {
+            background: rgba(255, 255, 255, 0.30);
         }
 
         .english-academic-table .col-modulos { width: 48%; }
@@ -767,7 +777,7 @@
         .english-academic-table .col-observacion { width: 9%; }
 
         .english-academic-table .mod-heading {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             font-size: 8.5pt;
             font-weight: 800;
             text-decoration: underline;
@@ -781,8 +791,9 @@
             margin: 0;
             font-family: 'Inter', sans-serif;
             font-size: 7.2pt;
-            line-height: 1.32;
-            color: #111111;
+            line-height: 1.34;
+            color: #000000;
+            font-weight: 500;
         }
 
         .english-academic-table .mod-items-list li {
@@ -801,7 +812,8 @@
         .english-academic-table .cell-center {
             text-align: center;
             vertical-align: middle;
-            font-size: 9pt;
+            font-family: 'Inter', sans-serif;
+            font-size: 8.5pt;
             color: #000000;
         }
 
@@ -1013,24 +1025,8 @@
                     <path d="M520,35 C340,75 200,170 45,280 L30,280 C195,160 330,60 520,15 Z" fill="url(#engGoldGradBR)" />
                 </svg>
 
-                <!-- ── Center Laurel Wreath Watermark SVG ── -->
-                <svg class="english-laurel-watermark" viewBox="0 0 400 350" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g fill="#c99e3a" opacity="0.14">
-                        <path d="M170,300 C110,260 70,180 80,100 C85,60 110,30 110,30 C110,30 95,65 95,100 C95,170 135,240 185,280 Z" />
-                        <path d="M230,300 C290,260 330,180 320,100 C315,60 290,30 290,30 C290,30 305,65 305,100 C305,170 265,240 215,280 Z" />
-                        <path d="M70,120 C50,110 45,90 60,85 C75,80 85,100 70,120 Z" />
-                        <path d="M80,160 C60,150 55,130 70,125 C85,120 95,140 80,160 Z" />
-                        <path d="M100,200 C80,195 75,175 90,170 C105,165 115,185 100,200 Z" />
-                        <path d="M125,240 C105,240 100,220 115,210 C130,200 140,225 125,240 Z" />
-                        <path d="M330,120 C350,110 355,90 340,85 C325,80 315,100 330,120 Z" />
-                        <path d="M320,160 C340,150 345,130 330,125 C315,120 305,140 320,160 Z" />
-                        <path d="M300,200 C320,195 325,175 310,170 C295,165 285,185 300,200 Z" />
-                        <path d="M275,240 C295,240 300,220 285,210 C270,200 260,225 275,240 Z" />
-                        <circle cx="200" cy="305" r="9" />
-                        <path d="M190,310 C170,335 150,345 140,345 C150,335 170,320 185,310 Z" />
-                        <path d="M210,310 C230,335 250,345 260,345 C250,335 230,320 215,310 Z" />
-                    </g>
-                </svg>
+                <!-- ── Center Institutional Logo Watermark ── -->
+                <img src="{{ $logoSrc }}" alt="Marca de agua institucional" class="english-watermark english-front-watermark">
 
                 <!-- ── Top-Right Institutional Crest / Shield ── -->
                 <div class="english-header-logo-container">
@@ -1092,8 +1088,13 @@
                     <h1 class="english-cert-title">CERTIFICADO</h1>
                     <h2 class="english-cert-granted">OTORGADO A:</h2>
 
+                    @php
+                        $rawStudentName = $certificate->user->names ?? 'Acuña Avendaño Cluber Yerson';
+                        $cleanStudentName = preg_replace('/\s*,\s*/', ', ', trim($rawStudentName));
+                        $displayName = mb_convert_case($cleanStudentName, MB_CASE_TITLE, 'UTF-8');
+                    @endphp
                     <div class="english-recipient-name">
-                        {{ $certificate->user->names ?? 'Acuña Avendaño Cluber Yerson' }}
+                        {{ $displayName }}
                     </div>
 
                     <p class="english-intro-text">
@@ -1105,19 +1106,35 @@
                     </div>
 
                     <div class="english-narrative-box">
+                        @php
+                            $formattedRange = $certificate->formatted_date_range ?: 'del 14 de mayo al 16 de Julio del 2026';
+                            $cleanDuration = rtrim($certificate->duration ?: '128 horas pedagógicas', '.');
+                        @endphp
                         <p class="english-narrative-line">
-                            Realizado <span class="range-spacing">{{ $certificate->formatted_date_range ?: 'del 14 de mayo al 16 de Julio del 2026' }}</span>,
+                            Realizado {{ $formattedRange }},
                         </p>
                         <p class="english-narrative-line">
-                            duración {{ $certificate->duration ?: '128 horas pedagógicas' }}.
+                            duración {{ $cleanDuration }}.
                         </p>
                         <p class="english-narrative-line english-closing">
                             Se le expide este documento a solicitud del interesado para los fines pertinentes.
                         </p>
                     </div>
 
+                    @php
+                        $issueDateObj = $certificate->issue_date ? \Carbon\Carbon::parse($certificate->issue_date) : null;
+                        $mesesCap = [
+                            1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',
+                            5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto',
+                            9 => 'Setiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre',
+                        ];
+                        $issueDay = $issueDateObj ? $issueDateObj->day : '29';
+                        $issueMonth = $issueDateObj ? ($mesesCap[$issueDateObj->month] ?? $issueDateObj->format('F')) : 'Diciembre';
+                        $issueYear = $issueDateObj ? $issueDateObj->year : '2025';
+                        $issueCity = $certificate->city ?: 'Uchiza';
+                    @endphp
                     <div class="english-date-location">
-                        {{ $certificate->city ?? 'Uchiza' }} {{ $certificate->issue_date ? \Carbon\Carbon::parse($certificate->issue_date)->translatedFormat('d \d\e F \d\e\l Y') : '29 de Diciembre del 2025' }}
+                        {{ $issueCity }} {{ $issueDay }} de {{ $issueMonth }} del {{ $issueYear }}
                     </div>
                 </div>
 
@@ -1127,9 +1144,6 @@
             {{-- CERTIFICADO DE INGLÉS A NIVEL BÁSICO: REVERSO (CALIFICACIONES & QR) --}}
             {{-- ══════════════════════════════════════════════════════════ --}}
             <article class="certificate-sheet english-sheet english-sheet-back" id="sheet-reverso">
-
-                <!-- ── Center Institutional Shield Watermark ── -->
-                <img src="{{ $logoSrc }}" alt="Marca de agua institucional" class="english-back-watermark">
 
                 <!-- ── Back Grid: Left QR & Right Academic Table ── -->
                 <div class="english-back-grid">
@@ -1147,6 +1161,9 @@
 
                     <!-- Right Column: Academic Evaluation & Syllabus Table -->
                     <div class="english-table-column">
+                        <!-- Institutional Shield Watermark Behind Table -->
+                        <img src="{{ $logoSrc }}" alt="Marca de agua institucional" class="english-table-watermark">
+
                         <table class="english-academic-table">
                             <thead>
                                 <tr>

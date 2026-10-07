@@ -92,7 +92,31 @@ class Certificate extends Model
      */
     public function isTraining(): bool
     {
+        if ($this->isBasicEnglish()) {
+            return false;
+        }
+
         return ($this->certificate_type ?? $this->course?->certificate_type ?? 'capacitacion') === 'capacitacion';
+    }
+
+    /**
+     * Check if this certificate corresponds to the "Basic English" course format.
+     */
+    public function isBasicEnglish(): bool
+    {
+        $searchTerms = ['inglés', 'ingles', 'english'];
+        $courseName = mb_strtolower($this->course?->name ?? '', 'UTF-8');
+        $eventName = mb_strtolower($this->event_name ?? '', 'UTF-8');
+        $desc = mb_strtolower($this->description ?? '', 'UTF-8');
+        $certType = mb_strtolower($this->certificate_type ?? '', 'UTF-8');
+
+        foreach ($searchTerms as $term) {
+            if (str_contains($courseName, $term) || str_contains($eventName, $term) || str_contains($desc, $term)) {
+                return true;
+            }
+        }
+
+        return $certType === 'ingles' || $certType === 'basic_english';
     }
 
     /**
@@ -218,5 +242,92 @@ class Certificate extends Model
         }
 
         return [];
+    }
+
+    /**
+     * Resolved modules, contents, credits and grades for the Basic English certificate reverso.
+     */
+    public function getEnglishModulesDataAttribute(): array
+    {
+        $defaultModules = [
+            [
+                'name' => 'MODULO: I',
+                'credits' => 4,
+                'score_num' => 14,
+                'score_text' => 'Catorce',
+                'year' => $this->issue_date ? Carbon::parse($this->issue_date)->format('d/m/Y') : '29/12/2025',
+                'observation' => '',
+                'contents' => [
+                    'Greatings and farewells',
+                    'The numbers 0 - 1,000',
+                    'The numbers 1,000 - 999,999.',
+                    'The time ( What time is it? )',
+                    'Days and Celebres detes.',
+                    'The alphabet',
+                    'The alphabet ( Spelling.',
+                    'Verb to be in present time in A.N.I Form.',
+                    'Verb to be in past and futuro A.N.I.form.',
+                    'Possessive Adjectives.',
+                    'The adjectives',
+                    'There is and there are A.N.I form.',
+                ],
+            ],
+            [
+                'name' => 'MODULO: II',
+                'credits' => 3,
+                'score_num' => 14,
+                'score_text' => 'Catorce',
+                'year' => $this->issue_date ? Carbon::parse($this->issue_date)->format('d/m/Y') : '29/12/2025',
+                'observation' => '',
+                'contents' => [
+                    'Demostrative Pronuons A.N.I form',
+                    'Regular and Irregular verbs',
+                    'Kinds Preposition of places',
+                    'Kind Preposition of Time',
+                    'Countable and uncountable nouns',
+                    'How much and Many',
+                    'Wh- quuestions',
+                    'Comparative and Superlative',
+                    'Simple Present sentence',
+                    'Simple past Sentence',
+                ],
+            ],
+        ];
+
+        if (! $this->course || $this->course->modules->isEmpty()) {
+            return $defaultModules;
+        }
+
+        $result = [];
+        $words = [
+            0 => 'Cero', 1 => 'Uno', 2 => 'Dos', 3 => 'Tres', 4 => 'Cuatro',
+            5 => 'Cinco', 6 => 'Seis', 7 => 'Siete', 8 => 'Ocho', 9 => 'Nueve',
+            10 => 'Diez', 11 => 'Once', 12 => 'Doce', 13 => 'Trece', 14 => 'Catorce',
+            15 => 'Quince', 16 => 'Dieciséis', 17 => 'Diecisiete', 18 => 'Dieciocho',
+            19 => 'Diecinueve', 20 => 'Veinte',
+        ];
+
+        foreach ($this->course->modules as $index => $module) {
+            $detail = $this->details->firstWhere('module_id', $module->id);
+            $scoreNum = $detail?->score !== null && $detail?->score !== '' ? (int) $detail->score : ($defaultModules[$index]['score_num'] ?? 14);
+            $scoreText = $words[$scoreNum] ?? ($defaultModules[$index]['score_text'] ?? 'Catorce');
+            $contents = $module->itineraries->pluck('name')->all();
+
+            if (empty($contents) && isset($defaultModules[$index])) {
+                $contents = $defaultModules[$index]['contents'];
+            }
+
+            $result[] = [
+                'name' => mb_strtoupper($module->name, 'UTF-8'),
+                'credits' => $module->credits ?: ($defaultModules[$index]['credits'] ?? 3),
+                'score_num' => $scoreNum,
+                'score_text' => $scoreText,
+                'year' => $this->issue_date ? Carbon::parse($this->issue_date)->format('d/m/Y') : '29/12/2025',
+                'observation' => '',
+                'contents' => $contents,
+            ];
+        }
+
+        return ! empty($result) ? $result : $defaultModules;
     }
 }

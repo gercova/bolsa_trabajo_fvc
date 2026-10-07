@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class HistoricalReview extends Model
 {
-    protected $table        = 'historical_reviews';
-    protected $primaryKey   = 'id';
-    protected $dates        = ['created_at', 'updated_at'];
-    protected $fillable     = [
+    protected $table = 'historical_reviews';
+
+    protected $primaryKey = 'id';
+
+    protected $dates = ['created_at', 'updated_at'];
+
+    protected $fillable = [
         'title',
         'description',
         'image_path',
@@ -21,9 +24,9 @@ class HistoricalReview extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
-        'order'     => 'integer',
-        'start_year'=> 'integer',
-        'end_year'  => 'integer',
+        'order' => 'integer',
+        'start_year' => 'integer',
+        'end_year' => 'integer',
         'created_at' => 'datetime:Y-m-d',
         'updated_at' => 'datetime:Y-m-d',
     ];
@@ -33,6 +36,6 @@ class HistoricalReview extends Model
      */
     public function getImageUrlAttribute(): ?string
     {
-        return $this->image_path ? asset('storage/' . $this->image_path) : null;
+        return $this->image_path ? asset('storage/'.$this->image_path) : null;
     }
 }

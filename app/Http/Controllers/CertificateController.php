@@ -154,6 +154,7 @@ class CertificateController extends Controller
     {
         $certificate->load([
             'user',
+            'course.modules.itineraries',
             'course.modules',
             'course.itineraries',
             'studyProgram',

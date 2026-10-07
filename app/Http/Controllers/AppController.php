@@ -939,6 +939,7 @@ class AppController extends Controller
     {
         $certificate = Certificate::with([
             'user',
+            'course.modules.itineraries',
             'course.modules',
             'course.itineraries',
             'studyProgram',

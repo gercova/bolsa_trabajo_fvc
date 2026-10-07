@@ -379,13 +379,13 @@
                             </div>
                             <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
                                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                                    {{ $certificate->isTraining() ? 'Condición de Participación' : 'Modalidad & Horas' }}
+                                    {{ $certificate->isBasicEnglish() ? 'Curso & Duración' : ($certificate->isTraining() ? 'Condición de Participación' : 'Modalidad & Horas') }}
                                 </span>
                                 <p class="text-xs sm:text-sm font-extrabold text-indigo-700 mt-0.5 flex items-center gap-1.5 leading-tight">
-                                    <i class="bi {{ $certificate->isTraining() ? 'bi-person-badge-fill' : ($certificate->modality === 'Virtual' ? 'bi-laptop' : ($certificate->modality === 'Semipresencial' ? 'bi-shuffle' : 'bi-building')) }}"></i>
-                                    {{ $certificate->isTraining() ? ($certificate->participation_type ?? 'ASISTENTE') : $certificate->modality }}
+                                    <i class="bi {{ $certificate->isBasicEnglish() ? 'bi-translate' : ($certificate->isTraining() ? 'bi-person-badge-fill' : ($certificate->modality === 'Virtual' ? 'bi-laptop' : ($certificate->modality === 'Semipresencial' ? 'bi-shuffle' : 'bi-building'))) }}"></i>
+                                    {{ $certificate->isBasicEnglish() ? 'Inglés a Nivel Básico' : ($certificate->isTraining() ? ($certificate->participation_type ?? 'ASISTENTE') : $certificate->modality) }}
                                 </p>
-                                <span class="text-[11px] text-slate-500 mt-0.5 block">Duración: <strong>{{ $certificate->duration ?: ($certificate->isTraining() ? '90 horas pedagógicas' : '128 Horas') }}</strong></span>
+                                <span class="text-[11px] text-slate-500 mt-0.5 block">Duración: <strong>{{ $certificate->duration ?: ($certificate->isBasicEnglish() ? '128 horas pedagógicas' : ($certificate->isTraining() ? '90 horas pedagógicas' : '128 Horas')) }}</strong></span>
                             </div>
                             <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
                                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Periodo &amp; Emisión</span>
@@ -400,8 +400,74 @@
                                 <span class="text-[10px] text-slate-500 mt-0.5 block">{{ $certificate->city ?? 'Uchiza' }}, San Martín</span>
                             </div>
                         </div>
-                        {{-- Details Section: Training Syllabus vs Modular Grades --}}
-                        @if($certificate->isTraining())
+                        {{-- Details Section: English Academic Record vs Training Syllabus vs Modular Grades --}}
+                        @if($certificate->isBasicEnglish())
+                            {{-- English Certificate Academic Record (Modules, Syllabus, Credits, Grades in Number and Words) --}}
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-xs sm:text-sm font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                                        <i class="bi bi-award-fill text-amber-500"></i>
+                                        Registro Académico y Calificaciones — Inglés a Nivel Básico
+                                    </h4>
+                                    <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                                        <i class="bi bi-check-circle-fill text-[9px] mr-1"></i> Aprobado Satisfactoriamente
+                                    </span>
+                                </div>
+
+                                <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs bg-white">
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-left border-collapse text-xs">
+                                            <thead>
+                                                <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-extrabold uppercase text-[10px] sm:text-[11px] tracking-wider text-center">
+                                                    <th class="px-4 py-3 text-left w-[46%]">Módulos y Contenidos</th>
+                                                    <th class="px-3 py-3 w-[12%]">N° Créditos</th>
+                                                    <th class="px-3 py-3 w-[10%]">Calificación<br><span class="text-[9px] text-slate-400 font-normal">En Número</span></th>
+                                                    <th class="px-3 py-3 w-[14%]">Calificación<br><span class="text-[9px] text-slate-400 font-normal">En Letras</span></th>
+                                                    <th class="px-3 py-3 w-[10%]">Año</th>
+                                                    <th class="px-3 py-3 w-[8%]">Observación</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                                                @foreach($certificate->english_modules_data as $mod)
+                                                    <tr class="hover:bg-slate-50/50 transition-colors">
+                                                        <td class="px-4 py-3.5 align-top">
+                                                            <div class="font-bold text-slate-900 text-xs mb-1.5 underline decoration-slate-300 underline-offset-2">
+                                                                {{ $mod['name'] }}
+                                                            </div>
+                                                            <ul class="space-y-0.5 text-[11px] text-slate-600 pl-0 list-none">
+                                                                @foreach($mod['contents'] as $content)
+                                                                    <li class="flex items-start gap-1.5">
+                                                                        <span class="text-emerald-600 font-bold shrink-0">✓</span>
+                                                                        <span>{{ $content }}</span>
+                                                                    </li>
+                                                                @endforeach
+                                                            </ul>
+                                                        </td>
+                                                        <td class="px-3 py-3.5 text-center font-bold text-slate-900 align-middle">
+                                                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 font-black">
+                                                                {{ $mod['credits'] }}
+                                                            </span>
+                                                        </td>
+                                                        <td class="px-3 py-3.5 text-center font-extrabold text-indigo-700 text-sm align-middle">
+                                                            {{ $mod['score_num'] }}
+                                                        </td>
+                                                        <td class="px-3 py-3.5 text-center font-semibold text-slate-800 align-middle">
+                                                            {{ $mod['score_text'] }}
+                                                        </td>
+                                                        <td class="px-3 py-3.5 text-center font-mono text-[11px] text-slate-600 align-middle">
+                                                            {{ $mod['year'] }}
+                                                        </td>
+                                                        <td class="px-3 py-3.5 text-center text-slate-400 italic text-[11px] align-middle">
+                                                            {{ $mod['observation'] ?: '—' }}
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif($certificate->isTraining())
                             {{-- Training Certificate Temario Card (No grade field required) --}}
                             <div class="space-y-3">
                                 <div class="flex items-center justify-between">

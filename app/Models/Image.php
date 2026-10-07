@@ -8,19 +8,21 @@ use Illuminate\Support\Str;
 
 class Image extends Model
 {
-    protected $table        = 'images';
-    protected $primaryKey   = 'id';
-    protected $fillable     = [
+    protected $table = 'images';
+
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
         'path',
         'is_main',
         'imageable_id',
-        'imageable_type'
+        'imageable_type',
     ];
 
     protected $casts = [
-        'is_main'       => 'boolean',
-        'created_at'    => 'datetime',
-        'updated_at'    => 'datetime',
+        'is_main' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**
@@ -28,7 +30,7 @@ class Image extends Model
      */
     public function getUrlAttribute(): string
     {
-        if (!$this->path) {
+        if (! $this->path) {
             return '';
         }
 
@@ -44,7 +46,7 @@ class Image extends Model
             return asset($this->path);
         }
 
-        return asset('storage/' . $this->path);
+        return asset('storage/'.$this->path);
     }
 
     /**

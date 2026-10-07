@@ -188,4 +188,118 @@ class CertificateFormatAndValidationTest extends TestCase
 
         $response->assertStatus(404);
     }
+
+    public function test_basic_english_certificate_identifies_properly_and_resolves_modules_data(): void
+    {
+        $englishCourse = Course::firstOrCreate(
+            ['name' => 'INGLÉS A NIVEL BÁSICO'],
+            [
+                'certificate_type' => 'ingles',
+                'event_name' => 'Programa de Idiomas 2026',
+                'is_active' => true,
+            ]
+        );
+
+        $englishCert = Certificate::updateOrCreate(
+            ['certificate_code' => '009-2026-ING-FVC'],
+            [
+                'user_id' => $this->certificate->user_id,
+                'course_id' => $englishCourse->id,
+                'certificate_type' => 'ingles',
+                'city' => 'Uchiza',
+                'start_date' => '2026-05-14',
+                'end_date' => '2026-07-16',
+                'duration' => '128 horas pedagógicas',
+                'issue_date' => '2025-12-29',
+                'is_active' => true,
+            ]
+        );
+
+        $this->assertTrue($englishCert->isBasicEnglish());
+        $this->assertFalse($englishCert->isTraining());
+
+        $modulesData = $englishCert->english_modules_data;
+        $this->assertCount(2, $modulesData);
+        $this->assertMatchesRegularExpression('/M[OÓ]DULO:\s*I\b/iu', $modulesData[0]['name']);
+        $this->assertEquals(4, $modulesData[0]['credits']);
+        $this->assertEquals(14, $modulesData[0]['score_num']);
+        $this->assertEquals('Catorce', $modulesData[0]['score_text']);
+        $this->assertContains('Greatings and farewells', $modulesData[0]['contents']);
+
+        $this->assertMatchesRegularExpression('/M[OÓ]DULO:\s*II\b/iu', $modulesData[1]['name']);
+        $this->assertEquals(3, $modulesData[1]['credits']);
+        $this->assertEquals(14, $modulesData[1]['score_num']);
+        $this->assertEquals('Catorce', $modulesData[1]['score_text']);
+        $this->assertContains('Demostrative Pronuons A.N.I form', $modulesData[1]['contents']);
+    }
+
+    public function test_basic_english_printable_certificate_renders_both_anverso_and_reverso(): void
+    {
+        $englishCourse = Course::firstOrCreate(
+            ['name' => 'INGLÉS A NIVEL BÁSICO'],
+            ['certificate_type' => 'ingles', 'is_active' => true]
+        );
+
+        $englishCert = Certificate::updateOrCreate(
+            ['certificate_code' => '010-2026-ING-FVC'],
+            [
+                'user_id' => $this->certificate->user_id,
+                'course_id' => $englishCourse->id,
+                'certificate_type' => 'ingles',
+                'city' => 'Uchiza',
+                'start_date' => '2026-05-14',
+                'end_date' => '2026-07-16',
+                'duration' => '128 horas pedagógicas',
+                'issue_date' => '2025-12-29',
+                'is_active' => true,
+            ]
+        );
+
+        $response = $this->get('/validar-certificado/'.$englishCert->certificate_code.'/imprimir');
+
+        $response->assertStatus(200);
+        $response->assertSee('CERTIFICADO');
+        $response->assertSee('OTORGADO A:');
+        $response->assertSee('INGLÉS A NIVEL BÁSICO');
+        $response->assertSee('sheet-anverso');
+        $response->assertSee('sheet-reverso');
+        $response->assertSee('MODULOS Y CONTENIDOS');
+        $response->assertSee('Greatings and farewells');
+        $response->assertSee('Demostrative Pronuons A.N.I form');
+        $response->assertSee('Ambas Caras');
+        $response->assertSee('Frente');
+        $response->assertSee('Reverso');
+    }
+
+    public function test_basic_english_public_validation_shows_academic_record_table(): void
+    {
+        $englishCourse = Course::firstOrCreate(
+            ['name' => 'INGLÉS A NIVEL BÁSICO'],
+            ['certificate_type' => 'ingles', 'is_active' => true]
+        );
+
+        $englishCert = Certificate::updateOrCreate(
+            ['certificate_code' => '011-2026-ING-FVC'],
+            [
+                'user_id' => $this->certificate->user_id,
+                'course_id' => $englishCourse->id,
+                'certificate_type' => 'ingles',
+                'city' => 'Uchiza',
+                'start_date' => '2026-05-14',
+                'end_date' => '2026-07-16',
+                'duration' => '128 horas pedagógicas',
+                'issue_date' => '2025-12-29',
+                'is_active' => true,
+            ]
+        );
+
+        $response = $this->get('/validar-certificado/'.$englishCert->certificate_code);
+
+        $response->assertStatus(200);
+        $response->assertSee('Registro Académico y Calificaciones — Inglés a Nivel Básico');
+        $response->assertSee('Greatings and farewells');
+        $response->assertSee('Demostrative Pronuons A.N.I form');
+        $response->assertSee('Catorce');
+        $response->assertSee('Ver Certificado Oficial (Formato Original)');
+    }
 }

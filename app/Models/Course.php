@@ -43,6 +43,26 @@ class Course extends Model
 
     public function isTraining(): bool
     {
+        if ($this->isBasicEnglish()) {
+            return false;
+        }
+
         return $this->certificate_type === 'capacitacion';
+    }
+
+    public function isBasicEnglish(): bool
+    {
+        $searchTerms = ['inglés', 'ingles', 'english'];
+        $courseName = mb_strtolower($this->name ?? '', 'UTF-8');
+        $desc = mb_strtolower($this->description ?? '', 'UTF-8');
+        $certType = mb_strtolower($this->certificate_type ?? '', 'UTF-8');
+
+        foreach ($searchTerms as $term) {
+            if (str_contains($courseName, $term) || str_contains($desc, $term)) {
+                return true;
+            }
+        }
+
+        return $certType === 'ingles' || $certType === 'basic_english';
     }
 }

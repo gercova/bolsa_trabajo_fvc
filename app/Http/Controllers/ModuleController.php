@@ -18,9 +18,9 @@ class ModuleController extends Controller
      */
     public function index(Request $request): View
     {
-        $search   = $request->input('search');
+        $search = $request->input('search');
         $courseId = $request->input('course_id');
-        $status   = $request->input('status');
+        $status = $request->input('status');
 
         $query = Module::with('course')
             ->withCount(['itineraries', 'certificateDetails'])
@@ -45,9 +45,9 @@ class ModuleController extends Controller
         $courses = Course::where('is_active', true)->orderBy('name')->get();
 
         // Stat counters
-        $totalModules   = Module::count();
-        $activeModules  = Module::where('is_active', true)->count();
-        $coursesCount   = Course::has('modules')->count();
+        $totalModules = Module::count();
+        $activeModules = Module::where('is_active', true)->count();
+        $coursesCount = Course::has('modules')->count();
 
         return view('admin.modules.index', compact(
             'modules',
@@ -76,7 +76,7 @@ class ModuleController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => "El módulo '{$module->name}' ha sido registrado exitosamente.",
-                    'module'  => $module->load('course'),
+                    'module' => $module->load('course'),
                 ], 201);
             }
 
@@ -84,12 +84,12 @@ class ModuleController extends Controller
                 ->with('success', "El módulo '{$module->name}' ha sido registrado exitosamente.");
 
         } catch (\Exception $e) {
-            Log::error('Error registrando módulo: ' . $e->getMessage());
+            Log::error('Error registrando módulo: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ocurrió un error al registrar el módulo: ' . $e->getMessage(),
+                    'message' => 'Ocurrió un error al registrar el módulo: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -104,7 +104,7 @@ class ModuleController extends Controller
     {
         try {
             $data = $request->validated();
-            $data['is_active'] = $request->boolean('is_active', true);
+            $data['is_active'] = $request->boolean('is_active');
 
             $module->update($data);
 
@@ -112,7 +112,7 @@ class ModuleController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => "El módulo '{$module->name}' ha sido actualizado exitosamente.",
-                    'module'  => $module->load('course'),
+                    'module' => $module->load('course'),
                 ], 200);
             }
 
@@ -120,12 +120,12 @@ class ModuleController extends Controller
                 ->with('success', "El módulo '{$module->name}' ha sido actualizado exitosamente.");
 
         } catch (\Exception $e) {
-            Log::error('Error actualizando módulo: ' . $e->getMessage());
+            Log::error('Error actualizando módulo: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ocurrió un error al actualizar el módulo: ' . $e->getMessage(),
+                    'message' => 'Ocurrió un error al actualizar el módulo: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -153,7 +153,7 @@ class ModuleController extends Controller
                 ->with('success', "El módulo '{$name}' ha sido eliminado correctamente.");
 
         } catch (\Exception $e) {
-            Log::error('Error eliminando módulo: ' . $e->getMessage());
+            Log::error('Error eliminando módulo: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
@@ -171,14 +171,14 @@ class ModuleController extends Controller
      */
     public function toggleStatus(Module $module): JsonResponse|RedirectResponse
     {
-        $module->is_active = !$module->is_active;
+        $module->is_active = ! $module->is_active;
         $module->save();
 
         if (request()->expectsJson() || request()->ajax()) {
             return response()->json([
-                'success'   => true,
+                'success' => true,
                 'is_active' => $module->is_active,
-                'message'   => 'Estado actualizado correctamente.',
+                'message' => 'Estado actualizado correctamente.',
             ]);
         }
 
@@ -191,6 +191,7 @@ class ModuleController extends Controller
     public function byCourse(Course $course): JsonResponse
     {
         $modules = $course->modules()->where('is_active', true)->orderBy('name')->get(['id', 'name', 'credits']);
+
         return response()->json($modules);
     }
 }

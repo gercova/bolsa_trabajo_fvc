@@ -142,7 +142,7 @@ class CertificateController extends Controller
     {
         try {
             $data = $request->validated();
-            $data['is_active'] = $request->boolean('is_active', true);
+            $data['is_active'] = $request->boolean('is_active');
 
             $certificate->update($data);
 

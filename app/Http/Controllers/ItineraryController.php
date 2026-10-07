@@ -19,10 +19,10 @@ class ItineraryController extends Controller
      */
     public function index(Request $request): View
     {
-        $search   = $request->input('search');
+        $search = $request->input('search');
         $courseId = $request->input('course_id');
         $moduleId = $request->input('module_id');
-        $status   = $request->input('status');
+        $status = $request->input('status');
 
         $query = Itinerary::with(['course', 'module'])
             ->when($search, function ($q) use ($search) {
@@ -47,13 +47,13 @@ class ItineraryController extends Controller
             ->orderBy('name', 'asc');
 
         $itineraries = $query->paginate(10)->appends($request->only(['search', 'course_id', 'module_id', 'status']));
-        $courses     = Course::where('is_active', true)->with('modules')->orderBy('name')->get();
-        $modules     = Module::where('is_active', true)->orderBy('name')->get();
+        $courses = Course::where('is_active', true)->with('modules')->orderBy('name')->get();
+        $modules = Module::where('is_active', true)->orderBy('name')->get();
 
         // Stat counters
-        $totalItineraries  = Itinerary::count();
+        $totalItineraries = Itinerary::count();
         $activeItineraries = Itinerary::where('is_active', true)->count();
-        $coursesWithItin   = Course::has('itineraries')->count();
+        $coursesWithItin = Course::has('itineraries')->count();
 
         return view('admin.itineraries.index', compact(
             'itineraries',
@@ -82,8 +82,8 @@ class ItineraryController extends Controller
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
-                    'success'   => true,
-                    'message'   => "El itinerario '{$itinerary->name}' ha sido registrado exitosamente.",
+                    'success' => true,
+                    'message' => "El itinerario '{$itinerary->name}' ha sido registrado exitosamente.",
                     'itinerary' => $itinerary->load(['course', 'module']),
                 ], 201);
             }
@@ -92,12 +92,12 @@ class ItineraryController extends Controller
                 ->with('success', "El itinerario '{$itinerary->name}' ha sido registrado exitosamente.");
 
         } catch (\Exception $e) {
-            Log::error('Error registrando itinerario: ' . $e->getMessage());
+            Log::error('Error registrando itinerario: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ocurrió un error al registrar el itinerario: ' . $e->getMessage(),
+                    'message' => 'Ocurrió un error al registrar el itinerario: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -112,14 +112,14 @@ class ItineraryController extends Controller
     {
         try {
             $data = $request->validated();
-            $data['is_active'] = $request->boolean('is_active', true);
+            $data['is_active'] = $request->boolean('is_active');
 
             $itinerary->update($data);
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
-                    'success'   => true,
-                    'message'   => "El itinerario '{$itinerary->name}' ha sido actualizado exitosamente.",
+                    'success' => true,
+                    'message' => "El itinerario '{$itinerary->name}' ha sido actualizado exitosamente.",
                     'itinerary' => $itinerary->load(['course', 'module']),
                 ], 200);
             }
@@ -128,12 +128,12 @@ class ItineraryController extends Controller
                 ->with('success', "El itinerario '{$itinerary->name}' ha sido actualizado exitosamente.");
 
         } catch (\Exception $e) {
-            Log::error('Error actualizando itinerario: ' . $e->getMessage());
+            Log::error('Error actualizando itinerario: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ocurrió un error al actualizar el itinerario: ' . $e->getMessage(),
+                    'message' => 'Ocurrió un error al actualizar el itinerario: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -161,7 +161,7 @@ class ItineraryController extends Controller
                 ->with('success', "El itinerario '{$name}' ha sido eliminado correctamente.");
 
         } catch (\Exception $e) {
-            Log::error('Error eliminando itinerario: ' . $e->getMessage());
+            Log::error('Error eliminando itinerario: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
@@ -179,14 +179,14 @@ class ItineraryController extends Controller
      */
     public function toggleStatus(Itinerary $itinerary): JsonResponse|RedirectResponse
     {
-        $itinerary->is_active = !$itinerary->is_active;
+        $itinerary->is_active = ! $itinerary->is_active;
         $itinerary->save();
 
         if (request()->expectsJson() || request()->ajax()) {
             return response()->json([
-                'success'   => true,
+                'success' => true,
                 'is_active' => $itinerary->is_active,
-                'message'   => 'Estado actualizado correctamente.',
+                'message' => 'Estado actualizado correctamente.',
             ]);
         }
 

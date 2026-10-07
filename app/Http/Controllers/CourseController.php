@@ -35,10 +35,10 @@ class CourseController extends Controller
         $courses = $query->paginate(10)->appends($request->only(['search', 'status']));
 
         // Stat counters
-        $totalCourses           = Course::count();
-        $activeCourses          = Course::where('is_active', true)->count();
-        $withModulesCount       = Course::has('modules')->count();
-        $withCertificatesCount  = Course::has('certificates')->count();
+        $totalCourses = Course::count();
+        $activeCourses = Course::where('is_active', true)->count();
+        $withModulesCount = Course::has('modules')->count();
+        $withCertificatesCount = Course::has('certificates')->count();
 
         return view('admin.courses.index', compact(
             'courses',
@@ -66,7 +66,7 @@ class CourseController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => "El curso '{$course->name}' ha sido registrado exitosamente.",
-                    'course'  => $course,
+                    'course' => $course,
                 ], 201);
             }
 
@@ -74,12 +74,12 @@ class CourseController extends Controller
                 ->with('success', "El curso '{$course->name}' ha sido registrado exitosamente.");
 
         } catch (\Exception $e) {
-            Log::error('Error registrando curso: ' . $e->getMessage());
+            Log::error('Error registrando curso: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ocurrió un error al registrar el curso: ' . $e->getMessage(),
+                    'message' => 'Ocurrió un error al registrar el curso: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -94,7 +94,7 @@ class CourseController extends Controller
     {
         try {
             $data = $request->validated();
-            $data['is_active'] = $request->boolean('is_active', true);
+            $data['is_active'] = $request->boolean('is_active');
 
             $course->update($data);
 
@@ -102,7 +102,7 @@ class CourseController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => "El curso '{$course->name}' ha sido actualizado exitosamente.",
-                    'course'  => $course,
+                    'course' => $course,
                 ], 200);
             }
 
@@ -110,12 +110,12 @@ class CourseController extends Controller
                 ->with('success', "El curso '{$course->name}' ha sido actualizado exitosamente.");
 
         } catch (\Exception $e) {
-            Log::error('Error actualizando curso: ' . $e->getMessage());
+            Log::error('Error actualizando curso: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ocurrió un error al actualizar el curso: ' . $e->getMessage(),
+                    'message' => 'Ocurrió un error al actualizar el curso: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -143,7 +143,7 @@ class CourseController extends Controller
                 ->with('success', "El curso '{$name}' ha sido eliminado correctamente.");
 
         } catch (\Exception $e) {
-            Log::error('Error eliminando curso: ' . $e->getMessage());
+            Log::error('Error eliminando curso: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
@@ -161,14 +161,14 @@ class CourseController extends Controller
      */
     public function toggleStatus(Course $course): JsonResponse|RedirectResponse
     {
-        $course->is_active = !$course->is_active;
+        $course->is_active = ! $course->is_active;
         $course->save();
 
         if (request()->expectsJson() || request()->ajax()) {
             return response()->json([
-                'success'   => true,
+                'success' => true,
                 'is_active' => $course->is_active,
-                'message'   => 'Estado actualizado correctamente.',
+                'message' => 'Estado actualizado correctamente.',
             ]);
         }
 

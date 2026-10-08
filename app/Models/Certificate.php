@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Certificate extends Model
 {
     protected $fillable = [
+        'code',
         'user_id',
         'course_id',
         'certificate_type',
@@ -30,6 +31,20 @@ class Certificate extends Model
         'is_active',
         'download_count',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (Certificate $certificate) {
+            $code = $certificate->attributes['code'] ?? null;
+            $certCode = $certificate->attributes['certificate_code'] ?? null;
+
+            if (empty($code) && ! empty($certCode)) {
+                $certificate->attributes['code'] = $certCode;
+            } elseif (empty($certCode) && ! empty($code)) {
+                $certificate->attributes['certificate_code'] = $code;
+            }
+        });
+    }
 
     protected $casts = [
         'is_active' => 'boolean',
@@ -111,20 +126,36 @@ class Certificate extends Model
     }
 
     /**
-     * Generate a unique certificate code for a student DNI and course ID.
+     * Generate a unique certificate code for a student DNI using sequence number: CERT-{user_DNI}-{sequence_number}.
      */
-    public static function generateUniqueCodeForStudent(string $dni, int $courseId): string
+    public static function generateUniqueCodeForStudent(string $dni, ?int $courseId = null): string
     {
-        $baseCode = 'CERT-'.$dni.'-'.$courseId;
-        $code = $baseCode;
-        $counter = 1;
+        $cleanDni = trim($dni);
+        $seq = 1;
+        $code = "CERT-{$cleanDni}-{$seq}";
 
-        while (static::where('certificate_code', $code)->exists()) {
-            $counter++;
-            $code = $baseCode.'-'.$counter;
+        while (static::where('code', $code)->orWhere('certificate_code', $code)->exists()) {
+            $seq++;
+            $code = "CERT-{$cleanDni}-{$seq}";
         }
 
         return $code;
+    }
+
+    /**
+     * Accessor for code attribute.
+     */
+    public function getCodeAttribute(?string $value): ?string
+    {
+        return $value ?: ($this->attributes['certificate_code'] ?? null);
+    }
+
+    /**
+     * Accessor for certificate_code attribute.
+     */
+    public function getCertificateCodeAttribute(?string $value): ?string
+    {
+        return $value ?: ($this->attributes['code'] ?? null);
     }
 
     /**

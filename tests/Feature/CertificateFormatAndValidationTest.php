@@ -475,4 +475,142 @@ class CertificateFormatAndValidationTest extends TestCase
         $responseQuery->assertSee($this->certificate->certificate_code);
         $responseQuery->assertSee($secondCert->certificate_code);
     }
+
+    public function test_certificate_model_and_migration_support_code_field(): void
+    {
+        $this->assertNotNull($this->certificate->code);
+        $this->assertEquals($this->certificate->certificate_code, $this->certificate->code);
+
+        Certificate::where('code', 'CERT-CODE-TEST-1')->delete();
+
+        $certWithCode = Certificate::create([
+            'code' => 'CERT-CODE-TEST-1',
+            'user_id' => $this->certificate->user_id,
+            'course_id' => $this->certificate->course_id,
+            'certificate_type' => 'capacitacion',
+            'participation_type' => 'ASISTENTE',
+            'event_name' => 'Semana Técnica 2026',
+            'issue_date' => '2026-11-20',
+            'is_active' => true,
+        ]);
+
+        $this->assertEquals('CERT-CODE-TEST-1', $certWithCode->code);
+        $this->assertEquals('CERT-CODE-TEST-1', $certWithCode->certificate_code);
+
+        Certificate::where('code', 'CERT-CODE-TEST-1')->delete();
+    }
+
+    public function test_generate_unique_code_for_student_uses_sequence_format(): void
+    {
+        $testDni = '99887766';
+        Certificate::where('code', 'LIKE', "CERT-{$testDni}-%")->delete();
+
+        $code1 = Certificate::generateUniqueCodeForStudent($testDni);
+        $this->assertEquals("CERT-{$testDni}-1", $code1);
+
+        // If that code is taken, next should be sequence 2
+        Certificate::create([
+            'code' => $code1,
+            'user_id' => $this->certificate->user_id,
+            'course_id' => $this->certificate->course_id,
+            'certificate_type' => 'capacitacion',
+            'issue_date' => '2026-11-21',
+            'is_active' => true,
+        ]);
+
+        $code2 = Certificate::generateUniqueCodeForStudent($testDni);
+        $this->assertEquals("CERT-{$testDni}-2", $code2);
+
+        Certificate::where('code', 'LIKE', "CERT-{$testDni}-%")->delete();
+    }
+
+    public function test_certificate_import_uses_provided_code_when_present(): void
+    {
+        $student = User::where('dni', '71234567')->firstOrFail();
+        $course = Course::find($this->certificate->course_id);
+
+        $customCode = 'CERT-CUSTOM-EXCEL-001';
+        Certificate::where('code', $customCode)->delete();
+        Certificate::where('issue_date', '2026-12-15')->where('user_id', $student->id)->delete();
+
+        $import = new CertificateImport;
+        $row = [
+            0 => 1,
+            1 => $student->dni,
+            2 => $student->names,
+            3 => $course->name,
+            4 => '2026-12-01',
+            5 => '2026-12-10',
+            6 => '2026-12-15',
+            7 => '60',
+            8 => '18',
+            9 => 'Dieciocho',
+            10 => '19',
+            11 => 'Diecinueve',
+            12 => '18.5',
+            13 => 'Presencial',
+            14 => $customCode, // Col O: Provided code
+        ];
+
+        $import->collection(collect([$row]));
+
+        $this->assertEquals(1, $import->importedCount);
+        $createdCert = Certificate::where('code', $customCode)->first();
+        $this->assertNotNull($createdCert);
+        $this->assertEquals($customCode, $createdCert->code);
+        $this->assertEquals($customCode, $createdCert->certificate_code);
+
+        Certificate::where('code', $customCode)->delete();
+    }
+
+    public function test_certificate_import_auto_generates_code_when_code_column_empty(): void
+    {
+        $student = User::where('dni', '71234567')->firstOrFail();
+        $course = Course::find($this->certificate->course_id);
+
+        Certificate::where('issue_date', '2026-12-18')->where('user_id', $student->id)->delete();
+
+        $import = new CertificateImport;
+        $row = [
+            0 => 1,
+            1 => $student->dni,
+            2 => $student->names,
+            3 => $course->name,
+            4 => '2026-12-01',
+            5 => '2026-12-10',
+            6 => '2026-12-18',
+            7 => '60',
+            8 => '18',
+            9 => 'Dieciocho',
+            10 => '19',
+            11 => 'Diecinueve',
+            12 => '18.5',
+            13 => 'Presencial',
+            14 => '', // Col O: Empty code -> should auto-generate CERT-{dni}-{sequence}
+        ];
+
+        $import->collection(collect([$row]));
+
+        $this->assertEquals(1, $import->importedCount);
+        $createdCert = Certificate::where('user_id', $student->id)
+            ->where('issue_date', '2026-12-18')
+            ->first();
+
+        $this->assertNotNull($createdCert);
+        $this->assertMatchesRegularExpression('/^CERT-71234567-\d+$/', $createdCert->code);
+
+        Certificate::where('issue_date', '2026-12-18')->where('user_id', $student->id)->delete();
+    }
+
+    public function test_download_template_includes_code_column_in_csv(): void
+    {
+        $response = $this->actingAs($this->adminUser)->get('/admin-certificados/plantilla');
+
+        $response->assertStatus(200);
+        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+
+        $content = $response->streamedContent();
+        $this->assertStringContainsString('Código', $content);
+        $this->assertStringContainsString('CERT-{DNI}-{secuencia}', $content);
+    }
 }

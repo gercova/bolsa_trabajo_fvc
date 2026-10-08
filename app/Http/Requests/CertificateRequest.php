@@ -51,6 +51,15 @@ class CertificateRequest extends FormRequest
         });
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('code') && ! $this->filled('certificate_code')) {
+            $this->merge(['certificate_code' => $this->input('code')]);
+        } elseif ($this->filled('certificate_code') && ! $this->filled('code')) {
+            $this->merge(['code' => $this->input('certificate_code')]);
+        }
+    }
+
     public function rules(): array
     {
         $certId = $this->route('certificate')?->id ?? $this->certificate;
@@ -93,8 +102,15 @@ class CertificateRequest extends FormRequest
                 'string',
                 'max:100',
             ],
+            'code' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('certificates', 'code')->ignore($certId),
+            ],
             'certificate_code' => [
-                'required',
+                'required_without:code',
+                'nullable',
                 'string',
                 'max:100',
                 Rule::unique('certificates', 'certificate_code')->ignore($certId),

@@ -874,6 +874,7 @@
                                         <tr class="bg-red-50"><td class="px-3 py-1.5 font-mono font-bold text-red-400">L</td><td class="px-3 py-1.5 text-red-400">Calificación Letras II</td><td class="px-3 py-1.5 text-red-400 italic">Ignorada</td></tr>
                                         <tr class="bg-gray-50/60"><td class="px-3 py-1.5 font-mono font-bold text-gray-400">M</td><td class="px-3 py-1.5 text-gray-400">Promedio</td><td class="px-3 py-1.5 text-gray-400 italic">Ignorada (calculado)</td></tr>
                                         <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">N</td><td class="px-3 py-1.5">Modalidad</td><td class="px-3 py-1.5 text-gray-500">modality (Presencial / Virtual / Semipresencial)</td></tr>
+                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">O</td><td class="px-3 py-1.5">Código</td><td class="px-3 py-1.5 text-gray-500">code (opcional — si está vacío se genera CERT-{DNI}-{secuencia})</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -882,7 +883,7 @@
                         {{-- Warning about ignored cols --}}
                         <div class="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
                             <i class="bi bi-exclamation-triangle-fill text-amber-500 mt-0.5 shrink-0"></i>
-                            <span>Las columnas <strong>J</strong> y <strong>L</strong> (calificación en letras) son ignoradas. El código del certificado se genera automáticamente como <code class="bg-amber-100 px-1 rounded">CERT-{DNI_estudiante}-{ID_curso}</code>. Los módulos se asignan por orden del curso (col. <strong>I</strong> → Módulo 1, col. <strong>K</strong> → Módulo 2).</span>
+                            <span>Las columnas <strong>J</strong> y <strong>L</strong> (calificación en letras) son ignoradas. El código del certificado se toma de la columna <strong>O</strong> o se auto-genera como <code class="bg-amber-100 px-1 rounded">CERT-{DNI_estudiante}-{secuencia}</code> si está vacío. Los módulos se asignan por orden del curso (col. <strong>I</strong> → Módulo 1, col. <strong>K</strong> → Módulo 2).</span>
                         </div>
 
                         {{-- Submit --}}

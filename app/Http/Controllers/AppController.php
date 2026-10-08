@@ -836,12 +836,15 @@ class AppController extends Controller
                     ->get();
 
                 $selectedCode = $request->input('selected');
-                $certificate = ($selectedCode ? $certificates->firstWhere('certificate_code', $selectedCode) : null)
+                $certificate = ($selectedCode ? ($certificates->firstWhere('code', $selectedCode) ?: $certificates->firstWhere('certificate_code', $selectedCode)) : null)
                     ?? $certificates->first();
             } else {
-                // 1.2 Search by certificate code
+                // 1.2 Search by certificate code / code
                 $certByCode = Certificate::with($withRelations)
-                    ->where('certificate_code', $searchCode)
+                    ->where(function ($q) use ($searchCode) {
+                        $q->where('code', $searchCode)
+                            ->orWhere('certificate_code', $searchCode);
+                    })
                     ->first();
 
                 if ($certByCode) {
@@ -860,7 +863,8 @@ class AppController extends Controller
                     // 1.3 Fallback partial match
                     $fallbackCerts = Certificate::with($withRelations)
                         ->where(function ($q) use ($searchCode) {
-                            $q->where('certificate_code', 'LIKE', "%{$searchCode}%")
+                            $q->where('code', 'LIKE', "%{$searchCode}%")
+                                ->orWhere('certificate_code', 'LIKE', "%{$searchCode}%")
                                 ->orWhereHas('user', function ($uq) use ($searchCode) {
                                     $uq->where('dni', 'LIKE', "%{$searchCode}%");
                                 });
@@ -1006,7 +1010,10 @@ class AppController extends Controller
             'course.studyProgram',
             'details.module',
         ])
-            ->where('certificate_code', $certificate_code)
+            ->where(function ($q) use ($certificate_code) {
+                $q->where('code', $certificate_code)
+                    ->orWhere('certificate_code', $certificate_code);
+            })
             ->firstOrFail();
 
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();

@@ -46,8 +46,7 @@ class CertificateImport implements ToCollection, WithChunkReading, WithStartRow
      *  [11] L  → *** IGNORADA ***              (calificación en letras, módulo II)
      *  [12] M  → Promedio                      → ignorado
      *  [13] N  → Modalidad                     → modality
-     *
-     *  certificate_code: CERT-{student DNI}-{course ID}  (siempre auto-generado)
+     *  [14] O  → Código                        → code (si está vacío, auto-genera CERT-{DNI}-{secuencia})
      */
     public function startRow(): int
     {
@@ -139,18 +138,31 @@ class CertificateImport implements ToCollection, WithChunkReading, WithStartRow
             );
 
             if ($duplicate) {
-                $this->errors[] = "Fila {$rowNum}: Certificado duplicado omitido. El estudiante con DNI '{$dni}' ya cuenta con un certificado para el curso/evento '{$course->name}' en la fecha {$issueDate} (Código existente: {$duplicate->certificate_code}).";
+                $existingCode = $duplicate->code ?: $duplicate->certificate_code;
+                $this->errors[] = "Fila {$rowNum}: Certificado duplicado omitido. El estudiante con DNI '{$dni}' ya cuenta con un certificado para el curso/evento '{$course->name}' en la fecha {$issueDate} (Código existente: {$existingCode}).";
                 $this->skippedCount++;
 
                 continue;
             }
 
-            // ── 5. Generate unique certificate code (allows student to hold multiple certificates) ──
-            $code = Certificate::generateUniqueCodeForStudent($dni, $courseId);
+            // ── 5. Resolve certificate code (use provided code or auto-generate CERT-{user_DNI}-{sequence_number}) ──
+            $providedCode = $this->cleanString($row[14] ?? null);
+            if (! empty($providedCode)) {
+                if (Certificate::where('code', $providedCode)->orWhere('certificate_code', $providedCode)->exists()) {
+                    $this->errors[] = "Fila {$rowNum}: El código '{$providedCode}' ya está registrado para otro certificado — fila omitida.";
+                    $this->skippedCount++;
+
+                    continue;
+                }
+                $code = $providedCode;
+            } else {
+                $code = Certificate::generateUniqueCodeForStudent($dni);
+            }
 
             // ── 6. Create certificate ─────────────────────────────────────────
             try {
                 $certificate = Certificate::create([
+                    'code' => $code,
                     'certificate_code' => $code,
                     'user_id' => $userId,
                     'course_id' => $courseId,

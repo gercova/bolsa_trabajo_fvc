@@ -40,7 +40,8 @@ class CertificateController extends Controller
         ])
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sq) use ($search) {
-                    $sq->where('certificate_code', 'LIKE', "%{$search}%")
+                    $sq->where('code', 'LIKE', "%{$search}%")
+                        ->orWhere('certificate_code', 'LIKE', "%{$search}%")
                         ->orWhere('description', 'LIKE', "%{$search}%")
                         ->orWhere('duration', 'LIKE', "%{$search}%")
                         ->orWhereHas('user', function ($uq) use ($search) {
@@ -115,17 +116,18 @@ class CertificateController extends Controller
             }
 
             $certificate = Certificate::create($data);
+            $certCode = $certificate->code ?: $certificate->certificate_code;
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => "El certificado '{$certificate->certificate_code}' ha sido registrado exitosamente.",
+                    'message' => "El certificado '{$certCode}' ha sido registrado exitosamente.",
                     'certificate' => $certificate->load(['user', 'course']),
                 ], 201);
             }
 
             return redirect()->route('admin.certificates.index')
-                ->with('success', "El certificado '{$certificate->certificate_code}' ha sido registrado exitosamente.");
+                ->with('success', "El certificado '{$certCode}' ha sido registrado exitosamente.");
 
         } catch (\Exception $e) {
             Log::error('Error registrando certificado: '.$e->getMessage());
@@ -181,17 +183,18 @@ class CertificateController extends Controller
             $data['is_active'] = $request->boolean('is_active');
 
             $certificate->update($data);
+            $certCode = $certificate->code ?: $certificate->certificate_code;
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => "El certificado '{$certificate->certificate_code}' ha sido actualizado exitosamente.",
+                    'message' => "El certificado '{$certCode}' ha sido actualizado exitosamente.",
                     'certificate' => $certificate->load(['user', 'course']),
                 ], 200);
             }
 
             return redirect()->route('admin.certificates.index')
-                ->with('success', "El certificado '{$certificate->certificate_code}' ha sido actualizado exitosamente.");
+                ->with('success', "El certificado '{$certCode}' ha sido actualizado exitosamente.");
 
         } catch (\Exception $e) {
             Log::error('Error actualizando certificado: '.$e->getMessage());
@@ -213,7 +216,7 @@ class CertificateController extends Controller
     public function destroy(Certificate $certificate): RedirectResponse|JsonResponse
     {
         try {
-            $code = $certificate->certificate_code;
+            $code = $certificate->code ?: $certificate->certificate_code;
             $certificate->delete();
 
             if (request()->expectsJson() || request()->ajax()) {
@@ -373,7 +376,7 @@ class CertificateController extends Controller
             fputcsv($out, ['3. Las columnas marcadas como REQUERIDO no pueden estar vacías.']);
             fputcsv($out, ['4. Las fechas deben tener formato YYYY-MM-DD  (ej: 2026-03-15).']);
             fputcsv($out, ['5. La Modalidad acepta exactamente: Presencial / Virtual / Semipresencial.']);
-            fputcsv($out, ['6. El Código de Certificado se genera automáticamente si la columna está vacía.']);
+            fputcsv($out, ['6. El Código (columna O) es opcional; si se deja vacío se auto-genera como CERT-{DNI}-{secuencia}.']);
             fputcsv($out, ['7. Las columnas J, L y M son ignoradas durante la importación.']);
             fputcsv($out, ['']);
 
@@ -394,6 +397,7 @@ class CertificateController extends Controller
             fputcsv($out, ['L', 'Calificación Letras II', '—', '*** IGNORADA *** (calificación en letras del módulo 2)']);
             fputcsv($out, ['M', 'Promedio', '—', '*** IGNORADA *** (calculado automáticamente por el sistema)']);
             fputcsv($out, ['N', 'Modalidad', 'SÍ', 'Presencial / Virtual / Semipresencial']);
+            fputcsv($out, ['O', 'Código', 'No', 'Código identificador del certificado. Opcional — si está vacío se genera CERT-{DNI}-{secuencia}. Ej: CERT-74123456-1']);
             fputcsv($out, ['']);
 
             // ── Actual data header (this is the row the importer reads as header) ──
@@ -412,6 +416,7 @@ class CertificateController extends Controller
                 'Calificación Letras II',
                 'Promedio',
                 'Modalidad',
+                'Código',
             ]);
 
             // ── Sample data row ───────────────────────────────────────────────
@@ -430,6 +435,7 @@ class CertificateController extends Controller
                 'DIECINUEVE',
                 '18',
                 'Presencial',
+                'CERT-74123456-1',
             ]);
 
             fclose($out);

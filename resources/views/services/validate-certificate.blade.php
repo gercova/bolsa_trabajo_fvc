@@ -249,7 +249,7 @@
     <div class="validate-page-wrapper bg-slate-50 min-h-screen font-sans text-slate-800" x-data="{
         activeTab: 'years',
         searchQuery: '{{ $searchCode }}',
-        activeCertCode: '{{ $certificate?->certificate_code ?? ($certificates->first()?->certificate_code ?? '') }}',
+        activeCertCode: '{{ $certificate?->code ?? ($certificate?->certificate_code ?? ($certificates->first()?->code ?? ($certificates->first()?->certificate_code ?? ''))) }}',
         copiedLink: false,
         copyValidationLink(targetUrl = null) {
             const url = targetUrl || window.location.href;

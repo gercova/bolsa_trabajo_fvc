@@ -14,7 +14,12 @@
                 </h1>
                 <p class="text-xs text-slate-500">Gestión integral, actualización y mantenimiento del acervo bibliográfico institucional.</p>
             </div>
-            <div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <button type="button" @click="openAcademicModal()"
+                    class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xs rounded-xl shadow-xs transition inline-flex items-center gap-2">
+                    <i class="bi bi-journal-arrow-down"></i>
+                    <span>Búsqueda Masiva de Revistas / Papers</span>
+                </button>
                 <button type="button" @click="openCreateModal()"
                     class="px-4 py-2 bg-[#0b4d57] hover:bg-teal-900 text-white font-bold text-xs rounded-xl shadow-xs transition inline-flex items-center gap-2">
                     <i class="bi bi-cloud-arrow-up-fill"></i>
@@ -116,7 +121,7 @@
 
                             <td class="py-3 px-4">
                                 @if($book->is_external)
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200" title="{{ $book->external_url }}">
                                         <i class="bi bi-link-45deg"></i> Enlace Web
                                     </span>
                                 @else
@@ -142,9 +147,23 @@
                                 </form>
                             </td>
 
-                            <td class="py-3 px-4 text-right space-x-1.5">
+                            <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">
+                                {{-- In-site Iframe viewer modal button --}}
+                                <button type="button"
+                                    @click="openIframePreviewModal({
+                                        title: @js($book->title),
+                                        author: @js($book->author),
+                                        category: @js($book->category),
+                                        publisher: @js($book->publisher),
+                                        program_name: @js($book->studyProgram ? $book->studyProgram->name : 'General'),
+                                        url: @js($book->is_external && $book->external_url ? $book->external_url : route('biblioteca.read', $book->slug))
+                                    })"
+                                    class="p-1.5 text-teal-700 hover:bg-teal-50 rounded-lg inline-block"
+                                    title="Visor Integrado (Iframe)">
+                                    <i class="bi bi-window-fullscreen"></i>
+                                </button>
                                 <a href="{{ route('biblioteca.read', $book->slug) }}" target="_blank"
-                                    class="p-1.5 text-teal-700 hover:bg-teal-50 rounded-lg inline-block" title="Visualizar">
+                                    class="p-1.5 text-slate-500 hover:bg-slate-100 rounded-lg inline-block" title="Visualizar en Lector Web">
                                     <i class="bi bi-box-arrow-up-right"></i>
                                 </a>
                                 <button type="button" @click="openEditModal({{ $book->id }})"
@@ -180,6 +199,8 @@
     {{-- Modals --}}
     @include('admin.library.modal-book-form')
     @include('admin.library.modal-book-edit')
+    @include('admin.library.modal-academic-import')
+    @include('admin.library.modal-iframe-preview')
 
 </div>
 @endsection
@@ -188,8 +209,33 @@
 <script>
     function repositoryApp() {
         return {
+            showCreateModal: false,
+            showEditModal: false,
+            showAcademicModal: false,
+            showIframeModal: false,
+            importingAcademic: false,
+            importResults: null,
             createSelectedPdfName: '',
             editActionUrl: '',
+            isSubmitting: false,
+
+            importForm: {
+                study_program_id: 'all',
+                category: 'all',
+                limit: 10,
+                sources: ['scielo', 'redalyc', 'doaj', 'crossref'],
+                custom_query: ''
+            },
+
+            previewData: {
+                title: '',
+                author: '',
+                category: '',
+                publisher: '',
+                program_name: '',
+                url: ''
+            },
+
             editForm: {
                 id: null,
                 title: '',
@@ -226,6 +272,85 @@
                 this.createSelectedPdfName = '';
                 this.isSubmitting = false;
                 this.showCreateModal = true;
+            },
+
+            openAcademicModal() {
+                this.importResults = null;
+                this.importingAcademic = false;
+                this.showAcademicModal = true;
+            },
+
+            resetAcademicForm() {
+                this.importResults = null;
+                this.importingAcademic = false;
+            },
+
+            async runAcademicImport() {
+                if (this.importingAcademic) return;
+                this.importingAcademic = true;
+                this.importResults = null;
+
+                try {
+                    const response = await fetch("{{ route('admin.library.fetch-academic') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(this.importForm)
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        alert(data.message || 'Error al buscar e importar publicaciones académicas.');
+                        this.importingAcademic = false;
+                        return;
+                    }
+
+                    this.importResults = data;
+                } catch (error) {
+                    console.error('Error importing academic resources:', error);
+                    alert('Ocurrió un error en la conexión al buscar o importar recursos.');
+                } finally {
+                    this.importingAcademic = false;
+                }
+            },
+
+            openIframePreviewModal(book) {
+                this.previewData = {
+                    title: book.title || 'Documento',
+                    author: book.author || 'Autor no especificado',
+                    category: book.category || 'Paper',
+                    publisher: book.publisher || '',
+                    program_name: book.program_name || 'General',
+                    url: book.external_url || book.url || ''
+                };
+                this.showIframeModal = true;
+            },
+
+            closeIframePreviewModal() {
+                this.showIframeModal = false;
+                const iframe = document.getElementById('adminModalIframe');
+                if (iframe) {
+                    iframe.src = 'about:blank';
+                }
+            },
+
+            toggleModalFullscreen() {
+                const elem = document.getElementById('modalIframeContainer') || document.documentElement;
+                if (!document.fullscreenElement) {
+                    if (elem.requestFullscreen) {
+                        elem.requestFullscreen();
+                    } else if (elem.webkitRequestFullscreen) {
+                        elem.webkitRequestFullscreen();
+                    }
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
             },
 
             async openEditModal(bookId) {

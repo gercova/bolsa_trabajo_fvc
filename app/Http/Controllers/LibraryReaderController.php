@@ -58,9 +58,9 @@ class LibraryReaderController extends Controller
     public function search(Request $request): View
     {
         $user = auth()->user();
-        $selectedCareer   = $request->query('career', 'all');
+        $selectedCareer = $request->query('career', 'all');
         $selectedCategory = $request->query('category', 'all');
-        $searchQuery      = $request->query('q', '');
+        $searchQuery = $request->query('q', '');
 
         $query = Book::with('studyProgram')
             ->where('is_active', true)
@@ -107,9 +107,9 @@ class LibraryReaderController extends Controller
     /**
      * Open reading interface for a book or document.
      */
-    public function read(Book $book, Request $request): View|RedirectResponse
+    public function read(Book $book, Request $request): View
     {
-        if (!$book->is_active) {
+        if (! $book->is_active) {
             abort(404, 'El documento solicitado no se encuentra disponible.');
         }
 
@@ -119,18 +119,13 @@ class LibraryReaderController extends Controller
         $book->increment('views_count');
 
         LibraryAccessLog::create([
-            'user_id'     => $user?->id,
-            'book_id'     => $book->id,
+            'user_id' => $user?->id,
+            'book_id' => $book->id,
             'access_type' => $book->is_external ? 'external_link' : 'view',
-            'ip_address'  => $request->ip(),
-            'user_agent'  => Str::limit($request->userAgent() ?? '', 250),
-            'created_at'  => now(),
+            'ip_address' => $request->ip(),
+            'user_agent' => Str::limit($request->userAgent() ?? '', 250),
+            'created_at' => now(),
         ]);
-
-        // If external resource, redirect to external URL
-        if ($book->is_external && $book->external_url) {
-            return redirect()->away($book->external_url);
-        }
 
         $isFavorited = $user ? $user->favoriteBooks()->where('book_id', $book->id)->exists() : false;
 
@@ -142,7 +137,7 @@ class LibraryReaderController extends Controller
      */
     public function stream(Book $book): BinaryFileResponse|RedirectResponse
     {
-        if (!$book->file_path || !Storage::disk('public')->exists($book->file_path)) {
+        if (! $book->file_path || ! Storage::disk('public')->exists($book->file_path)) {
             if ($book->external_url) {
                 return redirect()->away($book->external_url);
             }
@@ -152,9 +147,9 @@ class LibraryReaderController extends Controller
         $fullPath = Storage::disk('public')->path($book->file_path);
 
         return response()->file($fullPath, [
-            'Content-Type'        => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . addslashes($book->slug . '.pdf') . '"',
-            'Cache-Control'       => 'public, max-age=86400',
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.addslashes($book->slug.'.pdf').'"',
+            'Cache-Control' => 'public, max-age=86400',
         ]);
     }
 
@@ -183,9 +178,9 @@ class LibraryReaderController extends Controller
         }
 
         return response()->json([
-            'success'   => true,
+            'success' => true,
             'favorited' => $favorited,
-            'message'   => $message,
+            'message' => $message,
         ]);
     }
 }

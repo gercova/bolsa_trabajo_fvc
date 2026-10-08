@@ -178,6 +178,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [AdminLibraryController::class, 'index'])->name('index');
         Route::get('/libros', [AdminLibraryController::class, 'index'])->name('books.index');
         Route::get('/repositorio', [AdminLibraryController::class, 'repository'])->name('repository');
+        Route::post('/importar-academicos', [AdminLibraryController::class, 'fetchAcademicResources'])->name('fetch-academic');
         Route::post('/guardar', [AdminLibraryController::class, 'store'])->name('store');
         Route::get('/editar/{book}', [AdminLibraryController::class, 'edit'])->name('edit');
         Route::put('/editar/{book}', [AdminLibraryController::class, 'update'])->name('update');

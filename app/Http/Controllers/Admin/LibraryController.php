@@ -8,10 +8,12 @@ use App\Models\Book;
 use App\Models\LibraryAccessLog;
 use App\Models\StudyProgram;
 use App\Models\User;
+use App\Services\AcademicLibraryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -21,10 +23,11 @@ class LibraryController extends Controller
     /**
      * Display the "Libros Asignados" view (matching Screenshot 1).
      */
-    public function index(Request $request): View {
+    public function index(Request $request): View
+    {
         $selectedCareer = $request->query('career', 'all');
-        $searchQuery    = $request->query('q', '');
-        $viewMode       = $request->query('view', 'grid'); // grid or list
+        $searchQuery = $request->query('q', '');
+        $viewMode = $request->query('view', 'grid'); // grid or list
 
         $query = Book::with('studyProgram')
             ->career($selectedCareer)
@@ -32,7 +35,7 @@ class LibraryController extends Controller
             ->latest('id');
 
         $totalCount = (clone $query)->count();
-        $books      = $query->paginate(24)->withQueryString();
+        $books = $query->paginate(24)->withQueryString();
 
         $studyPrograms = StudyProgram::select('id', 'name')->orderBy('name')->get();
 
@@ -49,10 +52,11 @@ class LibraryController extends Controller
     /**
      * Display the "Repositorio" table view for complete CRUD management.
      */
-    public function repository(Request $request): View {
-        $selectedCareer     = $request->query('career', 'all');
-        $selectedCategory   = $request->query('category', 'all');
-        $searchQuery        = $request->query('q', '');
+    public function repository(Request $request): View
+    {
+        $selectedCareer = $request->query('career', 'all');
+        $selectedCategory = $request->query('category', 'all');
+        $searchQuery = $request->query('q', '');
 
         $query = Book::with('studyProgram', 'creator')
             ->career($selectedCareer)
@@ -73,18 +77,65 @@ class LibraryController extends Controller
     }
 
     /**
+     * Search and bulk-import academic resources (journals, books, papers, articles)
+     * organized by study program from verifiable open-access sources (SciELO, Redalyc, OpenAlex, DOAJ, Crossref).
+     */
+    public function fetchAcademicResources(Request $request, AcademicLibraryService $service): JsonResponse
+    {
+        $user = auth()->user();
+        if (! $user || ! in_array($user->role, ['Admin', 'Docente', 'Bibliotecario'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No autorizado para realizar importaciones masivas en el repositorio.',
+            ], 403);
+        }
+
+        set_time_limit(180);
+
+        try {
+            $options = [
+                'study_program_id' => $request->input('study_program_id'),
+                'category' => $request->input('category'),
+                'sources' => $request->input('sources', ['scielo', 'redalyc', 'openalex', 'crossref', 'doaj']),
+                'custom_query' => $request->input('custom_query'),
+                'limit' => (int) $request->input('limit', 10),
+                'created_by' => auth()->id(),
+            ];
+
+            $result = $service->fetchAndImport($options);
+
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            Log::error('Error en búsqueda masiva de recursos académicos: '.$e->getMessage(), [
+                'exception' => $e,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Ocurrió un error al procesar la búsqueda académica: '.$e->getMessage(),
+                'saved' => 0,
+                'updated' => 0,
+                'skipped' => 0,
+                'total' => 0,
+                'errors' => [$e->getMessage()],
+            ], 500);
+        }
+    }
+
+    /**
      * Store a newly created book / document in the library.
      */
-    public function store(BookRequest $request): RedirectResponse|JsonResponse {
-        $validated                  = $request->validated();
-        $validated['created_by']    = auth()->id();
-        $validated['is_active']     = $request->has('is_active') ? true : false;
-        $validated['rating']        = $validated['rating'] ?? 5.0;
+    public function store(BookRequest $request): RedirectResponse|JsonResponse
+    {
+        $validated = $request->validated();
+        $validated['created_by'] = auth()->id();
+        $validated['is_active'] = $request->has('is_active') ? true : false;
+        $validated['rating'] = $validated['rating'] ?? 5.0;
 
         // Cover image upload
         if ($request->hasFile('cover')) {
             $coverFile = $request->file('cover');
-            $coverName = 'cover_' . Str::slug($validated['title']) . '_' . time() . '.' . $coverFile->getClientOriginalExtension();
+            $coverName = 'cover_'.Str::slug($validated['title']).'_'.time().'.'.$coverFile->getClientOriginalExtension();
             $coverPath = $coverFile->storeAs('library/covers', $coverName, 'public');
             $validated['cover_image'] = $coverPath;
         }
@@ -92,7 +143,7 @@ class LibraryController extends Controller
         // PDF file upload (direct storage, low memory usage)
         if ($request->hasFile('file')) {
             $pdfFile = $request->file('file');
-            $pdfName = 'book_' . Str::slug($validated['title']) . '_' . time() . '.' . $pdfFile->getClientOriginalExtension();
+            $pdfName = 'book_'.Str::slug($validated['title']).'_'.time().'.'.$pdfFile->getClientOriginalExtension();
             $pdfPath = $pdfFile->storeAs('library/books', $pdfName, 'public');
             $validated['file_path'] = $pdfPath;
             $validated['file_size'] = $pdfFile->getSize();
@@ -104,7 +155,7 @@ class LibraryController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Contenido agregado a la biblioteca exitosamente.',
-                'data'    => $book->load('studyProgram'),
+                'data' => $book->load('studyProgram'),
             ], 201);
         }
 
@@ -114,29 +165,31 @@ class LibraryController extends Controller
     /**
      * Fetch book details for editing (JSON).
      */
-    public function edit(Book $book): JsonResponse {
+    public function edit(Book $book): JsonResponse
+    {
         $book->load('studyProgram');
+
         return response()->json([
             'success' => true,
-            'data'    => [
-                'id'               => $book->id,
-                'title'            => $book->title,
-                'author'           => $book->author,
+            'data' => [
+                'id' => $book->id,
+                'title' => $book->title,
+                'author' => $book->author,
                 'study_program_id' => $book->study_program_id,
-                'category'         => $book->category,
-                'description'      => $book->description,
-                'publisher'        => $book->publisher,
+                'category' => $book->category,
+                'description' => $book->description,
+                'publisher' => $book->publisher,
                 'publication_year' => $book->publication_year,
-                'edition'          => $book->edition,
-                'pages'            => $book->pages,
-                'isbn'             => $book->isbn,
-                'language'         => $book->language,
-                'external_url'     => $book->external_url,
-                'rating'           => $book->rating,
-                'is_active'        => $book->is_active,
-                'cover_url'        => $book->cover_url,
-                'file_url'         => $book->file_url,
-                'file_size'        => $book->formatted_file_size,
+                'edition' => $book->edition,
+                'pages' => $book->pages,
+                'isbn' => $book->isbn,
+                'language' => $book->language,
+                'external_url' => $book->external_url,
+                'rating' => $book->rating,
+                'is_active' => $book->is_active,
+                'cover_url' => $book->cover_url,
+                'file_url' => $book->file_url,
+                'file_size' => $book->formatted_file_size,
             ],
         ]);
     }
@@ -144,7 +197,8 @@ class LibraryController extends Controller
     /**
      * Update an existing book / document.
      */
-    public function update(BookRequest $request, Book $book): RedirectResponse|JsonResponse {
+    public function update(BookRequest $request, Book $book): RedirectResponse|JsonResponse
+    {
         $validated = $request->validated();
         $validated['is_active'] = $request->has('is_active') ? true : false;
 
@@ -154,7 +208,7 @@ class LibraryController extends Controller
                 Storage::disk('public')->delete($book->cover_image);
             }
             $coverFile = $request->file('cover');
-            $coverName = 'cover_' . Str::slug($validated['title']) . '_' . time() . '.' . $coverFile->getClientOriginalExtension();
+            $coverName = 'cover_'.Str::slug($validated['title']).'_'.time().'.'.$coverFile->getClientOriginalExtension();
             $coverPath = $coverFile->storeAs('library/covers', $coverName, 'public');
             $validated['cover_image'] = $coverPath;
         }
@@ -165,7 +219,7 @@ class LibraryController extends Controller
                 Storage::disk('public')->delete($book->file_path);
             }
             $pdfFile = $request->file('file');
-            $pdfName = 'book_' . Str::slug($validated['title']) . '_' . time() . '.' . $pdfFile->getClientOriginalExtension();
+            $pdfName = 'book_'.Str::slug($validated['title']).'_'.time().'.'.$pdfFile->getClientOriginalExtension();
             $pdfPath = $pdfFile->storeAs('library/books', $pdfName, 'public');
             $validated['file_path'] = $pdfPath;
             $validated['file_size'] = $pdfFile->getSize();
@@ -177,7 +231,7 @@ class LibraryController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Contenido actualizado correctamente.',
-                'data'    => $book->load('studyProgram'),
+                'data' => $book->load('studyProgram'),
             ]);
         }
 
@@ -187,15 +241,16 @@ class LibraryController extends Controller
     /**
      * Toggle active / inactive status of a book.
      */
-    public function toggleStatus(Book $book): RedirectResponse|JsonResponse {
-        $book->update(['is_active' => !$book->is_active]);
+    public function toggleStatus(Book $book): RedirectResponse|JsonResponse
+    {
+        $book->update(['is_active' => ! $book->is_active]);
 
         $status = $book->is_active ? 'activado' : 'desactivado';
 
         if (request()->wantsJson()) {
             return response()->json([
-                'success'   => true,
-                'message'   => "El documento fue {$status} exitosamente.",
+                'success' => true,
+                'message' => "El documento fue {$status} exitosamente.",
                 'is_active' => $book->is_active,
             ]);
         }
@@ -206,7 +261,8 @@ class LibraryController extends Controller
     /**
      * Delete a book and its physical assets safely.
      */
-    public function destroy(Book $book): RedirectResponse|JsonResponse {
+    public function destroy(Book $book): RedirectResponse|JsonResponse
+    {
         if ($book->cover_image && Storage::disk('public')->exists($book->cover_image)) {
             Storage::disk('public')->delete($book->cover_image);
         }
@@ -229,15 +285,16 @@ class LibraryController extends Controller
     /**
      * Dedicated Reader Monitoring Dashboard ("Lectores").
      */
-    public function readers(Request $request): View {
-        $roleFilter   = $request->query('role', 'all');
+    public function readers(Request $request): View
+    {
+        $roleFilter = $request->query('role', 'all');
         $careerFilter = $request->query('career', 'all');
-        $search       = $request->query('q', '');
+        $search = $request->query('q', '');
 
         // 1. Core KPIs
-        $totalUniqueReaders     = LibraryAccessLog::whereNotNull('user_id')->distinct('user_id')->count('user_id');
-        $totalAccessSessions    = LibraryAccessLog::count();
-        $activeTeachersCount    = LibraryAccessLog::join('users', 'library_access_logs.user_id', '=', 'users.id')
+        $totalUniqueReaders = LibraryAccessLog::whereNotNull('user_id')->distinct('user_id')->count('user_id');
+        $totalAccessSessions = LibraryAccessLog::count();
+        $activeTeachersCount = LibraryAccessLog::join('users', 'library_access_logs.user_id', '=', 'users.id')
             ->where('users.role', 'Docente')
             ->distinct('users.id')
             ->count('users.id');
@@ -275,11 +332,11 @@ class LibraryController extends Controller
             $readersQuery->where('users.role', $roleFilter);
         }
 
-        if (!empty($search)) {
+        if (! empty($search)) {
             $readersQuery->where(function ($q) use ($search) {
                 $q->where('users.names', 'like', "%{$search}%")
-                  ->orWhere('users.email', 'like', "%{$search}%")
-                  ->orWhere('users.dni', 'like', "%{$search}%");
+                    ->orWhere('users.email', 'like', "%{$search}%")
+                    ->orWhere('users.dni', 'like', "%{$search}%");
             });
         }
 
@@ -314,7 +371,8 @@ class LibraryController extends Controller
     /**
      * Display Administrators list.
      */
-    public function administrators(): View {
+    public function administrators(): View
+    {
         $admins = User::whereIn('role', ['Admin', 'Administrador', 'Director'])
             ->select('id', 'names', 'email', 'role', 'phone', 'is_active', 'created_at')
             ->orderBy('names')
@@ -326,11 +384,12 @@ class LibraryController extends Controller
     /**
      * Display Reports and analytics.
      */
-    public function reports(): View {
-        $totalBooks       = Book::count();
-        $totalViews       = Book::sum('views_count');
-        $totalFavorites   = DB::table('book_favorites')->count();
-        $totalCategories  = Book::distinct('category')->count('category');
+    public function reports(): View
+    {
+        $totalBooks = Book::count();
+        $totalViews = Book::sum('views_count');
+        $totalFavorites = DB::table('book_favorites')->count();
+        $totalCategories = Book::distinct('category')->count('category');
 
         $booksByCategory = Book::select('category', DB::raw('COUNT(*) as total'))
             ->groupBy('category')

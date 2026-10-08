@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\CertificateTemplateExport;
 use App\Http\Requests\CertificateDetailRequest;
 use App\Http\Requests\CertificateImportRequest;
 use App\Http\Requests\CertificateRequest;
@@ -18,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CertificateController extends Controller
@@ -345,17 +347,21 @@ class CertificateController extends Controller
     }
 
     /**
-     * Download a pre-filled CSV template with per-column instructions embedded in the file.
-     *
-     * The file intentionally starts with several instruction rows so that anyone who opens
-     * it in Excel or LibreOffice Calc sees clear guidance before the actual data area.
-     * The importer is configured with WithStartRow(2) and skips rows until it detects the
-     * real header (col B = "DNI…"). To avoid confusing the importer, the template's data
-     * section begins at row 2 with a clearly labelled header, matching what the importer
-     * already expects.
+     * Download a pre-filled template guide document for importing certificates.
+     * Supports Excel (.xlsx, .xls) and CSV (.csv) formats.
      */
-    public function downloadTemplate(): StreamedResponse
+    public function downloadTemplate(Request $request): BinaryFileResponse|StreamedResponse
     {
+        $format = strtolower((string) $request->query('format', 'csv'));
+
+        if (in_array($format, ['xlsx', 'excel', 'xls'], true)) {
+            $ext = $format === 'xls' ? 'xls' : 'xlsx';
+            $excelType = $format === 'xls' ? \Maatwebsite\Excel\Excel::XLS : \Maatwebsite\Excel\Excel::XLSX;
+            $filename = 'plantilla_guia_certificados_'.date('Y-m-d').'.'.$ext;
+
+            return Excel::download(new CertificateTemplateExport, $filename, $excelType);
+        }
+
         $filename = 'plantilla_certificados_'.date('Y-m-d').'.csv';
 
         return response()->streamDownload(function () {
@@ -366,7 +372,8 @@ class CertificateController extends Controller
 
             // ── Title block ───────────────────────────────────────────────────
             fputcsv($out, ['PLANTILLA DE IMPORTACIÓN DE CERTIFICADOS — FVC']);
-            fputcsv($out, ['Generado:', date('d/m/Y H:i'), '', '', '', '', '', '', '', '', '', '', '', '']);
+            fputcsv($out, ['Formatos compatibles: Microsoft Excel (.xlsx, .xls) y CSV (.csv)']);
+            fputcsv($out, ['Generado:', date('d/m/Y H:i'), '', '', '', '', '', '', '', '', '', '', '', '', '', '']);
             fputcsv($out, ['']);
 
             // ── Instructions block ────────────────────────────────────────────
@@ -377,7 +384,8 @@ class CertificateController extends Controller
             fputcsv($out, ['4. Las fechas deben tener formato YYYY-MM-DD  (ej: 2026-03-15).']);
             fputcsv($out, ['5. La Modalidad acepta exactamente: Presencial / Virtual / Semipresencial.']);
             fputcsv($out, ['6. El Código (columna O) es opcional; si se deja vacío se auto-genera como CERT-{DNI}-{secuencia}.']);
-            fputcsv($out, ['7. Las columnas J, L y M son ignoradas durante la importación.']);
+            fputcsv($out, ['7. La Condición / Participación (columna P) define el rol (ej: ASISTENTE, PONENTE, ORGANIZADOR). Opcional — por defecto ASISTENTE.']);
+            fputcsv($out, ['8. Las columnas J, L y M son ignoradas durante la importación.']);
             fputcsv($out, ['']);
 
             // ── Column legend ─────────────────────────────────────────────────
@@ -398,6 +406,7 @@ class CertificateController extends Controller
             fputcsv($out, ['M', 'Promedio', '—', '*** IGNORADA *** (calculado automáticamente por el sistema)']);
             fputcsv($out, ['N', 'Modalidad', 'SÍ', 'Presencial / Virtual / Semipresencial']);
             fputcsv($out, ['O', 'Código', 'No', 'Código identificador del certificado. Opcional — si está vacío se genera CERT-{DNI}-{secuencia}. Ej: CERT-74123456-1']);
+            fputcsv($out, ['P', 'Condición / Participación', 'No', 'Calidad de participación: ASISTENTE / PONENTE / ORGANIZADOR / etc. Opcional — si está vacío se asigna ASISTENTE.']);
             fputcsv($out, ['']);
 
             // ── Actual data header (this is the row the importer reads as header) ──
@@ -417,13 +426,14 @@ class CertificateController extends Controller
                 'Promedio',
                 'Modalidad',
                 'Código',
+                'Condición / Participación',
             ]);
 
-            // ── Sample data row ───────────────────────────────────────────────
+            // ── Sample data rows ──────────────────────────────────────────────
             fputcsv($out, [
                 '1',
                 '74123456',
-                'García López, María',
+                'García López, María Elena',
                 'Excel Avanzado',
                 '2026-01-10',
                 '2026-03-20',
@@ -436,6 +446,45 @@ class CertificateController extends Controller
                 '18',
                 'Presencial',
                 'CERT-74123456-1',
+                'ASISTENTE',
+            ]);
+
+            fputcsv($out, [
+                '2',
+                '71234568',
+                'Rodríguez Quispe, Carlos Alberto',
+                'Desarrollo Web Full Stack',
+                '2026-02-01',
+                '2026-04-15',
+                '2026-04-16',
+                '180 Horas',
+                '20',
+                'VEINTE',
+                '18',
+                'DIECIOCHO',
+                '19',
+                'Virtual',
+                '',
+                'PONENTE',
+            ]);
+
+            fputcsv($out, [
+                '3',
+                '70987654',
+                'Mamani Flores, Ana Lucía',
+                'Inteligencia Artificial Aplicada',
+                '2026-03-01',
+                '2026-05-10',
+                '2026-05-12',
+                '90 Horas',
+                '18',
+                'DIECIOCHO',
+                '17',
+                'DIECISIETE',
+                '17.5',
+                'Semipresencial',
+                'CERT-IA-2026-003',
+                'ORGANIZADOR',
             ]);
 
             fclose($out);

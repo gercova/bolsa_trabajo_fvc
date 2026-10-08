@@ -222,7 +222,8 @@ class CertificateFormatAndValidationTest extends TestCase
         $modulesData = $englishCert->english_modules_data;
         $this->assertCount(2, $modulesData);
         $this->assertMatchesRegularExpression('/M[OÓ]DULO:\s*I\b/iu', $modulesData[0]['name']);
-        $this->assertEquals(4, $modulesData[0]['credits']);
+        $expectedCredits = (int) ($englishCourse->modules->first()?->credits ?? 4);
+        $this->assertEquals($expectedCredits, (int) $modulesData[0]['credits']);
         $this->assertEquals(14, $modulesData[0]['score_num']);
         $this->assertEquals('Catorce', $modulesData[0]['score_text']);
         $this->assertContains('Greatings and farewells', $modulesData[0]['contents']);
@@ -602,7 +603,7 @@ class CertificateFormatAndValidationTest extends TestCase
         Certificate::where('issue_date', '2026-12-18')->where('user_id', $student->id)->delete();
     }
 
-    public function test_download_template_includes_code_column_in_csv(): void
+    public function test_download_template_includes_code_and_participation_type_in_csv(): void
     {
         $response = $this->actingAs($this->adminUser)->get('/admin-certificados/plantilla');
 
@@ -611,6 +612,112 @@ class CertificateFormatAndValidationTest extends TestCase
 
         $content = $response->streamedContent();
         $this->assertStringContainsString('Código', $content);
+        $this->assertStringContainsString('Condición / Participación', $content);
         $this->assertStringContainsString('CERT-{DNI}-{secuencia}', $content);
+        $this->assertStringContainsString('ASISTENTE', $content);
+        $this->assertStringContainsString('PONENTE', $content);
+        $this->assertStringContainsString('ORGANIZADOR', $content);
+    }
+
+    public function test_download_template_supports_xlsx_format(): void
+    {
+        $response = $this->actingAs($this->adminUser)->get('/admin-certificados/plantilla?format=xlsx');
+
+        $response->assertStatus(200);
+        $this->assertTrue(
+            str_contains($response->headers->get('Content-Disposition') ?? '', '.xlsx') ||
+            str_contains($response->headers->get('Content-Type') ?? '', 'spreadsheet') ||
+            str_contains($response->headers->get('Content-Type') ?? '', 'openxmlformats')
+        );
+    }
+
+    public function test_certificate_import_reads_and_saves_participation_type(): void
+    {
+        User::where('dni', '71239999')->delete();
+        Certificate::where('code', 'CERT-PONENTE-001')->delete();
+
+        $student = User::factory()->create([
+            'dni' => '71239999',
+            'names' => 'Ponente Test User',
+        ]);
+
+        $import = new CertificateImport;
+        $row = [
+            0 => '1',
+            1 => $student->dni,
+            2 => $student->names,
+            3 => $this->certificate->course->name,
+            4 => '2026-12-01',
+            5 => '2026-12-10',
+            6 => '2026-12-25',
+            7 => '80',
+            8 => '19',
+            9 => 'Diecinueve',
+            10 => '20',
+            11 => 'Veinte',
+            12 => '19.5',
+            13 => 'Virtual',
+            14 => 'CERT-PONENTE-001',
+            15 => 'PONENTE', // Col P: participation_type
+        ];
+
+        $import->collection(collect([$row]));
+
+        $this->assertEquals(1, $import->importedCount);
+        $createdCert = Certificate::where('user_id', $student->id)
+            ->where('issue_date', '2026-12-25')
+            ->first();
+
+        $this->assertNotNull($createdCert);
+        $this->assertEquals('PONENTE', $createdCert->participation_type);
+        $this->assertEquals('CERT-PONENTE-001', $createdCert->code);
+
+        Certificate::where('issue_date', '2026-12-25')->where('user_id', $student->id)->delete();
+        $student->delete();
+    }
+
+    public function test_certificate_import_defaults_to_asistente_when_participation_type_empty(): void
+    {
+        User::where('dni', '71238888')->delete();
+        Certificate::where('code', 'LIKE', 'CERT-71238888-%')->delete();
+
+        $student = User::factory()->create([
+            'dni' => '71238888',
+            'names' => 'Asistente Default User',
+        ]);
+
+        $import = new CertificateImport;
+        $row = [
+            0 => '1',
+            1 => $student->dni,
+            2 => $student->names,
+            3 => $this->certificate->course->name,
+            4 => '2026-12-01',
+            5 => '2026-12-10',
+            6 => '2026-12-26',
+            7 => '80',
+            8 => '17',
+            9 => 'Diecisiete',
+            10 => '18',
+            11 => 'Dieciocho',
+            12 => '17.5',
+            13 => 'Presencial',
+            14 => '',
+            15 => '', // Empty participation_type -> defaults to ASISTENTE
+        ];
+
+        $import->collection(collect([$row]));
+
+        $this->assertEquals(1, $import->importedCount);
+        $createdCert = Certificate::where('user_id', $student->id)
+            ->where('issue_date', '2026-12-26')
+            ->first();
+
+        $this->assertNotNull($createdCert);
+        $this->assertEquals('ASISTENTE', $createdCert->participation_type);
+        $this->assertMatchesRegularExpression('/^CERT-71238888-\d+$/', $createdCert->code);
+
+        Certificate::where('issue_date', '2026-12-26')->where('user_id', $student->id)->delete();
+        $student->delete();
     }
 }

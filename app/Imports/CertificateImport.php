@@ -47,6 +47,7 @@ class CertificateImport implements ToCollection, WithChunkReading, WithStartRow
      *  [12] M  → Promedio                      → ignorado
      *  [13] N  → Modalidad                     → modality
      *  [14] O  → Código                        → code (si está vacío, auto-genera CERT-{DNI}-{secuencia})
+     *  [15] P  → Condición / Participación     → participation_type (ASISTENTE, PONENTE, ORGANIZADOR, etc.)
      */
     public function startRow(): int
     {
@@ -72,8 +73,8 @@ class CertificateImport implements ToCollection, WithChunkReading, WithStartRow
             $dni = $this->cleanString($row[1] ?? null);
             $names = $this->cleanString($row[2] ?? null);
 
-            // Skip completely blank rows (no DNI)
-            if (empty($dni)) {
+            // Skip completely blank rows (no DNI) or accidental header rows
+            if (empty($dni) || preg_match('/^(dni|documento|n°)/i', $dni)) {
                 $this->skippedCount++;
 
                 continue;
@@ -127,6 +128,8 @@ class CertificateImport implements ToCollection, WithChunkReading, WithStartRow
             $horasRaw = $this->cleanString($row[7] ?? null);
             $duration = $horasRaw !== null ? $horasRaw.' Horas' : null;
             $modality = $this->parseModality($this->cleanString($row[13] ?? null));
+            $participationRaw = $this->cleanString($row[15] ?? null);
+            $participationType = ! empty($participationRaw) ? mb_strtoupper($participationRaw, 'UTF-8') : 'ASISTENTE';
 
             // ── 4. Check for duplicate certificate (same user, same event/course, same date) ──
             $duplicate = Certificate::findDuplicate(
@@ -167,7 +170,7 @@ class CertificateImport implements ToCollection, WithChunkReading, WithStartRow
                     'user_id' => $userId,
                     'course_id' => $courseId,
                     'certificate_type' => $course->certificate_type ?? 'capacitacion',
-                    'participation_type' => 'ASISTENTE',
+                    'participation_type' => $participationType,
                     'event_name' => $course->event_name,
                     'study_program_id' => $course->study_program_id,
                     'description' => $course->description,

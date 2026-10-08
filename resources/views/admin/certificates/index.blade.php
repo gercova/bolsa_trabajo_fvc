@@ -754,152 +754,523 @@
             x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
 
             <div @click.outside="importModalOpen = false"
                 @keydown.escape.window="importModalOpen = false"
                 x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0 scale-95"
                 x-transition:enter-end="opacity-100 scale-100"
-                class="bg-white rounded-2xl shadow-2xl border border-gray-200 w-full max-w-xl overflow-hidden flex flex-col max-h-[90vh]">
+                class="bg-white rounded-2xl shadow-2xl border border-gray-200 w-full max-w-4xl overflow-hidden flex flex-col max-h-[92vh]">
 
                 {{-- Modal Header --}}
-                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-teal-50 shrink-0">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-700 text-white shrink-0">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl">
+                        <div class="w-11 h-11 rounded-xl bg-white/15 backdrop-blur-md text-white flex items-center justify-center text-2xl shadow-inner border border-white/20">
                             <i class="bi bi-file-earmark-spreadsheet-fill"></i>
                         </div>
                         <div>
-                            <h3 class="text-base font-extrabold text-gray-900">Importar Certificados</h3>
-                            <p class="text-xs text-gray-500">Carga masiva desde archivo Excel (.xlsx, .xls) o CSV</p>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-base font-extrabold tracking-tight">Importación Masiva de Certificados</h3>
+                                <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-400/30 text-emerald-100 border border-emerald-300/30">
+                                    XLSX • XLS • CSV
+                                </span>
+                            </div>
+                            <p class="text-xs text-emerald-100/90">Carga masiva, registro de notas modulares y control anti-duplicados</p>
                         </div>
                     </div>
-                    <button type="button" @click="importModalOpen = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg">
+                    <button type="button" @click="importModalOpen = false" class="text-white/80 hover:text-white p-1.5 rounded-xl hover:bg-white/10 transition-colors">
                         <i class="bi bi-x-lg text-sm"></i>
                     </button>
                 </div>
 
+                {{-- Navigation Tabs --}}
+                <div class="flex items-center gap-2 px-6 pt-3 border-b border-gray-200 bg-gray-50/80 shrink-0">
+                    <button type="button" @click="importTab = 'upload'"
+                        class="px-4 py-2.5 text-xs font-bold rounded-t-xl transition-all border-b-2 flex items-center gap-2 -mb-px"
+                        :class="importTab === 'upload' ? 'border-emerald-600 text-emerald-800 bg-white shadow-sm' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100/60'">
+                        <i class="bi bi-cloud-arrow-up text-sm"></i>
+                        1. Cargar Archivo y Plantillas
+                    </button>
+                    <button type="button" @click="importTab = 'examples'"
+                        class="px-4 py-2.5 text-xs font-bold rounded-t-xl transition-all border-b-2 flex items-center gap-2 -mb-px"
+                        :class="importTab === 'examples' ? 'border-emerald-600 text-emerald-800 bg-white shadow-sm' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100/60'">
+                        <i class="bi bi-table text-sm"></i>
+                        2. Ejemplos de Registros
+                        <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            Condición / Rol
+                        </span>
+                    </button>
+                    <button type="button" @click="importTab = 'guide'"
+                        class="px-4 py-2.5 text-xs font-bold rounded-t-xl transition-all border-b-2 flex items-center gap-2 -mb-px"
+                        :class="importTab === 'guide' ? 'border-emerald-600 text-emerald-800 bg-white shadow-sm' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100/60'">
+                        <i class="bi bi-card-list text-sm"></i>
+                        3. Estructura de Columnas (A–P)
+                    </button>
+                </div>
+
                 {{-- Modal Body --}}
-                <div class="p-6 space-y-5 overflow-y-auto flex-1">
+                <div class="p-6 space-y-5 overflow-y-auto flex-1 bg-white">
 
-                    {{-- Upload Form --}}
-                    <form id="import-cert-form"
-                        action="{{ route('admin.certificates.import') }}"
-                        method="POST"
-                        enctype="multipart/form-data"
-                        class="space-y-4">
-                        @csrf
+                    {{-- ══ TAB 1: UPLOAD & DOWNLOAD TEMPLATES ════════════════ --}}
+                    <div x-show="importTab === 'upload'" class="space-y-5">
 
-                        {{-- Drag & Drop Zone --}}
-                        <div class="relative">
-                            <label for="cert-import-file"
-                                class="flex flex-col items-center justify-center w-full border-2 border-dashed rounded-2xl cursor-pointer transition-all"
-                                :class="fileName ? 'border-emerald-400 bg-emerald-50' : 'border-gray-300 bg-gray-50 hover:border-purple-400 hover:bg-purple-50'"
-                                @dragover.prevent
-                                @drop.prevent="
-                                    const f = $event.dataTransfer.files[0];
-                                    if (f) { fileName = f.name; $refs.fileInput.files = $event.dataTransfer.files; }
-                                ">
-                                <div class="py-8 px-4 text-center">
-                                    <template x-if="!fileName">
-                                        <div class="space-y-2">
-                                            <div class="w-14 h-14 mx-auto rounded-2xl bg-gray-100 text-gray-400 flex items-center justify-center text-3xl">
-                                                <i class="bi bi-cloud-arrow-up"></i>
-                                            </div>
-                                            <p class="text-sm font-semibold text-gray-600">Arrastra tu archivo aquí o <span class="text-purple-600 underline">selecciónalo</span></p>
-                                            <p class="text-xs text-gray-400">Formatos aceptados: <strong>.xlsx, .xls, .csv</strong> — Máx. 10 MB</p>
-                                        </div>
-                                    </template>
-                                    <template x-if="fileName">
-                                        <div class="space-y-2">
-                                            <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl">
-                                                <i class="bi bi-file-earmark-check-fill"></i>
-                                            </div>
-                                            <p class="text-sm font-bold text-emerald-700" x-text="fileName"></p>
-                                            <p class="text-xs text-emerald-500">Archivo listo para importar</p>
-                                        </div>
-                                    </template>
+                        {{-- Download Template Banner --}}
+                        <div class="relative overflow-hidden p-5 bg-gradient-to-br from-indigo-50/90 via-purple-50/50 to-emerald-50/60 border border-indigo-100 rounded-2xl shadow-sm">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-100/80 px-2.5 py-0.5 rounded-full border border-indigo-200">
+                                            <i class="bi bi-file-earmark-check"></i> Plantilla Guía Oficial
+                                        </span>
+                                        <span class="text-xs text-gray-500 font-medium">Formatos soportados: <strong>.xlsx</strong>, <strong>.xls</strong>, <strong>.csv</strong></span>
+                                    </div>
+                                    <h4 class="text-sm font-bold text-gray-900">¿Primera vez o necesitas la estructura exacta?</h4>
+                                    <p class="text-xs text-gray-600 max-w-xl">
+                                        Descarga el documento guía prediseñado. Incluye los 16 campos oficiales (A–P), filas de ejemplo ilustrando la <strong>Condición / Participación</strong> (<code class="bg-indigo-100/70 text-indigo-800 px-1 py-0.5 rounded text-[11px]">participation_type</code>: ASISTENTE, PONENTE, ORGANIZADOR) y una hoja complementaria con instrucciones detalladas.
+                                    </p>
                                 </div>
-                            </label>
-                            <input id="cert-import-file" name="file" type="file"
-                                accept=".xlsx,.xls,.csv"
-                                x-ref="fileInput"
-                                @change="fileName = $event.target.files[0]?.name || ''"
-                                class="sr-only">
+
+                                {{-- Download Action Buttons --}}
+                                <div class="flex flex-wrap sm:flex-col gap-2 shrink-0">
+                                    <a href="{{ route('admin.certificates.template', ['format' => 'xlsx']) }}"
+                                        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-bold shadow-sm transition hover:shadow flex-1 sm:flex-none">
+                                        <i class="bi bi-file-earmark-excel-fill text-base"></i>
+                                        <span>Descargar Excel (.xlsx)</span>
+                                        <span class="text-[10px] bg-emerald-500/50 px-1.5 py-0.5 rounded-md font-semibold text-emerald-100">Recomendado</span>
+                                    </a>
+                                    <a href="{{ route('admin.certificates.template', ['format' => 'csv']) }}"
+                                        class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-xl text-xs font-bold shadow-sm transition flex-1 sm:flex-none">
+                                        <i class="bi bi-filetype-csv text-base text-gray-500"></i>
+                                        <span>Descargar CSV (.csv)</span>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
 
-                        {{-- Download Template --}}
-                        <div class="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-xl">
-                            <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                                <i class="bi bi-file-earmark-arrow-down text-base"></i>
+                        {{-- Upload Form --}}
+                        <form id="import-cert-form"
+                            action="{{ route('admin.certificates.import') }}"
+                            method="POST"
+                            enctype="multipart/form-data"
+                            class="space-y-4">
+                            @csrf
+
+                            {{-- Drag & Drop Zone --}}
+                            <div class="relative">
+                                <label for="cert-import-file"
+                                    class="flex flex-col items-center justify-center w-full border-2 border-dashed rounded-2xl cursor-pointer transition-all p-6"
+                                    :class="fileName ? 'border-emerald-500 bg-emerald-50/50' : 'border-gray-300 bg-gray-50/50 hover:border-emerald-400 hover:bg-emerald-50/20'"
+                                    @dragover.prevent
+                                    @drop.prevent="
+                                        const f = $event.dataTransfer.files[0];
+                                        if (f) { fileName = f.name; $refs.fileInput.files = $event.dataTransfer.files; }
+                                    ">
+                                    <div class="text-center space-y-3">
+                                        <template x-if="!fileName">
+                                            <div class="space-y-2">
+                                                <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl shadow-sm">
+                                                    <i class="bi bi-cloud-arrow-up"></i>
+                                                </div>
+                                                <p class="text-sm font-bold text-gray-800">
+                                                    Arrastra tu archivo aquí o <span class="text-emerald-600 underline">haz clic para examinar</span>
+                                                </p>
+                                                <div class="flex items-center justify-center gap-2 pt-1">
+                                                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">.XLSX</span>
+                                                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">.XLS</span>
+                                                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">.CSV</span>
+                                                    <span class="text-xs text-gray-400">• Máximo 10 MB</span>
+                                                </div>
+                                            </div>
+                                        </template>
+
+                                        <template x-if="fileName">
+                                            <div class="space-y-2">
+                                                <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-3xl shadow-md">
+                                                    <i class="bi bi-file-earmark-check-fill"></i>
+                                                </div>
+                                                <p class="text-sm font-extrabold text-emerald-900" x-text="fileName"></p>
+                                                <div class="flex items-center justify-center gap-2">
+                                                    <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-100/70 px-2.5 py-0.5 rounded-full">
+                                                        <i class="bi bi-check-circle-fill text-[11px]"></i> Archivo preparado para procesar
+                                                    </span>
+                                                    <button type="button" @click.stop="fileName = ''; $refs.fileInput.value = ''"
+                                                        class="text-xs font-bold text-red-600 hover:text-red-700 underline">
+                                                        Cambiar archivo
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </label>
+                                <input id="cert-import-file" name="file" type="file"
+                                    accept=".xlsx,.xls,.csv"
+                                    x-ref="fileInput"
+                                    @change="fileName = $event.target.files[0]?.name || ''"
+                                    class="sr-only">
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-xs font-bold text-blue-900">¿Primera vez importando?</p>
-                                <p class="text-[11px] text-blue-600 leading-snug">Descarga la plantilla con instrucciones incluidas dentro del archivo.</p>
+
+                            {{-- Highlight Rules Box --}}
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                                <div class="p-3 bg-gray-50 border border-gray-200 rounded-xl">
+                                    <div class="font-bold text-gray-800 flex items-center gap-1.5 mb-1">
+                                        <i class="bi bi-shield-check text-emerald-600"></i> Control Anti-duplicados
+                                    </div>
+                                    <p class="text-gray-500 leading-snug">Se valida que no exista un certificado previo para el mismo estudiante, curso/evento y fecha.</p>
+                                </div>
+
+                                <div class="p-3 bg-gray-50 border border-gray-200 rounded-xl">
+                                    <div class="font-bold text-gray-800 flex items-center gap-1.5 mb-1">
+                                        <i class="bi bi-person-badge text-indigo-600"></i> Condición de Participación
+                                    </div>
+                                    <p class="text-gray-500 leading-snug">Columna P: <code class="text-indigo-600 font-bold">ASISTENTE</code>, <code class="text-purple-600 font-bold">PONENTE</code>, <code class="text-emerald-600 font-bold">ORGANIZADOR</code> (por defecto ASISTENTE).</p>
+                                </div>
+
+                                <div class="p-3 bg-gray-50 border border-gray-200 rounded-xl">
+                                    <div class="font-bold text-gray-800 flex items-center gap-1.5 mb-1">
+                                        <i class="bi bi-upc-scan text-purple-600"></i> Auto-código Inteligente
+                                    </div>
+                                    <p class="text-gray-500 leading-snug">Columna O: Si se deja vacía, se autogenera <code class="font-mono text-purple-700 bg-purple-50 px-1 rounded">CERT-{DNI}-{secuencia}</code>.</p>
+                                </div>
                             </div>
-                            <a href="{{ route('admin.certificates.template') }}"
-                               class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-sm transition-all whitespace-nowrap shrink-0">
-                                <i class="bi bi-download"></i> Descargar plantilla
-                            </a>
+
+                            {{-- Form Actions --}}
+                            <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                                <div class="flex items-center gap-2">
+                                    <button type="button" @click="importTab = 'examples'"
+                                        class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                                        <i class="bi bi-eye"></i> Ver ejemplos de filas
+                                    </button>
+                                    <span class="text-gray-300">•</span>
+                                    <button type="button" @click="importTab = 'guide'"
+                                        class="text-xs font-bold text-gray-600 hover:text-gray-800 flex items-center gap-1">
+                                        <i class="bi bi-list-columns"></i> Ver guía de columnas
+                                    </button>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <button type="button" @click="importModalOpen = false"
+                                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition">
+                                        Cancelar
+                                    </button>
+                                    <button type="submit"
+                                        class="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-2"
+                                        :disabled="!fileName"
+                                        :class="!fileName ? 'opacity-50 cursor-not-allowed' : ''">
+                                        <i class="bi bi-upload"></i>
+                                        <span>Procesar e Importar</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    {{-- ══ TAB 2: EXAMPLES (FEATURING PARTICIPATION_TYPE) ═══ --}}
+                    <div x-show="importTab === 'examples'" class="space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl">
+                            <div>
+                                <h4 class="text-xs font-extrabold text-indigo-900 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="bi bi-award-fill text-indigo-600"></i> Ejemplos Reales con Condición / Tipo de Participación
+                                </h4>
+                                <p class="text-xs text-indigo-700 mt-0.5">
+                                    Observe cómo el campo <strong>participation_type</strong> (Columna P) permite definir roles institucionales específicos (ASISTENTE, PONENTE, ORGANIZADOR, etc.), mientras que la columna Código (Columna O) puede ingresarse manualmente o dejarse vacía para autogeneración.
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <a href="{{ route('admin.certificates.template', ['format' => 'xlsx']) }}"
+                                    class="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition whitespace-nowrap">
+                                    <i class="bi bi-download"></i> Descargar Excel (.xlsx)
+                                </a>
+                            </div>
                         </div>
 
-                        {{-- Column Reference --}}
-                        <details class="group">
-                            <summary class="cursor-pointer text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5 select-none">
-                                <i class="bi bi-info-circle text-purple-500"></i>
-                                Estructura esperada del archivo
-                                <i class="bi bi-chevron-down ml-auto transition-transform group-open:rotate-180 text-gray-400"></i>
-                            </summary>
-                            <div class="mt-3 border border-gray-200 rounded-xl overflow-hidden">
-                                <table class="min-w-full text-xs">
-                                    <thead class="bg-gray-50 border-b border-gray-200">
+                        {{-- Table of Examples --}}
+                        <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full text-xs divide-y divide-gray-200">
+                                    <thead class="bg-gray-50 font-bold text-gray-700 uppercase tracking-wider text-[11px]">
                                         <tr>
-                                            <th class="px-3 py-2 text-left font-bold text-gray-500 uppercase">Col</th>
-                                            <th class="px-3 py-2 text-left font-bold text-gray-500 uppercase">Encabezado en Excel</th>
-                                            <th class="px-3 py-2 text-left font-bold text-gray-500 uppercase">Campo destino</th>
+                                            <th class="px-3 py-2.5 text-center bg-gray-100/60">Col A (N°)</th>
+                                            <th class="px-3 py-2.5 text-left">Col B (DNI)</th>
+                                            <th class="px-3 py-2.5 text-left">Col C (Estudiante)</th>
+                                            <th class="px-3 py-2.5 text-left">Col D (Curso)</th>
+                                            <th class="px-3 py-2.5 text-center">Fechas (E, F, G)</th>
+                                            <th class="px-3 py-2.5 text-center">Col H (Horas)</th>
+                                            <th class="px-3 py-2.5 text-center">Notas (I, K)</th>
+                                            <th class="px-3 py-2.5 text-center">Col N (Modalidad)</th>
+                                            <th class="px-3 py-2.5 text-left bg-purple-50/50 text-purple-900 border-l border-r border-purple-100">
+                                                Col O (Código)
+                                            </th>
+                                            <th class="px-3 py-2.5 text-left bg-emerald-50 text-emerald-900 font-extrabold border-l border-emerald-200">
+                                                <i class="bi bi-star-fill text-emerald-500 mr-1"></i> Col P (Condición / Rol)
+                                            </th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-gray-100">
-                                        <tr class="bg-gray-50/60"><td class="px-3 py-1.5 font-mono font-bold text-gray-400">A</td><td class="px-3 py-1.5 text-gray-400">N°</td><td class="px-3 py-1.5 text-gray-400 italic">Número de fila — ignorada</td></tr>
-                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">B</td><td class="px-3 py-1.5">DNI / N° Documento</td><td class="px-3 py-1.5 text-gray-500">Busca usuario por DNI</td></tr>
-                                        <tr class="bg-gray-50/60"><td class="px-3 py-1.5 font-mono font-bold text-gray-400">C</td><td class="px-3 py-1.5 text-gray-400">Apellidos y Nombres</td><td class="px-3 py-1.5 text-gray-400 italic">Referencia — ignorada</td></tr>
-                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">D</td><td class="px-3 py-1.5">Curso</td><td class="px-3 py-1.5 text-gray-500">Busca curso por nombre</td></tr>
-                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">E</td><td class="px-3 py-1.5">Fecha de Inicio</td><td class="px-3 py-1.5 text-gray-500">start_date</td></tr>
-                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">F</td><td class="px-3 py-1.5">Fecha de Término</td><td class="px-3 py-1.5 text-gray-500">end_date</td></tr>
-                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">G</td><td class="px-3 py-1.5">Fecha de Emisión</td><td class="px-3 py-1.5 text-gray-500">issue_date</td></tr>
-                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">H</td><td class="px-3 py-1.5">Horas</td><td class="px-3 py-1.5 text-gray-500">duration (ej: "128 Horas")</td></tr>
-                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-indigo-600">I</td><td class="px-3 py-1.5">Calificación I <span class="text-gray-400">(numérica)</span></td><td class="px-3 py-1.5 text-gray-500">Nota Módulo 1 del curso</td></tr>
-                                        <tr class="bg-red-50"><td class="px-3 py-1.5 font-mono font-bold text-red-400">J</td><td class="px-3 py-1.5 text-red-400">Calificación Letras I</td><td class="px-3 py-1.5 text-red-400 italic">Ignorada</td></tr>
-                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-indigo-600">K</td><td class="px-3 py-1.5">Calificación II <span class="text-gray-400">(numérica)</span></td><td class="px-3 py-1.5 text-gray-500">Nota Módulo 2 del curso</td></tr>
-                                        <tr class="bg-red-50"><td class="px-3 py-1.5 font-mono font-bold text-red-400">L</td><td class="px-3 py-1.5 text-red-400">Calificación Letras II</td><td class="px-3 py-1.5 text-red-400 italic">Ignorada</td></tr>
-                                        <tr class="bg-gray-50/60"><td class="px-3 py-1.5 font-mono font-bold text-gray-400">M</td><td class="px-3 py-1.5 text-gray-400">Promedio</td><td class="px-3 py-1.5 text-gray-400 italic">Ignorada (calculado)</td></tr>
-                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">N</td><td class="px-3 py-1.5">Modalidad</td><td class="px-3 py-1.5 text-gray-500">modality (Presencial / Virtual / Semipresencial)</td></tr>
-                                        <tr class="hover:bg-gray-50/80"><td class="px-3 py-1.5 font-mono font-bold text-purple-700">O</td><td class="px-3 py-1.5">Código</td><td class="px-3 py-1.5 text-gray-500">code (opcional — si está vacío se genera CERT-{DNI}-{secuencia})</td></tr>
+                                    <tbody class="divide-y divide-gray-100 bg-white">
+                                        {{-- Row 1: ASISTENTE --}}
+                                        <tr class="hover:bg-gray-50/80 transition-colors">
+                                            <td class="px-3 py-2.5 text-center font-mono font-bold text-gray-400 bg-gray-50/40">1</td>
+                                            <td class="px-3 py-2.5 font-mono font-bold text-gray-900">74123456</td>
+                                            <td class="px-3 py-2.5 font-medium text-gray-800 whitespace-nowrap">García López, María Elena</td>
+                                            <td class="px-3 py-2.5 font-semibold text-indigo-700 whitespace-nowrap">Excel Avanzado</td>
+                                            <td class="px-3 py-2.5 text-center text-gray-500 font-mono whitespace-nowrap">
+                                                <div>2026-01-10 → 2026-03-20</div>
+                                                <div class="text-[10px] text-gray-400">Emisión: 2026-03-21</div>
+                                            </td>
+                                            <td class="px-3 py-2.5 text-center text-gray-600">120 Horas</td>
+                                            <td class="px-3 py-2.5 text-center whitespace-nowrap">
+                                                <span class="px-1.5 py-0.5 rounded bg-gray-100 font-mono font-bold text-gray-700">M1: 17</span>
+                                                <span class="px-1.5 py-0.5 rounded bg-gray-100 font-mono font-bold text-gray-700 ml-1">M2: 19</span>
+                                            </td>
+                                            <td class="px-3 py-2.5 text-center whitespace-nowrap">
+                                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">Presencial</span>
+                                            </td>
+                                            <td class="px-3 py-2.5 font-mono text-purple-700 font-bold bg-purple-50/30 whitespace-nowrap border-l border-r border-purple-100">
+                                                CERT-74123456-1
+                                            </td>
+                                            <td class="px-3 py-2.5 bg-emerald-50/40 whitespace-nowrap border-l border-emerald-200">
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800 border border-blue-300">
+                                                    <i class="bi bi-person-check-fill text-[11px]"></i> ASISTENTE
+                                                </span>
+                                            </td>
+                                        </tr>
+
+                                        {{-- Row 2: PONENTE with empty code (auto-generated) --}}
+                                        <tr class="hover:bg-gray-50/80 transition-colors">
+                                            <td class="px-3 py-2.5 text-center font-mono font-bold text-gray-400 bg-gray-50/40">2</td>
+                                            <td class="px-3 py-2.5 font-mono font-bold text-gray-900">71234568</td>
+                                            <td class="px-3 py-2.5 font-medium text-gray-800 whitespace-nowrap">Rodríguez Quispe, Carlos Alberto</td>
+                                            <td class="px-3 py-2.5 font-semibold text-indigo-700 whitespace-nowrap">Desarrollo Web Full Stack</td>
+                                            <td class="px-3 py-2.5 text-center text-gray-500 font-mono whitespace-nowrap">
+                                                <div>2026-02-01 → 2026-04-15</div>
+                                                <div class="text-[10px] text-gray-400">Emisión: 2026-04-16</div>
+                                            </td>
+                                            <td class="px-3 py-2.5 text-center text-gray-600">180 Horas</td>
+                                            <td class="px-3 py-2.5 text-center whitespace-nowrap">
+                                                <span class="px-1.5 py-0.5 rounded bg-gray-100 font-mono font-bold text-gray-700">M1: 20</span>
+                                                <span class="px-1.5 py-0.5 rounded bg-gray-100 font-mono font-bold text-gray-700 ml-1">M2: 18</span>
+                                            </td>
+                                            <td class="px-3 py-2.5 text-center whitespace-nowrap">
+                                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">Virtual</span>
+                                            </td>
+                                            <td class="px-3 py-2.5 font-mono text-purple-600 bg-purple-50/30 whitespace-nowrap border-l border-r border-purple-100">
+                                                <span class="italic text-gray-400 text-[11px] font-sans">[Vacío → Auto: CERT-71234568-1]</span>
+                                            </td>
+                                            <td class="px-3 py-2.5 bg-emerald-50/40 whitespace-nowrap border-l border-emerald-200">
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold bg-purple-100 text-purple-800 border border-purple-300">
+                                                    <i class="bi bi-mic-fill text-[11px]"></i> PONENTE
+                                                </span>
+                                            </td>
+                                        </tr>
+
+                                        {{-- Row 3: ORGANIZADOR --}}
+                                        <tr class="hover:bg-gray-50/80 transition-colors">
+                                            <td class="px-3 py-2.5 text-center font-mono font-bold text-gray-400 bg-gray-50/40">3</td>
+                                            <td class="px-3 py-2.5 font-mono font-bold text-gray-900">70987654</td>
+                                            <td class="px-3 py-2.5 font-medium text-gray-800 whitespace-nowrap">Mamani Flores, Ana Lucía</td>
+                                            <td class="px-3 py-2.5 font-semibold text-indigo-700 whitespace-nowrap">Inteligencia Artificial Aplicada</td>
+                                            <td class="px-3 py-2.5 text-center text-gray-500 font-mono whitespace-nowrap">
+                                                <div>2026-03-01 → 2026-05-10</div>
+                                                <div class="text-[10px] text-gray-400">Emisión: 2026-05-12</div>
+                                            </td>
+                                            <td class="px-3 py-2.5 text-center text-gray-600">90 Horas</td>
+                                            <td class="px-3 py-2.5 text-center whitespace-nowrap">
+                                                <span class="px-1.5 py-0.5 rounded bg-gray-100 font-mono font-bold text-gray-700">M1: 18</span>
+                                                <span class="px-1.5 py-0.5 rounded bg-gray-100 font-mono font-bold text-gray-700 ml-1">M2: 17</span>
+                                            </td>
+                                            <td class="px-3 py-2.5 text-center whitespace-nowrap">
+                                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">Semipresencial</span>
+                                            </td>
+                                            <td class="px-3 py-2.5 font-mono text-purple-700 font-bold bg-purple-50/30 whitespace-nowrap border-l border-r border-purple-100">
+                                                CERT-IA-2026-003
+                                            </td>
+                                            <td class="px-3 py-2.5 bg-emerald-50/40 whitespace-nowrap border-l border-emerald-200">
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                                    <i class="bi bi-award text-[11px]"></i> ORGANIZADOR
+                                                </span>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
-                        </details>
-
-                        {{-- Warning about ignored cols --}}
-                        <div class="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
-                            <i class="bi bi-exclamation-triangle-fill text-amber-500 mt-0.5 shrink-0"></i>
-                            <span>Las columnas <strong>J</strong> y <strong>L</strong> (calificación en letras) son ignoradas. El código del certificado se toma de la columna <strong>O</strong> o se auto-genera como <code class="bg-amber-100 px-1 rounded">CERT-{DNI_estudiante}-{secuencia}</code> si está vacío. Los módulos se asignan por orden del curso (col. <strong>I</strong> → Módulo 1, col. <strong>K</strong> → Módulo 2).</span>
                         </div>
 
-                        {{-- Submit --}}
-                        <div class="flex items-center justify-end gap-3 pt-1">
-                            <button type="button" @click="importModalOpen = false"
-                                class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-semibold transition">
-                                Cancelar
-                            </button>
-                            <button type="submit"
-                                class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl text-sm font-bold shadow transition flex items-center gap-2"
-                                :disabled="!fileName"
-                                :class="!fileName ? 'opacity-50 cursor-not-allowed' : ''">
-                                <i class="bi bi-upload"></i> Importar Certificados
+                        {{-- Explanatory Note on Participation Type --}}
+                        <div class="flex items-start gap-3 p-3.5 bg-emerald-50/70 border border-emerald-200 rounded-xl text-xs text-emerald-900">
+                            <div class="w-6 h-6 rounded-lg bg-emerald-200 text-emerald-800 flex items-center justify-center shrink-0 text-sm font-bold">
+                                <i class="bi bi-info-circle"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="font-bold">Efecto del campo «Condición / Participación» en el Certificado Oficial:</p>
+                                <p class="text-emerald-800 leading-relaxed">
+                                    El valor ingresado en la <strong>Columna P</strong> se reflejará directamente en la impresión oficial y en la vista de validación pública QR («en su calidad de <strong>PONENTE</strong>», «en calidad de <strong>ASISTENTE</strong>», etc.). Si se omite o se deja en blanco en el archivo, el sistema asignará <strong>ASISTENTE</strong> automáticamente.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-2">
+                            <button type="button" @click="importTab = 'upload'"
+                                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow transition flex items-center gap-1.5">
+                                <i class="bi bi-arrow-left"></i> Volver a la Carga de Archivos
                             </button>
                         </div>
-                    </form>
+                    </div>
+
+                    {{-- ══ TAB 3: COMPLETE COLUMN GUIDE (A–P) ════════════════ --}}
+                    <div x-show="importTab === 'guide'" class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-xl">
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Estructura Detallada de Columnas (16 Columnas: A a P)</h4>
+                                <p class="text-xs text-gray-500">Revise la posición, obligatoriedad y función de cada columna en el archivo de importación.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a href="{{ route('admin.certificates.template', ['format' => 'xlsx']) }}"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition">
+                                    <i class="bi bi-file-earmark-excel"></i> Descargar Plantilla (.xlsx)
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                            <div class="overflow-x-auto max-h-[50vh]">
+                                <table class="min-w-full text-xs divide-y divide-gray-200">
+                                    <thead class="bg-gray-50 sticky top-0 font-bold text-gray-700 uppercase tracking-wider text-[11px] shadow-sm">
+                                        <tr>
+                                            <th class="px-3 py-2 text-center">Col</th>
+                                            <th class="px-3 py-2 text-left">Encabezado en Plantilla</th>
+                                            <th class="px-3 py-2 text-center">Estado</th>
+                                            <th class="px-3 py-2 text-left">Campo Destino</th>
+                                            <th class="px-3 py-2 text-left">Descripción y Reglas de Importación</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100 bg-white">
+                                        <tr class="bg-gray-50/50">
+                                            <td class="px-3 py-2 text-center font-mono font-bold text-gray-400">A</td>
+                                            <td class="px-3 py-2 font-semibold text-gray-400">N°</td>
+                                            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500">IGNORADA</span></td>
+                                            <td class="px-3 py-2 text-gray-400 italic">—</td>
+                                            <td class="px-3 py-2 text-gray-400">Número correlativo de fila. Solo referencia visual.</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50/70">
+                                            <td class="px-3 py-2 text-center font-mono font-bold text-purple-700">B</td>
+                                            <td class="px-3 py-2 font-bold text-gray-900">DNI / N° Documento</td>
+                                            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700">REQUERIDO</span></td>
+                                            <td class="px-3 py-2 font-mono text-indigo-700">user.dni</td>
+                                            <td class="px-3 py-2 text-gray-600">DNI del estudiante. Si no existe en el sistema, se crea un usuario automáticamente con contraseña provisional.</td>
+                                        </tr>
+                                        <tr class="bg-gray-50/50">
+                                            <td class="px-3 py-2 text-center font-mono font-bold text-gray-400">C</td>
+                                            <td class="px-3 py-2 font-semibold text-gray-500">Apellidos y Nombres</td>
+                                            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500">REFERENCIA</span></td>
+                                            <td class="px-3 py-2 font-mono text-gray-400">user.names</td>
+                                            <td class="px-3 py-2 text-gray-500">Nombre de referencia. Si el usuario ya existe se conserva su nombre en base de datos.</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50/70">
+                                            <td class="px-3 py-2 text-center font-mono font-bold text-purple-700">D</td>
+                                            <td class="px-3 py-2 font-bold text-gray-900">Curso</td>
+                                            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700">REQUERIDO</span></td>
+                                            <td class="px-3 py-2 font-mono text-indigo-700">course_id</td>
+                                            <td class="px-3 py-2 text-gray-600">Nombre exacto del curso registrado en el sistema (búsqueda sin distinción de mayúsculas).</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50/70">
+                                            <td class="px-3 py-2 text-center font-mono font-bold text-purple-700">E</td>
+                                            <td class="px-3 py-2 font-semibold text-gray-800">Fecha de Inicio</td>
+                                            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-600">OPCIONAL</span></td>
+                                            <td class="px-3 py-2 font-mono text-gray-600">start_date</td>
+                                            <td class="px-3 py-2 text-gray-600">Fecha de inicio del curso en formato <code class="bg-gray-100 px-1 rounded">YYYY-MM-DD</code>.</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50/70">
+                                            <td class="px-3 py-2 text-center font-mono font-bold text-purple-700">F</td>
+                                            <td class="px-3 py-2 font-semibold text-gray-800">Fecha de Término</td>
+                                            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-600">OPCIONAL</span></td>
+                                            <td class="px-3 py-2 font-mono text-gray-600">end_date</td>
+                                            <td class="px-3 py-2 text-gray-600">Fecha de finalización del curso en formato <code class="bg-gray-100 px-1 rounded">YYYY-MM-DD</code>.</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50/70">
+                                            <td class="px-3 py-2 text-center font-mono font-bold text-purple-700">G</td>
+                                            <td class="px-3 py-2 font-bold text-gray-900">Fecha de Emisión</td>
+                                            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700">REQUERIDO</span></td>
+                                            <td class="px-3 py-2 font-mono text-indigo-700">issue_date</td>
+                                            <td class="px-3 py-2 text-gray-600">Fecha oficial de expedición del certificado en formato <code class="bg-gray-100 px-1 rounded">YYYY-MM-DD</code>.</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50/70">
+                                            <td class="px-3 py-2 text-center font-mono font-bold text-purple-700">H</td>
+                                            <td class="px-3 py-2 font-semibold text-gray-800">Horas</td>
+                                            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-600">OPCIONAL</span></td>
+                                            <td class="px-3 py-2 font-mono text-gray-600">duration</td>
+                                            <td class="px-3 py-2 text-gray-600">Carga horaria o duración. Ejemplo: "120 Horas".</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50/70">
+                                            <td class="px-3 py-2 text-center font-mono font-bold text-indigo-700">I</td>
+                                            <td class="px-3 py-2 font-semibold text-indigo-900">Calificación I (numérica)</td>
+                                            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700">OPCIONAL</span></td>
+                                            <td class="px-3 py-2 font-mono text-indigo-700">score (Módulo 1)</td>
+                                            <td class="px-3 py-2 text-gray-600">Nota numérica registrada en el primer módulo del curso según orden.</td>
+                                        </tr>
+                                        <tr class="bg-gray-50/50">
+                                            <td class="px-3 py-2 text-center font-mono font-bold text-gray-400">J</td>
+                                            <td class="px-3 py-2 font-semibold text-gray-400">Calificación Letras I</td>
+                                            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500">IGNORADA</span></td>
+                                            <td class="px-3 py-2 text-gray-400 italic">—</td>
+                                            <td class="px-3 py-2 text-gray-400">Nota en letras del módulo 1. No se almacena.</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50/70">
+                                            <td class="px-3 py-2 text-center font-mono font-bold text-indigo-700">K</td>
+                                            <td class="px-3 py-2 font-semibold text-indigo-900">Calificación II (numérica)</td>
+                                            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700">OPCIONAL</span></td>
+                                            <td class="px-3 py-2 font-mono text-indigo-700">score (Módulo 2)</td>
+                                            <td class="px-3 py-2 text-gray-600">Nota numérica registrada en el segundo módulo del curso según orden.</td>
+                                        </tr>
+                                        <tr class="bg-gray-50/50">
+                                            <td class="px-3 py-2 text-center font-mono font-bold text-gray-400">L</td>
+                                            <td class="px-3 py-2 font-semibold text-gray-400">Calificación Letras II</td>
+                                            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500">IGNORADA</span></td>
+                                            <td class="px-3 py-2 text-gray-400 italic">—</td>
+                                            <td class="px-3 py-2 text-gray-400">Nota en letras del módulo 2. No se almacena.</td>
+                                        </tr>
+                                        <tr class="bg-gray-50/50">
+                                            <td class="px-3 py-2 text-center font-mono font-bold text-gray-400">M</td>
+                                            <td class="px-3 py-2 font-semibold text-gray-400">Promedio</td>
+                                            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500">IGNORADA</span></td>
+                                            <td class="px-3 py-2 text-gray-400 italic">—</td>
+                                            <td class="px-3 py-2 text-gray-400">Promedio ponderado calculado automáticamente por el sistema.</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50/70">
+                                            <td class="px-3 py-2 text-center font-mono font-bold text-purple-700">N</td>
+                                            <td class="px-3 py-2 font-bold text-gray-900">Modalidad</td>
+                                            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700">REQUERIDO</span></td>
+                                            <td class="px-3 py-2 font-mono text-indigo-700">modality</td>
+                                            <td class="px-3 py-2 text-gray-600">Acepta exactamente: <code class="font-bold text-gray-700">Presencial</code>, <code class="font-bold text-gray-700">Virtual</code> o <code class="font-bold text-gray-700">Semipresencial</code>.</td>
+                                        </tr>
+                                        <tr class="hover:bg-purple-50/30">
+                                            <td class="px-3 py-2 text-center font-mono font-bold text-purple-700">O</td>
+                                            <td class="px-3 py-2 font-bold text-purple-900">Código</td>
+                                            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700">AUTO-CÓDIGO</span></td>
+                                            <td class="px-3 py-2 font-mono text-purple-700">code</td>
+                                            <td class="px-3 py-2 text-gray-600">Código identificador único. Si está vacío, se auto-genera como <code class="bg-purple-100 text-purple-800 px-1 py-0.5 rounded font-bold font-mono">CERT-{DNI}-{secuencia}</code>. Si se ingresa, se valida unicidad.</td>
+                                        </tr>
+                                        <tr class="hover:bg-emerald-50/40 bg-emerald-50/20">
+                                            <td class="px-3 py-2 text-center font-mono font-bold text-emerald-700">P</td>
+                                            <td class="px-3 py-2 font-extrabold text-emerald-950 flex items-center gap-1.5">
+                                                <i class="bi bi-star-fill text-emerald-600 text-[10px]"></i> Condición / Participación
+                                            </td>
+                                            <td class="px-3 py-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">OPCIONAL</span></td>
+                                            <td class="px-3 py-2 font-mono text-emerald-800 font-bold">participation_type</td>
+                                            <td class="px-3 py-2 text-gray-700">Rol o condición académica: <code class="bg-white border px-1 rounded font-bold text-blue-700">ASISTENTE</code>, <code class="bg-white border px-1 rounded font-bold text-purple-700">PONENTE</code>, <code class="bg-white border px-1 rounded font-bold text-emerald-700">ORGANIZADOR</code>, etc. Si está vacío se asigna <strong>ASISTENTE</strong>.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-2">
+                            <button type="button" @click="importTab = 'upload'"
+                                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow transition flex items-center gap-1.5">
+                                <i class="bi bi-arrow-left"></i> Volver a la Carga de Archivos
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -915,6 +1286,7 @@
             modalOpen: false,
             detailsModalOpen: false,
             importModalOpen: false,
+            importTab: 'upload',
             fileName: '',
             isEdit: false,
             updateUrl: '',

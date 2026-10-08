@@ -235,6 +235,14 @@ class Certificate extends Model
     }
 
     /**
+     * Permanent institutional verification URL (alias for validation_url).
+     */
+    public function getVerificationUrlAttribute(): string
+    {
+        return $this->validation_url;
+    }
+
+    /**
      * Generate vector SVG QR Code for verification.
      */
     public function getQrCodeSvgAttribute(): string

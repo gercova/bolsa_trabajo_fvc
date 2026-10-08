@@ -191,12 +191,24 @@ class CertificateFormatAndValidationTest extends TestCase
         $responseAlias = $this->get('/verify-certificate/CERT-71234567-99');
         $responseAlias->assertRedirect('/validar-certificado?code=CERT-71234567-99');
 
+        // verificar.certificado alias redirects to /validar-certificado?code=
+        $responseAliasEs = $this->get('/verificar-certificado/CERT-71234567-99');
+        $responseAliasEs->assertRedirect('/validar-certificado?code=CERT-71234567-99');
+
+        // route('verificar.certificado') generates valid URL
+        $this->assertEquals(
+            route('verificar.certificado', 'CERT-71234567-99'),
+            url('/verificar-certificado/CERT-71234567-99')
+        );
+        $this->assertEquals($customCert->validation_url, $customCert->verification_url);
+
         // Printable certificate renders QR code link pointing to validation_url
         $responsePrint = $this->get('/validar-certificado/'.$this->certificate->certificate_code.'/imprimir');
         $responsePrint->assertStatus(200);
         $responsePrint->assertSee($this->certificate->validation_url);
 
         $customCert->delete();
+
     }
 
     public function test_public_user_can_view_official_printable_certificate_document(): void

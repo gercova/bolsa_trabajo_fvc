@@ -443,6 +443,28 @@
             display: block;
         }
 
+        .hdr-qr {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .qr-box {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            background: #ffffff;
+            border-radius: 6px;
+        }
+
+        .qr-box svg,
+        .qr-box img {
+            width: 100% !important;
+            height: auto !important;
+            display: block;
+        }
+
         .cert-serial-code {
             font-family: 'Montserrat', monospace, sans-serif;
             font-size: 7.5pt;

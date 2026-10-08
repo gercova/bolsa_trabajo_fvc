@@ -276,11 +276,28 @@ class QrCodeService
         $isReserved[4 * $version + 9][8] = true;
 
         // 5. Reserve format info areas
+        // for ($i = 0; $i < 9; $i++) {
+        //     $isReserved[8][$i] = true;
+        //     $isReserved[$i][8] = true;
+        //     $isReserved[8][$size - 1 - $i] = true;
+        //     $isReserved[$size - 1 - $i][8] = true;
+        // }
         for ($i = 0; $i < 9; $i++) {
             $isReserved[8][$i] = true;
             $isReserved[$i][8] = true;
-            $isReserved[8][$size - 1 - $i] = true;
-            $isReserved[$size - 1 - $i][8] = true;
+        }
+        for ($i = 0; $i < 8; $i++) {
+            $isReserved[8][$size - 1 - $i] = true;   // columnas size-8 … size-1
+            $isReserved[$size - 1 - $i][8] = true;   // filas size-8 … size-1 (size-8 = módulo oscuro)
+        }
+
+        if ($version >= 7) {
+            for ($i = 0; $i < 6; $i++) {
+                for ($j = 0; $j < 3; $j++) {
+                    $isReserved[$i][$size - 11 + $j] = true;
+                    $isReserved[$size - 11 + $j][$i] = true;
+                }
+            }
         }
 
         // 6. Encode data + EC and place into matrix
@@ -410,6 +427,26 @@ class QrCodeService
         }
     }
 
+    protected static function placeVersionInfo(array &$matrix, int $version, int $size): void
+    {
+        if ($version < 7) {
+            return;
+        }
+        $rem = $version;
+        for ($i = 0; $i < 12; $i++) {
+            $rem = ($rem << 1) ^ (($rem >> 11) * 0x1F25);
+        }
+        $bits = ($version << 12) | $rem;
+
+        for ($i = 0; $i < 18; $i++) {
+            $bit = (($bits >> $i) & 1) === 1;
+            $a = $size - 11 + ($i % 3);
+            $b = intdiv($i, 3);
+            $matrix[$b][$a] = $bit;
+            $matrix[$a][$b] = $bit;
+        }
+    }
+
     /**
      * Render QR code as sharp, scalable SVG.
      */
@@ -417,7 +454,8 @@ class QrCodeService
     {
         $matrix = self::generateMatrix($text);
         $moduleCount = count($matrix);
-        $quietZone = 2; // quiet zone in modules
+        // $quietZone = 2; // quiet zone in modules
+        $quietZone = 4;
         $totalModules = $moduleCount + ($quietZone * 2);
 
         $path = '';

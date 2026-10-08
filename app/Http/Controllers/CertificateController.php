@@ -149,7 +149,8 @@ class CertificateController extends Controller
     /**
      * Display the specified certificate with its details (scores/modules).
      */
-    public function show(Certificate $certificate): JsonResponse {
+    public function show(Certificate $certificate): JsonResponse
+    {
         $certificate->load(['user', 'course.modules', 'details.module', 'studyProgram', 'course.studyProgram']);
 
         return response()->json($certificate);
@@ -158,7 +159,8 @@ class CertificateController extends Controller
     /**
      * Display the official printable certificate document with QR validation.
      */
-    public function print(Certificate $certificate): View {
+    public function print(Certificate $certificate): View
+    {
         $certificate->load([
             'user',
             'course.modules.itineraries',
@@ -177,7 +179,8 @@ class CertificateController extends Controller
     /**
      * Update the specified certificate.
      */
-    public function update(CertificateRequest $request, Certificate $certificate): RedirectResponse|JsonResponse {
+    public function update(CertificateRequest $request, Certificate $certificate): RedirectResponse|JsonResponse
+    {
         try {
             $data = $request->validated();
             $data['is_active'] = $request->boolean('is_active');
@@ -213,7 +216,8 @@ class CertificateController extends Controller
     /**
      * Remove the specified certificate.
      */
-    public function destroy(Certificate $certificate): RedirectResponse|JsonResponse {
+    public function destroy(Certificate $certificate): RedirectResponse|JsonResponse
+    {
         try {
             $code = $certificate->code ?: $certificate->certificate_code;
             $certificate->delete();
@@ -245,7 +249,8 @@ class CertificateController extends Controller
     /**
      * Remove the specified certificates in bulk.
      */
-    public function bulkDelete(Request $request): RedirectResponse|JsonResponse {
+    public function bulkDelete(Request $request): RedirectResponse|JsonResponse
+    {
         try {
             $ids = $request->input('ids', []);
 
@@ -320,7 +325,8 @@ class CertificateController extends Controller
     /**
      * Remove all certificates.
      */
-    public function deleteAll(Request $request): RedirectResponse|JsonResponse {
+    public function deleteAll(Request $request): RedirectResponse|JsonResponse
+    {
         try {
             $total = Certificate::count();
 
@@ -439,7 +445,8 @@ class CertificateController extends Controller
     /**
      * Remove a module detail from a certificate.
      */
-    public function destroyDetail(CertificateDetail $detail): RedirectResponse|JsonResponse {
+    public function destroyDetail(CertificateDetail $detail): RedirectResponse|JsonResponse
+    {
         try {
             $detail->delete();
 
@@ -470,7 +477,8 @@ class CertificateController extends Controller
      * Download a pre-filled template guide document for importing certificates.
      * Supports Excel (.xlsx, .xls) and CSV (.csv) formats.
      */
-    public function downloadTemplate(Request $request): BinaryFileResponse|StreamedResponse {
+    public function downloadTemplate(Request $request): BinaryFileResponse|StreamedResponse
+    {
         $format = strtolower((string) $request->query('format', 'csv'));
 
         if (in_array($format, ['xlsx', 'excel', 'xls'], true)) {
@@ -627,7 +635,8 @@ class CertificateController extends Controller
      *                                 M → Promedio (ignorado)
      *                                 N → Modalidad
      */
-    public function import(CertificateImportRequest $request): RedirectResponse {
+    public function import(CertificateImportRequest $request): RedirectResponse
+    {
         // ── Suppress iconv multibyte notices during PhpSpreadsheet file reading ──
         // PhpSpreadsheet's StringHelper uses iconv() internally when reading cells
         // that contain accented/special characters stored in non-UTF-8 encodings.

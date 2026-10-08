@@ -322,6 +322,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [CertificateController::class, 'store'])->name('store');
         Route::get('/plantilla', [CertificateController::class, 'downloadTemplate'])->name('template');
         Route::post('/importar', [CertificateController::class, 'import'])->name('import');
+        Route::post('/eliminar-masivo', [CertificateController::class, 'bulkDelete'])->name('bulk-delete');
+        Route::delete('/eliminar-todos', [CertificateController::class, 'deleteAll'])->name('delete-all');
+        Route::post('/eliminar-todos', [CertificateController::class, 'deleteAll'])->name('delete-all.post');
         Route::get('/{certificate}', [CertificateController::class, 'show'])->name('show');
         Route::get('/{certificate}/imprimir', [CertificateController::class, 'print'])->name('print');
         Route::put('/{certificate}', [CertificateController::class, 'update'])->name('update');

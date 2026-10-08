@@ -720,4 +720,155 @@ class CertificateFormatAndValidationTest extends TestCase
         Certificate::where('issue_date', '2026-12-26')->where('user_id', $student->id)->delete();
         $student->delete();
     }
+
+    public function test_admin_certificates_view_renders_checkboxes_and_bulk_delete_controls(): void
+    {
+        $response = $this->actingAs($this->adminUser)->get('/admin-certificados');
+
+        $response->assertStatus(200);
+        $response->assertSee('Eliminar Todos');
+        $response->assertSee('Eliminar Seleccionados');
+        $response->assertSee('toggleSelectAll');
+        $response->assertSee('selectedCerts');
+    }
+
+    public function test_bulk_delete_selected_certificates_successfully(): void
+    {
+        $cert1 = Certificate::create([
+            'certificate_code' => 'TEST-BULK-DEL-1',
+            'code' => 'TEST-BULK-DEL-1',
+            'user_id' => $this->certificate->user_id,
+            'course_id' => $this->certificate->course_id,
+            'certificate_type' => 'capacitacion',
+            'participation_type' => 'ASISTENTE',
+            'event_name' => 'Evento Test Bulk 1',
+            'start_date' => '2026-10-01',
+            'end_date' => '2026-10-02',
+            'duration' => '10 horas',
+            'modality' => 'Presencial',
+            'issue_date' => '2026-10-05',
+            'is_active' => true,
+        ]);
+
+        $cert2 = Certificate::create([
+            'certificate_code' => 'TEST-BULK-DEL-2',
+            'code' => 'TEST-BULK-DEL-2',
+            'user_id' => $this->certificate->user_id,
+            'course_id' => $this->certificate->course_id,
+            'certificate_type' => 'capacitacion',
+            'participation_type' => 'PONENTE',
+            'event_name' => 'Evento Test Bulk 2',
+            'start_date' => '2026-10-01',
+            'end_date' => '2026-10-02',
+            'duration' => '10 horas',
+            'modality' => 'Presencial',
+            'issue_date' => '2026-10-05',
+            'is_active' => true,
+        ]);
+
+        $certKeep = Certificate::create([
+            'certificate_code' => 'TEST-BULK-KEEP',
+            'code' => 'TEST-BULK-KEEP',
+            'user_id' => $this->certificate->user_id,
+            'course_id' => $this->certificate->course_id,
+            'certificate_type' => 'capacitacion',
+            'participation_type' => 'ORGANIZADOR',
+            'event_name' => 'Evento Test Bulk Keep',
+            'start_date' => '2026-10-01',
+            'end_date' => '2026-10-02',
+            'duration' => '10 horas',
+            'modality' => 'Presencial',
+            'issue_date' => '2026-10-05',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($this->adminUser)
+            ->post('/admin-certificados/eliminar-masivo', [
+                'ids' => [$cert1->id, $cert2->id],
+            ]);
+
+        $response->assertRedirect('/admin-certificados');
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseMissing('certificates', ['id' => $cert1->id]);
+        $this->assertDatabaseMissing('certificates', ['id' => $cert2->id]);
+        $this->assertDatabaseHas('certificates', ['id' => $certKeep->id]);
+
+        $certKeep->delete();
+    }
+
+    public function test_bulk_delete_via_json_request(): void
+    {
+        $cert = Certificate::create([
+            'certificate_code' => 'TEST-BULK-JSON',
+            'code' => 'TEST-BULK-JSON',
+            'user_id' => $this->certificate->user_id,
+            'course_id' => $this->certificate->course_id,
+            'certificate_type' => 'capacitacion',
+            'participation_type' => 'ASISTENTE',
+            'event_name' => 'Evento Test JSON',
+            'start_date' => '2026-10-01',
+            'end_date' => '2026-10-02',
+            'duration' => '10 horas',
+            'modality' => 'Presencial',
+            'issue_date' => '2026-10-05',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($this->adminUser)
+            ->postJson('/admin-certificados/eliminar-masivo', [
+                'ids' => [$cert->id],
+            ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'count' => 1,
+        ]);
+
+        $this->assertDatabaseMissing('certificates', ['id' => $cert->id]);
+    }
+
+    public function test_bulk_delete_validates_empty_selection(): void
+    {
+        $response = $this->actingAs($this->adminUser)
+            ->postJson('/admin-certificados/eliminar-masivo', [
+                'ids' => [],
+            ]);
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'Debe seleccionar al menos un certificado para eliminar.',
+        ]);
+    }
+
+    public function test_delete_all_certificates_successfully(): void
+    {
+        $this->assertGreaterThan(0, Certificate::count());
+
+        $response = $this->actingAs($this->adminUser)
+            ->deleteJson('/admin-certificados/eliminar-todos');
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+
+        $this->assertEquals(0, Certificate::count());
+    }
+
+    public function test_delete_all_certificates_when_database_is_empty(): void
+    {
+        Certificate::query()->delete();
+
+        $response = $this->actingAs($this->adminUser)
+            ->deleteJson('/admin-certificados/eliminar-todos');
+
+        $response->assertStatus(404);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'No hay certificados registrados para eliminar.',
+        ]);
+    }
 }

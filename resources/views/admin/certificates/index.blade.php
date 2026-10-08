@@ -238,6 +238,15 @@
                             Mostrando {{ $certificates->total() }} certificados registrados
                         </span>
                         <div class="flex items-center gap-2">
+                            @if ($totalCertificates > 0)
+                                {{-- Delete All Button --}}
+                                <button type="button" @click="deleteAllModalOpen = true"
+                                    class="inline-flex items-center gap-2 px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-800 border border-rose-200 hover:border-rose-300 rounded-xl text-sm font-bold shadow-xs transition-all cursor-pointer"
+                                    title="Eliminar todos los certificados del sistema">
+                                    <i class="bi bi-trash3 text-rose-600"></i>
+                                    <span class="hidden sm:inline">Eliminar Todos</span>
+                                </button>
+                            @endif
                             {{-- Import Button --}}
                             <button type="button" @click="importModalOpen = true"
                                 class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all">
@@ -249,6 +258,39 @@
                                 <i class="bi bi-plus-lg"></i> Nuevo Certificado
                             </button>
                         </div>
+                    </div>
+                </div>
+
+                {{-- Bulk Action Floating Bar --}}
+                <div x-show="selectedCerts.length > 0" x-cloak
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2"
+                    class="bg-slate-900 text-white p-4 rounded-2xl shadow-xl border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-600/30 border border-purple-500/30 text-purple-300 flex items-center justify-center text-lg font-bold">
+                            <i class="bi bi-check2-square"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-white flex items-center gap-2">
+                                <span class="px-2.5 py-0.5 rounded-full bg-purple-600 text-white text-xs font-black" x-text="selectedCerts.length"></span>
+                                <span>certificados seleccionados</span>
+                            </p>
+                            <p class="text-xs text-slate-400">Registros marcados para eliminación masiva</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2.5">
+                        <button type="button" @click="deselectAll()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition cursor-pointer">
+                            <i class="bi bi-x-circle mr-1"></i> Desmarcar todos
+                        </button>
+                        <button type="button" @click="bulkDeleteModalOpen = true" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-rose-600/30 hover:scale-105 active:scale-95 cursor-pointer">
+                            <i class="bi bi-trash-fill text-sm"></i>
+                            <span>Eliminar Seleccionados</span>
+                        </button>
                     </div>
                 </div>
 
@@ -276,6 +318,12 @@
                             <table class="min-w-full text-sm">
                                 <thead class="bg-gray-50 border-b border-gray-200">
                                     <tr>
+                                        <th class="p-4 w-12 text-center">
+                                            <input type="checkbox" @change="toggleSelectAll($event.target.checked)"
+                                                :checked="isAllSelected()"
+                                                class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 transition cursor-pointer"
+                                                title="Seleccionar todos los certificados de esta página">
+                                        </th>
                                         <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Código</th>
                                         <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estudiante / DNI</th>
                                         <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Curso</th>
@@ -287,7 +335,12 @@
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
                                     @foreach ($certificates as $cert)
-                                        <tr class="hover:bg-gray-50/80 transition-colors">
+                                        <tr class="hover:bg-gray-50/80 transition-colors"
+                                            :class="selectedCerts.map(Number).includes({{ $cert->id }}) ? 'bg-purple-50/70' : ''">
+                                            <td class="p-4 w-12 text-center">
+                                                <input type="checkbox" :value="{{ $cert->id }}" x-model.number="selectedCerts"
+                                                    class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 transition cursor-pointer">
+                                            </td>
                                             <td class="px-4 py-3 whitespace-nowrap">
                                                 <span class="font-mono font-bold text-purple-700 text-xs bg-purple-50 border border-purple-200 px-2 py-1 rounded-lg">
                                                     {{ $cert->certificate_code }}
@@ -1275,6 +1328,84 @@
             </div>
         </div>
 
+        {{-- ── Modal: Confirm Bulk Delete Selected ── --}}
+        <div x-show="bulkDeleteModalOpen" x-cloak
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-xs animate-fade-in"
+            @keydown.escape.window="bulkDeleteModalOpen = false">
+            <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-gray-100 overflow-hidden"
+                @click.outside="bulkDeleteModalOpen = false">
+                <div class="p-6 text-center">
+                    <div class="w-14 h-14 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl mx-auto mb-4 border border-rose-200">
+                        <i class="bi bi-trash3-fill"></i>
+                    </div>
+                    <h3 class="text-lg font-black text-gray-900 mb-2">Eliminar Certificados Seleccionados</h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        ¿Está seguro de que desea eliminar los <strong class="text-rose-600 font-extrabold" x-text="selectedCerts.length"></strong> certificados seleccionados?
+                    </p>
+                    <div class="bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs text-rose-800 text-left mb-6 flex items-start gap-2.5">
+                        <i class="bi bi-exclamation-triangle-fill text-rose-600 text-base shrink-0 mt-0.5"></i>
+                        <span>Esta acción eliminará de forma permanente los registros y sus calificaciones modulares asociadas. No se puede deshacer.</span>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3">
+                        <button type="button" @click="bulkDeleteModalOpen = false"
+                            class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-bold transition cursor-pointer">
+                            Cancelar
+                        </button>
+                        <form action="{{ route('admin.certificates.bulk-delete') }}" method="POST" class="inline">
+                            @csrf
+                            <template x-for="id in selectedCerts" :key="id">
+                                <input type="hidden" name="ids[]" :value="id">
+                            </template>
+                            <button type="submit"
+                                class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-600/30 transition flex items-center gap-2 cursor-pointer">
+                                <i class="bi bi-trash-fill"></i> Sí, eliminar seleccionados
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── Modal: Confirm Delete All Records ── --}}
+        <div x-show="deleteAllModalOpen" x-cloak
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-xs animate-fade-in"
+            @keydown.escape.window="deleteAllModalOpen = false">
+            <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-gray-100 overflow-hidden"
+                @click.outside="deleteAllModalOpen = false">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center text-3xl mx-auto mb-4 border border-red-200 animate-pulse">
+                        <i class="bi bi-exclamation-octagon-fill"></i>
+                    </div>
+                    <h3 class="text-xl font-black text-gray-900 mb-2">¿Eliminar TODOS los Certificados?</h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Está a punto de eliminar <strong class="text-red-600 font-extrabold">{{ number_format($totalCertificates) }}</strong> certificados registrados en la plataforma.
+                    </p>
+                    <div class="bg-red-50 border border-red-300 rounded-xl p-3.5 text-xs text-red-800 text-left mb-6 space-y-1">
+                        <p class="font-bold flex items-center gap-1.5 text-red-900">
+                            <i class="bi bi-exclamation-triangle-fill text-red-600"></i> ACCIÓN DE ALTO RIESGO
+                        </p>
+                        <p>Esta acción vaciará por completo la base de datos de certificados y sus calificaciones. No podrá recuperar esta información.</p>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3">
+                        <button type="button" @click="deleteAllModalOpen = false"
+                            class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-bold transition cursor-pointer">
+                            Cancelar
+                        </button>
+                        <form action="{{ route('admin.certificates.delete-all') }}" method="POST" class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md shadow-red-600/30 transition flex items-center gap-2 cursor-pointer">
+                                <i class="bi bi-trash3-fill"></i> Sí, eliminar TODOS los registros
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 @endsection
@@ -1286,12 +1417,37 @@
             modalOpen: false,
             detailsModalOpen: false,
             importModalOpen: false,
+            bulkDeleteModalOpen: false,
+            deleteAllModalOpen: false,
             importTab: 'upload',
             fileName: '',
             isEdit: false,
             updateUrl: '',
             activeCert: null,
             availableModules: [],
+            selectedCerts: [],
+            pageCertIds: @json($certificates->pluck('id')->values()->all()),
+
+            toggleSelectAll(checked) {
+                if (checked) {
+                    const currentSet = new Set(this.selectedCerts.map(Number));
+                    this.pageCertIds.forEach(id => currentSet.add(Number(id)));
+                    this.selectedCerts = Array.from(currentSet);
+                } else {
+                    const toRemove = new Set(this.pageCertIds.map(Number));
+                    this.selectedCerts = this.selectedCerts.filter(id => !toRemove.has(Number(id)));
+                }
+            },
+
+            isAllSelected() {
+                if (!this.pageCertIds.length) return false;
+                const currentSet = new Set(this.selectedCerts.map(Number));
+                return this.pageCertIds.every(id => currentSet.has(Number(id)));
+            },
+
+            deselectAll() {
+                this.selectedCerts = [];
+            },
             form: {
                 id: null,
                 user_id: '',

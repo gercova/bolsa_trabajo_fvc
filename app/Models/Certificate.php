@@ -56,6 +56,78 @@ class Certificate extends Model
     }
 
     /**
+     * Scope for filtering certificates by user (Model, ID or DNI).
+     */
+    public function scopeForUser(Builder $query, User|int|string $user): Builder
+    {
+        if ($user instanceof User) {
+            return $query->where('user_id', $user->id);
+        }
+
+        if (is_numeric($user)) {
+            return $query->where('user_id', (int) $user);
+        }
+
+        return $query->whereHas('user', fn ($q) => $q->where('dni', $user));
+    }
+
+    /**
+     * Find an existing duplicate certificate for the same user in the same event/course on the same date.
+     */
+    public static function findDuplicate(
+        int $userId,
+        int $courseId,
+        ?string $eventName = null,
+        ?string $issueDate = null,
+        ?string $startDate = null,
+        ?int $ignoreId = null
+    ): ?self {
+        $query = static::where('user_id', $userId);
+
+        if ($ignoreId) {
+            $query->where('id', '!=', $ignoreId);
+        }
+
+        $trimmedEvent = $eventName ? trim($eventName) : null;
+
+        $query->where(function (Builder $sub) use ($courseId, $trimmedEvent) {
+            $sub->where('course_id', $courseId);
+            if ($trimmedEvent !== null && $trimmedEvent !== '') {
+                $sub->orWhere(function (Builder $evSub) use ($trimmedEvent) {
+                    $evSub->whereNotNull('event_name')
+                        ->where('event_name', '!=', '')
+                        ->whereRaw('LOWER(TRIM(event_name)) = ?', [mb_strtolower($trimmedEvent, 'UTF-8')]);
+                });
+            }
+        });
+
+        if ($issueDate) {
+            $query->whereDate('issue_date', $issueDate);
+        } elseif ($startDate) {
+            $query->whereDate('start_date', $startDate);
+        }
+
+        return $query->first();
+    }
+
+    /**
+     * Generate a unique certificate code for a student DNI and course ID.
+     */
+    public static function generateUniqueCodeForStudent(string $dni, int $courseId): string
+    {
+        $baseCode = 'CERT-'.$dni.'-'.$courseId;
+        $code = $baseCode;
+        $counter = 1;
+
+        while (static::where('certificate_code', $code)->exists()) {
+            $counter++;
+            $code = $baseCode.'-'.$counter;
+        }
+
+        return $code;
+    }
+
+    /**
      * Relationship with Course.
      */
     public function course(): BelongsTo

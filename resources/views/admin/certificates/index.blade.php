@@ -294,7 +294,15 @@
                                                 </span>
                                             </td>
                                             <td class="px-4 py-3">
-                                                <div class="font-bold text-gray-800">{{ $cert->user?->names ?? 'Usuario no asignado' }}</div>
+                                                <div class="flex items-center gap-1.5 flex-wrap">
+                                                    <span class="font-bold text-gray-800">{{ $cert->user?->names ?? 'Usuario no asignado' }}</span>
+                                                    @if (($cert->user?->certificates_count ?? 0) > 1)
+                                                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 rounded-full"
+                                                            title="Este estudiante posee {{ $cert->user->certificates_count }} certificados registrados">
+                                                            <i class="bi bi-collection"></i> {{ $cert->user->certificates_count }} certs
+                                                        </span>
+                                                    @endif
+                                                </div>
                                                 <div class="text-xs text-gray-500 font-mono">DNI: {{ $cert->user?->dni ?? 'N/A' }}</div>
                                             </td>
                                             <td class="px-4 py-3">

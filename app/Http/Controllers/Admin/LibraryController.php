@@ -116,7 +116,6 @@ class LibraryController extends Controller
      */
     public function edit(Book $book): JsonResponse {
         $book->load('studyProgram');
-
         return response()->json([
             'success' => true,
             'data'    => [
@@ -236,10 +235,9 @@ class LibraryController extends Controller
         $search       = $request->query('q', '');
 
         // 1. Core KPIs
-        $totalUniqueReaders = LibraryAccessLog::whereNotNull('user_id')->distinct('user_id')->count('user_id');
-        $totalAccessSessions = LibraryAccessLog::count();
-
-        $activeTeachersCount = LibraryAccessLog::join('users', 'library_access_logs.user_id', '=', 'users.id')
+        $totalUniqueReaders     = LibraryAccessLog::whereNotNull('user_id')->distinct('user_id')->count('user_id');
+        $totalAccessSessions    = LibraryAccessLog::count();
+        $activeTeachersCount    = LibraryAccessLog::join('users', 'library_access_logs.user_id', '=', 'users.id')
             ->where('users.role', 'Docente')
             ->distinct('users.id')
             ->count('users.id');

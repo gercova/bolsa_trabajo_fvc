@@ -121,11 +121,7 @@ class CertificateImport implements ToCollection, WithChunkReading, WithStartRow
 
             $courseId = $course->id;
 
-            // ── 3. Auto-generate certificate code ────────────────────────────
-            // Convention: CERT-{student DNI}-{course ID}
-            $code = 'CERT-'.$dni.'-'.$courseId;
-
-            // ── 4. Parse remaining fields ─────────────────────────────────────
+            // ── 3. Parse fields ──────────────────────────────────────────────
             $startDate = $this->parseDate($row[4] ?? null);
             $endDate = $this->parseDate($row[5] ?? null);
             $issueDate = $this->parseDate($row[6] ?? null) ?? now()->toDateString();
@@ -133,26 +129,43 @@ class CertificateImport implements ToCollection, WithChunkReading, WithStartRow
             $duration = $horasRaw !== null ? $horasRaw.' Horas' : null;
             $modality = $this->parseModality($this->cleanString($row[13] ?? null));
 
-            // ── 5. Create or update certificate ──────────────────────────────
+            // ── 4. Check for duplicate certificate (same user, same event/course, same date) ──
+            $duplicate = Certificate::findDuplicate(
+                userId: $userId,
+                courseId: $courseId,
+                eventName: $course->event_name,
+                issueDate: $issueDate,
+                startDate: $startDate
+            );
+
+            if ($duplicate) {
+                $this->errors[] = "Fila {$rowNum}: Certificado duplicado omitido. El estudiante con DNI '{$dni}' ya cuenta con un certificado para el curso/evento '{$course->name}' en la fecha {$issueDate} (Código existente: {$duplicate->certificate_code}).";
+                $this->skippedCount++;
+
+                continue;
+            }
+
+            // ── 5. Generate unique certificate code (allows student to hold multiple certificates) ──
+            $code = Certificate::generateUniqueCodeForStudent($dni, $courseId);
+
+            // ── 6. Create certificate ─────────────────────────────────────────
             try {
-                $certificate = Certificate::updateOrCreate(
-                    ['certificate_code' => $code],
-                    [
-                        'user_id' => $userId,
-                        'course_id' => $courseId,
-                        'certificate_type' => $course->certificate_type ?? 'capacitacion',
-                        'participation_type' => 'ASISTENTE',
-                        'event_name' => $course->event_name,
-                        'study_program_id' => $course->study_program_id,
-                        'description' => $course->description,
-                        'start_date' => $startDate,
-                        'end_date' => $endDate,
-                        'duration' => $duration,
-                        'modality' => $modality,
-                        'issue_date' => $issueDate,
-                        'is_active' => true,
-                    ]
-                );
+                $certificate = Certificate::create([
+                    'certificate_code' => $code,
+                    'user_id' => $userId,
+                    'course_id' => $courseId,
+                    'certificate_type' => $course->certificate_type ?? 'capacitacion',
+                    'participation_type' => 'ASISTENTE',
+                    'event_name' => $course->event_name,
+                    'study_program_id' => $course->study_program_id,
+                    'description' => $course->description,
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
+                    'duration' => $duration,
+                    'modality' => $modality,
+                    'issue_date' => $issueDate,
+                    'is_active' => true,
+                ]);
 
                 $this->importedCount++;
 

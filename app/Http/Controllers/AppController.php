@@ -38,23 +38,25 @@ use Illuminate\Support\Facades\DB;
 class AppController extends Controller
 {
     // inicio
-    public function index(): View {
-        $programs       = StudyProgram::where('is_active', true)->orderBy('order', 'asc')->orderBy('name', 'asc')->with(['meta'])->get();
-        $partners       = Partner::where('is_active', true)->get();
-        $jobOffers      = JobOffer::where('is_active', true)->get();
-        $users          = User::where('is_active', true)->get();
-        $blogs          = Blog::where('is_published', true)->latest()->take(3)->get();
-        $carousels      = InstitutionalCarousel::with('image')->active()->ordered()->get();
-        $totalVisits    = VisitorCounter::getTotalVisits();
-        $visitDigits    = VisitorCounter::getPaddedDigits($totalVisits, 6);
+    public function index(): View
+    {
+        $programs = StudyProgram::where('is_active', true)->orderBy('order', 'asc')->orderBy('name', 'asc')->with(['meta'])->get();
+        $partners = Partner::where('is_active', true)->get();
+        $jobOffers = JobOffer::where('is_active', true)->get();
+        $users = User::where('is_active', true)->get();
+        $blogs = Blog::where('is_published', true)->latest()->take(3)->get();
+        $carousels = InstitutionalCarousel::with('image')->active()->ordered()->get();
+        $totalVisits = VisitorCounter::getTotalVisits();
+        $visitDigits = VisitorCounter::getPaddedDigits($totalVisits, 6);
 
         return view('home', compact('partners', 'jobOffers', 'users', 'programs', 'blogs', 'carousels', 'totalVisits', 'visitDigits'));
     }
 
     // admision-y-matricula/cepre-fvc
-    public function ceprefvc(): View {
-        $currentYear     = now()->year;
-        $projectedYear   = $currentYear + 1;
+    public function ceprefvc(): View
+    {
+        $currentYear = now()->year;
+        $projectedYear = $currentYear + 1;
         $projectedPeriod = $projectedYear.'-I';
         // Filter projected CEPRE schedule (e.g. 2027-I when in 2026)
         $exams = Admission::where('process', 'cepre')
@@ -81,15 +83,16 @@ class AppController extends Controller
                 ->get();
         }
 
-        $requirements   = AdmissionRequirement::where('is_active', true)->get();
-        $enterprise     = Enterprise::first();
-        $cepreImage     = Image::where('imageable_type', 'cepre')->where('imageable_id', 1)->first();
+        $requirements = AdmissionRequirement::where('is_active', true)->get();
+        $enterprise = Enterprise::first();
+        $cepreImage = Image::where('imageable_type', 'cepre')->where('imageable_id', 1)->first();
 
         return view('admission.cepre-fvc', compact('exams', 'requirements', 'enterprise', 'cepreImage', 'projectedPeriod'));
     }
 
     // admision-y-matricula/examen-de-admision
-    public function admissionExam(): View {
+    public function admissionExam(): View
+    {
         // Dinámica de período proyectado (ej. para el año 2026 proyecta 2027-I)
         $projectedPeriod = (now()->year + 1).'-I';
 
@@ -146,9 +149,9 @@ class AppController extends Controller
             ->orderBy('id', 'desc')
             ->first();
 
-        $requirements   = AdmissionRequirement::where('is_active', true)->get();
-        $enterprise     = Enterprise::first();
-        $admisionImage  = Image::where('imageable_type', 'admision')->where('imageable_id', 1)->first();
+        $requirements = AdmissionRequirement::where('is_active', true)->get();
+        $enterprise = Enterprise::first();
+        $admisionImage = Image::where('imageable_type', 'admision')->where('imageable_id', 1)->first();
 
         return view('admission.admission-exam', compact(
             'exams',
@@ -165,7 +168,8 @@ class AppController extends Controller
     }
 
     // admision-y-matricula/matriculas
-    public function enrollments(): View {
+    public function enrollments(): View
+    {
         // New dedicated enrollment schedules (ordinaria / extraordinaria)
         $schedules = EnrollmentSchedule::with('details.program')
             ->where('is_active', true)
@@ -187,17 +191,18 @@ class AppController extends Controller
     }
 
     // admision-y-matriculas/becas-y-creditos
-    public function scholarshipsAndCredits(): View {
-        $scholarships   = Scholarship::active()->ordered()->get();
+    public function scholarshipsAndCredits(): View
+    {
+        $scholarships = Scholarship::active()->ordered()->get();
         $totalScholarshipVacancies = $scholarships->sum('vacancies');
-        $enterprise     = Enterprise::first();
-        $beneficiaries  = ScholarshipBeneficiary::active()
+        $enterprise = Enterprise::first();
+        $beneficiaries = ScholarshipBeneficiary::active()
             ->with('scholarship')
             ->ordered()
             ->get();
 
-        $beneficiariesByPeriod  = $beneficiaries->groupBy('academic_period');
-        $beneficiaryPeriods     = $beneficiariesByPeriod->keys();
+        $beneficiariesByPeriod = $beneficiaries->groupBy('academic_period');
+        $beneficiaryPeriods = $beneficiariesByPeriod->keys();
 
         return view('admission.scholarships-and-credits', compact(
             'scholarships',
@@ -210,7 +215,8 @@ class AppController extends Controller
     }
 
     // programas-de-estudios
-    public function studyPrograms(): View {
+    public function studyPrograms(): View
+    {
         $programs = StudyProgram::where('is_active', true)
             ->orderBy('order', 'asc')
             ->orderBy('name', 'asc')
@@ -221,7 +227,8 @@ class AppController extends Controller
     }
 
     // programas-de-estudios/{program:slug}
-    public function program(StudyProgram $program): View {
+    public function program(StudyProgram $program): View
+    {
         $program->load([
             'images',
             'modules' => fn ($q) => $q->where('is_active', true),
@@ -235,7 +242,8 @@ class AppController extends Controller
     }
 
     // transparencia/documentos-de-gestion
-    public function documentsManagement(): View {
+    public function documentsManagement(): View
+    {
         $documents = ManagementDocument::where('is_active', true)
             ->orderBy('id', 'asc')
             ->get();
@@ -245,13 +253,14 @@ class AppController extends Controller
     }
 
     // transparencia/estadisticas
-    public function statistics(): View {
+    public function statistics(): View
+    {
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
         // ── 1. Indicadores Generales (KPIs) ──────────────────────────
-        $totalMatriculas    = StudentRecord::where('record_type', 'MATRICULA')->count();
-        $totalAdmisiones    = StudentRecord::where('record_type', 'ADMISION')->count();
-        $totalTitulos       = DegreeRecord::count();
-        $totalProgramas     = StudyProgram::where('is_active', true)->count();
+        $totalMatriculas = StudentRecord::where('record_type', 'MATRICULA')->count();
+        $totalAdmisiones = StudentRecord::where('record_type', 'ADMISION')->count();
+        $totalTitulos = DegreeRecord::count();
+        $totalProgramas = StudyProgram::where('is_active', true)->count();
         if ($totalProgramas === 0) {
             $totalProgramas = StudentRecord::whereNotNull('study_program')->distinct('study_program')->count('study_program');
         }
@@ -335,7 +344,7 @@ class AppController extends Controller
             ->orderBy('study_program', 'asc')
             ->get();
 
-        $admissionByPeriod      = $admissionRaw->groupBy('academic_period');
+        $admissionByPeriod = $admissionRaw->groupBy('academic_period');
         $admissionPeriodSummary = StudentRecord::where('record_type', 'ADMISION')
             ->whereNotNull('academic_period')
             ->select(
@@ -432,20 +441,22 @@ class AppController extends Controller
     }
 
     // transparencia/inversion-y-gestion
-    public function managementReports(Request $request): View {
+    public function managementReports(Request $request): View
+    {
         return app(AccountBalanceController::class)->publicIndex($request);
     }
 
     // transparencia/licenciamiento
-    public function licensment(): View {
-        $enterprise     = Enterprise::first();
-        $phases         = LicensingPhase::active()->ordered()->get();
-        $currentPhase   = LicensingPhase::currentStage();
-        $cbcPhase       = $phases->firstWhere('phase_number', 1) ?? $phases->first();
+    public function licensment(): View
+    {
+        $enterprise = Enterprise::first();
+        $phases = LicensingPhase::active()->ordered()->get();
+        $currentPhase = LicensingPhase::currentStage();
+        $cbcPhase = $phases->firstWhere('phase_number', 1) ?? $phases->first();
 
-        $totalPhases        = $phases->count();
-        $completedPhases    = $phases->where('status', 'completed')->count();
-        $globalProgress     = $totalPhases > 0
+        $totalPhases = $phases->count();
+        $completedPhases = $phases->where('status', 'completed')->count();
+        $globalProgress = $totalPhases > 0
             ? round($phases->avg('progress_percentage'))
             : 0;
 
@@ -461,12 +472,15 @@ class AppController extends Controller
     }
 
     // transparencia/libro-de-reclamaciones
-    public function complaintsBook(): View {
+    public function complaintsBook(): View
+    {
         $enterprise = Enterprise::first();
+
         return view('transparency.complaints-book', compact('enterprise'));
     }
 
-    public function storeClaim(ClaimValidate $request): RedirectResponse {
+    public function storeClaim(ClaimValidate $request): RedirectResponse
+    {
         $validated = $request->validated();
 
         if ($request->hasFile('file_path')) {
@@ -480,19 +494,22 @@ class AppController extends Controller
     }
 
     // tramites/mesa-de-partes
-    public function partsTable(): View {
+    public function partsTable(): View
+    {
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
+
         return view('procedures.parts-table', compact('enterprise'));
     }
 
     // tramites/tupa
-    public function tupa(): View {
-        $enterprise     = Enterprise::first();
-        $currentTupa    = Tupa::where('is_active', true)
+    public function tupa(): View
+    {
+        $enterprise = Enterprise::first();
+        $currentTupa = Tupa::where('is_active', true)
             ->orderBy('effective_start_date', 'desc')
             ->first();
 
-        $tupaHistory    = Tupa::where('is_active', true)
+        $tupaHistory = Tupa::where('is_active', true)
             ->orderBy('effective_start_date', 'desc')
             ->get();
 
@@ -531,24 +548,30 @@ class AppController extends Controller
     }
 
     // nosotros/quienes-somos
-    public function whoWeAre(): View {
+    public function whoWeAre(): View
+    {
         $enterprise = Enterprise::get();
+
         return view('aboutus.who-we-are', compact('enterprise'));
     }
 
     // nosotros/historia
-    public function history(): View {
+    public function history(): View
+    {
         $histories = HistoricalReview::where('is_active', true)->orderBy('order', 'asc')->get();
+
         return view('aboutus.history', compact('histories'));
     }
 
     // nosotros/organigrama-institucional
-    public function institutionalOrganizationChart(): View {
+    public function institutionalOrganizationChart(): View
+    {
         return view('aboutus.institutional-organization-chart');
     }
 
     // nosotros/plana-jerarquica
-    public function hierarchicalStaff(): View {
+    public function hierarchicalStaff(): View
+    {
         $enterprise = Enterprise::first();
         // 1. Alta Dirección (Director General)
         $director = User::where('is_active', true)
@@ -590,7 +613,8 @@ class AppController extends Controller
     }
 
     // nosotros/plana-de-docentes
-    public function teachersStaff(): View {
+    public function teachersStaff(): View
+    {
         $teacherDetails = UserRoleDetail::with(['user', 'program'])
             ->where('is_active', true)
             ->whereHas('user', function ($q) {
@@ -627,9 +651,10 @@ class AppController extends Controller
     }
 
     // nosotros/plana-administrativa
-    public function administrativeStaff(): View {
+    public function administrativeStaff(): View
+    {
         $enterprise = Enterprise::first();
-        $staffs     = User::where('is_active', true)
+        $staffs = User::where('is_active', true)
             ->where(function ($q) {
                 $q->whereIn('role', ['Administrativo', 'Admin'])
                     ->orWhere('job_position', 'LIKE', '%Administrador%')
@@ -649,10 +674,11 @@ class AppController extends Controller
     }
 
     // nosotros/consejo-de-estudiantes
-    public function studentCouncil(): View {
+    public function studentCouncil(): View
+    {
         $enterprise = Enterprise::first();
         // Obtener períodos académicos disponibles
-        $periods    = StudentCouncil::where('is_active', true)
+        $periods = StudentCouncil::where('is_active', true)
             ->select('academic_period')
             ->distinct()
             ->orderBy('academic_period', 'desc')
@@ -666,14 +692,15 @@ class AppController extends Controller
             ->get();
 
         // Clasificar directiva principal y secretarías
-        $board      = $members->filter(function ($m) {
-            $pos    = mb_strtolower($m->position, 'UTF-8');
+        $board = $members->filter(function ($m) {
+            $pos = mb_strtolower($m->position, 'UTF-8');
 
             return str_contains($pos, 'presidente') || str_contains($pos, 'vicepresidente') || str_contains($pos, 'vice presidente');
         })->values();
 
-        $secretaries    = $members->reject(function ($m) {
-            $pos        = mb_strtolower($m->position, 'UTF-8');
+        $secretaries = $members->reject(function ($m) {
+            $pos = mb_strtolower($m->position, 'UTF-8');
+
             return str_contains($pos, 'presidente') || str_contains($pos, 'vicepresidente') || str_contains($pos, 'vice presidente');
         })->values();
 
@@ -688,14 +715,17 @@ class AppController extends Controller
     }
 
     // nosotros/locales
-    public function locales(): View {
+    public function locales(): View
+    {
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
-        $programs   = StudyProgram::where('is_active', true)->get();
+        $programs = StudyProgram::where('is_active', true)->get();
+
         return view('aboutus.locals', compact('enterprise', 'programs'));
     }
 
     // bolsa-de-trabajo
-    public function offers(Request $request): View {
+    public function offers(Request $request): View
+    {
         $enterprise = Enterprise::first();
         $search = $request->input('search');
         $selectedLocation = $request->input('location');
@@ -755,9 +785,11 @@ class AppController extends Controller
         ));
     }
 
-    public function institutionalLinks(): View {
+    public function institutionalLinks(): View
+    {
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
-        $links      = ExternalInstitutionalLink::where('is_active', true)->get();
+        $links = ExternalInstitutionalLink::where('is_active', true)->get();
+
         return view('services.institutional-links', compact('enterprise', 'links'));
     }
 
@@ -766,28 +798,96 @@ class AppController extends Controller
      * Validates certificates issued by the institution via QR code or certificate_code / DNI.
      * Presents consolidated summary tables grouped by Year, Academic Period, and Study Programs / Courses.
      */
-    public function validateCertificate(?string $certificate_code = null, ?Request $request = null): View {
-        $enterprise     = Enterprise::first() ?? Enterprise::getDefault();
-        $request        = $request ?? request();
+    public function validateCertificate(?string $certificate_code = null, ?Request $request = null): View
+    {
+        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
+        $request = $request ?? request();
         // 1. Search code resolution (from URL route parameter or query string)
-        $searchCode     = trim((string) ($certificate_code ?: $request->input('code') ?: $request->input('search') ?: $request->input('dni') ?: ''));
-        $certificate    = null;
-        $searched       = false;
+        $searchCode = trim((string) ($certificate_code ?: $request->input('code') ?: $request->input('search') ?: $request->input('dni') ?: ''));
+        $certificate = null;
+        $certificates = collect();
+        $searchedUser = null;
+        $searchedByDni = false;
+        $searched = false;
+
         if ($searchCode !== '') {
             $searched = true;
-            $certificate = Certificate::with([
+
+            $withRelations = [
                 'user',
+                'course.modules.itineraries',
                 'course.modules',
+                'course.itineraries',
+                'studyProgram',
+                'course.studyProgram',
                 'details.module',
-            ])
-                ->where(function ($q) use ($searchCode) {
-                    $q->where('certificate_code', $searchCode)
-                        ->orWhere('certificate_code', 'LIKE', $searchCode)
-                        ->orWhereHas('user', function ($uq) use ($searchCode) {
-                            $uq->where('dni', $searchCode);
-                        });
-                })
-                ->first();
+            ];
+
+            // 1.1 Check if searching by user DNI directly
+            $matchedUser = User::where('dni', $searchCode)->first();
+
+            if ($matchedUser) {
+                $searchedByDni = true;
+                $searchedUser = $matchedUser;
+                $certificates = Certificate::with($withRelations)
+                    ->where('user_id', $matchedUser->id)
+                    ->orderByDesc('issue_date')
+                    ->orderByDesc('id')
+                    ->get();
+
+                $selectedCode = $request->input('selected');
+                $certificate = ($selectedCode ? $certificates->firstWhere('certificate_code', $selectedCode) : null)
+                    ?? $certificates->first();
+            } else {
+                // 1.2 Search by certificate code
+                $certByCode = Certificate::with($withRelations)
+                    ->where('certificate_code', $searchCode)
+                    ->first();
+
+                if ($certByCode) {
+                    $certificate = $certByCode;
+                    $searchedUser = $certByCode->user;
+                    if ($certByCode->user_id) {
+                        $certificates = Certificate::with($withRelations)
+                            ->where('user_id', $certByCode->user_id)
+                            ->orderByDesc('issue_date')
+                            ->orderByDesc('id')
+                            ->get();
+                    } else {
+                        $certificates = collect([$certByCode]);
+                    }
+                } else {
+                    // 1.3 Fallback partial match
+                    $fallbackCerts = Certificate::with($withRelations)
+                        ->where(function ($q) use ($searchCode) {
+                            $q->where('certificate_code', 'LIKE', "%{$searchCode}%")
+                                ->orWhereHas('user', function ($uq) use ($searchCode) {
+                                    $uq->where('dni', 'LIKE', "%{$searchCode}%");
+                                });
+                        })
+                        ->orderByDesc('issue_date')
+                        ->orderByDesc('id')
+                        ->get();
+
+                    if ($fallbackCerts->isNotEmpty()) {
+                        $firstCert = $fallbackCerts->first();
+                        if ($firstCert->user && ($firstCert->user->dni === $searchCode || str_contains($firstCert->user->dni, $searchCode))) {
+                            $searchedByDni = true;
+                            $searchedUser = $firstCert->user;
+                            $certificates = Certificate::with($withRelations)
+                                ->where('user_id', $firstCert->user_id)
+                                ->orderByDesc('issue_date')
+                                ->orderByDesc('id')
+                                ->get();
+                            $certificate = $certificates->first();
+                        } else {
+                            $certificates = $fallbackCerts;
+                            $certificate = $firstCert;
+                            $searchedUser = $firstCert->user;
+                        }
+                    }
+                }
+            }
 
             if ($certificate) {
                 // Increment view/download counter silently
@@ -866,15 +966,18 @@ class AppController extends Controller
             ->get();
 
         // 6. Overall KPI metrics
-        $totalCertificates  = Certificate::count();
-        $validCertificates  = Certificate::where('is_active', true)->count();
-        $totalStudents      = Certificate::distinct('user_id')->count('user_id');
-        $totalCourses       = Course::where('is_active', true)->count();
-        $totalHours         = Certificate::whereNotNull('duration')->count();
+        $totalCertificates = Certificate::count();
+        $validCertificates = Certificate::where('is_active', true)->count();
+        $totalStudents = Certificate::distinct('user_id')->count('user_id');
+        $totalCourses = Course::where('is_active', true)->count();
+        $totalHours = Certificate::whereNotNull('duration')->count();
 
         return view('services.validate-certificate', compact(
             'enterprise',
             'certificate',
+            'certificates',
+            'searchedUser',
+            'searchedByDni',
             'searchCode',
             'searched',
             'yearsSummary',
@@ -892,7 +995,8 @@ class AppController extends Controller
     /**
      * Public print/view view for official verifiable certificates.
      */
-    public function printCertificate(string $certificate_code): View {
+    public function printCertificate(string $certificate_code): View
+    {
         $certificate = Certificate::with([
             'user',
             'course.modules.itineraries',

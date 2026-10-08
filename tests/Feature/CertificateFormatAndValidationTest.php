@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Imports\CertificateImport;
 use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\StudyProgram;
@@ -303,5 +304,175 @@ class CertificateFormatAndValidationTest extends TestCase
         $response->assertSee('Demostrative Pronuons A.N.I form');
         $response->assertSee('Catorce');
         $response->assertSee('Ver Certificado Oficial (Formato Original)');
+    }
+
+    public function test_user_can_hold_multiple_certificates_and_relationship_works(): void
+    {
+        $student = User::where('dni', '71234567')->firstOrFail();
+
+        Certificate::where('issue_date', '2026-10-05')->where('user_id', $student->id)->delete();
+
+        $secondCourse = Course::firstOrCreate(
+            ['name' => 'TALLER DE CIBERSEGURIDAD Y REDES'],
+            [
+                'certificate_type' => 'capacitacion',
+                'event_name' => 'Semana Técnica 2026',
+                'is_active' => true,
+            ]
+        );
+
+        $secondCert = Certificate::create([
+            'certificate_code' => Certificate::generateUniqueCodeForStudent($student->dni, $secondCourse->id),
+            'user_id' => $student->id,
+            'course_id' => $secondCourse->id,
+            'certificate_type' => 'capacitacion',
+            'participation_type' => 'ASISTENTE',
+            'event_name' => 'Semana Técnica 2026',
+            'issue_date' => '2026-10-05',
+            'is_active' => true,
+        ]);
+
+        $this->assertGreaterThanOrEqual(2, $student->certificates()->count());
+        $this->assertTrue($student->certificates->contains('id', $this->certificate->id));
+        $this->assertTrue($student->certificates->contains('id', $secondCert->id));
+
+        $userCerts = Certificate::forUser($student)->get();
+        $this->assertGreaterThanOrEqual(2, $userCerts->count());
+    }
+
+    public function test_certificate_find_duplicate_identifies_matching_event_course_and_date(): void
+    {
+        $duplicate = Certificate::findDuplicate(
+            userId: $this->certificate->user_id,
+            courseId: $this->certificate->course_id,
+            eventName: $this->certificate->event_name,
+            issueDate: $this->certificate->issue_date,
+            startDate: $this->certificate->start_date
+        );
+
+        $this->assertNotNull($duplicate);
+        $this->assertEquals($this->certificate->id, $duplicate->id);
+
+        $notDuplicateDifferentDate = Certificate::findDuplicate(
+            userId: $this->certificate->user_id,
+            courseId: $this->certificate->course_id,
+            eventName: $this->certificate->event_name,
+            issueDate: '2026-12-01',
+            startDate: $this->certificate->start_date
+        );
+        $this->assertNull($notDuplicateDifferentDate);
+    }
+
+    public function test_manual_registration_validates_and_rejects_duplicate_certificate(): void
+    {
+        $response = $this->actingAs($this->adminUser)->post('/admin-certificados', [
+            'user_id' => $this->certificate->user_id,
+            'course_id' => $this->certificate->course_id,
+            'event_name' => $this->certificate->event_name,
+            'issue_date' => $this->certificate->issue_date,
+            'certificate_code' => 'CERT-TEST-DUP-01',
+            'modality' => 'Presencial',
+            'certificate_type' => 'capacitacion',
+        ]);
+
+        $response->assertSessionHasErrors(['user_id']);
+    }
+
+    public function test_bulk_import_skips_duplicate_certificate_rows_and_creates_valid_ones(): void
+    {
+        $student = User::where('dni', '71234567')->firstOrFail();
+        $course = Course::find($this->certificate->course_id);
+
+        Certificate::where('issue_date', '2026-11-10')->where('user_id', $student->id)->delete();
+
+        $import = new CertificateImport;
+
+        // Row with duplicate data forJose Chavez: same DNI, same course name, same issue date
+        $duplicateRow = [
+            0 => 1,
+            1 => $student->dni,
+            2 => $student->names,
+            3 => $course->name,
+            4 => '2026-09-21',
+            5 => '2026-09-24',
+            6 => $this->certificate->issue_date,
+            7 => '90',
+            8 => '16',
+            9 => 'Dieciséis',
+            10 => '17',
+            11 => 'Diecisiete',
+            12 => '16.5',
+            13 => 'Presencial',
+        ];
+
+        // Row with different date for the same student and course -> should succeed with unique code
+        $validRow = [
+            0 => 2,
+            1 => $student->dni,
+            2 => $student->names,
+            3 => $course->name,
+            4 => '2026-11-01',
+            5 => '2026-11-05',
+            6 => '2026-11-10',
+            7 => '40',
+            8 => '18',
+            9 => 'Dieciocho',
+            10 => '19',
+            11 => 'Diecinueve',
+            12 => '18.5',
+            13 => 'Virtual',
+        ];
+
+        $rows = collect([$duplicateRow, $validRow]);
+        $import->collection($rows);
+
+        $this->assertEquals(1, $import->skippedCount);
+        $this->assertNotEmpty($import->errors);
+        $this->assertStringContainsString('Certificado duplicado omitido', $import->errors[0]);
+        $this->assertEquals(1, $import->importedCount);
+    }
+
+    public function test_validar_certificado_by_dni_displays_all_certificates_when_user_has_multiple(): void
+    {
+        $student = User::where('dni', '71234567')->firstOrFail();
+
+        Certificate::where('certificate_code', 'CERT-IA-2026-TEST')->delete();
+
+        $secondCourse = Course::firstOrCreate(
+            ['name' => 'SEMINARIO DE INTELIGENCIA ARTIFICIAL'],
+            [
+                'certificate_type' => 'capacitacion',
+                'event_name' => 'Seminario IA 2026',
+                'is_active' => true,
+            ]
+        );
+
+        $secondCert = Certificate::create([
+            'certificate_code' => 'CERT-IA-2026-TEST',
+            'user_id' => $student->id,
+            'course_id' => $secondCourse->id,
+            'certificate_type' => 'capacitacion',
+            'participation_type' => 'ASISTENTE',
+            'event_name' => 'Seminario IA 2026',
+            'issue_date' => '2026-10-06',
+            'is_active' => true,
+        ]);
+
+        // Search by DNI via route parameter
+        $response = $this->get('/validar-certificado/'.$student->dni);
+
+        $response->assertStatus(200);
+        $response->assertSee($student->names);
+        $response->assertSee($this->certificate->certificate_code);
+        $response->assertSee($secondCert->certificate_code);
+        $response->assertSee('Certificados Disponibles');
+        $response->assertSee('Certificados del estudiante');
+
+        // Search by DNI via query parameter (?code=...)
+        $responseQuery = $this->get('/validar-certificado?code='.$student->dni);
+        $responseQuery->assertStatus(200);
+        $responseQuery->assertSee($student->names);
+        $responseQuery->assertSee($this->certificate->certificate_code);
+        $responseQuery->assertSee($secondCert->certificate_code);
     }
 }

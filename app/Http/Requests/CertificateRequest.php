@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Certificate;
+use App\Models\Course;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -10,6 +12,43 @@ class CertificateRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            $userId = (int) $this->input('user_id');
+            $courseId = (int) $this->input('course_id');
+            $issueDate = $this->input('issue_date');
+            $eventName = $this->input('event_name');
+            $startDate = $this->input('start_date');
+
+            $certParam = $this->route('certificate');
+            $certId = is_object($certParam) ? $certParam->id : ($this->certificate ?? null);
+
+            if ($userId && $courseId && $issueDate) {
+                if (empty($eventName)) {
+                    $eventName = Course::where('id', $courseId)->value('event_name');
+                }
+
+                $duplicate = Certificate::findDuplicate(
+                    userId: $userId,
+                    courseId: $courseId,
+                    eventName: $eventName,
+                    issueDate: $issueDate,
+                    startDate: $startDate,
+                    ignoreId: $certId ? (int) $certId : null
+                );
+
+                if ($duplicate) {
+                    $courseName = $duplicate->course?->name ?? 'mismo curso';
+                    $validator->errors()->add(
+                        'user_id',
+                        "El estudiante ya cuenta con un certificado registrado para este evento/curso ({$courseName}) en la misma fecha ({$issueDate}). Código registrado: {$duplicate->certificate_code}."
+                    );
+                }
+            }
+        });
     }
 
     public function rules(): array

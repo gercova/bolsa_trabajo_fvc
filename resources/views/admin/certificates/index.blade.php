@@ -406,7 +406,7 @@
                                                         title="Ver / Imprimir Certificado Oficial">
                                                         <i class="bi bi-printer text-base"></i>
                                                     </a>
-                                                    <a href="{{ route('validar-certificado', $cert->certificate_code) }}" target="_blank"
+                                                    <a href="{{ $cert->validation_url }}" target="_blank"
                                                         class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                                         title="Validación Pública QR">
                                                         <i class="bi bi-qr-code text-base"></i>

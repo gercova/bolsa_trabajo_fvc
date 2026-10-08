@@ -227,7 +227,9 @@ class Certificate extends Model
      */
     public function getValidationUrlAttribute(): string
     {
-        return url('/validar-certificado/'.$this->certificate_code);
+        $code = $this->code ?: $this->certificate_code;
+
+        return url('/validar-certificado?code='.$code);
     }
 
     /**

@@ -963,7 +963,7 @@
                     <button type="button" class="btn btn-tab" onclick="switchCertView('back', this)">Reverso</button>
                 </div>
             @endif
-            <a href="{{ route('validar-certificado', $certificate->certificate_code) }}" target="_blank"
+            <a href="{{ $certificate->validation_url }}" target="_blank"
                 class="btn btn-secondary">
                 <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

@@ -126,7 +126,7 @@ class CertificateFormatAndValidationTest extends TestCase
     {
         $this->assertTrue($this->certificate->isTraining());
         $this->assertNotEmpty($this->certificate->validation_url);
-        $this->assertStringContainsString('005-2026-ST-FVC', $this->certificate->validation_url);
+        $this->assertStringContainsString('validar-certificado?code=005-2026-ST-FVC', $this->certificate->validation_url);
         $this->assertStringContainsString('del 21 al 24 de setiembre', $this->certificate->formatted_date_range);
         $this->assertStringContainsString('Uchiza, 30 de setiembre', $this->certificate->formatted_issue_date);
 
@@ -144,6 +144,50 @@ class CertificateFormatAndValidationTest extends TestCase
         $response->assertSee('005-2026-ST-FVC');
         $response->assertSee('Temario y Contenidos Desarrollados');
         $response->assertSee('Ver Certificado Oficial (Formato Original)');
+    }
+
+    public function test_qr_code_link_points_to_validar_certificado_with_query_code(): void
+    {
+        $expectedUrl = url('/validar-certificado?code='.$this->certificate->certificate_code);
+        $this->assertEquals($expectedUrl, $this->certificate->validation_url);
+
+        // QR Code SVG encodes the validation URL
+        $svg = $this->certificate->qr_code_svg;
+        $this->assertNotEmpty($svg);
+        $this->assertStringContainsString('<svg', $svg);
+
+        // Scanning QR redirects / navigates to the validation view with ?code=
+        $response = $this->get('/validar-certificado?code='.$this->certificate->certificate_code);
+        $response->assertStatus(200);
+        $response->assertSee('JOSE DANIEL CHAVEZ HERRERA');
+        $response->assertSee('005-2026-ST-FVC');
+        $response->assertSee('Semana Técnica 2026');
+
+        // Works also when certificate has custom code field
+        $customCert = Certificate::create([
+            'code' => 'CERT-71234567-99',
+            'certificate_code' => 'CERT-71234567-99',
+            'user_id' => $this->certificate->user_id,
+            'course_id' => $this->certificate->course_id,
+            'certificate_type' => 'capacitacion',
+            'participation_type' => 'PONENTE',
+            'event_name' => 'Semana Técnica 2026 Especial',
+            'start_date' => '2026-09-21',
+            'end_date' => '2026-09-24',
+            'duration' => '90 horas',
+            'modality' => 'Presencial',
+            'issue_date' => '2026-09-30',
+            'is_active' => true,
+        ]);
+
+        $this->assertEquals(url('/validar-certificado?code=CERT-71234567-99'), $customCert->validation_url);
+
+        $responseCustom = $this->get('/validar-certificado?code=CERT-71234567-99');
+        $responseCustom->assertStatus(200);
+        $responseCustom->assertSee('CERT-71234567-99');
+        $responseCustom->assertSee('Semana Técnica 2026 Especial');
+
+        $customCert->delete();
     }
 
     public function test_public_user_can_view_official_printable_certificate_document(): void

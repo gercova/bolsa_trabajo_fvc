@@ -74,7 +74,7 @@
             @if($certificate)
             ,{
                 "@type": "EducationalOccupationalCredential",
-                "@id": "{{ url('/validar-certificado/' . $certificate->certificate_code) }}#credential",
+                "@id": "{{ $certificate->validation_url }}#credential",
                 "name": "{{ $certificate->course->name ?? 'Certificación Modular' }}",
                 "credentialCategory": "Certificado de Aprobación Modular",
                 "identifier": "{{ $certificate->certificate_code }}",
@@ -772,7 +772,7 @@
                                 <div class="print-only border-t border-slate-200 pt-3 text-[8.5pt] text-slate-500 space-y-1">
                                     <div class="flex justify-between items-center">
                                         <span><strong>Enlace Permanente de Verificación:</strong>
-                                            {{ url('/validar-certificado/' . $cItem->certificate_code) }}</span>
+                                            {{ $cItem->validation_url }}</span>
                                         <span><strong>Fecha y Hora de Consulta:</strong>
                                             {{ now()->format('d/m/Y H:i:s') }}</span>
                                     </div>
@@ -797,7 +797,7 @@
                                             <i class="bi bi-printer-fill"></i>
                                             <span>Imprimir Ficha</span>
                                         </button>
-                                        <button type="button" @click="copyValidationLink('{{ url('/validar-certificado/' . $cItem->certificate_code) }}')"
+                                        <button type="button" @click="copyValidationLink('{{ $cItem->validation_url }}')"
                                             class="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-all inline-flex items-center gap-2">
                                             <i class="bi"
                                                 :class="copiedLink ? 'bi-check2 text-emerald-600' : 'bi-link-45deg'"></i>

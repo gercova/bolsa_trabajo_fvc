@@ -15,7 +15,8 @@
 @endphp
 @section('title', $pageTitle)
 @section('meta_description', $metaDesc)
-@section('meta_keywords', 'validar certificado, verificar certificado qr, certificacion modular, iestp francisco vigo
+@section('meta_keywords',
+    'validar certificado, verificar certificado qr, certificacion modular, iestp francisco vigo
     caballero, uchiza, minedu, acreditacion academica, notas modulares')
 @section('canonical_url', url()->current())
 
@@ -310,27 +311,35 @@
         {{-- ═══ CERTIFICATE VALIDATION RESULT (IF SEARCHED) ═══════════════ --}}
         @if ($searched)
             @php
-                $certList = (isset($certificates) && $certificates->isNotEmpty())
-                    ? $certificates
-                    : ($certificate ? collect([$certificate]) : collect());
+                $certList =
+                    isset($certificates) && $certificates->isNotEmpty()
+                        ? $certificates
+                        : ($certificate
+                            ? collect([$certificate])
+                            : collect());
             @endphp
             <div class="certificate-result-wrapper max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20 mb-12">
                 @if ($certList->isNotEmpty())
 
                     {{-- ── MULTI-CERTIFICATE SELECTOR BANNER (WHEN USER HOLDS MULTIPLE CERTIFICATES) ── --}}
                     @if ($certList->count() > 1)
-                        <div class="no-print bg-white rounded-3xl shadow-xl border border-indigo-100 p-5 sm:p-6 mb-6 animate-fade-in">
-                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                        <div
+                            class="no-print bg-white rounded-3xl shadow-xl border border-indigo-100 p-5 sm:p-6 mb-6 animate-fade-in">
+                            <div
+                                class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
                                 <div class="flex items-center gap-3 sm:gap-4">
-                                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center text-2xl shadow-md shrink-0">
+                                    <div
+                                        class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center text-2xl shadow-md shrink-0">
                                         <i class="bi bi-person-badge-fill"></i>
                                     </div>
                                     <div>
                                         <div class="flex flex-wrap items-center gap-2">
-                                            <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-100">
+                                            <span
+                                                class="text-xs font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-100">
                                                 Estudiante / Titular
                                             </span>
-                                            <span class="text-xs font-mono font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                                            <span
+                                                class="text-xs font-mono font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
                                                 DNI: {{ $searchedUser?->dni ?? ($certificate?->user?->dni ?? $searchCode) }}
                                             </span>
                                         </div>
@@ -340,7 +349,8 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2 self-end sm:self-center">
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold">
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold">
                                         <i class="bi bi-patch-check-fill text-purple-600"></i>
                                         {{ $certList->count() }} Certificados Disponibles
                                     </span>
@@ -348,28 +358,35 @@
                             </div>
 
                             <div class="pt-4 space-y-3">
-                                <p class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                                    <i class="bi bi-collection-fill text-indigo-500"></i> Certificados del estudiante — Seleccione para ver el detalle oficial:
+                                <p
+                                    class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                                    <i class="bi bi-collection-fill text-indigo-500"></i> Certificados del estudiante —
+                                    Seleccione para ver el detalle oficial:
                                 </p>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                     @foreach ($certList as $item)
                                         <div role="button" tabindex="0"
                                             @click="activeCertCode = '{{ $item->certificate_code }}'"
                                             :class="activeCertCode === '{{ $item->certificate_code }}'
-                                                ? 'ring-2 ring-indigo-500 bg-indigo-50/70 border-indigo-300 shadow-sm'
-                                                : 'bg-slate-50/70 hover:bg-slate-100 border-slate-200'"
+                                                ?
+                                                'ring-2 ring-indigo-500 bg-indigo-50/70 border-indigo-300 shadow-sm' :
+                                                'bg-slate-50/70 hover:bg-slate-100 border-slate-200'"
                                             class="cursor-pointer p-4 rounded-2xl border transition-all text-left flex flex-col justify-between group">
                                             <div class="space-y-2">
                                                 <div class="flex items-center justify-between gap-2">
                                                     <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md"
-                                                        :class="activeCertCode === '{{ $item->certificate_code }}' ? 'bg-indigo-600 text-white' : 'bg-slate-200/80 text-slate-700'">
+                                                        :class="activeCertCode === '{{ $item->certificate_code }}' ?
+                                                            'bg-indigo-600 text-white' :
+                                                            'bg-slate-200/80 text-slate-700'">
                                                         {{ $item->certificate_code }}
                                                     </span>
-                                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $item->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
+                                                    <span
+                                                        class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $item->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
                                                         {{ $item->is_active ? 'Válido' : 'Inactivo' }}
                                                     </span>
                                                 </div>
-                                                <h4 class="text-xs font-bold text-slate-800 line-clamp-2 group-hover:text-indigo-700 transition-colors">
+                                                <h4
+                                                    class="text-xs font-bold text-slate-800 line-clamp-2 group-hover:text-indigo-700 transition-colors">
                                                     {{ $item->course?->name ?? 'Curso Modular Institucional' }}
                                                 </h4>
                                                 <p class="text-[11px] text-slate-500">
@@ -377,11 +394,15 @@
                                                     • {{ $item->modality }}
                                                 </p>
                                             </div>
-                                            <div class="mt-3 pt-2.5 border-t border-slate-200/70 flex items-center justify-between text-[11px] text-slate-500">
-                                                <span><i class="bi bi-calendar3"></i> {{ $item->issue_date ? \Carbon\Carbon::parse($item->issue_date)->format('d/m/Y') : '—' }}</span>
+                                            <div
+                                                class="mt-3 pt-2.5 border-t border-slate-200/70 flex items-center justify-between text-[11px] text-slate-500">
+                                                <span><i class="bi bi-calendar3"></i>
+                                                    {{ $item->issue_date ? \Carbon\Carbon::parse($item->issue_date)->format('d/m/Y') : '—' }}</span>
                                                 <span class="text-indigo-600 font-semibold flex items-center gap-1">
-                                                    <span x-show="activeCertCode === '{{ $item->certificate_code }}'" class="font-bold text-indigo-700">Viendo ahora</span>
-                                                    <span x-show="activeCertCode !== '{{ $item->certificate_code }}'">Ver Ficha</span>
+                                                    <span x-show="activeCertCode === '{{ $item->certificate_code }}'"
+                                                        class="font-bold text-indigo-700">Viendo ahora</span>
+                                                    <span x-show="activeCertCode !== '{{ $item->certificate_code }}'">Ver
+                                                        Ficha</span>
                                                     <i class="bi bi-arrow-right-short text-base"></i>
                                                 </span>
                                             </div>
@@ -460,7 +481,8 @@
                             {{-- Card Body --}}
                             <div class="print-card-body p-6 sm:p-8 space-y-6 sm:space-y-8 bg-white">
                                 {{-- Main Certificate Header Data --}}
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center border-b border-slate-100 pb-5">
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center border-b border-slate-100 pb-5">
                                     <div class="md:col-span-2 space-y-2">
                                         <div
                                             class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold">
@@ -468,7 +490,8 @@
                                             Código Oficial: <span
                                                 class="font-mono font-black text-indigo-900">{{ $cItem->certificate_code }}</span>
                                         </div>
-                                        <h3 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 font-display">
+                                        <h3
+                                            class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 font-display">
                                             {{ $cItem->course->name ?? 'CURSO MODULAR INSTITUCIONAL' }}
                                         </h3>
                                         <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -478,16 +501,18 @@
                                     {{-- QR and Stamp Badge --}}
                                     <div
                                         class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-xs">
-                                        <div
-                                            class="w-40 h-40 rounded-xl bg-white border border-slate-200 shadow-inner p-1 flex items-center justify-center mb-1.5 overflow-hidden">
+                                        <a href="{{ $cItem->validation_url }}" target="_blank"
+                                            class="w-40 h-40 rounded-xl bg-white border border-slate-200 shadow-inner p-1 flex items-center justify-center mb-1.5 overflow-hidden hover:opacity-90 transition-opacity block"
+                                            title="Escanear o hacer clic para verificar certificado">
                                             <div class="w-full h-full [&>svg]:w-full [&>svg]:h-full [&>svg]:block">
                                                 {!! $cItem->qr_code_svg !!}
                                             </div>
-                                        </div>
+                                        </a>
                                         <span class="text-[10px] font-bold text-slate-700">Verificación Digital QR</span>
                                         <span
                                             class="text-[9px] text-slate-400 font-mono mt-0.5">{{ $cItem->certificate_code }}</span>
-                                        <span class="text-[9px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                                        <span
+                                            class="text-[9px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
                                             <i class="bi bi-shield-check"></i> Sello Institucional
                                         </span>
                                     </div>
@@ -559,13 +584,15 @@
                                             </span>
                                         </div>
 
-                                        <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs bg-white">
+                                        <div
+                                            class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs bg-white">
                                             <div class="overflow-x-auto">
                                                 <table class="w-full text-left border-collapse text-xs">
                                                     <thead>
                                                         <tr
                                                             class="bg-slate-50 border-b border-slate-200 text-slate-700 font-extrabold uppercase text-[10px] sm:text-[11px] tracking-wider text-center">
-                                                            <th class="px-4 py-3 text-left w-[46%]">Módulos y Contenidos</th>
+                                                            <th class="px-4 py-3 text-left w-[46%]">Módulos y Contenidos
+                                                            </th>
                                                             <th class="px-3 py-3 w-[12%]">N° Créditos</th>
                                                             <th class="px-3 py-3 w-[10%]">Calificación<br><span
                                                                     class="text-[9px] text-slate-400 font-normal">En
@@ -637,7 +664,8 @@
                                             </h4>
                                             <span
                                                 class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
-                                                <i class="bi bi-check-circle-fill text-[9px] mr-1"></i> Curso de Capacitación
+                                                <i class="bi bi-check-circle-fill text-[9px] mr-1"></i> Curso de
+                                                Capacitación
                                                 Aprobado
                                             </span>
                                         </div>
@@ -685,7 +713,8 @@
                                             <span class="text-[11px] text-slate-500">Escala vigesimal (0 a 20)</span>
                                         </div>
 
-                                        <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs bg-white">
+                                        <div
+                                            class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs bg-white">
                                             <table class="w-full text-left border-collapse text-xs">
                                                 <thead>
                                                     <tr
@@ -769,7 +798,8 @@
                                     </div>
                                 @endif
                                 {{-- Official Print Footer Notes (Visible in Print) --}}
-                                <div class="print-only border-t border-slate-200 pt-3 text-[8.5pt] text-slate-500 space-y-1">
+                                <div
+                                    class="print-only border-t border-slate-200 pt-3 text-[8.5pt] text-slate-500 space-y-1">
                                     <div class="flex justify-between items-center">
                                         <span><strong>Enlace Permanente de Verificación:</strong>
                                             {{ $cItem->validation_url }}</span>
@@ -778,7 +808,8 @@
                                     </div>
                                     <p class="text-[8pt] text-slate-400 italic">
                                         * Constancia de verificación emitida electrónicamente por el IESTP Francisco Vigo
-                                        Caballero de conformidad con la Ley General de Educación N° 28044 y normas del MINEDU.
+                                        Caballero de conformidad con la Ley General de Educación N° 28044 y normas del
+                                        MINEDU.
                                     </p>
                                 </div>
 
@@ -797,11 +828,13 @@
                                             <i class="bi bi-printer-fill"></i>
                                             <span>Imprimir Ficha</span>
                                         </button>
-                                        <button type="button" @click="copyValidationLink('{{ $cItem->validation_url }}')"
+                                        <button type="button"
+                                            @click="copyValidationLink('{{ $cItem->validation_url }}')"
                                             class="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-all inline-flex items-center gap-2">
                                             <i class="bi"
                                                 :class="copiedLink ? 'bi-check2 text-emerald-600' : 'bi-link-45deg'"></i>
-                                            <span x-text="copiedLink ? '¡Enlace Copiado!' : 'Copiar Enlace Directo'"></span>
+                                            <span
+                                                x-text="copiedLink ? '¡Enlace Copiado!' : 'Copiar Enlace Directo'"></span>
                                         </button>
                                     </div>
                                     <a href="{{ route('validar-certificado') }}"

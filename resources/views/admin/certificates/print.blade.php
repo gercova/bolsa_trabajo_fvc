@@ -1222,9 +1222,12 @@
                     <!-- Left Column: Official Verification QR Code -->
                     <div class="english-qr-column">
                         <div class="english-qr-card">
-                            <div class="english-qr-svg-wrapper">
+                            <a href="{{ $certificate->validation_url }}" target="_blank"
+                                class="english-qr-svg-wrapper block"
+                                style="text-decoration: none; color: inherit;"
+                                title="Escanear o hacer clic para verificar certificado">
                                 {!! $certificate->qr_code_svg !!}
-                            </div>
+                            </a>
                             <div class="english-qr-code-text">{{ $certificate->certificate_code }}</div>
                             <div class="english-qr-caption">ESCANEAR PARA VALIDAR</div>
                         </div>
@@ -1433,9 +1436,12 @@
                 <!-- ── Bottom Area: QR in Bottom-Right Corner & Certificate Code ── -->
                 <footer class="cert-bottom-bar">
                     <div class="qr-corner-container">
-                        <div class="qr-svg-wrapper">
+                        <a href="{{ $certificate->validation_url }}" target="_blank"
+                            class="qr-svg-wrapper block"
+                            style="text-decoration: none; color: inherit;"
+                            title="Escanear o hacer clic para verificar certificado">
                             {!! $certificate->qr_code_svg !!}
-                        </div>
+                        </a>
                         <span class="cert-serial-code">{{ $certificate->certificate_code }}</span>
                     </div>
                 </footer>

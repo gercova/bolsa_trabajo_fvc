@@ -33,6 +33,7 @@ use App\Http\Controllers\StudyProgramsController;
 use App\Http\Controllers\TeacherRoleController;
 use App\Http\Controllers\TupaController;
 use App\Http\Controllers\UsersController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AppController::class, 'index'])->name('inicio');
@@ -76,6 +77,10 @@ Route::get('/servicios/bolsa-de-trabajo', [AppController::class, 'offers'])->nam
 // Validación de Certificados (QR / Código / Resúmenes estadísticos)
 Route::get('/validar-certificado/{certificate_code?}', [AppController::class, 'validateCertificate'])->name('validar-certificado');
 Route::get('/validar-certificado/{certificate_code}/imprimir', [AppController::class, 'printCertificate'])->name('validar-certificado.print');
+Route::get('/verify-certificate/{certificate_code?}', function (?string $certificate_code, Request $request) {
+    $code = $certificate_code ?: $request->input('code');
+    return redirect()->route('validar-certificado', array_filter(['code' => $code]));
+})->name('verify.certificate');
 
 // Links institucionales
 Route::get('/servicios/enlaces-institucionales', [AppController::class, 'institutionalLinks'])->name('enlaces-institucionales');
@@ -83,9 +88,9 @@ Route::get('/servicios/enlaces-institucionales', [AppController::class, 'institu
 // Ruta de respaldo para servir archivos de almacenamiento (en entornos compartidos o sin enlace simbólico funcional)
 Route::get('/storage/{path}', function (string $path) {
     $publicDiskPath = storage_path('app/public');
-    $targetPath = $publicDiskPath.'/'.$path;
+    $targetPath     = $publicDiskPath.'/'.$path;
     $realPublicDisk = realpath($publicDiskPath);
-    $realTarget = realpath($targetPath);
+    $realTarget     = realpath($targetPath);
 
     if (! $realTarget || ! $realPublicDisk || ! str_starts_with($realTarget, $realPublicDisk) || ! is_file($realTarget)) {
         abort(404);
@@ -94,7 +99,7 @@ Route::get('/storage/{path}', function (string $path) {
     $mime = mime_content_type($realTarget) ?: 'application/octet-stream';
 
     return response()->file($realTarget, [
-        'Content-Type' => $mime,
+        'Content-Type'  => $mime,
         'Cache-Control' => 'public, max-age=86400',
     ]);
 })->where('path', '.*')->name('storage.fallback');
@@ -106,21 +111,21 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::prefix('admin-perfil')->name('admin.profile.')->group(function () {
-        Route::get('/{user?}', [ProfileController::class, 'edit'])->name('edit');
-        Route::put('/{user?}', [ProfileController::class, 'update'])->name('update');
-        Route::patch('/{user?}', [ProfileController::class, 'update'])->name('update.patch');
-        Route::delete('/{user?}', [ProfileController::class, 'destroy'])->name('destroy');
+        Route::get('/{user?}',      [ProfileController::class, 'edit'])->name('edit');
+        Route::put('/{user?}',      [ProfileController::class, 'update'])->name('update');
+        Route::patch('/{user?}',    [ProfileController::class, 'update'])->name('update.patch');
+        Route::delete('/{user?}',   [ProfileController::class, 'destroy'])->name('destroy');
     });
 
     // blogs
     Route::prefix('admin-blogs')->name('admin.blogs.')->group(function () {
-        Route::get('/', [BlogController::class, 'index'])->name('index');
-        Route::get('/crear-blog', [BlogController::class, 'create'])->name('create');
-        Route::post('/guardar', [BlogController::class, 'store'])->name('store');
-        Route::get('/editar-blog/{blog}', [BlogController::class, 'edit'])->name('edit');
-        Route::put('/editar-blog/{blog}', [BlogController::class, 'update'])->name('update');
-        Route::delete('/{blog}', [BlogController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{blog}', [BlogController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/',                     [BlogController::class, 'index'])->name('index');
+        Route::get('/crear-blog',           [BlogController::class, 'create'])->name('create');
+        Route::post('/guardar',             [BlogController::class, 'store'])->name('store');
+        Route::get('/editar-blog/{blog}',   [BlogController::class, 'edit'])->name('edit');
+        Route::put('/editar-blog/{blog}',   [BlogController::class, 'update'])->name('update');
+        Route::delete('/{blog}',            [BlogController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{blog}',      [BlogController::class, 'toggleStatus'])->name('toggle-status');
     });
 
     // examenes, matrículas

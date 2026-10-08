@@ -674,8 +674,7 @@ class AppController extends Controller
     }
 
     // nosotros/consejo-de-estudiantes
-    public function studentCouncil(): View
-    {
+    public function studentCouncil(): View {
         $enterprise = Enterprise::first();
         // Obtener períodos académicos disponibles
         $periods = StudentCouncil::where('is_active', true)
@@ -715,21 +714,18 @@ class AppController extends Controller
     }
 
     // nosotros/locales
-    public function locales(): View
-    {
+    public function locales(): View {
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
-        $programs = StudyProgram::where('is_active', true)->get();
-
+        $programs   = StudyProgram::where('is_active', true)->get();
         return view('aboutus.locals', compact('enterprise', 'programs'));
     }
 
     // bolsa-de-trabajo
-    public function offers(Request $request): View
-    {
-        $enterprise = Enterprise::first();
-        $search = $request->input('search');
-        $selectedLocation = $request->input('location');
-        $selectedSource = $request->input('source');
+    public function offers(Request $request): View {
+        $enterprise         = Enterprise::first();
+        $search             = $request->input('search');
+        $selectedLocation   = $request->input('location');
+        $selectedSource     = $request->input('source');
 
         $jobs = JobOffer::where('is_active', true)
             ->when($search, function ($q, $search) {
@@ -785,11 +781,9 @@ class AppController extends Controller
         ));
     }
 
-    public function institutionalLinks(): View
-    {
+    public function institutionalLinks(): View {
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
-        $links = ExternalInstitutionalLink::where('is_active', true)->get();
-
+        $links      = ExternalInstitutionalLink::where('is_active', true)->get();
         return view('services.institutional-links', compact('enterprise', 'links'));
     }
 
@@ -798,17 +792,16 @@ class AppController extends Controller
      * Validates certificates issued by the institution via QR code or certificate_code / DNI.
      * Presents consolidated summary tables grouped by Year, Academic Period, and Study Programs / Courses.
      */
-    public function validateCertificate(?string $certificate_code = null, ?Request $request = null): View
-    {
-        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
-        $request = $request ?? request();
+    public function validateCertificate(?string $certificate_code = null, ?Request $request = null): View {
+        $enterprise     = Enterprise::first() ?? Enterprise::getDefault();
+        $request        = $request ?? request();
         // 1. Search code resolution (from URL route parameter or query string)
-        $searchCode = trim((string) ($certificate_code ?: $request->input('code') ?: $request->input('search') ?: $request->input('dni') ?: ''));
-        $certificate = null;
-        $certificates = collect();
-        $searchedUser = null;
-        $searchedByDni = false;
-        $searched = false;
+        $searchCode     = trim((string) ($certificate_code ?: $request->input('code') ?: $request->input('search') ?: $request->input('dni') ?: ''));
+        $certificate    = null;
+        $certificates   = collect();
+        $searchedUser   = null;
+        $searchedByDni  = false;
+        $searched       = false;
 
         if ($searchCode !== '') {
             $searched = true;
@@ -827,9 +820,9 @@ class AppController extends Controller
             $matchedUser = User::where('dni', $searchCode)->first();
 
             if ($matchedUser) {
-                $searchedByDni = true;
-                $searchedUser = $matchedUser;
-                $certificates = Certificate::with($withRelations)
+                $searchedByDni  = true;
+                $searchedUser   = $matchedUser;
+                $certificates   = Certificate::with($withRelations)
                     ->where('user_id', $matchedUser->id)
                     ->orderByDesc('issue_date')
                     ->orderByDesc('id')
@@ -876,9 +869,9 @@ class AppController extends Controller
                     if ($fallbackCerts->isNotEmpty()) {
                         $firstCert = $fallbackCerts->first();
                         if ($firstCert->user && ($firstCert->user->dni === $searchCode || str_contains($firstCert->user->dni, $searchCode))) {
-                            $searchedByDni = true;
-                            $searchedUser = $firstCert->user;
-                            $certificates = Certificate::with($withRelations)
+                            $searchedByDni  = true;
+                            $searchedUser   = $firstCert->user;
+                            $certificates   = Certificate::with($withRelations)
                                 ->where('user_id', $firstCert->user_id)
                                 ->orderByDesc('issue_date')
                                 ->orderByDesc('id')
@@ -970,11 +963,11 @@ class AppController extends Controller
             ->get();
 
         // 6. Overall KPI metrics
-        $totalCertificates = Certificate::count();
-        $validCertificates = Certificate::where('is_active', true)->count();
-        $totalStudents = Certificate::distinct('user_id')->count('user_id');
-        $totalCourses = Course::where('is_active', true)->count();
-        $totalHours = Certificate::whereNotNull('duration')->count();
+        $totalCertificates  = Certificate::count();
+        $validCertificates  = Certificate::where('is_active', true)->count();
+        $totalStudents      = Certificate::distinct('user_id')->count('user_id');
+        $totalCourses       = Course::where('is_active', true)->count();
+        $totalHours         = Certificate::whereNotNull('duration')->count();
 
         return view('services.validate-certificate', compact(
             'enterprise',
@@ -999,8 +992,7 @@ class AppController extends Controller
     /**
      * Public print/view view for official verifiable certificates.
      */
-    public function printCertificate(string $certificate_code): View
-    {
+    public function printCertificate(string $certificate_code): View {
         $certificate = Certificate::with([
             'user',
             'course.modules.itineraries',

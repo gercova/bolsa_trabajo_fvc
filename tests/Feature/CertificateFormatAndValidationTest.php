@@ -187,6 +187,15 @@ class CertificateFormatAndValidationTest extends TestCase
         $responseCustom->assertSee('CERT-71234567-99');
         $responseCustom->assertSee('Semana Técnica 2026 Especial');
 
+        // verify.certificate alias redirects to /validar-certificado?code=
+        $responseAlias = $this->get('/verify-certificate/CERT-71234567-99');
+        $responseAlias->assertRedirect('/validar-certificado?code=CERT-71234567-99');
+
+        // Printable certificate renders QR code link pointing to validation_url
+        $responsePrint = $this->get('/validar-certificado/'.$this->certificate->certificate_code.'/imprimir');
+        $responsePrint->assertStatus(200);
+        $responsePrint->assertSee($this->certificate->validation_url);
+
         $customCert->delete();
     }
 

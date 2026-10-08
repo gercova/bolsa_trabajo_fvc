@@ -909,11 +909,11 @@ class AppController extends Controller
             ->get();
 
         // 6. Overall KPI metrics
-        $totalCertificates = Certificate::count();
-        $validCertificates = Certificate::where('is_active', true)->count();
-        $totalStudents = Certificate::distinct('user_id')->count('user_id');
-        $totalCourses = Course::where('is_active', true)->count();
-        $totalHours = Certificate::whereNotNull('duration')->count();
+        $totalCertificates  = Certificate::count();
+        $validCertificates  = Certificate::where('is_active', true)->count();
+        $totalStudents      = Certificate::distinct('user_id')->count('user_id');
+        $totalCourses       = Course::where('is_active', true)->count();
+        $totalHours         = Certificate::whereNotNull('duration')->count();
 
         return view('services.validate-certificate', compact(
             'enterprise',

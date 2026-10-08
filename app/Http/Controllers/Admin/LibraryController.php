@@ -21,8 +21,7 @@ class LibraryController extends Controller
     /**
      * Display the "Libros Asignados" view (matching Screenshot 1).
      */
-    public function index(Request $request): View
-    {
+    public function index(Request $request): View {
         $selectedCareer = $request->query('career', 'all');
         $searchQuery    = $request->query('q', '');
         $viewMode       = $request->query('view', 'grid'); // grid or list
@@ -33,7 +32,7 @@ class LibraryController extends Controller
             ->latest('id');
 
         $totalCount = (clone $query)->count();
-        $books = $query->paginate(24)->withQueryString();
+        $books      = $query->paginate(24)->withQueryString();
 
         $studyPrograms = StudyProgram::select('id', 'name')->orderBy('name')->get();
 
@@ -50,11 +49,10 @@ class LibraryController extends Controller
     /**
      * Display the "Repositorio" table view for complete CRUD management.
      */
-    public function repository(Request $request): View
-    {
-        $selectedCareer = $request->query('career', 'all');
-        $selectedCategory = $request->query('category', 'all');
-        $searchQuery    = $request->query('q', '');
+    public function repository(Request $request): View {
+        $selectedCareer     = $request->query('career', 'all');
+        $selectedCategory   = $request->query('category', 'all');
+        $searchQuery        = $request->query('q', '');
 
         $query = Book::with('studyProgram', 'creator')
             ->career($selectedCareer)
@@ -77,12 +75,11 @@ class LibraryController extends Controller
     /**
      * Store a newly created book / document in the library.
      */
-    public function store(BookRequest $request): RedirectResponse|JsonResponse
-    {
-        $validated = $request->validated();
-        $validated['created_by'] = auth()->id();
-        $validated['is_active']  = $request->has('is_active') ? true : false;
-        $validated['rating']     = $validated['rating'] ?? 5.0;
+    public function store(BookRequest $request): RedirectResponse|JsonResponse {
+        $validated                  = $request->validated();
+        $validated['created_by']    = auth()->id();
+        $validated['is_active']     = $request->has('is_active') ? true : false;
+        $validated['rating']        = $validated['rating'] ?? 5.0;
 
         // Cover image upload
         if ($request->hasFile('cover')) {
@@ -117,8 +114,7 @@ class LibraryController extends Controller
     /**
      * Fetch book details for editing (JSON).
      */
-    public function edit(Book $book): JsonResponse
-    {
+    public function edit(Book $book): JsonResponse {
         $book->load('studyProgram');
 
         return response()->json([
@@ -149,8 +145,7 @@ class LibraryController extends Controller
     /**
      * Update an existing book / document.
      */
-    public function update(BookRequest $request, Book $book): RedirectResponse|JsonResponse
-    {
+    public function update(BookRequest $request, Book $book): RedirectResponse|JsonResponse {
         $validated = $request->validated();
         $validated['is_active'] = $request->has('is_active') ? true : false;
 
@@ -193,8 +188,7 @@ class LibraryController extends Controller
     /**
      * Toggle active / inactive status of a book.
      */
-    public function toggleStatus(Book $book): RedirectResponse|JsonResponse
-    {
+    public function toggleStatus(Book $book): RedirectResponse|JsonResponse {
         $book->update(['is_active' => !$book->is_active]);
 
         $status = $book->is_active ? 'activado' : 'desactivado';
@@ -213,8 +207,7 @@ class LibraryController extends Controller
     /**
      * Delete a book and its physical assets safely.
      */
-    public function destroy(Book $book): RedirectResponse|JsonResponse
-    {
+    public function destroy(Book $book): RedirectResponse|JsonResponse {
         if ($book->cover_image && Storage::disk('public')->exists($book->cover_image)) {
             Storage::disk('public')->delete($book->cover_image);
         }
@@ -237,8 +230,7 @@ class LibraryController extends Controller
     /**
      * Dedicated Reader Monitoring Dashboard ("Lectores").
      */
-    public function readers(Request $request): View
-    {
+    public function readers(Request $request): View {
         $roleFilter   = $request->query('role', 'all');
         $careerFilter = $request->query('career', 'all');
         $search       = $request->query('q', '');
@@ -324,8 +316,7 @@ class LibraryController extends Controller
     /**
      * Display Administrators list.
      */
-    public function administrators(): View
-    {
+    public function administrators(): View {
         $admins = User::whereIn('role', ['Admin', 'Administrador', 'Director'])
             ->select('id', 'names', 'email', 'role', 'phone', 'is_active', 'created_at')
             ->orderBy('names')
@@ -337,8 +328,7 @@ class LibraryController extends Controller
     /**
      * Display Reports and analytics.
      */
-    public function reports(): View
-    {
+    public function reports(): View {
         $totalBooks       = Book::count();
         $totalViews       = Book::sum('views_count');
         $totalFavorites   = DB::table('book_favorites')->count();

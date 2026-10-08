@@ -4,10 +4,7 @@
 
 @section('library_content')
 <div class="p-5 sm:p-7 space-y-6" x-data="assignedBooksApp()">
-
-    {{-- ══════════════════════════════════════════════════════════════════ --}}
-    {{-- TOPBAR / FILTERS HEADER (Matching Screenshot 1)                     --}}
-    {{-- ══════════════════════════════════════════════════════════════════ --}}
+    {{-- TOPBAR / FILTERS HEADER (Matching Screenshot 1) --}}
     <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-xs border border-slate-200/80 space-y-4">
         
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -94,9 +91,7 @@
         </div>
     @endif
 
-    {{-- ══════════════════════════════════════════════════════════════════ --}}
     {{-- CONTENT: GRID VIEW (Matching Screenshot 1)                         --}}
-    {{-- ══════════════════════════════════════════════════════════════════ --}}
     <div x-show="currentView === 'grid'">
         @if($books->count() > 0)
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 sm:gap-5">
@@ -201,9 +196,7 @@
         @endif
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════════ --}}
-    {{-- CONTENT: LIST VIEW                                                 --}}
-    {{-- ══════════════════════════════════════════════════════════════════ --}}
+    {{-- CONTENT: LIST VIEW --}}
     <div x-show="currentView === 'list'" style="display: none;">
         <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
             <div class="overflow-x-auto">

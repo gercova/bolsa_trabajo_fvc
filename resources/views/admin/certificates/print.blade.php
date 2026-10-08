@@ -958,8 +958,7 @@
         <div class="toolbar-actions">
             @if ($certificate->isBasicEnglish())
                 <div class="view-switch-group no-print">
-                    <button type="button" class="btn btn-tab active" onclick="switchCertView('all', this)">Ambas
-                        Caras</button>
+                    <button type="button" class="btn btn-tab active" onclick="switchCertView('all', this)">Ambas Caras</button>
                     <button type="button" class="btn btn-tab" onclick="switchCertView('front', this)">Frente</button>
                     <button type="button" class="btn btn-tab" onclick="switchCertView('back', this)">Reverso</button>
                 </div>

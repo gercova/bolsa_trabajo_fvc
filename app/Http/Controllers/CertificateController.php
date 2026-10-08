@@ -92,8 +92,7 @@ class CertificateController extends Controller
     /**
      * Store a newly created certificate.
      */
-    public function store(CertificateRequest $request): RedirectResponse|JsonResponse
-    {
+    public function store(CertificateRequest $request): RedirectResponse|JsonResponse {
         try {
             $data = $request->validated();
             $data['is_active'] = $request->boolean('is_active', true);
@@ -140,8 +139,7 @@ class CertificateController extends Controller
     /**
      * Display the specified certificate with its details (scores/modules).
      */
-    public function show(Certificate $certificate): JsonResponse
-    {
+    public function show(Certificate $certificate): JsonResponse {
         $certificate->load(['user', 'course.modules', 'details.module', 'studyProgram', 'course.studyProgram']);
 
         return response()->json($certificate);
@@ -150,8 +148,7 @@ class CertificateController extends Controller
     /**
      * Display the official printable certificate document with QR validation.
      */
-    public function print(Certificate $certificate): View
-    {
+    public function print(Certificate $certificate): View {
         $certificate->load([
             'user',
             'course.modules.itineraries',

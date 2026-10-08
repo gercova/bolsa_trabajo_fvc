@@ -129,11 +129,9 @@ class JobsController extends Controller
     /**
      * List internal calls only.
      */
-    public function internalCalls(Request $request): View
-    {
+    public function internalCalls(Request $request): View {
         $search = $request->input('search');
-
-        $query = JobOffer::where('source', 'like', '%Interna%');
+        $query  = JobOffer::where('source', 'like', '%Interna%');
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
@@ -165,16 +163,14 @@ class JobsController extends Controller
     /**
      * Show form for creating a new job offer.
      */
-    public function create(): View
-    {
+    public function create(): View {
         return view('admin.jobs.create');
     }
 
     /**
      * Store a newly created job offer.
      */
-    public function store(JobValidate $request): JsonResponse|RedirectResponse
-    {
+    public function store(JobValidate $request): JsonResponse|RedirectResponse {
         try {
             $validated = $request->validated();
             $validated['is_active'] = $request->has('is_active') ? (bool) $request->input('is_active') : true;
@@ -211,16 +207,14 @@ class JobsController extends Controller
     /**
      * Show form for editing an existing job offer.
      */
-    public function edit(JobOffer $offer): View
-    {
+    public function edit(JobOffer $offer): View {
         return view('admin.jobs.edit', compact('offer'));
     }
 
     /**
      * Update an existing job offer.
      */
-    public function update(JobValidate $request, JobOffer $offer): JsonResponse|RedirectResponse
-    {
+    public function update(JobValidate $request, JobOffer $offer): JsonResponse|RedirectResponse {
         try {
             $validated = $request->validated();
             $validated['is_active'] = $request->has('is_active') ? (bool) $request->input('is_active') : false;
@@ -257,8 +251,7 @@ class JobsController extends Controller
     /**
      * Toggle active / inactive status.
      */
-    public function toggleStatus(JobOffer $offer): JsonResponse|RedirectResponse
-    {
+    public function toggleStatus(JobOffer $offer): JsonResponse|RedirectResponse {
         try {
             $offer->update(['is_active' => !$offer->is_active]);
 
@@ -321,8 +314,7 @@ class JobsController extends Controller
      * Takes pagination into account by supporting either an array of specific IDs
      * or a select_all flag with active filters.
      */
-    public function bulkDelete(Request $request): JsonResponse|RedirectResponse
-    {
+    public function bulkDelete(Request $request): JsonResponse|RedirectResponse {
         try {
             $selectAll = $request->boolean('select_all');
             $ids       = $request->input('ids', []);
@@ -436,8 +428,7 @@ class JobsController extends Controller
     /**
      * Completely clear (truncate) all records from the job_offers table.
      */
-    public function clearAll(Request $request): JsonResponse|RedirectResponse
-    {
+    public function clearAll(Request $request): JsonResponse|RedirectResponse {
         try {
             $totalCount = JobOffer::count();
 

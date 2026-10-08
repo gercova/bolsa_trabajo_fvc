@@ -139,7 +139,7 @@
                     <p class="footer-col-title">Navegación</p>
                     <nav aria-label="Links rápidos del footer">
                         <a href="{{ route('inicio') }}" class="footer-link">Inicio</a>
-                        <a href="{{ route('bolsa-de-trabajo') }}" class="footer-link">Ofertas de empleo</a>
+                        <a href="{{ route('bolsa-de-trabajo') }}" class="footer-link">Bolsa de trabajo</a>
                         <a href="{{ route('programas-de-estudio') }}" class="footer-link">Programas de estudio</a>
                         <a href="{{ route('quienes-somos') }}" class="footer-link">Sobre nosotros</a>
                         <a href="{{ route('mesa-de-partes') }}" class="footer-link">Mesa de partes</a>

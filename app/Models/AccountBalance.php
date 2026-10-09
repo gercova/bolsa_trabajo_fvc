@@ -26,7 +26,7 @@ class AccountBalance extends Model
     ];
 
     protected $casts = [
-        'date'   => 'date',
+        'date' => 'date',
         'amount' => 'decimal:2',
     ];
 
@@ -36,6 +36,7 @@ class AccountBalance extends Model
         if (! $year) {
             return $query;
         }
+
         return $query->whereYear('date', $year);
     }
 
@@ -45,6 +46,7 @@ class AccountBalance extends Model
         if (! $month) {
             return $query;
         }
+
         return $query->where('month', $month);
     }
 
@@ -54,6 +56,7 @@ class AccountBalance extends Model
         if (! $category) {
             return $query;
         }
+
         return $query->where('category', $category);
     }
 
@@ -63,6 +66,7 @@ class AccountBalance extends Model
         if (! $code) {
             return $query;
         }
+
         return $query->where('program_code', $code);
     }
 
@@ -72,11 +76,12 @@ class AccountBalance extends Model
         if (! $term) {
             return $query;
         }
+
         return $query->where(function (Builder $q) use ($term) {
             $q->where('client', 'like', "%{$term}%")
-              ->orWhere('description', 'like', "%{$term}%")
-              ->orWhere('receipt_number', 'like', "%{$term}%")
-              ->orWhere('reason', 'like', "%{$term}%");
+                ->orWhere('description', 'like', "%{$term}%")
+                ->orWhere('receipt_number', 'like', "%{$term}%")
+                ->orWhere('reason', 'like', "%{$term}%");
         });
     }
 

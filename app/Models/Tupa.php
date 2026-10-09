@@ -22,9 +22,9 @@ class Tupa extends Model
     ];
 
     protected $casts = [
-        'effective_start_date'  => 'date',
-        'effective_end_date'    => 'date',
-        'is_active'             => 'boolean',
+        'effective_start_date' => 'date',
+        'effective_end_date' => 'date',
+        'is_active' => 'boolean',
     ];
 
     /**

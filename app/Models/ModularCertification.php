@@ -8,13 +8,15 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class ModularCertification extends Model
 {
-    protected $table        = 'modular_certification';
-    protected $primaryKey   = 'id';
-    protected $fillable     = [
+    protected $table = 'modular_certification';
+
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
         'module',
         'model_type',
         'program_id',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [

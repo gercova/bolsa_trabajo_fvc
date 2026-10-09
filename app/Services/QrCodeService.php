@@ -276,12 +276,6 @@ class QrCodeService
         $isReserved[4 * $version + 9][8] = true;
 
         // 5. Reserve format info areas
-        // for ($i = 0; $i < 9; $i++) {
-        //     $isReserved[8][$i] = true;
-        //     $isReserved[$i][8] = true;
-        //     $isReserved[8][$size - 1 - $i] = true;
-        //     $isReserved[$size - 1 - $i][8] = true;
-        // }
         for ($i = 0; $i < 9; $i++) {
             $isReserved[8][$i] = true;
             $isReserved[$i][8] = true;

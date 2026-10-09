@@ -2,44 +2,49 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\UserTemplateExport;
 use App\Http\Requests\PasswordValidate;
+use App\Http\Requests\UserImportRequest;
 use App\Http\Requests\UserValidate;
+use App\Imports\UserImport;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rules\Password;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Permission\Models\Role;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class UsersController extends Controller {
+class UsersController extends Controller
+{
+    public function __construct() {}
 
-    public function __construct(){
-
-    }
-
-    public function index(Request $request): View {
+    public function index(Request $request): View
+    {
         // Parámetros de búsqueda y filtros
-        $search     = $request->input('search');
-        $status     = $request->input('status');                // 'active', 'inactive', o null (todos)
-        $role       = $request->input('role');                  // filtrar por rol
-        $perPage    = $request->input('per_page', 10);          // items por página (10, 25, 50)
-        $sortBy     = $request->input('sort_by', 'created_at'); // campo de ordenamiento
-        $sortOrder  = $request->input('sort_order', 'desc');    // ascendente o descendente
+        $search = $request->input('search');
+        $status = $request->input('status');                // 'active', 'inactive', o null (todos)
+        $role = $request->input('role');                  // filtrar por rol
+        $perPage = $request->input('per_page', 10);          // items por página (10, 25, 50)
+        $sortBy = $request->input('sort_by', 'created_at'); // campo de ordenamiento
+        $sortOrder = $request->input('sort_order', 'desc');    // ascendente o descendente
 
         // Validar que per_page sea un valor permitido
-        if (!in_array($perPage, [10, 25, 50, 100])) {
+        if (! in_array($perPage, [10, 25, 50, 100])) {
             $perPage = 10;
         }
 
         // Validar campos de ordenamiento permitidos
         $allowedSortFields = ['names', 'email', 'dni', 'job_position', 'created_at', 'is_active'];
-        if (!in_array($sortBy, $allowedSortFields)) {
+        if (! in_array($sortBy, $allowedSortFields)) {
             $sortBy = 'created_at';
         }
-        if (!in_array($sortOrder, ['asc', 'desc'])) {
+        if (! in_array($sortOrder, ['asc', 'desc'])) {
             $sortOrder = 'desc';
         }
 
@@ -75,23 +80,28 @@ class UsersController extends Controller {
         return view('admin.user.index', compact('users', 'search', 'status', 'role', 'perPage', 'sortBy', 'sortOrder', 'roles'));
     }
 
-     /**
+    /**
      * Muestra el formulario para crear un nuevo usuario
      */
-    public function create(): View {
+    public function create(): View
+    {
         $roles = Role::get();
+
         return view('admin.user.create', compact('roles'));
     }
 
-    public function edit(User $user): View {
+    public function edit(User $user): View
+    {
         $roles = Role::all();
+
         return view('admin.user.edit', compact('user', 'roles'));
     }
 
     /**
      * Almacena un nuevo usuario en la base de datos
      */
-    public function store(UserValidate $request): RedirectResponse {
+    public function store(UserValidate $request): RedirectResponse
+    {
         $validated = $request->validated();
 
         // Manejar la subida de la foto de perfil
@@ -108,15 +118,15 @@ class UsersController extends Controller {
 
         // Crear el usuario
         $user = User::create([
-            'dni'           => $validated['dni'],
-            'names'         => $validated['names'],
-            'email'         => $validated['email'],
-            'role'          => $validated['role'],
-            'job_position'  => $validated['job_position'] ?? null,
+            'dni' => $validated['dni'],
+            'names' => $validated['names'],
+            'email' => $validated['email'],
+            'role' => $validated['role'],
+            'job_position' => $validated['job_position'] ?? null,
             'photo_profile' => $photoPath,
-            'cv_file'       => $cvPath,
-            'password'      => Hash::make($validated['password']),
-            'is_active'     => $request->boolean('is_active', true),
+            'cv_file' => $cvPath,
+            'password' => Hash::make($validated['password']),
+            'is_active' => $request->boolean('is_active', true),
         ]);
 
         // Asignar rol con Spatie
@@ -125,16 +135,19 @@ class UsersController extends Controller {
         return redirect()->route('admin.usuarios')->with('success', 'Usuario creado exitosamente.');
     }
 
-    public function updatePassword(PasswordValidate $request, User $user): JsonResponse {
+    public function updatePassword(PasswordValidate $request, User $user): JsonResponse
+    {
         $validated = $request->validated();
         $user->update(['password' => Hash::make($validated['password'])]);
+
         return response()->json([
             'success' => true,
             'message' => 'Contraseña actualizada',
         ], 200);
     }
 
-    public function update(UserValidate $request, User $user): RedirectResponse {
+    public function update(UserValidate $request, User $user): RedirectResponse
+    {
         $validated = $request->validated();
 
         // Manejar la subida de la foto de perfil
@@ -162,7 +175,7 @@ class UsersController extends Controller {
         }
 
         // Manejar la contraseña (solo si se proporciona una nueva)
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
@@ -183,32 +196,36 @@ class UsersController extends Controller {
             ->route('admin.users.index')->with('success', "Usuario {$user->names} actualizado exitosamente.");
     }
 
-    public function toggleStatus(User $user): JsonResponse|RedirectResponse {
+    public function toggleStatus(User $user): JsonResponse|RedirectResponse
+    {
         $user->update([
-            'is_active' => !$user->is_active
+            'is_active' => ! $user->is_active,
         ]);
 
         if (request()->expectsJson() || request()->ajax()) {
             return response()->json([
-                'success'   => true,
-                'message'   => 'Estado del usuario actualizado.',
-                'status'    => $user->is_active
+                'success' => true,
+                'message' => 'Estado del usuario actualizado.',
+                'status' => $user->is_active,
             ]);
         }
 
         $statusMessage = $user->is_active ? 'activado' : 'desactivado';
+
         return redirect()->back()->with('success', "Usuario {$user->names} {$statusMessage} correctamente.");
     }
 
-    public function destroy(User $user): JsonResponse|RedirectResponse {
+    public function destroy(User $user): JsonResponse|RedirectResponse
+    {
         // Verificar que no sea el último admin
         if ($user->role === 'admin' && User::where('role', 'admin')->count() <= 1) {
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No se puede eliminar el único administrador.'
+                    'message' => 'No se puede eliminar el único administrador.',
                 ], 400);
             }
+
             return redirect()->back()->with('error', 'No se puede eliminar el único administrador.');
         }
 
@@ -217,10 +234,155 @@ class UsersController extends Controller {
         if (request()->expectsJson() || request()->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Usuario eliminado exitosamente.'
+                'message' => 'Usuario eliminado exitosamente.',
             ]);
         }
 
         return redirect()->back()->with('success', 'Usuario eliminado exitosamente.');
+    }
+
+    /**
+     * Download the template guide for bulk user import (.xlsx or .csv).
+     */
+    public function downloadTemplate(Request $request): BinaryFileResponse|StreamedResponse
+    {
+        $format = strtolower((string) $request->query('format', 'xlsx'));
+
+        if (in_array($format, ['xlsx', 'excel', 'xls'], true)) {
+            $ext = $format === 'xls' ? 'xls' : 'xlsx';
+            $excelType = $format === 'xls' ? \Maatwebsite\Excel\Excel::XLS : \Maatwebsite\Excel\Excel::XLSX;
+            $filename = 'plantilla_usuarios_'.date('Y-m-d').'.'.$ext;
+
+            return Excel::download(new UserTemplateExport, $filename, $excelType);
+        }
+
+        $filename = 'plantilla_usuarios_'.date('Y-m-d').'.csv';
+
+        return response()->streamDownload(function () {
+            $out = fopen('php://output', 'w');
+
+            // UTF-8 BOM so Excel opens accents correctly
+            fwrite($out, "\xEF\xBB\xBF");
+
+            // Header line
+            fputcsv($out, [
+                'N°',
+                'DNI',
+                'Nombres',
+                'Apellido Paterno',
+                'Apellido Materno',
+                'job_position',
+                'email',
+                'Rol',
+                'Teléfono',
+            ]);
+
+            // Sample rows
+            fputcsv($out, [
+                '1',
+                '71234567',
+                'Juan Carlos',
+                'Pérez',
+                'Gómez',
+                'student/graduate',
+                '', // Auto-generated: jperezg@iestpfvc.edu.pe
+                'Estudiante',
+                '987654321',
+            ]);
+
+            fputcsv($out, [
+                '2',
+                '45678901',
+                'María Elena',
+                'Ramos',
+                'Castillo',
+                'teaching/administrative staff',
+                '', // Auto-generated: mramosc@iestpfvc.edu.pe
+                'Docente',
+                '976543210',
+            ]);
+
+            fputcsv($out, [
+                '3',
+                '78901234',
+                'Luis Alberto',
+                'Vásquez',
+                'Torres',
+                'student/graduate',
+                'lvasquezt_personal@gmail.com', // Keeps provided email
+                'Estudiante',
+                '965432109',
+            ]);
+
+            fputcsv($out, [
+                '4',
+                '41239876',
+                'Rosa Aurora',
+                'Mendoza',
+                'Flores',
+                'teaching/administrative staff',
+                '', // Auto-generated: rmendozaf@iestpfvc.edu.pe
+                'Administrativo',
+                '954321098',
+            ]);
+
+            fclose($out);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
+    }
+
+    /**
+     * Process bulk import of user records via Excel (.xlsx, .xls) or CSV (.csv).
+     */
+    public function import(UserImportRequest $request): RedirectResponse
+    {
+        $prevErrorHandler = set_error_handler(
+            function (int $errno, string $errstr, string $errfile) use (&$prevErrorHandler): bool {
+                if (str_contains($errstr, 'iconv') && str_contains($errstr, 'multibyte')) {
+                    return true;
+                }
+                if ($prevErrorHandler !== null) {
+                    return (bool) call_user_func($prevErrorHandler, $errno, $errstr, $errfile);
+                }
+
+                return false;
+            }
+        );
+
+        try {
+            $importer = new UserImport;
+            Excel::import($importer, $request->file('file'));
+
+            $parts = [];
+            if ($importer->createdCount > 0) {
+                $parts[] = "{$importer->createdCount} usuario(s) nuevo(s) registrado(s)";
+            }
+            if ($importer->updatedCount > 0) {
+                $parts[] = "{$importer->updatedCount} usuario(s) actualizado(s)";
+            }
+            if ($importer->skippedCount > 0) {
+                $parts[] = "{$importer->skippedCount} fila(s) omitida(s)";
+            }
+
+            $msg = ! empty($parts)
+                ? 'Importación completada con éxito: '.implode(', ', $parts).'.'
+                : 'Proceso de importación finalizado sin registros procesados.';
+
+            $redirect = redirect()->route('admin.users.index')->with('success', $msg);
+
+            if (! empty($importer->errors)) {
+                $redirect = $redirect->with('import_errors', $importer->errors);
+            }
+
+            return $redirect;
+        } catch (\Throwable $e) {
+            Log::error('Error importando usuarios: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
+            return redirect()->route('admin.users.index')->with('error', 'Error al procesar el archivo de usuarios: '.$e->getMessage());
+        } finally {
+            restore_error_handler();
+        }
     }
 }

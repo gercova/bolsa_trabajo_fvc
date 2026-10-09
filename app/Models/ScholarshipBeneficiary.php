@@ -24,10 +24,10 @@ class ScholarshipBeneficiary extends Model
     ];
 
     protected $casts = [
-        'is_active'        => 'boolean',
+        'is_active' => 'boolean',
         'publication_date' => 'date',
-        'file_size'        => 'integer',
-        'sort_order'       => 'integer',
+        'file_size' => 'integer',
+        'sort_order' => 'integer',
     ];
 
     protected $appends = [
@@ -57,8 +57,8 @@ class ScholarshipBeneficiary extends Model
     public function scopeOrdered($query)
     {
         return $query->orderBy('academic_period', 'desc')
-                     ->orderBy('sort_order', 'asc')
-                     ->orderBy('created_at', 'desc');
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('created_at', 'desc');
     }
 
     /**
@@ -79,7 +79,7 @@ class ScholarshipBeneficiary extends Model
             return '';
         }
 
-        return '/storage/' . ltrim($this->file_path, '/');
+        return '/storage/'.ltrim($this->file_path, '/');
     }
 
     /**
@@ -97,6 +97,6 @@ class ScholarshipBeneficiary extends Model
         $pow = min((int) $pow, count($units) - 1);
         $size = $bytes / pow(1024, $pow);
 
-        return round($size, 1) . ' ' . $units[$pow];
+        return round($size, 1).' '.$units[$pow];
     }
 }

@@ -368,6 +368,8 @@ Route::middleware(['auth'])->group(function () {
     // usuarios
     Route::prefix('admin-usuarios')->name('admin.users.')->group(function () {
         Route::get('/', [UsersController::class, 'index'])->name('index');
+        Route::get('/plantilla', [UsersController::class, 'downloadTemplate'])->name('template');
+        Route::post('/importar', [UsersController::class, 'import'])->name('import');
         Route::get('/crear', [UsersController::class, 'create'])->name('create');
         Route::get('/{user}/editar/', [UsersController::class, 'edit'])->name('edit');
         Route::post('/', [UsersController::class, 'store'])->name('store');

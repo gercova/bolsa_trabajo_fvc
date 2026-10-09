@@ -41,12 +41,12 @@ class Book extends Model
 
     protected $casts = [
         'publication_year' => 'integer',
-        'pages'            => 'integer',
-        'file_size'        => 'integer',
-        'rating'           => 'float',
-        'views_count'      => 'integer',
-        'downloads_count'  => 'integer',
-        'is_active'        => 'boolean',
+        'pages' => 'integer',
+        'file_size' => 'integer',
+        'rating' => 'float',
+        'views_count' => 'integer',
+        'downloads_count' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     protected $appends = [
@@ -126,7 +126,8 @@ class Book extends Model
             if (str_starts_with($this->cover_image, 'http://') || str_starts_with($this->cover_image, 'https://')) {
                 return $this->cover_image;
             }
-            return '/storage/' . ltrim($this->cover_image, '/');
+
+            return '/storage/'.ltrim($this->cover_image, '/');
         }
 
         return '';
@@ -138,7 +139,7 @@ class Book extends Model
     public function getFileUrlAttribute(): string
     {
         if ($this->file_path) {
-            return '/storage/' . ltrim($this->file_path, '/');
+            return '/storage/'.ltrim($this->file_path, '/');
         }
 
         return $this->external_url ?? '';
@@ -149,11 +150,11 @@ class Book extends Model
      */
     public function getFormattedFileSizeAttribute(): string
     {
-        if ($this->external_url && !$this->file_size) {
+        if ($this->external_url && ! $this->file_size) {
             return 'Enlace Web';
         }
 
-        if (!$this->file_size) {
+        if (! $this->file_size) {
             return 'Documento Digital';
         }
 
@@ -163,7 +164,7 @@ class Book extends Model
             $bytes /= 1024;
         }
 
-        return round($bytes, 1) . ' ' . $units[$i];
+        return round($bytes, 1).' '.$units[$i];
     }
 
     /**
@@ -171,7 +172,7 @@ class Book extends Model
      */
     public function getIsExternalAttribute(): bool
     {
-        return !empty($this->external_url) && empty($this->file_path);
+        return ! empty($this->external_url) && empty($this->file_path);
     }
 
     /**
@@ -216,12 +217,13 @@ class Book extends Model
         }
 
         $term = trim($term);
+
         return $query->where(function ($q) use ($term) {
             $q->where('title', 'like', "%{$term}%")
-              ->orWhere('author', 'like', "%{$term}%")
-              ->orWhere('description', 'like', "%{$term}%")
-              ->orWhere('publisher', 'like', "%{$term}%")
-              ->orWhere('isbn', 'like', "%{$term}%");
+                ->orWhere('author', 'like', "%{$term}%")
+                ->orWhere('description', 'like', "%{$term}%")
+                ->orWhere('publisher', 'like', "%{$term}%")
+                ->orWhere('isbn', 'like', "%{$term}%");
         });
     }
 }

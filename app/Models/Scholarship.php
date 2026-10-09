@@ -6,8 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Scholarship extends Model
 {
-    protected $table        = 'scholarships';
-    protected $primaryKey   = 'id';
+    protected $table = 'scholarships';
+
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'name',
         'slug',
@@ -22,10 +24,10 @@ class Scholarship extends Model
     ];
 
     protected $casts = [
-        'vacancies'           => 'integer',
+        'vacancies' => 'integer',
         'discount_percentage' => 'decimal:2',
-        'sort_order'          => 'integer',
-        'is_active'           => 'boolean',
+        'sort_order' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     public function scopeActive($query)

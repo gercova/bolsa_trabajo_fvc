@@ -40,6 +40,7 @@ class VisitorCounter extends Model
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+
             return $amount;
         }
 
@@ -61,6 +62,7 @@ class VisitorCounter extends Model
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+
             return 1;
         }
 
@@ -78,6 +80,7 @@ class VisitorCounter extends Model
         if (strlen($str) < $minDigits) {
             $str = str_pad($str, $minDigits, '0', STR_PAD_LEFT);
         }
+
         return str_split($str);
     }
 }

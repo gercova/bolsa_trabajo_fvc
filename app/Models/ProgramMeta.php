@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ProgramMeta extends Model
 {
     protected $table = 'program_metas';
+
     protected $fillable = [
         'study_program_id',
         'icon',
@@ -31,4 +32,4 @@ class ProgramMeta extends Model
     {
         return $this->belongsTo(StudyProgram::class, 'study_program_id', 'id');
     }
-}   
+}

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ProgramJobField extends Model
 {
     protected $table = 'program_job_fields';
+
     protected $fillable = [
         'study_program_id',
         'description',

@@ -8,7 +8,8 @@ use Illuminate\Support\Str;
 
 class Blog extends Model
 {
-    protected $table    = 'blogs';
+    protected $table = 'blogs';
+
     protected $primaryKey = 'id';
 
     protected $fillable = [
@@ -33,7 +34,8 @@ class Blog extends Model
     public function coverImage(): ?string
     {
         $img = $this->images()->first();
-        return $img ? asset('storage/' . $img->path) : null;
+
+        return $img ? asset('storage/'.$img->path) : null;
     }
 
     public function images(): MorphMany
@@ -41,4 +43,3 @@ class Blog extends Model
         return $this->morphMany(Image::class, 'imageable');
     }
 }
-

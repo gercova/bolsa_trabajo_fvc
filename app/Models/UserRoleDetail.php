@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserRoleDetail extends Model
 {
-    protected $table      = 'user_roles_details';
+    protected $table = 'user_roles_details';
+
     protected $primaryKey = 'id';
 
     protected $fillable = [
@@ -20,9 +21,9 @@ class UserRoleDetail extends Model
 
     protected $casts = [
         'is_coordinator' => 'boolean',
-        'is_active'      => 'boolean',
-        'created_at'     => 'datetime',
-        'updated_at'     => 'datetime',
+        'is_active' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // ──────────────────────────────────────────────

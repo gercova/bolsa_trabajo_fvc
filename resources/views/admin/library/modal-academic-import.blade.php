@@ -19,7 +19,7 @@
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-indigo-50 text-indigo-700 border border-indigo-200 tracking-wider">
                             Indexación Abierta
                         </span>
-                        <span class="text-[11px] text-slate-400 font-semibold">SciELO · Redalyc · DOAJ · Crossref</span>
+                        <span class="text-[11px] text-slate-400 font-semibold">SciELO · Google Scholar · Redalyc · DOAJ · Crossref</span>
                     </div>
                     <h3 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight mt-0.5">
                         Búsqueda y Carga Masiva Académica
@@ -110,10 +110,14 @@
                         <i class="bi bi-shield-check text-emerald-600"></i>
                         <span>Fuentes Científicas Verificables (Open Access)</span>
                     </label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1">
                         <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-100 cursor-pointer text-xs font-semibold text-slate-700 transition">
                             <input type="checkbox" value="scielo" checked x-model="importForm.sources" class="rounded text-indigo-600 focus:ring-indigo-500">
                             <span>SciELO</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-100 cursor-pointer text-xs font-semibold text-slate-700 transition">
+                            <input type="checkbox" value="google_scholar" checked x-model="importForm.sources" class="rounded text-indigo-600 focus:ring-indigo-500">
+                            <span>Google Scholar</span>
                         </label>
                         <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-100 cursor-pointer text-xs font-semibold text-slate-700 transition">
                             <input type="checkbox" value="redalyc" checked x-model="importForm.sources" class="rounded text-indigo-600 focus:ring-indigo-500">
@@ -149,8 +153,8 @@
                     <i class="bi bi-arrow-repeat"></i>
                 </div>
                 <div class="text-xs text-indigo-900">
-                    <p class="font-bold">Consultando repositorios científicos abiertos (SciELO, Redalyc, OpenAlex, Crossref)...</p>
-                    <p class="text-[11px] text-indigo-700 mt-0.5">Descargando metadatos verificados, filtrando publicaciones sin duplicados y registrando en la biblioteca institucional.</p>
+                    <p class="font-bold">Consultando fuentes científicas abiertas (SciELO, Google Scholar, Redalyc, OpenAlex, Crossref)...</p>
+                    <p class="text-[11px] text-indigo-700 mt-0.5">Analizando contenidos, extrayendo enlaces directos a documentos (PDF/Galley) y registrando en la biblioteca institucional.</p>
                 </div>
             </div>
 

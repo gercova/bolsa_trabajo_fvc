@@ -211,4 +211,115 @@ class LibraryAcademicBulkImportTest extends TestCase
             'access_type' => 'external_link',
         ]);
     }
+
+    public function test_admin_assigned_books_view_includes_academic_modal_and_iframe_visor(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('admin.library.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Búsqueda Masiva de Revistas / Papers');
+        $response->assertSee('openAcademicModal()');
+        $response->assertSee('showAcademicModal');
+        $response->assertSee('showIframeModal');
+    }
+
+    public function test_academic_service_extracts_direct_ojs_galley_link_from_html(): void
+    {
+        $service = app(AcademicLibraryService::class);
+
+        $ojsHtml = <<<'HTML'
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Respuestas - Articulo Cientifico</title>
+    <meta name="citation_title" content="Articulo de Investigacion UFPS">
+    <meta name="citation_pdf_url" content="https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394">
+</head>
+<body>
+    <div class="item">
+        <a class="obj_galley_link pdf" href="/index.php/respuestas/article/view/350/394">PDF</a>
+    </div>
+</body>
+</html>
+HTML;
+
+        $baseUrl = 'https://revistas.ufps.edu.co/index.php/respuestas/article/view/350';
+        $resolved = $service->extractDirectDocumentLinkFromHtml($ojsHtml, $baseUrl);
+
+        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394', $resolved);
+    }
+
+    public function test_academic_service_parses_google_scholar_html_with_direct_pdf(): void
+    {
+        $service = app(AcademicLibraryService::class);
+
+        $scholarHtml = <<<'HTML'
+<div class="gs_r gs_or gs_scl">
+  <div class="gs_ggs gs_fl">
+    <div class="gs_ggsd">
+      <div class="gs_or_ggsm">
+        <a href="https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394">
+          <span class="gs_ctg2">[PDF]</span> ufps.edu.co
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="gs_ri">
+    <h3 class="gs_rt">
+      <a href="https://revistas.ufps.edu.co/index.php/respuestas/article/view/350">Evaluación de Cultivos Agropecuarios y Fertirriego</a>
+    </h3>
+    <div class="gs_a">J Pérez, M Rodríguez - Respuestas, 2024 - revistas.ufps.edu.co</div>
+    <div class="gs_rs">Investigación aplicada al sector agrario con análisis de nutrientes y rendimiento.</div>
+  </div>
+</div>
+HTML;
+
+        $config = ['default_category' => 'Paper'];
+        $results = $service->parseGoogleScholarHtml($scholarHtml, $config, $this->program->id, 'Paper', 5);
+
+        $this->assertCount(1, $results);
+        $this->assertEquals('Evaluación de Cultivos Agropecuarios y Fertirriego', $results[0]['title']);
+        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394', $results[0]['external_url']);
+        $this->assertStringContainsString('Google Scholar', $results[0]['publisher']);
+        $this->assertEquals(2024, $results[0]['publication_year']);
+    }
+
+    public function test_academic_service_upgrades_existing_landing_url_to_direct_galley_url(): void
+    {
+        $service = app(AcademicLibraryService::class);
+
+        // 1. Initial record with landing page
+        $book = Book::create([
+            'title' => 'Gestión Documental y Asistencia Administrativa en el Sector Público',
+            'slug' => 'gestion-documental-asistencia-administrativa-sector-publico',
+            'author' => 'Dr. Carlos Mendoza',
+            'category' => 'Paper',
+            'study_program_id' => $this->program->id,
+            'external_url' => 'https://revistas.ufps.edu.co/index.php/respuestas/article/view/350',
+            'publisher' => 'Revista Respuestas',
+            'is_active' => true,
+        ]);
+
+        // 2. Import item with more direct galley URL
+        $newItem = [
+            'title' => 'Gestión Documental y Asistencia Administrativa en el Sector Público',
+            'author' => 'Dr. Carlos Mendoza',
+            'category' => 'Paper',
+            'study_program_id' => $this->program->id,
+            'external_url' => 'https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394',
+            'publisher' => 'Revista Respuestas',
+            'description' => 'Descripción actualizada del artículo científico.',
+        ];
+
+        [$status, $updatedBook] = (function () use ($service, $newItem) {
+            $refMethod = new \ReflectionMethod($service, 'upsertAcademicResource');
+            $refMethod->setAccessible(true);
+
+            return $refMethod->invoke($service, $newItem);
+        })();
+
+        $this->assertEquals('updated', $status);
+        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394', $updatedBook->external_url);
+        $this->assertEquals($book->id, $updatedBook->id);
+    }
 }

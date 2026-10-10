@@ -7,12 +7,13 @@ use App\Models\BookFavorite;
 use App\Models\LibraryAccessLog;
 use App\Models\StudyProgram;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class LibraryReaderController extends Controller
 {
@@ -135,22 +136,45 @@ class LibraryReaderController extends Controller
     /**
      * Stream PDF file safely with range request support to protect server memory.
      */
-    public function stream(Book $book): BinaryFileResponse|RedirectResponse
+    public function stream(Book $book): Response
     {
-        if (! $book->file_path || ! Storage::disk('public')->exists($book->file_path)) {
-            if ($book->external_url) {
-                return redirect()->away($book->external_url);
-            }
-            abort(404, 'Archivo PDF no disponible en el almacenamiento.');
+        if ($book->file_path && Storage::disk('public')->exists($book->file_path)) {
+            $fullPath = Storage::disk('public')->path($book->file_path);
+
+            return response()->file($fullPath, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="'.addslashes($book->slug.'.pdf').'"',
+                'Cache-Control' => 'public, max-age=86400',
+            ]);
         }
 
-        $fullPath = Storage::disk('public')->path($book->file_path);
+        if ($book->external_url) {
+            // Direct streaming for external PDF assets to ensure seamless in-site iframe rendering
+            if (Str::contains(strtolower($book->external_url), ['.pdf', 'sci_pdf', 'format=pdf'])) {
+                try {
+                    $remoteResponse = Http::timeout(10)
+                        ->withHeaders([
+                            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                            'Accept' => 'application/pdf,*/*',
+                        ])
+                        ->get($book->external_url);
 
-        return response()->file($fullPath, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="'.addslashes($book->slug.'.pdf').'"',
-            'Cache-Control' => 'public, max-age=86400',
-        ]);
+                    if ($remoteResponse->successful() && str_contains((string) $remoteResponse->header('Content-Type'), 'pdf')) {
+                        return response($remoteResponse->body(), 200, [
+                            'Content-Type' => 'application/pdf',
+                            'Content-Disposition' => 'inline; filename="'.addslashes($book->slug.'.pdf').'"',
+                            'Cache-Control' => 'public, max-age=86400',
+                        ]);
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning("Error streaming remote document for book {$book->id}: ".$e->getMessage());
+                }
+            }
+
+            return redirect()->away($book->external_url);
+        }
+
+        abort(404, 'Archivo PDF no disponible en el almacenamiento.');
     }
 
     /**

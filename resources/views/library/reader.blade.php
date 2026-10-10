@@ -3,8 +3,13 @@
 @section('title', 'Leyendo: ' . $book->title . ' - Biblioteca Virtual')
 
 @php
-    $viewerUrl = $book->is_external && $book->external_url
-        ? $book->external_url
+    $effectiveExternalUrl = $book->external_url;
+    if ($effectiveExternalUrl && preg_match('~(/article/)download/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', $effectiveExternalUrl)) {
+        $effectiveExternalUrl = preg_replace('~(/article/)download/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', '$1view/$2', $effectiveExternalUrl);
+    }
+
+    $viewerUrl = $book->is_external && $effectiveExternalUrl
+        ? $effectiveExternalUrl
         : route('biblioteca.stream', $book->slug) . '#toolbar=1&navpanes=0&scrollbar=1';
 @endphp
 

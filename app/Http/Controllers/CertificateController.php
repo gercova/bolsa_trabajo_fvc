@@ -181,6 +181,9 @@ class CertificateController extends Controller
      */
     public function bulkExportPdf(Request $request): View|RedirectResponse
     {
+        ini_set('memory_limit', '512M');
+        set_time_limit(120);
+
         $query = Certificate::with([
             'user',
             'course.modules.itineraries',
@@ -209,30 +212,30 @@ class CertificateController extends Controller
             if (! empty($courseIds) && ! in_array('all', (array) $courseIds)) {
                 $query->whereIn('certificates.course_id', (array) $courseIds);
             }
+        }
 
-            // Modality filter
-            if ($request->filled('modality') && $request->input('modality') !== 'all') {
-                $query->where('certificates.modality', $request->input('modality'));
-            }
+        // Modality filter
+        if ($request->filled('modality') && $request->input('modality') !== 'all') {
+            $query->where('certificates.modality', $request->input('modality'));
+        }
 
-            // Status filter
-            $status = $request->input('status', '1');
-            if ($status !== 'all' && $status !== null && $status !== '') {
-                $query->where('certificates.is_active', (bool) $status);
-            }
+        // Status filter
+        $status = $request->input('status', '1');
+        if ($status !== 'all' && $status !== null && $status !== '') {
+            $query->where('certificates.is_active', $status === '1' || $status === 1 || $status === true);
+        }
 
-            // Participation type filter
-            if ($request->filled('participation_type') && $request->input('participation_type') !== 'all') {
-                $query->where('certificates.participation_type', $request->input('participation_type'));
-            }
+        // Participation type filter
+        if ($request->filled('participation_type') && $request->input('participation_type') !== 'all') {
+            $query->where('certificates.participation_type', $request->input('participation_type'));
+        }
 
-            // Date range filters
-            if ($request->filled('date_from')) {
-                $query->whereDate('certificates.issue_date', '>=', $request->input('date_from'));
-            }
-            if ($request->filled('date_to')) {
-                $query->whereDate('certificates.issue_date', '<=', $request->input('date_to'));
-            }
+        // Date range filters
+        if ($request->filled('date_from')) {
+            $query->whereDate('certificates.issue_date', '>=', $request->input('date_from'));
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('certificates.issue_date', '<=', $request->input('date_to'));
         }
 
         // Sorting

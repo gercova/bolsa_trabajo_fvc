@@ -1,5 +1,5 @@
 @php
-    $logoSrc = $enterprise?->logo_base64 ?? asset('storage/enterprise/favicons/logo-iestpfvc.png');
+    $logoSrc = $enterprise?->logo_path ? asset(ltrim($enterprise->logo_path, '/')) : asset('storage/enterprise/favicons/logo-iestpfvc.png');
 @endphp
 <!DOCTYPE html>
 <html lang="es">

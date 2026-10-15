@@ -862,15 +862,16 @@ class CertificateFormatAndValidationTest extends TestCase
         $certKeep->delete();
     }
 
-    public function test_bulk_delete_via_json_request(): void {
+    public function test_bulk_delete_via_json_request(): void
+    {
         $cert = Certificate::create([
-            'certificate_code'  => 'TEST-BULK-JSON',
-            'code'              => 'TEST-BULK-JSON',
-            'user_id'           => $this->certificate->user_id,
-            'course_id'         => $this->certificate->course_id,
-            'certificate_type'  => 'capacitacion',
-            'participation_type'=> 'ASISTENTE',
-            'event_name'        => 'Evento Test JSON',
+            'certificate_code' => 'TEST-BULK-JSON',
+            'code' => 'TEST-BULK-JSON',
+            'user_id' => $this->certificate->user_id,
+            'course_id' => $this->certificate->course_id,
+            'certificate_type' => 'capacitacion',
+            'participation_type' => 'ASISTENTE',
+            'event_name' => 'Evento Test JSON',
             'start_date' => '2026-10-01',
             'end_date' => '2026-10-02',
             'duration' => '10 horas',
@@ -886,14 +887,15 @@ class CertificateFormatAndValidationTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'success'   => true,
-            'count'     => 1,
+            'success' => true,
+            'count' => 1,
         ]);
 
         $this->assertDatabaseMissing('certificates', ['id' => $cert->id]);
     }
 
-    public function test_bulk_delete_validates_empty_selection(): void {
+    public function test_bulk_delete_validates_empty_selection(): void
+    {
         $response = $this->actingAs($this->adminUser)
             ->postJson('/admin-certificados/eliminar-masivo', [
                 'ids' => [],
@@ -906,7 +908,8 @@ class CertificateFormatAndValidationTest extends TestCase
         ]);
     }
 
-    public function test_delete_all_certificates_successfully(): void {
+    public function test_delete_all_certificates_successfully(): void
+    {
         $this->assertGreaterThan(0, Certificate::count());
 
         $response = $this->actingAs($this->adminUser)
@@ -920,7 +923,8 @@ class CertificateFormatAndValidationTest extends TestCase
         $this->assertEquals(0, Certificate::count());
     }
 
-    public function test_delete_all_certificates_when_database_is_empty(): void {
+    public function test_delete_all_certificates_when_database_is_empty(): void
+    {
         Certificate::query()->delete();
 
         $response = $this->actingAs($this->adminUser)
@@ -933,7 +937,8 @@ class CertificateFormatAndValidationTest extends TestCase
         ]);
     }
 
-    public function test_admin_certificates_view_renders_bulk_export_pdf_button_and_modal(): void {
+    public function test_admin_certificates_view_renders_bulk_export_pdf_button_and_modal(): void
+    {
         $response = $this->actingAs($this->adminUser)->get('/admin-certificados');
 
         $response->assertStatus(200);
@@ -948,7 +953,8 @@ class CertificateFormatAndValidationTest extends TestCase
         $response->assertSee('Generar y Exportar PDF');
     }
 
-    public function test_admin_can_bulk_export_certificates_to_pdf_view_for_all_courses(): void {
+    public function test_admin_can_bulk_export_certificates_to_pdf_view_for_all_courses(): void
+    {
         $response = $this->actingAs($this->adminUser)
             ->post('/admin-certificados/exportar-pdf', [
                 'course_ids' => ['all'],
@@ -962,7 +968,8 @@ class CertificateFormatAndValidationTest extends TestCase
         $response->assertSee('Guardar como PDF / Imprimir');
     }
 
-    public function test_admin_can_bulk_export_certificates_filtered_by_specific_course(): void {
+    public function test_admin_can_bulk_export_certificates_filtered_by_specific_course(): void
+    {
         $course2 = Course::firstOrCreate(
             ['name' => 'TALLER ESPECIALIZADO DE REDES Y SEGURIDAD'],
             [
@@ -976,24 +983,24 @@ class CertificateFormatAndValidationTest extends TestCase
         $cert2 = Certificate::firstOrCreate(
             ['certificate_code' => '099-2026-ST-FVC'],
             [
-                'user_id'               => $this->certificate->user_id,
-                'course_id'             => $course2->id,
-                'certificate_type'      => 'capacitacion',
-                'participation_type'    => 'ASISTENTE',
-                'event_name'            => 'Semana Técnica 2026',
-                'study_program_id'      => $this->certificate->study_program_id,
-                'institution_name'      => $this->certificate->institution_name,
-                'city'                  => 'Uchiza',
-                'description'           => 'Taller de redes',
-                'issue_date'            => now()->format('Y-m-d'),
-                'is_active'             => true,
+                'user_id' => $this->certificate->user_id,
+                'course_id' => $course2->id,
+                'certificate_type' => 'capacitacion',
+                'participation_type' => 'ASISTENTE',
+                'event_name' => 'Semana Técnica 2026',
+                'study_program_id' => $this->certificate->study_program_id,
+                'institution_name' => $this->certificate->institution_name,
+                'city' => 'Uchiza',
+                'description' => 'Taller de redes',
+                'issue_date' => now()->format('Y-m-d'),
+                'is_active' => true,
             ]
         );
 
         $response = $this->actingAs($this->adminUser)
             ->post('/admin-certificados/exportar-pdf', [
-                'course_ids'    => [$course2->id],
-                'faces'         => 'all',
+                'course_ids' => [$course2->id],
+                'faces' => 'all',
             ]);
 
         $response->assertStatus(200);
@@ -1004,34 +1011,35 @@ class CertificateFormatAndValidationTest extends TestCase
         $course2->delete();
     }
 
-    public function test_admin_can_bulk_export_selected_certificates(): void {
+    public function test_admin_can_bulk_export_selected_certificates(): void
+    {
         $course2 = Course::firstOrCreate(
             ['name' => 'CURSO DE PRUEBA EXPORTACION'],
             [
-                'certificate_type'  => 'capacitacion',
-                'study_program_id'  => $this->certificate->course->study_program_id,
-                'event_name'        => 'Semana Técnica 2026',
-                'is_active'         => true,
+                'certificate_type' => 'capacitacion',
+                'study_program_id' => $this->certificate->course->study_program_id,
+                'event_name' => 'Semana Técnica 2026',
+                'is_active' => true,
             ]
         );
 
         $cert2 = Certificate::firstOrCreate(
             ['certificate_code' => '100-2026-ST-FVC'],
             [
-                'user_id'               => $this->certificate->user_id,
-                'course_id'             => $course2->id,
-                'certificate_type'      => 'capacitacion',
-                'participation_type'    => 'ASISTENTE',
-                'issue_date'            => now()->format('Y-m-d'),
-                'is_active'             => true,
+                'user_id' => $this->certificate->user_id,
+                'course_id' => $course2->id,
+                'certificate_type' => 'capacitacion',
+                'participation_type' => 'ASISTENTE',
+                'issue_date' => now()->format('Y-m-d'),
+                'is_active' => true,
             ]
         );
 
         $response = $this->actingAs($this->adminUser)
             ->post('/admin-certificados/exportar-pdf', [
-                'scope'             => 'selected',
-                'certificate_ids'   => [$this->certificate->id],
-                'faces'             => 'all',
+                'scope' => 'selected',
+                'certificate_ids' => [$this->certificate->id],
+                'faces' => 'all',
             ]);
 
         $response->assertStatus(200);
@@ -1042,7 +1050,8 @@ class CertificateFormatAndValidationTest extends TestCase
         $course2->delete();
     }
 
-    public function test_admin_bulk_export_redirects_with_error_when_no_certificates_match(): void {
+    public function test_admin_bulk_export_redirects_with_error_when_no_certificates_match(): void
+    {
         $response = $this->actingAs($this->adminUser)
             ->post('/admin-certificados/exportar-pdf', [
                 'course_ids' => [999999],
@@ -1052,11 +1061,63 @@ class CertificateFormatAndValidationTest extends TestCase
         $response->assertSessionHas('error', 'No se encontraron certificados para exportar con los filtros y cursos seleccionados.');
     }
 
-    public function test_admin_bulk_export_respects_faces_filter(): void {
+    public function test_admin_bulk_export_respects_faces_filter(): void
+    {
         $response = $this->actingAs($this->adminUser)
             ->get('/admin-certificados/exportar-pdf?faces=front');
 
         $response->assertStatus(200);
         $response->assertSee('print-front-only');
+    }
+
+    public function test_admin_bulk_export_filters_by_status(): void
+    {
+        $inactiveCert = Certificate::create([
+            'certificate_code' => 'INACTIVE-2026-001',
+            'user_id' => $this->certificate->user_id,
+            'course_id' => $this->certificate->course_id,
+            'certificate_type' => 'capacitacion',
+            'participation_type' => 'ASISTENTE',
+            'event_name' => 'Semana Técnica 2026',
+            'study_program_id' => $this->certificate->study_program_id,
+            'institution_name' => $this->certificate->institution_name,
+            'city' => 'Uchiza',
+            'issue_date' => now()->format('Y-m-d'),
+            'is_active' => false,
+        ]);
+
+        // When status is 1 (only active), active cert is visible, inactive is not
+        $responseActive = $this->actingAs($this->adminUser)
+            ->post('/admin-certificados/exportar-pdf', [
+                'course_ids' => ['all'],
+                'status' => '1',
+            ]);
+        $responseActive->assertStatus(200);
+        $responseActive->assertSee($this->certificate->certificate_code);
+        $responseActive->assertDontSee($inactiveCert->certificate_code);
+
+        // When status is 0 (only inactive), inactive cert is visible, active is not
+        $responseInactive = $this->actingAs($this->adminUser)
+            ->post('/admin-certificados/exportar-pdf', [
+                'course_ids' => ['all'],
+                'status' => '0',
+            ]);
+        $responseInactive->assertStatus(200);
+        $responseInactive->assertSee($inactiveCert->certificate_code);
+        $responseInactive->assertDontSee($this->certificate->certificate_code);
+
+        $inactiveCert->delete();
+    }
+
+    public function test_admin_bulk_export_renders_all_database_certificates_without_memory_exhaustion(): void
+    {
+        $response = $this->actingAs($this->adminUser)
+            ->post('/admin-certificados/exportar-pdf', [
+                'course_ids' => ['all'],
+                'status' => 'all',
+            ]);
+
+        $response->assertStatus(200);
+        $response->assertSee('EXPORTACIÓN MASIVA PDF');
     }
 }

@@ -248,7 +248,7 @@
                                 </button>
                             @endif
                             {{-- Export Bulk PDF Button --}}
-                            <button type="button" @click="openBulkPdfModal(false)"
+                            <button type="button" @click="openBulkPdfModal()"
                                 class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 hover:from-red-700 hover:via-rose-700 hover:to-pink-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer">
                                 <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
                             </button>
@@ -292,9 +292,9 @@
                         <button type="button" @click="deselectAll()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition cursor-pointer">
                             <i class="bi bi-x-circle mr-1"></i> Desmarcar todos
                         </button>
-                        <button type="button" @click="openBulkPdfModal(true)" class="px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-rose-600/30 hover:scale-105 active:scale-95 cursor-pointer">
+                        <button type="button" @click="openBulkPdfModal()" class="px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-rose-600/30 hover:scale-105 active:scale-95 cursor-pointer">
                             <i class="bi bi-file-earmark-pdf-fill text-sm"></i>
-                            <span>Exportar PDF (<span x-text="selectedCerts.length"></span>)</span>
+                            <span>Exportar PDF</span>
                         </button>
                         <button type="button" @click="bulkDeleteModalOpen = true" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-rose-600/30 hover:scale-105 active:scale-95 cursor-pointer">
                             <i class="bi bi-trash-fill text-sm"></i>
@@ -1413,6 +1413,8 @@
                     </div>
                 </div>
             </div>
+        </div>
+
         {{-- ── Modal: Bulk Export Certificates in PDF ── --}}
         <div x-show="bulkPdfModalOpen" x-cloak
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-xs animate-fade-in"
@@ -1441,48 +1443,18 @@
                 <form action="{{ route('admin.certificates.bulk-export-pdf') }}" method="POST" target="_blank"
                     @submit="bulkPdfModalOpen = false" class="flex-1 flex flex-col overflow-hidden">
                     @csrf
-                    <input type="hidden" name="scope" :value="bulkPdfScope">
+                    <input type="hidden" name="scope" value="courses">
 
-                    {{-- Hidden inputs for selected certs when scope is selected --}}
-                    <template x-if="bulkPdfScope === 'selected'">
-                        <template x-for="id in selectedCerts" :key="'bulk-pdf-cert-' + id">
-                            <input type="hidden" name="certificate_ids[]" :value="id">
-                        </template>
-                    </template>
-
-                    {{-- Hidden inputs for course ids when scope is courses --}}
-                    <template x-if="bulkPdfScope === 'courses'">
-                        <template x-for="cid in selectedCourseIds" :key="'bulk-pdf-course-' + cid">
-                            <input type="hidden" name="course_ids[]" :value="cid">
-                        </template>
+                    {{-- Hidden inputs for course ids --}}
+                    <template x-for="cid in selectedCourseIds" :key="'bulk-pdf-course-' + cid">
+                        <input type="hidden" name="course_ids[]" :value="cid">
                     </template>
 
                     {{-- Scrollable Content Body --}}
                     <div class="p-6 space-y-5 overflow-y-auto flex-1 text-gray-800">
 
-                        {{-- Scope Choice (If certificates are currently selected in table) --}}
-                        <template x-if="selectedCerts.length > 0">
-                            <div class="bg-purple-50 border border-purple-200 rounded-xl p-3.5 space-y-2">
-                                <p class="text-xs font-bold text-purple-900 flex items-center gap-1.5">
-                                    <i class="bi bi-ui-checks-grid text-purple-600"></i> Alcance de la Exportación
-                                </p>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                                    <label class="flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition"
-                                        :class="bulkPdfScope === 'courses' ? 'bg-white border-purple-400 text-purple-900 font-bold shadow-xs' : 'bg-purple-100/40 border-purple-200 text-gray-600'">
-                                        <input type="radio" x-model="bulkPdfScope" value="courses" class="text-purple-600 focus:ring-purple-500">
-                                        <span>Filtrar por Cursos y Criterios</span>
-                                    </label>
-                                    <label class="flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition"
-                                        :class="bulkPdfScope === 'selected' ? 'bg-white border-purple-400 text-purple-900 font-bold shadow-xs' : 'bg-purple-100/40 border-purple-200 text-gray-600'">
-                                        <input type="radio" x-model="bulkPdfScope" value="selected" class="text-purple-600 focus:ring-purple-500">
-                                        <span>Solo los <strong x-text="selectedCerts.length"></strong> certificados seleccionados</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </template>
-
-                        {{-- Section: Course Selection (when scope is 'courses') --}}
-                        <div x-show="bulkPdfScope === 'courses'" class="space-y-2">
+                        {{-- Section: Course Selection --}}
+                        <div class="space-y-2">
                             <div class="flex items-center justify-between">
                                 <label class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
                                     <i class="bi bi-journal-bookmark-fill text-rose-600"></i>
@@ -1683,7 +1655,9 @@
                             Cancelar
                         </button>
                         <button type="submit"
-                            class="px-6 py-2.5 bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 hover:from-red-700 hover:via-rose-700 hover:to-pink-700 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-600/30 hover:shadow-lg transition flex items-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
+                            :disabled="selectedCourseIds.length === 0"
+                            :class="selectedCourseIds.length === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-[0.98]'"
+                            class="px-6 py-2.5 bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 hover:from-red-700 hover:via-rose-700 hover:to-pink-700 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-600/30 hover:shadow-lg transition flex items-center gap-2 cursor-pointer">
                             <i class="bi bi-file-earmark-pdf-fill text-sm"></i>
                             <span>Generar y Exportar PDF</span>
                         </button>
@@ -1712,12 +1686,8 @@
             courseFilterText: '',
             allCourseIds: @json($courses->pluck('id')->values()->all()),
 
-            openBulkPdfModal(fromSelection = false) {
-                if (fromSelection && this.selectedCerts.length > 0) {
-                    this.bulkPdfScope = 'selected';
-                } else {
-                    this.bulkPdfScope = 'courses';
-                }
+            openBulkPdfModal() {
+                this.bulkPdfScope = 'courses';
                 this.bulkPdfModalOpen = true;
             },
 

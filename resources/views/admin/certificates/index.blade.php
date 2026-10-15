@@ -247,6 +247,11 @@
                                     <span class="hidden sm:inline">Eliminar Todos</span>
                                 </button>
                             @endif
+                            {{-- Export Bulk PDF Button --}}
+                            <button type="button" @click="openBulkPdfModal(false)"
+                                class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 hover:from-red-700 hover:via-rose-700 hover:to-pink-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer">
+                                <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+                            </button>
                             {{-- Import Button --}}
                             <button type="button" @click="importModalOpen = true"
                                 class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all">
@@ -286,6 +291,10 @@
                     <div class="flex items-center gap-2.5">
                         <button type="button" @click="deselectAll()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition cursor-pointer">
                             <i class="bi bi-x-circle mr-1"></i> Desmarcar todos
+                        </button>
+                        <button type="button" @click="openBulkPdfModal(true)" class="px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-rose-600/30 hover:scale-105 active:scale-95 cursor-pointer">
+                            <i class="bi bi-file-earmark-pdf-fill text-sm"></i>
+                            <span>Exportar PDF (<span x-text="selectedCerts.length"></span>)</span>
                         </button>
                         <button type="button" @click="bulkDeleteModalOpen = true" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-rose-600/30 hover:scale-105 active:scale-95 cursor-pointer">
                             <i class="bi bi-trash-fill text-sm"></i>
@@ -1404,6 +1413,283 @@
                     </div>
                 </div>
             </div>
+        {{-- ── Modal: Bulk Export Certificates in PDF ── --}}
+        <div x-show="bulkPdfModalOpen" x-cloak
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-xs animate-fade-in"
+            @keydown.escape.window="bulkPdfModalOpen = false">
+            <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-gray-100 overflow-hidden flex flex-col max-h-[90vh]"
+                @click.outside="bulkPdfModalOpen = false">
+
+                {{-- Modal Header --}}
+                <div class="bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 px-6 py-4 flex items-center justify-between text-white shrink-0 shadow-md">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl shadow-inner">
+                            <i class="bi bi-file-earmark-pdf-fill"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black tracking-tight leading-tight">Exportación Masiva de Certificados en PDF</h3>
+                            <p class="text-xs text-rose-100">Genere el lote oficial de certificados listos para impresión o guardado como PDF</p>
+                        </div>
+                    </div>
+                    <button type="button" @click="bulkPdfModalOpen = false"
+                        class="text-white/80 hover:text-white p-1.5 rounded-xl hover:bg-white/10 transition-colors cursor-pointer">
+                        <i class="bi bi-x-lg text-sm"></i>
+                    </button>
+                </div>
+
+                {{-- Modal Form --}}
+                <form action="{{ route('admin.certificates.bulk-export-pdf') }}" method="POST" target="_blank"
+                    @submit="bulkPdfModalOpen = false" class="flex-1 flex flex-col overflow-hidden">
+                    @csrf
+                    <input type="hidden" name="scope" :value="bulkPdfScope">
+
+                    {{-- Hidden inputs for selected certs when scope is selected --}}
+                    <template x-if="bulkPdfScope === 'selected'">
+                        <template x-for="id in selectedCerts" :key="'bulk-pdf-cert-' + id">
+                            <input type="hidden" name="certificate_ids[]" :value="id">
+                        </template>
+                    </template>
+
+                    {{-- Hidden inputs for course ids when scope is courses --}}
+                    <template x-if="bulkPdfScope === 'courses'">
+                        <template x-for="cid in selectedCourseIds" :key="'bulk-pdf-course-' + cid">
+                            <input type="hidden" name="course_ids[]" :value="cid">
+                        </template>
+                    </template>
+
+                    {{-- Scrollable Content Body --}}
+                    <div class="p-6 space-y-5 overflow-y-auto flex-1 text-gray-800">
+
+                        {{-- Scope Choice (If certificates are currently selected in table) --}}
+                        <template x-if="selectedCerts.length > 0">
+                            <div class="bg-purple-50 border border-purple-200 rounded-xl p-3.5 space-y-2">
+                                <p class="text-xs font-bold text-purple-900 flex items-center gap-1.5">
+                                    <i class="bi bi-ui-checks-grid text-purple-600"></i> Alcance de la Exportación
+                                </p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                    <label class="flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition"
+                                        :class="bulkPdfScope === 'courses' ? 'bg-white border-purple-400 text-purple-900 font-bold shadow-xs' : 'bg-purple-100/40 border-purple-200 text-gray-600'">
+                                        <input type="radio" x-model="bulkPdfScope" value="courses" class="text-purple-600 focus:ring-purple-500">
+                                        <span>Filtrar por Cursos y Criterios</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition"
+                                        :class="bulkPdfScope === 'selected' ? 'bg-white border-purple-400 text-purple-900 font-bold shadow-xs' : 'bg-purple-100/40 border-purple-200 text-gray-600'">
+                                        <input type="radio" x-model="bulkPdfScope" value="selected" class="text-purple-600 focus:ring-purple-500">
+                                        <span>Solo los <strong x-text="selectedCerts.length"></strong> certificados seleccionados</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </template>
+
+                        {{-- Section: Course Selection (when scope is 'courses') --}}
+                        <div x-show="bulkPdfScope === 'courses'" class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                                    <i class="bi bi-journal-bookmark-fill text-rose-600"></i>
+                                    <span>Cursos a Exportar</span>
+                                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-extrabold"
+                                        x-text="selectedCourseIds.includes('all') ? 'Todos los Cursos' : `${selectedCourseIds.filter(id => id !== 'all').length} seleccionados`"></span>
+                                </label>
+                                <div class="flex items-center gap-2 text-xs">
+                                    <button type="button" @click="selectAllCourses()"
+                                        class="text-rose-600 hover:text-rose-800 hover:underline font-bold text-[11px] cursor-pointer">
+                                        Seleccionar Todos
+                                    </button>
+                                    <span class="text-gray-300">|</span>
+                                    <button type="button" @click="deselectAllCourses()"
+                                        class="text-gray-500 hover:text-gray-700 hover:underline font-bold text-[11px] cursor-pointer">
+                                        Deseleccionar
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Search input inside courses --}}
+                            <div class="relative">
+                                <i class="bi bi-search absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                                <input type="text" x-model="courseFilterText"
+                                    placeholder="Filtrar cursos por nombre..."
+                                    class="w-full pl-8 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-700 focus:bg-white focus:border-rose-400 focus:ring-1 focus:ring-rose-400 focus:outline-hidden transition">
+                            </div>
+
+                            {{-- Course Checklist Box --}}
+                            <div class="border border-gray-200 rounded-xl bg-gray-50/50 p-2 max-h-48 overflow-y-auto space-y-1 divide-y divide-gray-100">
+                                {{-- Option: All Courses --}}
+                                <label class="flex items-center justify-between p-2 rounded-lg hover:bg-white cursor-pointer transition"
+                                    :class="selectedCourseIds.includes('all') ? 'bg-white font-bold text-rose-900 border border-rose-200 shadow-xs' : 'text-gray-700'">
+                                    <div class="flex items-center gap-2.5">
+                                        <input type="checkbox" :checked="selectedCourseIds.includes('all')"
+                                            @change="toggleCourse('all')"
+                                            class="rounded text-rose-600 focus:ring-rose-500 cursor-pointer">
+                                        <span class="text-xs">📚 Todos los Cursos Registrados</span>
+                                    </div>
+                                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-bold">
+                                        {{ $totalCertificates }} certificados
+                                    </span>
+                                </label>
+
+                                @foreach ($courses as $c)
+                                    <label class="flex items-center justify-between p-2 rounded-lg hover:bg-white cursor-pointer transition"
+                                        x-show="!courseFilterText || '{{ strtolower(addslashes($c->name)) }}'.includes(courseFilterText.toLowerCase())"
+                                        :class="isCourseSelected('{{ $c->id }}') ? 'bg-white text-gray-900 font-semibold' : 'text-gray-600'">
+                                        <div class="flex items-center gap-2.5 min-w-0 pr-2">
+                                            <input type="checkbox" :checked="isCourseSelected('{{ $c->id }}')"
+                                                @change="toggleCourse('{{ $c->id }}')"
+                                                class="rounded text-rose-600 focus:ring-rose-500 cursor-pointer">
+                                            <div class="truncate">
+                                                <p class="text-xs truncate">{{ $c->name }}</p>
+                                                @if($c->studyProgram)
+                                                    <p class="text-[10px] text-gray-400 truncate">{{ $c->studyProgram->name }}</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1.5 shrink-0">
+                                            @if($c->certificate_type === 'ingles')
+                                                <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-700 font-bold">Inglés</span>
+                                            @endif
+                                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-gray-200/80 text-gray-700 font-medium">
+                                                {{ $c->certificates_count }} certs
+                                            </span>
+                                        </div>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        {{-- Section: Faces to Print (Ambas caras / Solo Frente / Solo Reverso) --}}
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                                <i class="bi bi-file-earmark-break text-rose-600"></i> Páginas / Caras a Incluir
+                            </label>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                                <label class="border rounded-xl p-3 flex flex-col justify-between cursor-pointer transition"
+                                    :class="facesChoice === 'all' ? 'border-rose-500 bg-rose-50/50 shadow-xs' : 'border-gray-200 bg-white hover:bg-gray-50'">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <input type="radio" name="faces" value="all" x-model="facesChoice" class="text-rose-600 focus:ring-rose-500">
+                                        <span class="font-bold text-gray-900">Ambas Caras</span>
+                                    </div>
+                                    <p class="text-[11px] text-gray-500 leading-tight">Frente y Reverso con notas/temario</p>
+                                </label>
+                                <label class="border rounded-xl p-3 flex flex-col justify-between cursor-pointer transition"
+                                    :class="facesChoice === 'front' ? 'border-rose-500 bg-rose-50/50 shadow-xs' : 'border-gray-200 bg-white hover:bg-gray-50'">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <input type="radio" name="faces" value="front" x-model="facesChoice" class="text-rose-600 focus:ring-rose-500">
+                                        <span class="font-bold text-gray-900">Solo Anverso</span>
+                                    </div>
+                                    <p class="text-[11px] text-gray-500 leading-tight">Solo portada oficial principal</p>
+                                </label>
+                                <label class="border rounded-xl p-3 flex flex-col justify-between cursor-pointer transition"
+                                    :class="facesChoice === 'back' ? 'border-rose-500 bg-rose-50/50 shadow-xs' : 'border-gray-200 bg-white hover:bg-gray-50'">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <input type="radio" name="faces" value="back" x-model="facesChoice" class="text-rose-600 focus:ring-rose-500">
+                                        <span class="font-bold text-gray-900">Solo Reverso</span>
+                                    </div>
+                                    <p class="text-[11px] text-gray-500 leading-tight">Solo calificaciones / QR posterior</p>
+                                </label>
+                            </div>
+                        </div>
+
+                        {{-- Section: Other Filter Options (Grid) --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-1 border-t border-gray-100">
+                            {{-- Modalidad --}}
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Modalidad</label>
+                                <select name="modality"
+                                    class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-800 focus:border-rose-500 focus:ring-1 focus:ring-rose-500">
+                                    <option value="all">Todas las Modalidades</option>
+                                    <option value="Presencial">Presencial</option>
+                                    <option value="Virtual">Virtual</option>
+                                    <option value="Semipresencial">Semipresencial</option>
+                                </select>
+                            </div>
+
+                            {{-- Estado --}}
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Estado de Certificados</label>
+                                <select name="status"
+                                    class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-800 focus:border-rose-500 focus:ring-1 focus:ring-rose-500">
+                                    <option value="1" selected>Solo Activos (Habilitados)</option>
+                                    <option value="all">Todos (Activos e Inactivos)</option>
+                                    <option value="0">Solo Inactivos</option>
+                                </select>
+                            </div>
+
+                            {{-- Tipo de Participación --}}
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Tipo de Participación</label>
+                                <select name="participation_type"
+                                    class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-800 focus:border-rose-500 focus:ring-1 focus:ring-rose-500">
+                                    <option value="all">Todos los Tipos</option>
+                                    <option value="ASISTENTE">ASISTENTE</option>
+                                    <option value="ORGANIZADOR">ORGANIZADOR</option>
+                                    <option value="PONENTE">PONENTE</option>
+                                    <option value="DOCENTE">DOCENTE</option>
+                                    <option value="PARTICIPANTE">PARTICIPANTE</option>
+                                </select>
+                            </div>
+
+                            {{-- Ordenación --}}
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Criterio de Ordenación</label>
+                                <select name="order_by"
+                                    class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-800 focus:border-rose-500 focus:ring-1 focus:ring-rose-500">
+                                    <option value="names_asc" selected>Apellidos y Nombres (A - Z)</option>
+                                    <option value="issue_date_desc">Fecha de Emisión (Más reciente primero)</option>
+                                    <option value="issue_date_asc">Fecha de Emisión (Más antiguo primero)</option>
+                                    <option value="code_asc">Código de Certificado</option>
+                                    <option value="course_name">Nombre de Curso</option>
+                                </select>
+                            </div>
+
+                            {{-- Date From --}}
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Fecha Emisión Desde</label>
+                                <input type="date" name="date_from"
+                                    class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-800 focus:border-rose-500 focus:ring-1 focus:ring-rose-500">
+                            </div>
+
+                            {{-- Date To --}}
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Fecha Emisión Hasta</label>
+                                <input type="date" name="date_to"
+                                    class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-800 focus:border-rose-500 focus:ring-1 focus:ring-rose-500">
+                            </div>
+                        </div>
+
+                        {{-- Output Settings & Tips --}}
+                        <div class="space-y-2 pt-1 border-t border-gray-100">
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-gray-800">
+                                <input type="checkbox" name="auto_print" value="1" checked
+                                    class="rounded text-rose-600 focus:ring-rose-500 cursor-pointer">
+                                <span>Abrir diálogo de impresión/guardado en PDF automáticamente al cargar</span>
+                            </label>
+
+                            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 flex items-start gap-2.5">
+                                <i class="bi bi-lightbulb-fill text-amber-600 text-base shrink-0 mt-0.5"></i>
+                                <div class="space-y-0.5">
+                                    <p class="font-bold text-amber-950">Consejo para exportar como archivo PDF:</p>
+                                    <p class="text-[11px] text-amber-800 leading-normal">
+                                        En la ventana del navegador que se abrirá, seleccione el Destino <strong>"Guardar como PDF"</strong>, tamaño <strong>A4</strong>, orientación <strong>Horizontal</strong> y márgenes <strong>"Ninguno"</strong> para asegurar un documento vectorial perfecto y nítido.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {{-- Modal Footer --}}
+                    <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex items-center justify-end gap-3 shrink-0">
+                        <button type="button" @click="bulkPdfModalOpen = false"
+                            class="px-4 py-2.5 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-xl text-xs font-bold transition cursor-pointer">
+                            Cancelar
+                        </button>
+                        <button type="submit"
+                            class="px-6 py-2.5 bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 hover:from-red-700 hover:via-rose-700 hover:to-pink-700 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-600/30 hover:shadow-lg transition flex items-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
+                            <i class="bi bi-file-earmark-pdf-fill text-sm"></i>
+                            <span>Generar y Exportar PDF</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
 
     </div>
@@ -1419,6 +1705,61 @@
             importModalOpen: false,
             bulkDeleteModalOpen: false,
             deleteAllModalOpen: false,
+            bulkPdfModalOpen: false,
+            bulkPdfScope: 'courses',
+            facesChoice: 'all',
+            selectedCourseIds: ['all'],
+            courseFilterText: '',
+            allCourseIds: @json($courses->pluck('id')->values()->all()),
+
+            openBulkPdfModal(fromSelection = false) {
+                if (fromSelection && this.selectedCerts.length > 0) {
+                    this.bulkPdfScope = 'selected';
+                } else {
+                    this.bulkPdfScope = 'courses';
+                }
+                this.bulkPdfModalOpen = true;
+            },
+
+            selectAllCourses() {
+                this.selectedCourseIds = ['all', ...this.allCourseIds.map(String)];
+            },
+
+            deselectAllCourses() {
+                this.selectedCourseIds = [];
+            },
+
+            toggleCourse(id) {
+                id = String(id);
+                if (id === 'all') {
+                    if (this.selectedCourseIds.includes('all')) {
+                        this.selectedCourseIds = [];
+                    } else {
+                        this.selectedCourseIds = ['all', ...this.allCourseIds.map(String)];
+                    }
+                    return;
+                }
+
+                const index = this.selectedCourseIds.indexOf(id);
+                if (index > -1) {
+                    this.selectedCourseIds.splice(index, 1);
+                    const allIdx = this.selectedCourseIds.indexOf('all');
+                    if (allIdx > -1) this.selectedCourseIds.splice(allIdx, 1);
+                } else {
+                    this.selectedCourseIds.push(id);
+                    if (this.allCourseIds.length > 0 && this.allCourseIds.every(cid => this.selectedCourseIds.includes(String(cid)))) {
+                        if (!this.selectedCourseIds.includes('all')) {
+                            this.selectedCourseIds.push('all');
+                        }
+                    }
+                }
+            },
+
+            isCourseSelected(id) {
+                id = String(id);
+                return this.selectedCourseIds.includes('all') || this.selectedCourseIds.includes(id);
+            },
+
             importTab: 'upload',
             fileName: '',
             isEdit: false,

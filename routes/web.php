@@ -83,6 +83,12 @@ Route::get('/verificar-certificado/{certificate_code?}', function (?string $cert
     return redirect()->route('validar-certificado', array_filter(['code' => $code]));
 })->name('verificar.certificado');
 
+Route::get('/verify-certificate/{certificate_code?}', function (?string $certificate_code = null, ?Request $request = null) {
+    $code = $certificate_code ?: request('code');
+
+    return redirect()->route('validar-certificado', array_filter(['code' => $code]));
+})->name('verify.certificate');
+
 // Links institucionales
 Route::get('/servicios/enlaces-institucionales', [AppController::class, 'institutionalLinks'])->name('enlaces-institucionales');
 
@@ -329,6 +335,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [CertificateController::class, 'store'])->name('store');
         Route::get('/plantilla', [CertificateController::class, 'downloadTemplate'])->name('template');
         Route::post('/importar', [CertificateController::class, 'import'])->name('import');
+        Route::match(['get', 'post'], '/exportar-pdf', [CertificateController::class, 'bulkExportPdf'])->name('bulk-export-pdf');
         Route::post('/eliminar-masivo', [CertificateController::class, 'bulkDelete'])->name('bulk-delete');
         Route::delete('/eliminar-todos', [CertificateController::class, 'deleteAll'])->name('delete-all');
         Route::post('/eliminar-todos', [CertificateController::class, 'deleteAll'])->name('delete-all.post');

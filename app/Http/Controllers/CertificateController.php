@@ -68,7 +68,7 @@ class CertificateController extends Controller
             ->orderByDesc('id');
 
         $certificates = $query->paginate(10)->appends($request->only(['search', 'course_id', 'user_id', 'modality', 'status']));
-        $courses = Course::where('is_active', true)->with('modules')->orderBy('name')->get();
+        $courses = Course::where('is_active', true)->with('modules')->withCount('certificates')->orderBy('name')->get();
         $users = User::where('is_active', true)->withCount('certificates')->orderBy('names')->get(['id', 'names', 'dni', 'email']);
 
         // Stat counters
@@ -174,6 +174,105 @@ class CertificateController extends Controller
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
 
         return view('admin.certificates.print', compact('certificate', 'enterprise'));
+    }
+
+    /**
+     * Bulk export certificates in PDF format.
+     */
+    public function bulkExportPdf(Request $request): View|RedirectResponse
+    {
+        $query = Certificate::with([
+            'user',
+            'course.modules.itineraries',
+            'course.modules',
+            'course.itineraries',
+            'studyProgram',
+            'course.studyProgram',
+            'details.module',
+        ]);
+
+        $scope = $request->input('scope', 'courses');
+        $selectedIds = $request->input('certificate_ids', []);
+        if (is_string($selectedIds)) {
+            $selectedIds = array_filter(explode(',', $selectedIds));
+        }
+
+        if ($scope === 'selected' && ! empty($selectedIds)) {
+            $query->whereIn('certificates.id', $selectedIds);
+        } else {
+            // Course filter
+            $courseIds = $request->input('course_ids', []);
+            if (is_string($courseIds)) {
+                $courseIds = array_filter(explode(',', $courseIds));
+            }
+
+            if (! empty($courseIds) && ! in_array('all', (array) $courseIds)) {
+                $query->whereIn('certificates.course_id', (array) $courseIds);
+            }
+
+            // Modality filter
+            if ($request->filled('modality') && $request->input('modality') !== 'all') {
+                $query->where('certificates.modality', $request->input('modality'));
+            }
+
+            // Status filter
+            $status = $request->input('status', '1');
+            if ($status !== 'all' && $status !== null && $status !== '') {
+                $query->where('certificates.is_active', (bool) $status);
+            }
+
+            // Participation type filter
+            if ($request->filled('participation_type') && $request->input('participation_type') !== 'all') {
+                $query->where('certificates.participation_type', $request->input('participation_type'));
+            }
+
+            // Date range filters
+            if ($request->filled('date_from')) {
+                $query->whereDate('certificates.issue_date', '>=', $request->input('date_from'));
+            }
+            if ($request->filled('date_to')) {
+                $query->whereDate('certificates.issue_date', '<=', $request->input('date_to'));
+            }
+        }
+
+        // Sorting
+        $orderBy = $request->input('order_by', 'names_asc');
+        switch ($orderBy) {
+            case 'names_asc':
+                $query->join('users', 'certificates.user_id', '=', 'users.id')
+                    ->select('certificates.*')
+                    ->orderBy('users.names', 'asc');
+                break;
+            case 'issue_date_desc':
+                $query->orderByDesc('certificates.issue_date')->orderByDesc('certificates.id');
+                break;
+            case 'issue_date_asc':
+                $query->orderBy('certificates.issue_date')->orderBy('certificates.id');
+                break;
+            case 'code_asc':
+                $query->orderBy('certificates.certificate_code')->orderBy('certificates.code');
+                break;
+            case 'course_name':
+                $query->join('courses', 'certificates.course_id', '=', 'courses.id')
+                    ->select('certificates.*')
+                    ->orderBy('courses.name', 'asc');
+                break;
+            default:
+                $query->orderByDesc('certificates.issue_date')->orderByDesc('certificates.id');
+        }
+
+        $certificates = $query->get();
+
+        if ($certificates->isEmpty()) {
+            return redirect()->route('admin.certificates.index')
+                ->with('error', 'No se encontraron certificados para exportar con los filtros y cursos seleccionados.');
+        }
+
+        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
+        $faces = $request->input('faces', 'all');
+        $autoPrint = $request->boolean('auto_print', true);
+
+        return view('admin.certificates.bulk-print', compact('certificates', 'enterprise', 'faces', 'autoPrint'));
     }
 
     /**

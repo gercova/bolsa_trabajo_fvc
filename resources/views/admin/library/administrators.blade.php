@@ -1,7 +1,5 @@
 @extends('admin.library.layout')
-
 @section('title', 'Administradores - Biblioteca')
-
 @section('library_content')
 <div class="p-5 sm:p-7 space-y-6">
 

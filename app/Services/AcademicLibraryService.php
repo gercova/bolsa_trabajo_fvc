@@ -7,6 +7,7 @@ use App\Models\StudyProgram;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Symfony\Component\DomCrawler\Crawler;
 
 class AcademicLibraryService
 {
@@ -87,6 +88,39 @@ class AcademicLibraryService
     ];
 
     /**
+     * Browser-like headers used for scraping and page scanning.
+     *
+     * @var array<string, string>
+     */
+    public const SCRAPE_HEADERS = [
+        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+        'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,application/pdf;q=0.8,*/*;q=0.7',
+        'Accept-Language' => 'es-ES,es;q=0.9,en;q=0.8',
+        'Sec-Ch-Ua' => '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
+        'Sec-Ch-Ua-Mobile' => '?0',
+        'Sec-Ch-Ua-Platform' => '"Windows"',
+        'Sec-Fetch-Dest' => 'document',
+        'Sec-Fetch-Mode' => 'navigate',
+        'Sec-Fetch-Site' => 'none',
+        'Sec-Fetch-User' => '?1',
+        'Upgrade-Insecure-Requests' => '1',
+    ];
+
+    /**
+     * Standard academic API headers.
+     *
+     * @var array<string, string>
+     */
+    public const API_HEADERS = [
+        'User-Agent' => 'IESTP-Francisco-Vigo-Caballero/VirtualLibrary (contacto@iestpfvc.edu.pe; academic-integration)',
+        'Accept' => 'application/json',
+    ];
+
+    // ══════════════════════════════════════════════════════════════
+    // MAIN ENTRY POINT
+    // ══════════════════════════════════════════════════════════════
+
+    /**
      * Search and bulk-import academic resources (journals, books, papers, articles).
      *
      * @param array{
@@ -144,16 +178,16 @@ class AcademicLibraryService
             if ($allPrograms->isNotEmpty()) {
                 foreach ($allPrograms as $p) {
                     $targets[$p->id] = self::PROGRAM_QUERIES[$p->id] ?? [
-                        'name' => $p->name,
-                        'terms' => [$p->name.' scielo', $p->name.' redalyc'],
-                        'default_category' => 'Paper',
+                        'name'              => $p->name,
+                        'terms'             => [$p->name.' scielo', $p->name.' redalyc'],
+                        'default_category'  => 'Paper',
                     ];
                 }
             } else {
                 $targets[0] = [
-                    'name' => 'General',
-                    'terms' => self::GENERAL_QUERIES,
-                    'default_category' => 'Paper',
+                    'name'              => 'General',
+                    'terms'             => self::GENERAL_QUERIES,
+                    'default_category'  => 'Paper',
                 ];
             }
         }
@@ -216,12 +250,54 @@ class AcademicLibraryService
                     break;
                 }
 
-                // ── 2. Fetch from OpenAlex API (Covers SciELO, Redalyc, DOAJ, Open Access repositories) ──
+                // ── 2. Fetch from DOAJ API (Directory of Open Access Journals with direct fulltext links) ──
+                if (in_array('doaj', $sources)) {
+                    try {
+                        $doajResults = $this->queryDoaj(
+                            $term,
+                            $config,
+                            $currentProgramId,
+                            $categoryFilter,
+                            $limit - ($savedCount + $updatedCount)
+                        );
+
+                        foreach ($doajResults as $item) {
+                            if (($savedCount + $updatedCount) >= $limit) {
+                                break;
+                            }
+
+                            $item['created_by'] = $createdBy;
+                            [$action, $book] = $this->upsertAcademicResource($item);
+
+                            if ($action === 'saved') {
+                                $savedCount++;
+                                $importedList[] = $this->formatItemSummary($book);
+                            } elseif ($action === 'updated') {
+                                $updatedCount++;
+                                $importedList[] = $this->formatItemSummary($book);
+                            } else {
+                                $skippedCount++;
+                            }
+                        }
+
+                        if (! empty($doajResults)) {
+                            $log[] = "DOAJ [{$config['name']}] «{$term}»: ".count($doajResults).' registros procesados.';
+                        }
+                    } catch (\Throwable $e) {
+                        $errors[] = "DOAJ [{$term}]: {$e->getMessage()}";
+                        Log::warning("AcademicLibraryService DOAJ error [{$term}]: ".$e->getMessage());
+                    }
+                }
+
+                if (($savedCount + $updatedCount) >= $limit) {
+                    break;
+                }
+
+                // ── 3. Fetch from OpenAlex API (Covers SciELO, Redalyc, Dialnet, Open Access Repositories & Books) ──
                 if (
                     in_array('scielo', $sources) ||
                     in_array('redalyc', $sources) ||
-                    in_array('openalex', $sources) ||
-                    in_array('doaj', $sources)
+                    in_array('openalex', $sources)
                 ) {
                     try {
                         $openAlexResults = $this->queryOpenAlex(
@@ -261,8 +337,12 @@ class AcademicLibraryService
                     }
                 }
 
-                // ── 3. Fallback to Crossref API (Official Scholarly DOI Registry) if needed ──
-                if (($savedCount + $updatedCount) < $limit && in_array('crossref', $sources)) {
+                if (($savedCount + $updatedCount) >= $limit) {
+                    break;
+                }
+
+                // ── 4. Fallback to Crossref API (Official Scholarly DOI Registry) if needed ──
+                if (in_array('crossref', $sources)) {
                     try {
                         $crossrefResults = $this->queryCrossref(
                             $term,
@@ -323,23 +403,34 @@ class AcademicLibraryService
         ];
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // SOURCE 1: GOOGLE SCHOLAR (DIRECT PDF SCANNING & SCRAPING)
+    // ══════════════════════════════════════════════════════════════
+
     /**
      * Search and parse Google Scholar results for direct document / PDF links.
      *
+     * @param  array<string, mixed>  $config
      * @return array<int, array<string, mixed>>
      */
     public function queryGoogleScholar(string $term, array $config, int $programId, ?string $categoryFilter, int $batchLimit): array
     {
         $maxItems = max(1, min($batchLimit, 15));
-        $scholarQuery = $term.' (scielo OR redalyc OR "open access" OR pdf)';
+
+        // Tailor query modifier by category
+        $categoryModifier = match ($categoryFilter) {
+            'Libro' => ' (libro OR "open access" OR pdf)',
+            'Revista' => ' (revista OR journal OR scielo OR redalyc OR pdf)',
+            'Tesis' => ' (tesis OR dissertation OR "open access" OR pdf)',
+            'Documento' => ' (informe OR manual OR guia OR pdf)',
+            default => ' (scielo OR redalyc OR "open access" OR pdf)',
+        };
+
+        $scholarQuery = $term.$categoryModifier;
 
         try {
             $response = Http::timeout(8)
-                ->withHeaders([
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                    'Accept-Language' => 'es-ES,es;q=0.9,en;q=0.8',
-                ])
+                ->withHeaders(self::SCRAPE_HEADERS)
                 ->get('https://scholar.google.com/scholar', [
                     'q' => $scholarQuery,
                     'hl' => 'es',
@@ -362,10 +453,150 @@ class AcademicLibraryService
 
     /**
      * Parse HTML output from Google Scholar search results.
+     * Extracts direct PDF download links from the side badge (.gs_or_ggsm, .gs_ggs)
+     * and landing URLs, normalizing to direct document viewer / PDF links.
      *
+     * @param  array<string, mixed>  $config
      * @return array<int, array<string, mixed>>
      */
     public function parseGoogleScholarHtml(string $html, array $config, int $programId, ?string $categoryFilter, int $maxItems): array
+    {
+        $results = [];
+
+        try {
+            $crawler = new Crawler($html);
+            $blocks = $crawler->filter('div.gs_r.gs_or');
+            if ($blocks->count() === 0) {
+                $blocks = $crawler->filter('div[class*="gs_r"]');
+            }
+
+            if ($blocks->count() > 0) {
+                $blocks->each(function (Crawler $block) use (&$results, $maxItems, $config, $programId, $categoryFilter): void {
+                    if (count($results) >= $maxItems) {
+                        return;
+                    }
+
+                    try {
+                        // 1. Direct PDF / Galley link on the right (.gs_or_ggsm, .gs_ggs, .gs_fl)
+                        // Ignore collapsible pseudo-links like javascript:void(0)
+                        $directDocLink = null;
+                        $badgeAnchors = $block->filter('div.gs_or_ggsm a, div.gs_ggs a, div.gs_fl a');
+                        foreach ($badgeAnchors as $badgeAnchor) {
+                            $href = trim($badgeAnchor->getAttribute('href') ?? '');
+                            if ($href !== '' && ! str_starts_with($href, 'javascript:') && $href !== '#') {
+                                $directDocLink = html_entity_decode($href);
+                                break;
+                            }
+                        }
+
+                        // 2. Article Title and Landing URL (h3.gs_rt a)
+                        $titleNode = $block->filter('h3.gs_rt a');
+                        $landingUrl = '';
+                        $title = '';
+
+                        if ($titleNode->count() > 0) {
+                            $landingUrl = html_entity_decode(trim((string) $titleNode->first()->attr('href')));
+                            $title = trim(strip_tags(html_entity_decode($titleNode->first()->text())));
+                        } else {
+                            $h3Node = $block->filter('h3.gs_rt');
+                            if ($h3Node->count() > 0) {
+                                $title = trim(strip_tags(html_entity_decode($h3Node->first()->text())));
+                            }
+                        }
+
+                        if (mb_strlen($title) < 5) {
+                            return;
+                        }
+
+                        // Determine candidate link: direct badge link has highest priority
+                        $candidateUrl = ($directDocLink && ! str_starts_with($directDocLink, 'javascript:'))
+                            ? $directDocLink
+                            : $landingUrl;
+
+                        if ($candidateUrl === '' || str_starts_with($candidateUrl, 'javascript:') || $candidateUrl === '#') {
+                            return;
+                        }
+
+                        // 3. Authors, Journal & Year (.gs_a)
+                        $author = 'Varios Autores / Colectivo Académico';
+                        $year = null;
+                        $publisherName = 'Google Scholar / Repositorio Académico';
+
+                        $metaNode = $block->filter('div.gs_a');
+                        if ($metaNode->count() > 0) {
+                            $metaText = trim(strip_tags(html_entity_decode($metaNode->first()->text())));
+                            if (preg_match('/\b(19\d\d|20\d\d)\b/', $metaText, $yMatch)) {
+                                $year = (int) $yMatch[1];
+                            }
+
+                            $parts = explode(' - ', $metaText);
+                            if (! empty($parts[0])) {
+                                $author = Str::limit(trim($parts[0]), 250);
+                            }
+
+                            if (! empty($parts[1])) {
+                                $publisherName = Str::limit('Google Scholar / '.trim($parts[1]), 145);
+                            }
+                        }
+
+                        // 4. Abstract / Snippet (.gs_rs)
+                        $description = null;
+                        $snippetNode = $block->filter('div.gs_rs');
+                        if ($snippetNode->count() > 0) {
+                            $description = trim(strip_tags(html_entity_decode($snippetNode->first()->text())));
+                        }
+
+                        if (! $description) {
+                            $description = "Publicación académica verificada por Google Scholar («{$title}»). Documento indexado para investigación y formación técnica tecnológica.";
+                        }
+
+                        // 5. Resolve to direct document / PDF link via page scanner & normalization
+                        $finalUrl = $this->resolveDirectDocumentLink($candidateUrl);
+
+                        if ($finalUrl === '' || str_starts_with($finalUrl, 'javascript:') || $finalUrl === '#') {
+                            return;
+                        }
+
+                        $results[] = [
+                            'title' => Str::limit($title, 250),
+                            'author' => $author,
+                            'study_program_id' => $programId > 0 ? $programId : null,
+                            'category' => $categoryFilter ?: ($config['default_category'] ?? 'Paper'),
+                            'description' => Str::limit($description, 950),
+                            'publisher' => $publisherName,
+                            'publication_year' => $year,
+                            'edition' => '1ª Edición Digital',
+                            'pages' => null,
+                            'isbn' => null,
+                            'language' => 'Español',
+                            'external_url' => Str::limit($finalUrl, 495),
+                            'rating' => 5.0,
+                            'is_active' => true,
+                        ];
+                    } catch (\Throwable $e) {
+                        Log::info('Google Scholar block parse error: '.$e->getMessage());
+                    }
+                });
+
+                if (! empty($results)) {
+                    return $results;
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::info('Google Scholar DomCrawler parse error: '.$e->getMessage());
+        }
+
+        // Fallback: Regex-based parsing
+        return $this->parseGoogleScholarHtmlLegacy($html, $config, $programId, $categoryFilter, $maxItems);
+    }
+
+    /**
+     * Legacy regex-based fallback parser for Google Scholar HTML.
+     *
+     * @param  array<string, mixed>  $config
+     * @return array<int, array<string, mixed>>
+     */
+    private function parseGoogleScholarHtmlLegacy(string $html, array $config, int $programId, ?string $categoryFilter, int $maxItems): array
     {
         $results = [];
 
@@ -373,7 +604,6 @@ class AcademicLibraryService
         preg_match_all('/<div[^>]*class=["\'][^"\']*gs_r\s+gs_or[^"\']*["\'][^>]*>(.*?)<\/div>\s*(?=<div[^>]*class=["\'][^"\']*gs_r\s+gs_or[^"\']*["\']|$)/is', $html, $matches);
 
         if (empty($matches[1])) {
-            // Alternate regex for standard result items
             preg_match_all('/<div[^>]*class=["\']gs_ri["\'][^>]*>(.*?)<\/div>\s*<\/div>/is', $html, $matches);
         }
 
@@ -384,11 +614,11 @@ class AcademicLibraryService
                 break;
             }
 
-            // 1. Direct PDF / Galley link on the right (.gs_or_ggsm, .gs_ggs, .gs_fl or [PDF] badge)
+            // 1. Direct PDF / Galley link on the right (filter out javascript:void(0))
             $directDocLink = null;
-            if (preg_match('/<div[^>]*class=["\'][^"\']*(?:gs_or_ggsm|gs_ggs|gs_fl)[^"\']*["\'][^>]*>.*?<a[^>]*href=["\']([^"\']+)["\']/is', $block, $pdfMatch)) {
+            if (preg_match('/<div[^>]*class=["\'][^"\']*(?:gs_or_ggsm|gs_ggs|gs_fl)[^"\']*["\'][^>]*>.*?<a[^>]*href=["\'](https?:\/\/[^"\']+)["\']/is', $block, $pdfMatch)) {
                 $directDocLink = html_entity_decode(trim($pdfMatch[1]));
-            } elseif (preg_match('/<a[^>]*href=["\']([^"\']+)["\'][^>]*>.*?(?:\[PDF\]|\.pdf\b|\[HTML\])/is', $block, $pdfMatch)) {
+            } elseif (preg_match('/<a[^>]*href=["\'](https?:\/\/[^"\']+)["\'][^>]*>.*?(?:\[PDF\]|\.pdf\b|\[HTML\])/is', $block, $pdfMatch)) {
                 $directDocLink = html_entity_decode(trim($pdfMatch[1]));
             }
 
@@ -401,6 +631,11 @@ class AcademicLibraryService
             $title = trim(strip_tags(html_entity_decode($titleMatch[2])));
 
             if (mb_strlen($title) < 5) {
+                continue;
+            }
+
+            $candidateUrl = ($directDocLink && ! str_starts_with($directDocLink, 'javascript:')) ? $directDocLink : $landingUrl;
+            if ($candidateUrl === '' || str_starts_with($candidateUrl, 'javascript:') || $candidateUrl === '#') {
                 continue;
             }
 
@@ -435,8 +670,11 @@ class AcademicLibraryService
             }
 
             // 5. Direct Document URL resolution (PDF / Galley)
-            $candidateUrl = $directDocLink ?: $landingUrl;
             $finalUrl = $this->resolveDirectDocumentLink($candidateUrl);
+
+            if ($finalUrl === '' || str_starts_with($finalUrl, 'javascript:') || $finalUrl === '#') {
+                continue;
+            }
 
             $results[] = [
                 'title' => Str::limit($title, 250),
@@ -450,7 +688,7 @@ class AcademicLibraryService
                 'pages' => null,
                 'isbn' => null,
                 'language' => 'Español',
-                'external_url' => $finalUrl,
+                'external_url' => Str::limit($finalUrl, 495),
                 'rating' => 5.0,
                 'is_active' => true,
             ];
@@ -459,29 +697,201 @@ class AcademicLibraryService
         return $results;
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // SOURCE 2: DOAJ API (DIRECTORY OF OPEN ACCESS JOURNALS)
+    // ══════════════════════════════════════════════════════════════
+
     /**
-     * Query OpenAlex API (World's premier open academic index covering SciELO, Redalyc, DOAJ, etc.)
+     * Query DOAJ API (Directory of Open Access Journals) - free, verified public open-access index.
+     * Extracts direct fulltext links and resolves them to direct PDF / galley URLs.
+     *
+     * @param  array<string, mixed>  $config
+     * @return array<int, array<string, mixed>>
+     */
+    public function queryDoaj(string $term, array $config, int $programId, ?string $categoryFilter, int $batchLimit): array
+    {
+        $pageSize = max(1, min($batchLimit, 15));
+        $cleanTerm = trim(preg_replace('/\b(scielo|redalyc|google\s+scholar)\b/i', '', $term));
+        if ($cleanTerm === '') {
+            $cleanTerm = $config['name'] ?? 'investigacion tecnologica';
+        }
+
+        try {
+            $response = Http::timeout(10)
+                ->withHeaders(self::API_HEADERS)
+                ->get('https://doaj.org/api/search/articles/'.rawurlencode($cleanTerm), [
+                    'pageSize' => $pageSize,
+                ]);
+
+            if (! $response->successful()) {
+                return [];
+            }
+
+            $results = [];
+            $items = $response->json('results') ?? [];
+
+            foreach ($items as $item) {
+                $bib = $item['bibjson'] ?? [];
+                $title = trim((string) ($bib['title'] ?? ''));
+                if ($title === '' || mb_strlen($title) < 5) {
+                    continue;
+                }
+
+                // Extract Authors
+                $authors = collect($bib['author'] ?? [])
+                    ->map(fn ($a) => is_array($a) ? trim($a['name'] ?? '') : (string) $a)
+                    ->filter()
+                    ->take(3)
+                    ->implode(', ');
+                $author = $authors ?: 'Varios Autores / Colectivo Académico';
+
+                // Extract Journal / Publisher
+                $journalTitle = $bib['journal']['title'] ?? ($bib['journal']['publisher'] ?? 'DOAJ Open Access');
+                $publisherName = Str::limit('DOAJ / '.$journalTitle, 145);
+
+                // Extract Fulltext Link
+                $candidateUrl = null;
+                $links = (array) ($bib['link'] ?? []);
+                foreach ($links as $link) {
+                    $type = $link['type'] ?? '';
+                    $u = $link['url'] ?? '';
+                    if ($u && ($type === 'fulltext' || str_contains($type, 'pdf') || preg_match('/\.pdf($|\?)/i', $u))) {
+                        $candidateUrl = $u;
+                        break;
+                    }
+                }
+
+                if (! $candidateUrl && ! empty($links[0]['url'])) {
+                    $candidateUrl = $links[0]['url'];
+                }
+
+                // Extract DOI
+                $doi = null;
+                foreach ((array) ($bib['identifier'] ?? []) as $idObj) {
+                    if (($idObj['type'] ?? '') === 'doi') {
+                        $doi = $idObj['id'] ?? null;
+                        break;
+                    }
+                }
+
+                if (! $candidateUrl && $doi) {
+                    $candidateUrl = 'https://doi.org/'.$doi;
+                }
+
+                if (! $candidateUrl) {
+                    continue;
+                }
+
+                // If we have a DOI, try Unpaywall for direct PDF
+                if ($doi && ! preg_match('/\.pdf($|\?)/i', $candidateUrl)) {
+                    $unpaywallPdf = $this->resolveDoiToOpenAccessPdf($doi);
+                    if ($unpaywallPdf) {
+                        $candidateUrl = $unpaywallPdf;
+                    }
+                }
+
+                // Resolve to direct document / PDF link via DOM scanning and normalization
+                $externalUrl = $this->resolveDirectDocumentLink($candidateUrl);
+
+                if ($externalUrl === '' || str_starts_with($externalUrl, 'javascript:')) {
+                    continue;
+                }
+
+                // Abstract
+                $abstract = trim((string) ($bib['abstract'] ?? ''));
+                $year = ! empty($bib['year']) ? (int) $bib['year'] : null;
+
+                if ($abstract === '') {
+                    $abstract = "Artículo científico revisado por pares («{$title}»). Publicado en {$publisherName}".($year ? " ({$year})" : '').'. Acceso abierto verificado por DOAJ para investigación y educación tecnológica.';
+                }
+
+                $category = $this->mapCategory('article', $categoryFilter ?: ($config['default_category'] ?? 'Paper'));
+
+                $results[] = [
+                    'title' => Str::limit($title, 250),
+                    'author' => Str::limit($author, 250),
+                    'study_program_id' => $programId > 0 ? $programId : null,
+                    'category' => $category,
+                    'description' => Str::limit($abstract, 950),
+                    'publisher' => $publisherName,
+                    'publication_year' => $year,
+                    'edition' => '1ª Edición Digital',
+                    'pages' => ! empty($bib['end_page']) && ! empty($bib['start_page']) ? max(1, (int) $bib['end_page'] - (int) $bib['start_page'] + 1) : null,
+                    'isbn' => $doi ? Str::limit($doi, 45) : null,
+                    'language' => 'Español',
+                    'external_url' => Str::limit($externalUrl, 495),
+                    'rating' => 5.0,
+                    'is_active' => true,
+                ];
+            }
+
+            return $results;
+        } catch (\Throwable $e) {
+            Log::info("DOAJ query note [{$term}]: ".$e->getMessage());
+
+            return [];
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // SOURCE 3: OPENALEX API (SCIELO, REDALYC, OPEN ACCESS BOOKS & PAPERS)
+    // ══════════════════════════════════════════════════════════════
+
+    /**
+     * Query OpenAlex API (World's premier open academic index covering SciELO, Redalyc, DOAJ, Dialnet, etc.)
+     * Supports dedicated filtering for Books (type:book), Dissertations (type:dissertation), and Journals.
+     *
+     * @param  array<string, mixed>  $config
+     * @param  array<string>  $sources
+     * @return array<int, array<string, mixed>>
      */
     private function queryOpenAlex(string $term, array $config, int $programId, ?string $categoryFilter, array $sources, int $batchLimit): array
     {
         $perPage = max(1, min($batchLimit, 25));
 
-        // Refine search query with source boosters if requested
+        // Refine search query with category filters and source boosters
+        $filters = ['is_oa:true'];
         $enhancedSearch = $term;
-        if (in_array('scielo', $sources) && ! str_contains(mb_strtolower($enhancedSearch), 'scielo')) {
+
+        if ($categoryFilter === 'Libro') {
+            $filters[] = 'type:book';
+            $enhancedSearch .= ' libro OR book OR manual';
+        } elseif ($categoryFilter === 'Revista') {
+            $filters[] = 'type:article';
+            $enhancedSearch .= ' revista OR journal';
+        } elseif ($categoryFilter === 'Tesis') {
+            $filters[] = 'type:dissertation';
+            $enhancedSearch .= ' tesis';
+        }
+
+        if (in_array('scielo', $sources)) {
             $enhancedSearch .= ' scielo';
+        }
+        if (in_array('redalyc', $sources)) {
+            $enhancedSearch .= ' redalyc';
+        }
+        if (in_array('doaj', $sources)) {
+            $enhancedSearch .= ' doaj';
         }
 
         $response = Http::timeout(12)
-            ->withHeaders([
-                'User-Agent' => 'IESTP-Francisco-Vigo-Caballero/VirtualLibrary (contacto@iestpfvc.edu.pe; academic-integration)',
-                'Accept' => 'application/json',
-            ])
+            ->withHeaders(self::API_HEADERS)
             ->get('https://api.openalex.org/works', [
                 'search' => $enhancedSearch,
-                'filter' => 'has_doi:true,is_oa:true',
+                'filter' => implode(',', $filters),
                 'per_page' => $perPage,
             ]);
+
+        // Fallback without strict type filter if category is Libro and results were empty
+        if (! $response->successful() && $categoryFilter === 'Libro') {
+            $response = Http::timeout(12)
+                ->withHeaders(self::API_HEADERS)
+                ->get('https://api.openalex.org/works', [
+                    'search' => $enhancedSearch,
+                    'filter' => 'is_oa:true',
+                    'per_page' => $perPage,
+                ]);
+        }
 
         if (! $response->successful()) {
             return [];
@@ -554,8 +964,21 @@ class AcademicLibraryService
                 continue;
             }
 
+            // If we don't have a direct PDF yet, query Unpaywall with DOI
+            $doiClean = ! empty($item['doi']) ? Str::after($item['doi'], 'doi.org/') : null;
+            if (! $pdfUrl && $doiClean) {
+                $unpaywallPdf = $this->resolveDoiToOpenAccessPdf($doiClean);
+                if ($unpaywallPdf) {
+                    $candidateUrl = $unpaywallPdf;
+                }
+            }
+
             // Resolve to direct document / PDF link via scraping and normalization
             $externalUrl = $this->resolveDirectDocumentLink($candidateUrl);
+
+            if ($externalUrl === '' || str_starts_with($externalUrl, 'javascript:')) {
+                continue;
+            }
 
             // Extract Publication Year
             $year = $item['publication_year'] ?? null;
@@ -573,8 +996,6 @@ class AcademicLibraryService
                 $description = "Publicación académica revisada por pares («{$title}»). Publicado en {$finalPublisher}".($year ? " ({$year})" : '').'. Acceso abierto institucional disponible para investigación y formación tecnológica.';
             }
 
-            $doiClean = ! empty($item['doi']) ? Str::after($item['doi'], 'doi.org/') : null;
-
             $results[] = [
                 'title' => Str::limit($title, 250),
                 'author' => Str::limit($author, 250),
@@ -587,7 +1008,7 @@ class AcademicLibraryService
                 'pages' => $item['biblio']['last_page'] ?? null ? (int) $item['biblio']['last_page'] : null,
                 'isbn' => $doiClean ? Str::limit($doiClean, 45) : null,
                 'language' => 'Español',
-                'external_url' => $externalUrl,
+                'external_url' => Str::limit($externalUrl, 495),
                 'rating' => 5.0,
                 'is_active' => true,
             ];
@@ -596,18 +1017,22 @@ class AcademicLibraryService
         return $results;
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // SOURCE 4: CROSSREF API (OFFICIAL SCHOLARLY DOI REGISTRY)
+    // ══════════════════════════════════════════════════════════════
+
     /**
      * Query Crossref API (Official Scholarly DOI Registry).
+     * Extracts direct full-text PDF links and uses Unpaywall for verified OA resolution.
+     *
+     * @param  array<string, mixed>  $config
+     * @return array<int, array<string, mixed>>
      */
     private function queryCrossref(string $term, array $config, int $programId, ?string $categoryFilter, int $batchLimit): array
     {
         $rows = max(1, min($batchLimit, 15));
-
         $response = Http::timeout(12)
-            ->withHeaders([
-                'User-Agent' => 'IESTP-Francisco-Vigo-Caballero/VirtualLibrary (contacto@iestpfvc.edu.pe)',
-                'Accept' => 'application/json',
-            ])
+            ->withHeaders(self::API_HEADERS)
             ->get('https://api.crossref.org/works', [
                 'query' => $term,
                 'rows' => $rows,
@@ -626,7 +1051,6 @@ class AcademicLibraryService
             if (! $rawTitle || mb_strlen($rawTitle) < 5) {
                 continue;
             }
-
             $title = trim(strip_tags((string) $rawTitle));
 
             // Authors
@@ -637,9 +1061,9 @@ class AcademicLibraryService
                 ->implode(', ');
             $author = $authors ?: 'Varios Autores / Colectivo Académico';
 
-            // Publisher / Journal
+            // Publisher / Journal Source
             $containerTitle = $item['container-title'][0] ?? null;
-            $publisherRaw = $item['publisher'] ?? 'Crossref Academic Registry';
+            $publisherRaw = $item['publisher'] ?? 'Crossref';
             $publisherName = $containerTitle ? "{$containerTitle} ({$publisherRaw})" : $publisherRaw;
             $finalPublisher = Str::limit($publisherName, 145);
 
@@ -654,10 +1078,11 @@ class AcademicLibraryService
                         break;
                     }
                 }
+
                 if (! $crossrefPdfUrl) {
                     foreach ($item['link'] as $lnk) {
                         $u = (string) ($lnk['URL'] ?? '');
-                        if ($u !== '' && preg_match('/\.pdf|\/article\/(?:view|download)\/\d+\/\d+|format=pdf|script=sci_pdf/i', $u)) {
+                        if ($u !== '') {
                             $crossrefPdfUrl = $u;
                             break;
                         }
@@ -665,8 +1090,17 @@ class AcademicLibraryService
                 }
             }
 
+            $doi = $item['DOI'] ?? null;
             $landingUrl = $item['resource']['primary']['URL'] ?? ($item['URL'] ?? null);
             $candidateUrl = $crossrefPdfUrl ?: $landingUrl;
+
+            // Try Unpaywall if no direct PDF found yet
+            if (! $crossrefPdfUrl && $doi) {
+                $unpaywallPdf = $this->resolveDoiToOpenAccessPdf($doi);
+                if ($unpaywallPdf) {
+                    $candidateUrl = $unpaywallPdf;
+                }
+            }
 
             if (! $candidateUrl) {
                 continue;
@@ -674,6 +1108,10 @@ class AcademicLibraryService
 
             // Resolve to direct document / PDF link via scraping and normalization
             $externalUrl = $this->resolveDirectDocumentLink($candidateUrl);
+
+            if ($externalUrl === '' || str_starts_with($externalUrl, 'javascript:')) {
+                continue;
+            }
 
             // Year
             $yearParts = $item['published-print']['date-parts'][0][0] ?? ($item['published-online']['date-parts'][0][0] ?? ($item['created']['date-parts'][0][0] ?? null));
@@ -694,9 +1132,9 @@ class AcademicLibraryService
                 'publication_year' => $year,
                 'edition' => '1ª Edición Digital',
                 'pages' => $item['page'] ?? null ? (int) Str::before($item['page'], '-') : null,
-                'isbn' => isset($item['DOI']) ? Str::limit($item['DOI'], 45) : null,
+                'isbn' => $doi ? Str::limit($doi, 45) : null,
                 'language' => 'Español',
-                'external_url' => $externalUrl,
+                'external_url' => Str::limit($externalUrl, 495),
                 'rating' => 5.0,
                 'is_active' => true,
             ];
@@ -705,13 +1143,76 @@ class AcademicLibraryService
         return $results;
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // DOI → OPEN-ACCESS PDF RESOLUTION (UNPAYWALL)
+    // ══════════════════════════════════════════════════════════════
+
+    /**
+     * Use the Unpaywall API to resolve a DOI to its best open-access PDF URL.
+     * Free, reliable, public scholarly service indexing 50M+ open-access papers.
+     *
+     * @param  string  $doi  Raw DOI e.g. "10.1234/foo" or full URL "https://doi.org/10.1234/foo"
+     */
+    public function resolveDoiToOpenAccessPdf(string $doi): ?string {
+        if (empty($doi)) {
+            return null;
+        }
+
+        // Normalize DOI: strip URL prefix if present
+        $doi = preg_replace('#^https?://(?:dx\.)?doi\.org/#i', '', trim($doi));
+        $doi = trim($doi, '/');
+
+        if ($doi === '' || ! str_contains($doi, '/')) {
+            return null;
+        }
+
+        try {
+            $response = Http::timeout(6)
+                ->withHeaders(self::API_HEADERS)
+                ->get('https://api.unpaywall.org/v2/'.rawurlencode($doi), [
+                    'email' => 'contacto@iestpfvc.edu.pe',
+                ]);
+
+            if (! $response->successful()) {
+                return null;
+            }
+
+            $data = $response->json();
+
+            // Best OA location has highest confidence
+            $bestOa = $data['best_oa_location'] ?? null;
+            if ($bestOa) {
+                $pdfUrl = $bestOa['url_for_pdf'] ?? null;
+                if ($pdfUrl) {
+                    return $this->normalizeOjsUrl($pdfUrl);
+                }
+            }
+
+            // Iterate all OA locations for any PDF
+            $oaLocations = $data['oa_locations'] ?? [];
+            foreach ($oaLocations as $loc) {
+                $pdfUrl = $loc['url_for_pdf'] ?? null;
+                if ($pdfUrl) {
+                    return $this->normalizeOjsUrl($pdfUrl);
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::info("Unpaywall DOI resolution note [{$doi}]: ".$e->getMessage());
+        }
+
+        return null;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // OJS URL NORMALIZATION
+    // ══════════════════════════════════════════════════════════════
+
     /**
      * Normalize an OJS document URL to ensure it points to the interactive viewer route.
      * Converts /article/download/ID/GALLEY to /article/view/ID/GALLEY so that it can be
      * directly rendered within the library reader iframe (/biblioteca/leer/{book:slug}).
      */
-    public function normalizeOjsUrl(string $url): string
-    {
+    public function normalizeOjsUrl(string $url): string {
         $url = trim($url);
 
         // Normalize /article/download/{articleId}/{galleyId} -> /article/view/{articleId}/{galleyId}
@@ -722,18 +1223,28 @@ class AcademicLibraryService
         return $url;
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // DIRECT DOCUMENT LINK RESOLUTION PIPELINE
+    // ══════════════════════════════════════════════════════════════
+
     /**
      * Resolve a publication URL to its most direct document / PDF view link.
-     * Examples:
-     * - OJS: converts .../article/view/350 or .../article/download/350/394 to .../article/view/350/394
-     * - SciELO: converts sci_arttext to sci_pdf or extracts direct PDF asset
-     * - Dialnet: converts /servlet/articulo?codigo=X to /descarga/articulo/X.pdf
-     * - Repositories: extracts citation_pdf_url or direct PDF galley
+     *
+     * Resolution pipeline:
+     *   1. Already a direct PDF (.pdf extension or .pdf query) → return normalized URL
+     *   2. OJS galley already present (/article/view/ID/GALLEY) → return normalized URL
+     *   3. Dialnet article page → construct direct PDF download URL (/descarga/articulo/ID.pdf)
+     *   4. SciELO arttext → transform to sci_pdf or scrape direct PDF asset
+     *   5. SciELO modern URL → append ?format=pdf or scrape direct PDF asset
+     *   6. arXiv abstract page → convert to PDF URL (arxiv.org/pdf/ID.pdf)
+     *   7. PubMed Central PMC article → scrape or convert to direct PMC PDF
+     *   8. DOI URL → resolve direct Open Access PDF via Unpaywall
+     *   9. Active DOM scraping with Symfony DomCrawler (meta tags, OJS galleries, DSpace bitstreams, PDF anchors)
+     *  10. OJS OAI-PMH / Crossref galley resolution as fallback
      */
-    public function resolveDirectDocumentLink(string $url, ?string $fallback = null): string
-    {
+    public function resolveDirectDocumentLink(string $url, ?string $fallback = null): string {
         $url = trim($url);
-        if ($url === '') {
+        if ($url === '' || str_starts_with($url, 'javascript:')) {
             return $fallback ?? '';
         }
 
@@ -759,7 +1270,7 @@ class AcademicLibraryService
         if (str_contains($url, 'scielo.php') && str_contains($url, 'script=sci_arttext')) {
             $pdfCandidate = str_replace('script=sci_arttext', 'script=sci_pdf', $url);
             $scraped = $this->scrapeDirectDocumentLink($url);
-            if ($scraped) {
+            if ($scraped && ! str_starts_with($scraped, 'javascript:')) {
                 return $this->normalizeOjsUrl($scraped);
             }
 
@@ -767,9 +1278,9 @@ class AcademicLibraryService
         }
 
         // Fast check 5: SciELO modern URL without format=pdf
-        if (preg_match('#scielo\.br/j/[^/]+/a/[^/?]+#i', $url) && ! str_contains($url, 'format=pdf')) {
+        if (preg_match('#scielo\.[a-z.]+/j/[^/]+/a/[^/?]+#i', $url) && ! str_contains($url, 'format=pdf')) {
             $scraped = $this->scrapeDirectDocumentLink($url);
-            if ($scraped) {
+            if ($scraped && ! str_starts_with($scraped, 'javascript:')) {
                 return $this->normalizeOjsUrl($scraped);
             }
 
@@ -778,47 +1289,68 @@ class AcademicLibraryService
             return $url.$sep.'format=pdf';
         }
 
-        // Active scraping: Fetch HTML and parse meta tags, OJS galley, and PDF anchors
+        // Fast check 6: arXiv abstract URL -> convert to direct PDF URL
+        if (preg_match('#arxiv\.org/abs/([\w.]+)#i', $url, $arxivMatch)) {
+            return 'https://arxiv.org/pdf/'.$arxivMatch[1].'.pdf';
+        }
+
+        // Fast check 7: PubMed Central PMC article -> scrape for direct PMC PDF
+        if (preg_match('#(?:pubmedcentral|ncbi\.nlm\.nih\.gov/pmc/articles)/PMC(\d+)#i', $url, $pmcMatch)) {
+            $pmcId      = $pmcMatch[1];
+            $directPmc  = "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC{$pmcId}/pdf/";
+            $scraped    = $this->scrapeDirectDocumentLink($url);
+            if ($scraped && ! str_starts_with($scraped, 'javascript:')) {
+                return $this->normalizeOjsUrl($scraped);
+            }
+
+            return $directPmc;
+        }
+
+        // Fast check 8: DOI URL -> query Unpaywall for direct open-access PDF
+        if (preg_match('#^https?://(?:dx\.)?doi\.org/(10\.\d{4,9}/.+)$#i', $url, $doiMatch)) {
+            $resolvedPdf = $this->resolveDoiToOpenAccessPdf($doiMatch[1]);
+            if ($resolvedPdf) {
+                return $resolvedPdf;
+            }
+        }
+
+        // Active scraping: Fetch HTML and parse meta tags, OJS galley, bitstreams, and PDF anchors
         $scrapedLink = $this->scrapeDirectDocumentLink($url);
-        if ($scrapedLink) {
+        if ($scrapedLink && ! str_starts_with($scrapedLink, 'javascript:')) {
             return $this->normalizeOjsUrl($scrapedLink);
         }
 
         // OJS Galley Fallback: If scraping failed or was blocked, attempt OJS OAI / Crossref resolution
         $ojsResolved = $this->resolveOjsGalleyUrl($url);
-        if ($ojsResolved) {
+        if ($ojsResolved && ! str_starts_with($ojsResolved, 'javascript:')) {
             return $ojsResolved;
         }
 
         return $url;
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // HTML SCRAPING & PAGE SCANNING
+    // ══════════════════════════════════════════════════════════════
+
     /**
      * Scrape HTML page to retrieve direct document / PDF link.
+     * Follows redirects, inspects Content-Type, and parses DOM.
      */
-    public function scrapeDirectDocumentLink(string $url): ?string
-    {
+    public function scrapeDirectDocumentLink(string $url): ?string {
+        if (empty($url) || str_starts_with($url, 'javascript:')) {
+            return null;
+        }
+
         try {
             $response = Http::timeout(8)
-                ->withHeaders([
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,application/pdf;q=0.8,*/*;q=0.7',
-                    'Accept-Language' => 'es-ES,es;q=0.9,en;q=0.8',
-                    'Sec-Ch-Ua' => '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
-                    'Sec-Ch-Ua-Mobile' => '?0',
-                    'Sec-Ch-Ua-Platform' => '"Windows"',
-                    'Sec-Fetch-Dest' => 'document',
-                    'Sec-Fetch-Mode' => 'navigate',
-                    'Sec-Fetch-Site' => 'none',
-                    'Sec-Fetch-User' => '?1',
-                    'Upgrade-Insecure-Requests' => '1',
-                ])
+                ->withHeaders(self::SCRAPE_HEADERS)
                 ->withOptions([
                     'allow_redirects' => [
-                        'max' => 10,
-                        'strict' => false,
-                        'referer' => true,
-                        'track_redirects' => true,
+                        'max'               => 10,
+                        'strict'            => false,
+                        'referer'           => true,
+                        'track_redirects'   => true,
                     ],
                 ])
                 ->get($url);
@@ -832,7 +1364,7 @@ class AcademicLibraryService
 
             // If target URL directly returns application/pdf
             $contentType = (string) $response->header('Content-Type');
-            if (str_contains(strtolower($contentType), 'application/pdf')) {
+            if (str_contains(strtolower($contentType), 'application/pdf') || preg_match('/\.pdf($|\?)/i', $effectiveUri)) {
                 return $effectiveUri;
             }
 
@@ -841,6 +1373,13 @@ class AcademicLibraryService
                 return null;
             }
 
+            // Primary: DomCrawler DOM extraction
+            $extracted = $this->extractWithDomCrawler($html, $effectiveUri);
+            if ($extracted && ! str_starts_with($extracted, 'javascript:')) {
+                return $extracted;
+            }
+
+            // Secondary: Regex fallback
             return $this->extractDirectDocumentLinkFromHtml($html, $effectiveUri);
         } catch (\Throwable $e) {
             Log::info("Scrape note for academic URL [{$url}]: ".$e->getMessage());
@@ -850,22 +1389,367 @@ class AcademicLibraryService
     }
 
     /**
+     * Extract the most direct document link using Symfony DomCrawler.
+     * Scans academic meta tags, JSON-LD, OJS galleries, DSpace bitstreams, SciELO and PDF anchors.
+     */
+    public function extractWithDomCrawler(string $html, string $baseUrl): ?string {
+        try {
+            $crawler = new Crawler($html, $baseUrl);
+
+            // ── Strategy 1: Highwire / Google Scholar / Academic meta tags ──
+            $metaTags = [
+                'citation_pdf_url',
+                'bepress_citation_pdf_url',
+                'eprints.document_url',
+                'citation_full_html_url',
+            ];
+
+            foreach ($metaTags as $metaName) {
+                try {
+                    $metaNode = $crawler->filterXPath("//meta[@name='{$metaName}' or @name='".strtoupper($metaName)."']");
+                    if ($metaNode->count() > 0) {
+                        $content = trim((string) ($metaNode->attr('content') ?? ''));
+                        if ($content !== '' && ! str_starts_with($content, 'javascript:')) {
+                            return $this->normalizeOjsUrl($this->makeAbsoluteUrl($content, $baseUrl));
+                        }
+                    }
+                } catch (\Throwable) {
+                    // continue to next meta
+                }
+            }
+
+            // ── Strategy 2: Dublin Core meta tags with PDF or galley pattern ──
+            try {
+                $dcNodes = $crawler->filterXPath("//meta[@name='DC.Identifier' or @name='dc.identifier' or @name='DC.relation' or @name='dc.relation']");
+                foreach ($dcNodes as $node) {
+                    $content = trim((string) $node->getAttribute('content'));
+                    if (preg_match('/\.pdf($|\?)|\/article\/(?:view|download)\/\d+\/\d+|\/bitstream\/handle\//i', $content)) {
+                        return $this->normalizeOjsUrl($this->makeAbsoluteUrl($content, $baseUrl));
+                    }
+                }
+            } catch (\Throwable) {
+                // skip
+            }
+
+            // ── Strategy 3: JSON-LD structured data (ScholarlyArticle / DigitalDocument) ──
+            try {
+                $jsonLdNodes = $crawler->filter('script[type="application/ld+json"]');
+                foreach ($jsonLdNodes as $node) {
+                    $jsonText = $node->textContent;
+                    $data = json_decode($jsonText, true);
+                    if (! is_array($data)) {
+                        continue;
+                    }
+
+                    $itemsToCheck = isset($data['@graph']) && is_array($data['@graph']) ? $data['@graph'] : [$data];
+                    foreach ($itemsToCheck as $d) {
+                        if (! is_array($d)) {
+                            continue;
+                        }
+
+                        $pdfUrl = $d['contentUrl'] ?? ($d['url'] ?? ($d['downloadUrl'] ?? null));
+                        if ($pdfUrl && preg_match('/\.pdf($|\?)/i', (string) $pdfUrl)) {
+                            return $this->makeAbsoluteUrl((string) $pdfUrl, $baseUrl);
+                        }
+
+                        $distributions = array_merge(
+                            (array) ($d['encoding'] ?? []),
+                            (array) ($d['distribution'] ?? []),
+                            (array) ($d['hasPart'] ?? [])
+                        );
+                        foreach ($distributions as $enc) {
+                            $u = is_array($enc) ? ($enc['contentUrl'] ?? ($enc['url'] ?? ($enc['downloadUrl'] ?? ''))) : (string) $enc;
+                            if ($u && preg_match('/\.pdf($|\?)/i', $u)) {
+                                return $this->makeAbsoluteUrl($u, $baseUrl);
+                            }
+                        }
+                    }
+                }
+            } catch (\Throwable) {
+                // skip
+            }
+
+            // ── Strategy 4: OJS Galley links (specific classes) ──
+            try {
+                $ojsPdfLinks = $crawler->filter('a.obj_galley_link.pdf, a.obj_galley_link[title*="PDF"], a.galley-link.pdf, a.obj_galley_link, a.galley_link');
+                foreach ($ojsPdfLinks as $linkNode) {
+                    $href = trim($linkNode->getAttribute('href') ?? '');
+                    if ($href !== '' && ! str_starts_with($href, 'javascript:') && $href !== '#') {
+                        return $this->normalizeOjsUrl($this->makeAbsoluteUrl($href, $baseUrl));
+                    }
+                }
+            } catch (\Throwable) {
+                // skip
+            }
+
+            // ── Strategy 5: Any anchor matching OJS galley route /article/(view|download|viewFile)/ID/GALLEY ──
+            try {
+                $allAnchors = $crawler->filter('a[href]');
+                foreach ($allAnchors as $a) {
+                    $href = (string) $a->getAttribute('href');
+                    if (preg_match('/\/article\/(?:view|download|viewFile)\/\d+\/\d+/i', $href)) {
+                        return $this->normalizeOjsUrl($this->makeAbsoluteUrl($href, $baseUrl));
+                    }
+                }
+            } catch (\Throwable) {
+                // skip
+            }
+
+            // ── Strategy 6: DSpace & Institutional Repository Bitstream PDFs ──
+            try {
+                $bitstreamLinks = $crawler->filter('a[href*="/bitstream/"][href*=".pdf"], a.view-open[href*="/bitstream/"]');
+                if ($bitstreamLinks->count() > 0) {
+                    $href = $bitstreamLinks->first()->attr('href');
+                    if ($href) {
+                        return $this->makeAbsoluteUrl($href, $baseUrl);
+                    }
+                }
+            } catch (\Throwable) {
+                // skip
+            }
+
+            // ── Strategy 7: SciELO specific anchors ──
+            try {
+                $scieloLinks = $crawler->filter('a[href*="scielo.php"][href*="sci_pdf"], a[href*="/pdf/"][href$=".pdf"], a[href*="format=pdf"]');
+                if ($scieloLinks->count() > 0) {
+                    $href = $scieloLinks->first()->attr('href');
+                    if ($href) {
+                        return $this->makeAbsoluteUrl($href, $baseUrl);
+                    }
+                }
+            } catch (\Throwable) {
+                // skip
+            }
+
+            // ── Strategy 8: Dialnet direct download anchors ──
+            try {
+                $dialnetLinks = $crawler->filter('a[href*="/descarga/articulo/"][href$=".pdf"]');
+                if ($dialnetLinks->count() > 0) {
+                    $href = $dialnetLinks->first()->attr('href');
+                    if ($href) {
+                        return $this->makeAbsoluteUrl($href, $baseUrl);
+                    }
+                }
+            } catch (\Throwable) {
+                // skip
+            }
+
+            // ── Strategy 9: Embedded PDF viewers (iframe, embed, object) ──
+            try {
+                $embedNode = $crawler->filter('iframe[src*=".pdf"], embed[src*=".pdf"], object[data*=".pdf"], iframe[src*="/article/view/"]');
+                if ($embedNode->count() > 0) {
+                    $src = $embedNode->first()->attr('src') ?? $embedNode->first()->attr('data');
+                    if ($src) {
+                        return $this->normalizeOjsUrl($this->makeAbsoluteUrl($src, $baseUrl));
+                    }
+                }
+            } catch (\Throwable) {
+                // skip
+            }
+
+            // ── Strategy 10: Anchors ending in .pdf or with .pdf query ──
+            try {
+                $pdfAnchors = $crawler->filter('a[href$=".pdf"], a[href*=".pdf?"], a[href*=".pdf#"]');
+                foreach ($pdfAnchors as $a) {
+                    $href = trim($a->getAttribute('href') ?? '');
+                    if ($href !== '' && ! str_starts_with($href, 'javascript:')) {
+                        return $this->makeAbsoluteUrl($href, $baseUrl);
+                    }
+                }
+            } catch (\Throwable) {
+                // skip
+            }
+
+            // ── Strategy 11: Semantic anchor text scanning ──
+            try {
+                $pdfKeywords = [
+                    'pdf', 'texto completo', 'full text', 'full-text', 'descargar artículo',
+                    'descargar libro', 'leer artículo', 'visualizar pdf', 'bajar pdf', 'documento completo',
+                    'download pdf', 'ver pdf', 'acceder al pdf', 'leer en pdf',
+                ];
+
+                $anchors = $crawler->filter('a[href]');
+                foreach ($anchors as $a) {
+                    $href = trim((string) $a->getAttribute('href'));
+                    if ($href === '' || str_starts_with($href, 'javascript:') || str_starts_with($href, 'mailto:') || str_starts_with($href, '#')) {
+                        continue;
+                    }
+
+                    $text = mb_strtolower(trim($a->textContent));
+                    $classes = mb_strtolower((string) $a->getAttribute('class'));
+                    $title = mb_strtolower((string) $a->getAttribute('title'));
+
+                    foreach ($pdfKeywords as $kw) {
+                        if (
+                            str_contains($text, $kw) ||
+                            str_contains($classes, 'pdf') || str_contains($classes, 'btn-pdf') || str_contains($classes, 'download-pdf') ||
+                            str_contains($title, 'pdf')
+                        ) {
+                            return $this->normalizeOjsUrl($this->makeAbsoluteUrl($href, $baseUrl));
+                        }
+                    }
+                }
+            } catch (\Throwable) {
+                // skip
+            }
+        } catch (\Throwable $e) {
+            Log::info("DomCrawler extraction note [{$baseUrl}]: ".$e->getMessage());
+        }
+
+        return null;
+    }
+
+    /**
+     * Extract direct document / PDF link from HTML content using standard scholarly patterns (regex fallback).
+     */
+    public function extractDirectDocumentLinkFromHtml(string $html, string $baseUrl): ?string {
+        $crawlerResult = $this->extractWithDomCrawler($html, $baseUrl);
+        if ($crawlerResult && ! str_starts_with($crawlerResult, 'javascript:')) {
+            return $crawlerResult;
+        }
+
+        // 1. Highwire Press & Academic Meta Tags (citation_pdf_url, bepress, eprints)
+        if (preg_match('/<meta\s+[^>]*(?:name=["\'](?:citation_pdf_url|bepress_citation_pdf_url|eprints\.document_url)["\'][^>]*content=["\']([^"\']+)["\']|content=["\']([^"\']+)["\'][^>]*name=["\'](?:citation_pdf_url|bepress_citation_pdf_url|eprints\.document_url)["\'])/i', $html, $m)) {
+            $link = trim($m[1] ?: $m[2]);
+            if (! empty($link) && ! str_starts_with($link, 'javascript:')) {
+                $abs = $this->makeAbsoluteUrl($link, $baseUrl);
+
+                return $this->normalizeOjsUrl($abs);
+            }
+        }
+
+        // DC.Identifier / dc.identifier ending in .pdf or with article galley pattern
+        if (preg_match('/<meta\s+[^>]*(?:name=["\'](?:dc\.identifier|DC\.Identifier)["\'][^>]*content=["\']([^"\']+(?:\.pdf|\/article\/(?:view|download)\/\d+\/\d+|\/bitstream\/handle\/)[^"\']*)["\']|content=["\']([^"\']+(?:\.pdf|\/article\/(?:view|download)\/\d+\/\d+|\/bitstream\/handle\/)[^"\']*)["\'][^>]*name=["\'](?:dc\.identifier|DC\.Identifier)["\'])/i', $html, $m)) {
+            $link = trim($m[1] ?: $m[2]);
+            if (! empty($link) && ! str_starts_with($link, 'javascript:')) {
+                $abs = $this->makeAbsoluteUrl($link, $baseUrl);
+
+                return $this->normalizeOjsUrl($abs);
+            }
+        }
+
+        // 2. OJS (Open Journal Systems) PDF Galley Links
+        if (preg_match('/<a\s+[^>]*class=["\'][^"\']*obj_galley_link[^"\']*\bpdf\b[^"\']*["\'][^>]*href=["\']([^"\']+)["\']/is', $html, $m)) {
+            $abs = $this->makeAbsoluteUrl($m[1], $baseUrl);
+
+            return $this->normalizeOjsUrl($abs);
+        }
+
+        if (preg_match('/<a\s+[^>]*href=["\']([^"\']+)["\'][^>]*class=["\'][^"\']*obj_galley_link[^"\']*\bpdf\b[^"\']*["\']/is', $html, $m)) {
+            $abs = $this->makeAbsoluteUrl($m[1], $baseUrl);
+
+            return $this->normalizeOjsUrl($abs);
+        }
+
+        if (preg_match('/<a\s+[^>]*class=["\'][^"\']*(?:obj_galley_link|galley_link)[^"\']*["\'][^>]*href=["\']([^"\']+)["\']/is', $html, $m)) {
+            $abs = $this->makeAbsoluteUrl($m[1], $baseUrl);
+
+            return $this->normalizeOjsUrl($abs);
+        }
+
+        if (preg_match('/<a\s+[^>]*href=["\']([^"\']+)["\'][^>]*class=["\'][^"\']*(?:obj_galley_link|galley_link)[^"\']*["\']/is', $html, $m)) {
+            $abs = $this->makeAbsoluteUrl($m[1], $baseUrl);
+
+            return $this->normalizeOjsUrl($abs);
+        }
+
+        if (preg_match('/href=["\']([^"\']+\/article\/(?:view|download)\/\d+\/\d+[^"\']*)["\']/i', $html, $m)) {
+            $abs = $this->makeAbsoluteUrl($m[1], $baseUrl);
+
+            return $this->normalizeOjsUrl($abs);
+        }
+
+        if (preg_match('/href=["\']([^"\']+\/article\/viewFile\/\d+\/\d+[^"\']*)["\']/i', $html, $m)) {
+            $abs = $this->makeAbsoluteUrl($m[1], $baseUrl);
+
+            return $this->normalizeOjsUrl($abs);
+        }
+
+        // 3. DSpace Institutional Repositories Bitstream links
+        if (preg_match('/href=["\']([^"\']+\/bitstream\/handle\/[^"\']+\.pdf[^"\']*)["\']/i', $html, $m)) {
+            return $this->makeAbsoluteUrl($m[1], $baseUrl);
+        }
+
+        // 4. Embedded PDF viewers (iframe, embed, object)
+        if (preg_match('/<iframe\s+[^>]*src=["\']([^"\']+(?:\.pdf|\/article\/(?:view|download)\/\d+\/\d+)[^"\']*)["\']/is', $html, $m)) {
+            $abs = $this->makeAbsoluteUrl($m[1], $baseUrl);
+
+            return $this->normalizeOjsUrl($abs);
+        }
+
+        if (preg_match('/<embed\s+[^>]*src=["\']([^"\']+)["\'][^>]*type=["\']application\/pdf["\']/is', $html, $m)) {
+            return $this->makeAbsoluteUrl($m[1], $baseUrl);
+        }
+
+        if (preg_match('/<object\s+[^>]*data=["\']([^"\']+)["\'][^>]*type=["\']application\/pdf["\']/is', $html, $m)) {
+            return $this->makeAbsoluteUrl($m[1], $baseUrl);
+        }
+
+        // 5. SciELO PDF galley links (script=sci_pdf or /pdf/... or format=pdf)
+        if (preg_match('/href=["\']([^"\']*scielo\.php\?[^"\']*script=sci_pdf[^"\']*)["\']/i', $html, $m)) {
+            return $this->makeAbsoluteUrl($m[1], $baseUrl);
+        }
+
+        if (preg_match('/href=["\']([^"\']+\/pdf\/[^"\']+\.pdf)["\']/i', $html, $m)) {
+            return $this->makeAbsoluteUrl($m[1], $baseUrl);
+        }
+
+        if (preg_match('/href=["\']([^"\']+[?&]format=pdf[^"\']*)["\']/i', $html, $m)) {
+            return $this->makeAbsoluteUrl($m[1], $baseUrl);
+        }
+
+        // 6. Dialnet direct download
+        if (preg_match('/href=["\']([^"\']*\/descarga\/articulo\/\d+\.pdf)["\']/i', $html, $m)) {
+            return $this->makeAbsoluteUrl($m[1], $baseUrl);
+        }
+
+        // 7. Anchors ending in .pdf
+        if (preg_match('/<a\s+[^>]*href=["\']([^"\']+\.pdf(?:\?[^"\']*)?)["\']/i', $html, $m)) {
+            return $this->makeAbsoluteUrl($m[1], $baseUrl);
+        }
+
+        // 8. Semantic link scraping: search for anchors specifically offering PDF reading
+        if (preg_match_all('/<a\s+[^>]*href=["\']([^"\'#]+)["\'][^>]*>(.*?)<\/a>/is', $html, $aMatches, PREG_SET_ORDER)) {
+            foreach ($aMatches as $aMatch) {
+                $href   = trim($aMatch[1]);
+                $text   = trim(strip_tags(html_entity_decode($aMatch[2])));
+                $rawTag = $aMatch[0];
+
+                if (str_starts_with($href, 'javascript:') || str_starts_with($href, 'mailto:')) {
+                    continue;
+                }
+
+                if (
+                    preg_match('/\b(?:pdf|texto\s+completo|full\s*text|descargar\s+art[ií]culo|descargar\s+libro|leer\s+art[ií]culo|visualizar\s+pdf|bajar\s+pdf|documento\s+completo)\b/i', $text)
+                    || preg_match('/class=["\'][^"\']*\b(?:pdf|btn-pdf|download-pdf)\b[^"\']*["\']/i', $rawTag)
+                    || preg_match('/title=["\'][^"\']*\bpdf\b[^"\']*["\']/i', $rawTag)
+                ) {
+                    $abs = $this->makeAbsoluteUrl($href, $baseUrl);
+
+                    return $this->normalizeOjsUrl($abs);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Attempt to resolve an OJS article landing page to its direct galley view URL (view/ID/GALLEY).
      */
-    public function resolveOjsGalleyUrl(string $url): ?string
-    {
+    public function resolveOjsGalleyUrl(string $url): ?string {
         if (! preg_match('~^(https?://[^/]+(?:/[^/]+)*)/article/view/(\d+)(?:/)?(?:[?#].*)?$~i', $url, $matches)) {
             return null;
         }
 
-        $journalBase = $matches[1];
-        $articleId = $matches[2];
+        $journalBase    = $matches[1];
+        $articleId      = $matches[2];
 
         // 1. Query OAI-PMH endpoint of the OJS repository
         try {
-            $parsed = parse_url($journalBase);
-            $domain = $parsed['host'] ?? '';
-            $oaiUrls = [
+            $parsed     = parse_url($journalBase);
+            $domain     = $parsed['host'] ?? '';
+            $oaiUrls    = [
                 $journalBase.'/oai?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai:'.$domain.':article/'.$articleId,
                 $journalBase.'/oai?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai:ojs.'.$domain.':article/'.$articleId,
             ];
@@ -913,7 +1797,7 @@ class AcademicLibraryService
                 ->withHeaders(['User-Agent' => 'IESTP-Francisco-Vigo-Caballero/VirtualLibrary'])
                 ->get('https://api.crossref.org/works', [
                     'query' => $url,
-                    'rows' => 5,
+                    'rows'  => 5,
                 ]);
 
             if ($crQuery->successful()) {
@@ -937,141 +1821,14 @@ class AcademicLibraryService
         return null;
     }
 
-    /**
-     * Extract direct document / PDF link from HTML content using standard scholarly patterns.
-     */
-    public function extractDirectDocumentLinkFromHtml(string $html, string $baseUrl): ?string
-    {
-        // 1. Highwire Press & Academic Meta Tags (citation_pdf_url, bepress, eprints, dc.identifier)
-        if (preg_match('/<meta\s+[^>]*(?:name=["\'](?:citation_pdf_url|bepress_citation_pdf_url|eprints\.document_url)["\'][^>]*content=["\']([^"\']+)["\']|content=["\']([^"\']+)["\'][^>]*name=["\'](?:citation_pdf_url|bepress_citation_pdf_url|eprints\.document_url)["\'])/i', $html, $m)) {
-            $link = trim($m[1] ?: $m[2]);
-            if (! empty($link)) {
-                $abs = $this->makeAbsoluteUrl($link, $baseUrl);
-
-                return $this->normalizeOjsUrl($abs);
-            }
-        }
-
-        // DC.Identifier / dc.identifier ending in .pdf or with article galley pattern
-        if (preg_match('/<meta\s+[^>]*(?:name=["\'](?:dc\.identifier|DC\.Identifier)["\'][^>]*content=["\']([^"\']+(?:\.pdf|\/article\/(?:view|download)\/\d+\/\d+)[^"\']*)["\']|content=["\']([^"\']+(?:\.pdf|\/article\/(?:view|download)\/\d+\/\d+)[^"\']*)["\'][^>]*name=["\'](?:dc\.identifier|DC\.Identifier)["\'])/i', $html, $m)) {
-            $link = trim($m[1] ?: $m[2]);
-            if (! empty($link)) {
-                $abs = $this->makeAbsoluteUrl($link, $baseUrl);
-
-                return $this->normalizeOjsUrl($abs);
-            }
-        }
-
-        // 2. OJS (Open Journal Systems) PDF Galley Links
-        // Look specifically for PDF galley link classes (obj_galley_link with pdf)
-        if (preg_match('/<a\s+[^>]*class=["\'][^"\']*obj_galley_link[^"\']*\bpdf\b[^"\']*["\'][^>]*href=["\']([^"\']+)["\']/is', $html, $m)) {
-            $abs = $this->makeAbsoluteUrl($m[1], $baseUrl);
-
-            return $this->normalizeOjsUrl($abs);
-        }
-
-        if (preg_match('/<a\s+[^>]*href=["\']([^"\']+)["\'][^>]*class=["\'][^"\']*obj_galley_link[^"\']*\bpdf\b[^"\']*["\']/is', $html, $m)) {
-            $abs = $this->makeAbsoluteUrl($m[1], $baseUrl);
-
-            return $this->normalizeOjsUrl($abs);
-        }
-
-        // Standard obj_galley_link or galley_link
-        if (preg_match('/<a\s+[^>]*class=["\'][^"\']*(?:obj_galley_link|galley_link)[^"\']*["\'][^>]*href=["\']([^"\']+)["\']/is', $html, $m)) {
-            $abs = $this->makeAbsoluteUrl($m[1], $baseUrl);
-
-            return $this->normalizeOjsUrl($abs);
-        }
-
-        if (preg_match('/<a\s+[^>]*href=["\']([^"\']+)["\'][^>]*class=["\'][^"\']*(?:obj_galley_link|galley_link)[^"\']*["\']/is', $html, $m)) {
-            $abs = $this->makeAbsoluteUrl($m[1], $baseUrl);
-
-            return $this->normalizeOjsUrl($abs);
-        }
-
-        // Any link matching OJS galley route /article/(view|download)/ID/GALLEY_ID
-        if (preg_match('/href=["\']([^"\']+\/article\/(?:view|download)\/\d+\/\d+[^"\']*)["\']/i', $html, $m)) {
-            $abs = $this->makeAbsoluteUrl($m[1], $baseUrl);
-
-            return $this->normalizeOjsUrl($abs);
-        }
-
-        // Legacy OJS 2.x galley route /article/viewFile/ID/GALLEY_ID
-        if (preg_match('/href=["\']([^"\']+\/article\/viewFile\/\d+\/\d+[^"\']*)["\']/i', $html, $m)) {
-            $abs = $this->makeAbsoluteUrl($m[1], $baseUrl);
-
-            return $this->normalizeOjsUrl($abs);
-        }
-
-        // 3. Embedded PDF viewers (iframe, embed, object)
-        if (preg_match('/<iframe\s+[^>]*src=["\']([^"\']+(?:\.pdf|\/article\/(?:view|download)\/\d+\/\d+)[^"\']*)["\']/is', $html, $m)) {
-            $abs = $this->makeAbsoluteUrl($m[1], $baseUrl);
-
-            return $this->normalizeOjsUrl($abs);
-        }
-
-        if (preg_match('/<embed\s+[^>]*src=["\']([^"\']+)["\'][^>]*type=["\']application\/pdf["\']/is', $html, $m)) {
-            return $this->makeAbsoluteUrl($m[1], $baseUrl);
-        }
-
-        if (preg_match('/<object\s+[^>]*data=["\']([^"\']+)["\'][^>]*type=["\']application\/pdf["\']/is', $html, $m)) {
-            return $this->makeAbsoluteUrl($m[1], $baseUrl);
-        }
-
-        // 4. SciELO PDF galley links (script=sci_pdf or /pdf/... or format=pdf)
-        if (preg_match('/href=["\']([^"\']*scielo\.php\?[^"\']*script=sci_pdf[^"\']*)["\']/i', $html, $m)) {
-            return $this->makeAbsoluteUrl($m[1], $baseUrl);
-        }
-
-        if (preg_match('/href=["\']([^"\']+\/pdf\/[^"\']+\.pdf)["\']/i', $html, $m)) {
-            return $this->makeAbsoluteUrl($m[1], $baseUrl);
-        }
-
-        if (preg_match('/href=["\']([^"\']+[?&]format=pdf[^"\']*)["\']/i', $html, $m)) {
-            return $this->makeAbsoluteUrl($m[1], $baseUrl);
-        }
-
-        // 5. Dialnet direct download
-        if (preg_match('/href=["\']([^"\']*\/descarga\/articulo\/\d+\.pdf)["\']/i', $html, $m)) {
-            return $this->makeAbsoluteUrl($m[1], $baseUrl);
-        }
-
-        // 6. Anchors with href ending in .pdf
-        if (preg_match('/<a\s+[^>]*href=["\']([^"\']+\.pdf(?:\?[^"\']*)?)["\']/i', $html, $m)) {
-            return $this->makeAbsoluteUrl($m[1], $baseUrl);
-        }
-
-        // 7. Semantic link scraping: search for anchors specifically offering PDF reading
-        if (preg_match_all('/<a\s+[^>]*href=["\']([^"\'#]+)["\'][^>]*>(.*?)<\/a>/is', $html, $aMatches, PREG_SET_ORDER)) {
-            foreach ($aMatches as $aMatch) {
-                $href = trim($aMatch[1]);
-                $text = trim(strip_tags(html_entity_decode($aMatch[2])));
-                $rawTag = $aMatch[0];
-
-                if (str_starts_with($href, 'javascript:') || str_starts_with($href, 'mailto:')) {
-                    continue;
-                }
-
-                if (
-                    preg_match('/\b(?:pdf|texto\s+completo|full\s*text|descargar\s+art[ií]culo|leer\s+art[ií]culo|visualizar\s+pdf|bajar\s+pdf|documento\s+completo)\b/i', $text)
-                    || preg_match('/class=["\'][^"\']*\b(?:pdf|btn-pdf|download-pdf)\b[^"\']*["\']/i', $rawTag)
-                    || preg_match('/title=["\'][^"\']*\bpdf\b[^"\']*["\']/i', $rawTag)
-                ) {
-                    $abs = $this->makeAbsoluteUrl($href, $baseUrl);
-
-                    return $this->normalizeOjsUrl($abs);
-                }
-            }
-        }
-
-        return null;
-    }
+    // ══════════════════════════════════════════════════════════════
+    // URL UTILITIES
+    // ══════════════════════════════════════════════════════════════
 
     /**
      * Resolve a relative URL to an absolute URL based on the parent document.
      */
-    public function makeAbsoluteUrl(string $relativeUrl, string $baseUrl): string
-    {
+    public function makeAbsoluteUrl(string $relativeUrl, string $baseUrl): string {
         $relativeUrl = html_entity_decode(trim($relativeUrl, " \t\n\r\0\x0B\"'"));
 
         if (str_starts_with($relativeUrl, 'http://') || str_starts_with($relativeUrl, 'https://')) {
@@ -1080,8 +1837,8 @@ class AcademicLibraryService
 
         $parsed = parse_url($baseUrl);
         $scheme = $parsed['scheme'] ?? 'https';
-        $host = $parsed['host'] ?? '';
-        $port = isset($parsed['port']) ? ':'.$parsed['port'] : '';
+        $host   = $parsed['host'] ?? '';
+        $port   = isset($parsed['port']) ? ':'.$parsed['port'] : '';
         $origin = "{$scheme}://{$host}{$port}";
 
         if (str_starts_with($relativeUrl, '//')) {
@@ -1093,9 +1850,9 @@ class AcademicLibraryService
         }
 
         // Relative path without leading slash
-        $basePath = $parsed['path'] ?? '/';
-        $baseDir = rtrim(dirname($basePath), '/');
-        $cleanRelative = preg_replace('/^\.\//', '', $relativeUrl);
+        $basePath       = $parsed['path'] ?? '/';
+        $baseDir        = rtrim(dirname($basePath), '/');
+        $cleanRelative  = preg_replace('/^\.\//', '', $relativeUrl);
 
         return "{$origin}{$baseDir}/{$cleanRelative}";
     }
@@ -1103,45 +1860,58 @@ class AcademicLibraryService
     /**
      * Compare whether new URL is more direct (PDF/galley) than an existing landing URL.
      */
-    public function isMoreDirectDocumentUrl(string $newUrl, ?string $oldUrl): bool
-    {
+    public function isMoreDirectDocumentUrl(string $newUrl, ?string $oldUrl): bool {
         if (empty($oldUrl) || $newUrl === $oldUrl) {
             return false;
         }
 
-        $oldIsDirect = (bool) preg_match('/\.pdf($|\?)|\/article\/(?:view|download)\/\d+\/\d+|script=sci_pdf|format=pdf|\/descarga\/articulo\/\d+\.pdf/i', $oldUrl);
-        $newIsDirect = (bool) preg_match('/\.pdf($|\?)|\/article\/(?:view|download)\/\d+\/\d+|script=sci_pdf|format=pdf|\/descarga\/articulo\/\d+\.pdf/i', $newUrl);
+        $directPattern  = '/\.pdf($|\?)|\/article\/(?:view|download)\/\d+\/\d+|script=sci_pdf|format=pdf|\/descarga\/articulo\/\d+\.pdf|\/bitstream\/handle\//i';
+        $oldIsDirect    = (bool) preg_match($directPattern, $oldUrl);
+        $newIsDirect    = (bool) preg_match($directPattern, $newUrl);
 
         if ($newIsDirect && ! $oldIsDirect) {
             return true;
         }
 
-        // Prefer /article/view/ID/GALLEY over /article/download/ID/GALLEY for iframe reading
-        if (str_contains($oldUrl, '/article/download/') && str_contains($newUrl, '/article/view/')) {
+        // Prefer interactive OJS view route over download route for iframe reader
+        if (
+            preg_match('/\/article\/view\/\d+\/\d+/i', $newUrl) &&
+            preg_match('/\/article\/download\/\d+\/\d+/i', $oldUrl)
+        ) {
             return true;
         }
 
         return false;
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // HELPERS & PERSISTENCE
+    // ══════════════════════════════════════════════════════════════
+
     /**
      * Map scholarly work type to the Library categories.
      */
-    private function mapCategory(string $academicType, string $fallback): string
-    {
+    private function mapCategory(string $academicType, string $fallback): string {
         $type = mb_strtolower($academicType);
 
-        if (str_contains($type, 'article') || str_contains($type, 'paper')) {
-            return 'Paper';
-        }
-        if (str_contains($type, 'book') || str_contains($type, 'monograph')) {
+        if (str_contains($type, 'book') || str_contains($type, 'monograph') || str_contains($type, 'chapter')) {
             return 'Libro';
         }
+
         if (str_contains($type, 'dissertation') || str_contains($type, 'thesis')) {
             return 'Tesis';
         }
-        if (str_contains($type, 'journal') || str_contains($type, 'serial')) {
+
+        if (str_contains($type, 'journal') || str_contains($type, 'serial') || str_contains($type, 'periodical')) {
             return 'Revista';
+        }
+
+        if (str_contains($type, 'article') || str_contains($type, 'paper') || str_contains($type, 'journalarticle') || str_contains($type, 'journal_article')) {
+            return 'Paper';
+        }
+
+        if (str_contains($type, 'report') || str_contains($type, 'technical') || str_contains($type, 'document')) {
+            return 'Documento';
         }
 
         return $fallback ?: 'Paper';
@@ -1149,24 +1919,19 @@ class AcademicLibraryService
 
     /**
      * Reconstruct human-readable abstract from OpenAlex inverted index.
+     *
+     * @param  array<string, array<int>>|null  $invertedIndex
      */
-    private function reconstructAbstract(?array $invertedIndex): ?string
-    {
+    private function reconstructAbstract(?array $invertedIndex): ?string {
         if (empty($invertedIndex) || ! is_array($invertedIndex)) {
             return null;
         }
 
         $words = [];
         foreach ($invertedIndex as $word => $positions) {
-            if (is_array($positions)) {
-                foreach ($positions as $pos) {
-                    $words[(int) $pos] = $word;
-                }
+            foreach ($positions as $pos) {
+                $words[$pos] = $word;
             }
-        }
-
-        if (empty($words)) {
-            return null;
         }
 
         ksort($words);
@@ -1175,79 +1940,73 @@ class AcademicLibraryService
     }
 
     /**
-     * Store and deduplicate a single academic item.
+     * Save or update an academic item with deduplication and direct document resolution.
      *
+     * @param  array<string, mixed>  $item
      * @return array{status: 'created'|'updated'|'skipped', book: ?Book}
      */
-    public function storeAcademicItem(array $item): array
-    {
+    public function storeAcademicItem(array $item): array {
         if (empty($item['title']) || empty($item['external_url'])) {
             return ['status' => 'skipped', 'book' => null];
         }
 
-        // Ensure URL is direct document link
         $item['external_url'] = $this->resolveDirectDocumentLink($item['external_url']);
 
         if (! isset($item['slug'])) {
-            $baseSlug = Str::slug(Str::limit($item['title'], 180));
-            $slug = $baseSlug;
-            $counter = 1;
+            $baseSlug   = Str::slug(Str::limit($item['title'], 180));
+            $slug       = $baseSlug;
+            $counter    = 1;
             while (Book::where('slug', $slug)->exists()) {
                 $slug = $baseSlug.'-'.$counter++;
             }
             $item['slug'] = $slug;
         }
 
-        if (! isset($item['is_active'])) {
-            $item['is_active'] = true;
-        }
-
-        if (! isset($item['is_external'])) {
-            $item['is_external'] = true;
-        }
-
         [$status, $book] = $this->upsertAcademicResource($item);
 
         $normalizedStatus = match ($status) {
-            'saved' => 'created',
-            'updated' => 'updated',
-            default => 'skipped',
+            'saved'     => 'created',
+            'updated'   => 'updated',
+            default     => 'skipped',
         };
 
         return [
-            'status' => $normalizedStatus,
-            'book' => $book->exists ? $book : null,
+            'status'    => $normalizedStatus,
+            'book'      => $book->exists ? $book : null,
         ];
     }
 
     /**
-     * Persist or update academic resource avoiding duplicates.
+     * Upsert academic publication and upgrade to direct document URL if available.
      *
+     * @param  array<string, mixed>  $item
      * @return array{0: 'saved'|'updated'|'skipped', 1: Book}
      */
-    private function upsertAcademicResource(array $item): array
-    {
+    private function upsertAcademicResource(array $item): array {
         if (empty($item['title']) || empty($item['external_url'])) {
             return ['skipped', new Book];
         }
 
-        // Match existing record by external URL OR by title + study program OR by title
-        $existing = Book::where('external_url', $item['external_url'])->first();
-
-        if (! $existing && ! empty($item['study_program_id'])) {
-            $existing = Book::where('study_program_id', $item['study_program_id'])
-                ->where('title', $item['title'])
-                ->first();
+        if (str_starts_with($item['external_url'], 'javascript:') || $item['external_url'] === '#') {
+            return ['skipped', new Book];
         }
 
+        $cleanTitle             = trim(preg_replace('/\s+/', ' ', $item['title']));
+        $item['title']          = Str::limit($cleanTitle, 250);
+        $item['external_url']   = Str::limit($item['external_url'], 495);
+
+        // Check if book with same external_url already exists
+        $existing = Book::where('external_url', $item['external_url'])->first();
+
+        // Check if book with exact same title exists
         if (! $existing) {
             $existing = Book::where('title', $item['title'])->first();
         }
 
         // Match if existing record has base OJS landing URL corresponding to this galley
         if (! $existing && preg_match('#(/article/(?:view|download)/\d+)#i', $item['external_url'], $baseOjsMatch)) {
-            $baseOjs = $baseOjsMatch[1];
-            $existing = Book::where('external_url', 'like', '%'.$baseOjs)
+            $baseOjs    = $baseOjsMatch[1];
+            $existing   = Book::where('external_url', 'like', '%'.$baseOjs)
                 ->orWhere('external_url', 'like', '%'.$baseOjs.'/%')
                 ->first();
         }
@@ -1255,11 +2014,11 @@ class AcademicLibraryService
         if ($existing) {
             // Update metadata while preserving admin customization and active status
             $updates = [
-                'author' => $existing->author ?: ($item['author'] ?? null),
-                'description' => $existing->description ?: ($item['description'] ?? null),
-                'publisher' => $existing->publisher ?: ($item['publisher'] ?? null),
-                'publication_year' => $existing->publication_year ?: ($item['publication_year'] ?? null),
-                'isbn' => $existing->isbn ?: ($item['isbn'] ?? null),
+                'author'            => $existing->author ?: ($item['author'] ?? null),
+                'description'       => $existing->description ?: ($item['description'] ?? null),
+                'publisher'         => $existing->publisher ?: ($item['publisher'] ?? null),
+                'publication_year'  => $existing->publication_year ?: ($item['publication_year'] ?? null),
+                'isbn'              => $existing->isbn ?: ($item['isbn'] ?? null),
             ];
 
             // Upgrade external URL if the newly scraped URL is more direct
@@ -1272,26 +2031,54 @@ class AcademicLibraryService
             return ['updated', $existing];
         }
 
-        $book = Book::create($item);
+        // Generate unique slug
+        $baseSlug   = Str::slug(Str::limit($item['title'], 180));
+        $slug       = $baseSlug;
+        $counter    = 1;
+        while (Book::where('slug', $slug)->exists()) {
+            $slug   = $baseSlug.'-'.$counter++;
+        }
+
+        $bookData = [
+            'title'             => $item['title'],
+            'slug'              => $slug,
+            'author'            => Str::limit($item['author'] ?? 'Varios Autores', 250),
+            'study_program_id'  => $item['study_program_id'] ?? null,
+            'category'          => $item['category'] ?? 'Paper',
+            'description'       => Str::limit($item['description'] ?? null, 950),
+            'publisher'         => Str::limit($item['publisher'] ?? 'Repositorio Científico Abierto', 145),
+            'publication_year'  => ! empty($item['publication_year']) ? (int) $item['publication_year'] : null,
+            'edition'           => '1ª Edición Digital',
+            'pages'             => $item['pages'] ?? null,
+            'isbn'              => isset($item['isbn']) ? Str::limit($item['isbn'], 45) : null,
+            'language'          => $item['language'] ?? 'Español',
+            'external_url'      => $item['external_url'],
+            'rating'            => 5.0,
+            'is_active'         => true,
+            'created_by'        => $item['created_by'] ?? auth()->id(),
+        ];
+
+        $book = Book::create($bookData);
 
         return ['saved', $book];
     }
 
     /**
      * Format summary for client-side feedback and table refresh.
+     *
+     * @return array<string, mixed>
      */
-    private function formatItemSummary(Book $book): array
-    {
+    private function formatItemSummary(Book $book): array {
         return [
-            'id' => $book->id,
-            'title' => $book->title,
-            'author' => $book->author,
-            'publisher' => $book->publisher,
-            'category' => $book->category,
-            'publication_year' => $book->publication_year,
-            'program_name' => $book->studyProgram?->name ?? 'General / Todas',
-            'external_url' => $book->external_url,
-            'slug' => $book->slug,
+            'id'                => $book->id,
+            'title'             => $book->title,
+            'author'            => $book->author,
+            'publisher'         => $book->publisher,
+            'category'          => $book->category,
+            'publication_year'  => $book->publication_year,
+            'program_name'      => $book->studyProgram?->name ?? 'General / Todas',
+            'external_url'      => $book->external_url,
+            'slug'              => $book->slug,
         ];
     }
 }

@@ -250,4 +250,164 @@ XML;
 
         $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394', $resolved);
     }
+
+    public function test_parse_google_scholar_html_ignores_javascript_collapsible_and_extracts_real_pdf(): void
+    {
+        $html = <<<'HTML'
+<div class="gs_r gs_or gs_scl">
+  <div class="gs_ggs gs_fl">
+    <div class="gs_ggsd">
+      <a class="gs_or_ggsm_exp" href="javascript:void(0)" aria-expanded="false" role="button">
+        <span class="gs_ctg2">[PDF]</span>
+      </a>
+      <div class="gs_or_ggsm">
+        <a href="https://repositorio.unal.edu.co/bitstream/handle/unal/12345/articulo_investigacion.pdf">
+          <span class="gs_ctg2">[PDF]</span> unal.edu.co
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="gs_ri">
+    <h3 class="gs_rt">
+      <a href="https://repositorio.unal.edu.co/handle/unal/12345">Sistemas de Distribución Eléctrica Inteligentes</a>
+    </h3>
+    <div class="gs_a">M Gómez, R Pérez - Revista Energía, 2023 - unal.edu.co</div>
+    <div class="gs_rs">Análisis de estabilidad en redes de distribución con penetración fotovoltaica.</div>
+  </div>
+</div>
+HTML;
+
+        $results = $this->service->parseGoogleScholarHtml($html, ['default_category' => 'Paper'], 1, 'Paper', 5);
+
+        $this->assertCount(1, $results);
+        $this->assertEquals('Sistemas de Distribución Eléctrica Inteligentes', $results[0]['title']);
+        $this->assertEquals(
+            'https://repositorio.unal.edu.co/bitstream/handle/unal/12345/articulo_investigacion.pdf',
+            $results[0]['external_url']
+        );
+        $this->assertStringNotContainsString('javascript:', $results[0]['external_url']);
+    }
+
+    public function test_dom_crawler_extracts_json_ld_distribution_pdf(): void
+    {
+        $html = <<<'HTML'
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "ScholarlyArticle",
+        "headline": "Estudio de Suelos Agrícolas",
+        "distribution": [
+            {
+                "@type": "DataDownload",
+                "encodingFormat": "application/pdf",
+                "contentUrl": "https://agronomia.org/descargas/suelos-2024.pdf"
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+    <h1>Estudio de Suelos Agrícolas</h1>
+</body>
+</html>
+HTML;
+
+        $baseUrl = 'https://agronomia.org/articulos/suelos-2024';
+        $extracted = $this->service->extractDirectDocumentLinkFromHtml($html, $baseUrl);
+
+        $this->assertEquals('https://agronomia.org/descargas/suelos-2024.pdf', $extracted);
+    }
+
+    public function test_dom_crawler_extracts_dspace_bitstream_pdf(): void
+    {
+        $html = <<<'HTML'
+<!DOCTYPE html>
+<html>
+<body>
+    <div class="item-page-field-wrapper">
+        <a class="btn btn-primary" href="/bitstream/handle/123456789/789/tesis_maestria_final.pdf?sequence=1&isAllowed=y">
+            Descargar Documento PDF (4.2 MB)
+        </a>
+    </div>
+</body>
+</html>
+HTML;
+
+        $baseUrl = 'https://repositorio.institucional.edu.pe/handle/123456789/789';
+        $extracted = $this->service->extractDirectDocumentLinkFromHtml($html, $baseUrl);
+
+        $this->assertEquals('https://repositorio.institucional.edu.pe/bitstream/handle/123456789/789/tesis_maestria_final.pdf?sequence=1&isAllowed=y', $extracted);
+    }
+
+    public function test_resolve_doi_to_open_access_pdf_via_unpaywall(): void
+    {
+        $unpaywallResponse = [
+            'doi' => '10.1016/j.agwat.2023.108250',
+            'is_oa' => true,
+            'best_oa_location' => [
+                'url_for_pdf' => 'https://www.sciencedirect.com/science/article/pii/S037837742300101X/pdfft?isDTMRedir=true&download=true',
+                'url' => 'https://doi.org/10.1016/j.agwat.2023.108250',
+            ],
+        ];
+
+        Http::fake([
+            'https://api.unpaywall.org/v2/10.1016*' => Http::response($unpaywallResponse, 200),
+        ]);
+
+        $resolved = $this->service->resolveDoiToOpenAccessPdf('10.1016/j.agwat.2023.108250');
+
+        $this->assertEquals(
+            'https://www.sciencedirect.com/science/article/pii/S037837742300101X/pdfft?isDTMRedir=true&download=true',
+            $resolved
+        );
+    }
+
+    public function test_query_doaj_returns_structured_records(): void
+    {
+        $doajResponse = [
+            'total' => 1,
+            'results' => [
+                [
+                    'bibjson' => [
+                        'title' => 'Gestión Sostenible del Agua en Cuencas Amazónicas',
+                        'author' => [
+                            ['name' => 'Ana Morales'],
+                            ['name' => 'Carlos Silva'],
+                        ],
+                        'year' => '2024',
+                        'journal' => [
+                            'title' => 'Revista Peruana de Recursos Hídricos',
+                            'publisher' => 'FVC Press',
+                        ],
+                        'abstract' => 'Investigación exhaustiva sobre la conservación y monitoreo hídrico.',
+                        'link' => [
+                            [
+                                'type' => 'fulltext',
+                                'content_type' => 'PDF',
+                                'url' => 'https://revistas.peru.org/recursos/articulo-2024.pdf',
+                            ],
+                        ],
+                        'identifier' => [
+                            ['type' => 'doi', 'id' => '10.5555/rprh.2024.1'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        Http::fake([
+            'https://doaj.org/api/search/articles/*' => Http::response($doajResponse, 200),
+        ]);
+
+        $results = $this->service->queryDoaj('cuencas amazonicas', ['default_category' => 'Paper'], 1, 'Paper', 5);
+
+        $this->assertCount(1, $results);
+        $this->assertEquals('Gestión Sostenible del Agua en Cuencas Amazónicas', $results[0]['title']);
+        $this->assertEquals('Ana Morales, Carlos Silva', $results[0]['author']);
+        $this->assertEquals('https://revistas.peru.org/recursos/articulo-2024.pdf', $results[0]['external_url']);
+        $this->assertEquals('2024', $results[0]['publication_year']);
+    }
 }

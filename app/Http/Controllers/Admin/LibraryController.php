@@ -28,7 +28,6 @@ class LibraryController extends Controller
         $selectedCareer = $request->query('career', 'all');
         $searchQuery = $request->query('q', '');
         $viewMode = $request->query('view', 'grid'); // grid or list
-
         $query = Book::with('studyProgram')
             ->career($selectedCareer)
             ->search($searchQuery)
@@ -36,7 +35,6 @@ class LibraryController extends Controller
 
         $totalCount = (clone $query)->count();
         $books = $query->paginate(24)->withQueryString();
-
         $studyPrograms = StudyProgram::select('id', 'name')->orderBy('name')->get();
 
         return view('admin.library.assigned-books', compact(
@@ -57,7 +55,6 @@ class LibraryController extends Controller
         $selectedCareer = $request->query('career', 'all');
         $selectedCategory = $request->query('category', 'all');
         $searchQuery = $request->query('q', '');
-
         $query = Book::with('studyProgram', 'creator')
             ->career($selectedCareer)
             ->category($selectedCategory)
@@ -244,7 +241,6 @@ class LibraryController extends Controller
     public function toggleStatus(Book $book): RedirectResponse|JsonResponse
     {
         $book->update(['is_active' => ! $book->is_active]);
-
         $status = $book->is_active ? 'activado' : 'desactivado';
 
         if (request()->wantsJson()) {
@@ -390,7 +386,6 @@ class LibraryController extends Controller
         $totalViews = Book::sum('views_count');
         $totalFavorites = DB::table('book_favorites')->count();
         $totalCategories = Book::distinct('category')->count('category');
-
         $booksByCategory = Book::select('category', DB::raw('COUNT(*) as total'))
             ->groupBy('category')
             ->get();

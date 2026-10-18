@@ -21,13 +21,13 @@ use Illuminate\View\View;
 class LibraryController extends Controller
 {
     /**
-     * Display the "Libros Asignados" view (matching Screenshot 1).
+     * Display the "Libros Asignados" view.
      */
     public function index(Request $request): View
     {
         $selectedCareer = $request->query('career', 'all');
         $searchQuery = $request->query('q', '');
-        $viewMode = $request->query('view', 'grid'); // grid or list
+        $viewMode = $request->query('view', 'grid');
         $query = Book::with('studyProgram')
             ->career($selectedCareer)
             ->search($searchQuery)
@@ -74,13 +74,13 @@ class LibraryController extends Controller
     }
 
     /**
-     * Search and bulk-import academic resources (journals, books, papers, articles)
-     * organized by study program from verifiable open-access sources (SciELO, Redalyc, OpenAlex, DOAJ, Crossref).
+     * Search and bulk-import academic resources (journals, books, papers, theses, articles)
+     * organized by study program from verifiable open-access sources.
      */
     public function fetchAcademicResources(Request $request, AcademicLibraryService $service): JsonResponse
     {
         $user = auth()->user();
-        if (! $user || ! in_array($user->role, ['Admin', 'Docente', 'Bibliotecario'])) {
+        if (! $user || ! in_array($user->role, ['Admin', 'Administrador', 'Director', 'Docente', 'Bibliotecario'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'No autorizado para realizar importaciones masivas en el repositorio.',
@@ -93,10 +93,11 @@ class LibraryController extends Controller
             $options = [
                 'study_program_id' => $request->input('study_program_id'),
                 'category' => $request->input('category'),
-                'sources' => $request->input('sources', ['scielo', 'google_scholar', 'redalyc', 'openalex', 'crossref', 'doaj']),
+                'sources' => $request->input('sources', ['scielo', 'google_scholar', 'redalyc', 'scopus', 'openalex', 'crossref', 'doaj']),
                 'custom_query' => $request->input('custom_query'),
                 'limit' => (int) $request->input('limit', 10),
                 'created_by' => auth()->id(),
+                'strict_pdf_only' => true,
             ];
 
             $result = $service->fetchAndImport($options);
@@ -122,12 +123,20 @@ class LibraryController extends Controller
     /**
      * Store a newly created book / document in the library.
      */
-    public function store(BookRequest $request): RedirectResponse|JsonResponse
+    public function store(BookRequest $request, AcademicLibraryService $academicService): RedirectResponse|JsonResponse
     {
         $validated = $request->validated();
         $validated['created_by'] = auth()->id();
-        $validated['is_active'] = $request->has('is_active') ? true : false;
+        $validated['is_active'] = $request->has('is_active');
         $validated['rating'] = $validated['rating'] ?? 5.0;
+
+        // Si se ingresó una URL externa manualmente, resolverla a su enlace PDF directo
+        if (! empty($validated['external_url'])) {
+            $validated['external_url'] = Str::limit(
+                $academicService->resolveDirectDocumentLink((string) $validated['external_url']),
+                495
+            );
+        }
 
         // Cover image upload
         if ($request->hasFile('cover')) {
@@ -137,7 +146,7 @@ class LibraryController extends Controller
             $validated['cover_image'] = $coverPath;
         }
 
-        // PDF file upload (direct storage, low memory usage)
+        // PDF file upload
         if ($request->hasFile('file')) {
             $pdfFile = $request->file('file');
             $pdfName = 'book_'.Str::slug($validated['title']).'_'.time().'.'.$pdfFile->getClientOriginalExtension();
@@ -194,10 +203,17 @@ class LibraryController extends Controller
     /**
      * Update an existing book / document.
      */
-    public function update(BookRequest $request, Book $book): RedirectResponse|JsonResponse
+    public function update(BookRequest $request, Book $book, AcademicLibraryService $academicService): RedirectResponse|JsonResponse
     {
         $validated = $request->validated();
-        $validated['is_active'] = $request->has('is_active') ? true : false;
+        $validated['is_active'] = $request->has('is_active');
+
+        if (! empty($validated['external_url']) && $validated['external_url'] !== $book->external_url) {
+            $validated['external_url'] = Str::limit(
+                $academicService->resolveDirectDocumentLink((string) $validated['external_url']),
+                495
+            );
+        }
 
         // New cover image
         if ($request->hasFile('cover')) {
@@ -285,7 +301,7 @@ class LibraryController extends Controller
     {
         $roleFilter = $request->query('role', 'all');
         $careerFilter = $request->query('career', 'all');
-        $search = $request->query('q', '');
+        $search = trim((string) $request->query('q', ''));
 
         // 1. Core KPIs
         $totalUniqueReaders = LibraryAccessLog::whereNotNull('user_id')->distinct('user_id')->count('user_id');
@@ -312,8 +328,9 @@ class LibraryController extends Controller
             ->orderByDesc('total_reads')
             ->get();
 
-        // 3. Most Read Content Ranking
+        // 3. Most Read Content Ranking (filtrado por carrera si se selecciona una)
         $mostReadBooks = Book::with('studyProgram')
+            ->when($careerFilter !== 'all', fn ($q) => $q->where('study_program_id', $careerFilter))
             ->withCount('accessLogs')
             ->orderByDesc('access_logs_count')
             ->take(5)
@@ -321,14 +338,18 @@ class LibraryController extends Controller
 
         // 4. Readers Activity Table
         $readersQuery = User::select('users.id', 'users.names', 'users.email', 'users.role', 'users.dni')
-            ->withCount('libraryAccessLogs')
+            ->withCount(['libraryAccessLogs' => function ($q) use ($careerFilter) {
+                if ($careerFilter && $careerFilter !== 'all') {
+                    $q->whereHas('book', fn ($bq) => $bq->where('study_program_id', $careerFilter));
+                }
+            }])
             ->having('library_access_logs_count', '>', 0);
 
         if ($roleFilter && $roleFilter !== 'all') {
             $readersQuery->where('users.role', $roleFilter);
         }
 
-        if (! empty($search)) {
+        if ($search !== '') {
             $readersQuery->where(function ($q) use ($search) {
                 $q->where('users.names', 'like', "%{$search}%")
                     ->orWhere('users.email', 'like', "%{$search}%")
@@ -342,6 +363,9 @@ class LibraryController extends Controller
 
         // 5. Recent Reading Activity Stream
         $recentLogs = LibraryAccessLog::with(['user', 'book.studyProgram'])
+            ->when($careerFilter && $careerFilter !== 'all', function ($q) use ($careerFilter) {
+                $q->whereHas('book', fn ($bq) => $bq->where('study_program_id', $careerFilter));
+            })
             ->recent()
             ->take(15)
             ->get();

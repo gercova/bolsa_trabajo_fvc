@@ -3,77 +3,86 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
-use App\Models\BookFavorite;
 use App\Models\LibraryAccessLog;
 use App\Models\StudyProgram;
+use App\Services\AcademicLibraryService;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Client\Response as ClientResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LibraryReaderController extends Controller
 {
     /**
-     * Home view of the Virtual Library for Students and Teachers (Screenshot 2).
+     * Portal principal de la Biblioteca Virtual (/biblioteca).
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $user = auth()->user();
+        $selectedCareer = $request->query('career', 'all');
+        $searchQuery = trim((string) $request->query('q', ''));
+        $userId = auth()->id();
 
-        // 1. My Library / Favorites (up to 5 recent)
-        $favoriteBooks = $user->favoriteBooks()
-            ->with('studyProgram')
+        $baseQuery = Book::with('studyProgram')
             ->where('is_active', true)
-            ->latest('book_favorites.created_at')
-            ->take(5)
+            ->career($selectedCareer)
+            ->search($searchQuery);
+
+        $this->attachFavoriteFlag($baseQuery, $userId);
+
+        $featuredBooks = (clone $baseQuery)
+            ->orderByDesc('views_count')
+            ->latest('id')
+            ->take(12)
             ->get();
 
-        // 2. Recently Read Books by this user (up to 5 recent)
-        $recentBookIds = LibraryAccessLog::where('user_id', $user->id)
-            ->orderByDesc('created_at')
-            ->pluck('book_id')
-            ->unique()
-            ->take(5);
+        $recentBooks = (clone $baseQuery)
+            ->latest('id')
+            ->paginate(18)
+            ->withQueryString();
 
-        $recentlyReadBooks = Book::with('studyProgram')
-            ->whereIn('id', $recentBookIds)
-            ->where('is_active', true)
-            ->withExists(['favorites as is_favorited' => function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            }])
-            ->get()
-            ->sortBy(function ($book) use ($recentBookIds) {
-                return array_search($book->id, $recentBookIds->toArray());
-            });
+        $studyPrograms = StudyProgram::select('id', 'name')->orderBy('name')->get();
+        $totalBooks = Book::where('is_active', true)->count();
 
-        return view('library.home', compact('user', 'favoriteBooks', 'recentlyReadBooks'));
+        return view('library.home', compact(
+            'featuredBooks',
+            'recentBooks',
+            'studyPrograms',
+            'selectedCareer',
+            'searchQuery',
+            'totalBooks'
+        ));
     }
 
     /**
-     * Search and explore catalog view ("Buscar").
+     * Buscador avanzado del catálogo (/biblioteca/buscar).
      */
     public function search(Request $request): View
     {
-        $user = auth()->user();
         $selectedCareer = $request->query('career', 'all');
         $selectedCategory = $request->query('category', 'all');
-        $searchQuery = $request->query('q', '');
+        $searchQuery = trim((string) $request->query('q', ''));
+        $userId = auth()->id();
 
         $query = Book::with('studyProgram')
             ->where('is_active', true)
             ->career($selectedCareer)
             ->category($selectedCategory)
             ->search($searchQuery)
-            ->withExists(['favorites as is_favorited' => function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            }])
             ->latest('id');
 
-        $books = $query->paginate(20)->withQueryString();
+        $this->attachFavoriteFlag($query, $userId);
+
+        $books = $query->paginate(24)->withQueryString();
         $studyPrograms = StudyProgram::select('id', 'name')->orderBy('name')->get();
 
         return view('library.search', compact(
@@ -86,125 +95,378 @@ class LibraryReaderController extends Controller
     }
 
     /**
-     * "Mi Biblioteca" view: All favorited books for the user (Screenshot 3).
+     * Colección personal de favoritos del lector (/biblioteca/mi-biblioteca).
      */
     public function myLibrary(Request $request): View
     {
-        $user = auth()->user();
+        $userId = auth()->id();
         $selectedCareer = $request->query('career', 'all');
+        $searchQuery = trim((string) $request->query('q', ''));
 
-        $query = $user->favoriteBooks()
-            ->with('studyProgram')
+        $query = Book::with('studyProgram')
             ->where('is_active', true)
+            ->whereExists(function ($sub) use ($userId) {
+                $sub->select(DB::raw(1))
+                    ->from('book_favorites')
+                    ->whereColumn('book_favorites.book_id', 'books.id')
+                    ->where('book_favorites.user_id', $userId);
+            })
             ->career($selectedCareer)
-            ->latest('book_favorites.created_at');
+            ->search($searchQuery)
+            ->latest('id');
 
-        $books = $query->paginate(20)->withQueryString();
+        $this->attachFavoriteFlag($query, $userId);
+
+        $books = $query->paginate(24)->withQueryString();
         $studyPrograms = StudyProgram::select('id', 'name')->orderBy('name')->get();
 
-        return view('library.favorites', compact('books', 'studyPrograms', 'selectedCareer'));
+        return view('library.favorites', compact(
+            'books',
+            'studyPrograms',
+            'selectedCareer',
+            'searchQuery'
+        ));
     }
 
     /**
-     * Open reading interface for a book or document.
+     * Agregar o quitar un libro de favoritos (/biblioteca/favorito/{book}).
      */
-    public function read(Book $book, Request $request): View
+    public function toggleFavorite(Request $request, Book $book): JsonResponse
     {
-        if (! $book->is_active) {
-            abort(404, 'El documento solicitado no se encuentra disponible.');
+        $userId = auth()->id();
+        if (! $userId) {
+            return response()->json(['success' => false, 'message' => 'No autenticado.'], 401);
         }
 
-        $user = auth()->user();
-
-        // Increment views count and log access
-        $book->increment('views_count');
-
-        LibraryAccessLog::create([
-            'user_id' => $user?->id,
-            'book_id' => $book->id,
-            'access_type' => $book->is_external ? 'external_link' : 'view',
-            'ip_address' => $request->ip(),
-            'user_agent' => Str::limit($request->userAgent() ?? '', 250),
-            'created_at' => now(),
-        ]);
-
-        $isFavorited = $user ? $user->favoriteBooks()->where('book_id', $book->id)->exists() : false;
-
-        return view('library.reader', compact('book', 'isFavorited'));
-    }
-
-    /**
-     * Stream PDF file safely with range request support to protect server memory.
-     */
-    public function stream(Book $book): Response
-    {
-        if ($book->file_path && Storage::disk('public')->exists($book->file_path)) {
-            $fullPath = Storage::disk('public')->path($book->file_path);
-
-            return response()->file($fullPath, [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'inline; filename="'.addslashes($book->slug.'.pdf').'"',
-                'Cache-Control' => 'public, max-age=86400',
-            ]);
-        }
-
-        if ($book->external_url) {
-            // Direct streaming for external PDF assets to ensure seamless in-site iframe rendering
-            if (Str::contains(strtolower($book->external_url), ['.pdf', 'sci_pdf', 'format=pdf'])) {
-                try {
-                    $remoteResponse = Http::timeout(10)
-                        ->withHeaders([
-                            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-                            'Accept' => 'application/pdf,*/*',
-                        ])
-                        ->get($book->external_url);
-
-                    if ($remoteResponse->successful() && str_contains((string) $remoteResponse->header('Content-Type'), 'pdf')) {
-                        return response($remoteResponse->body(), 200, [
-                            'Content-Type' => 'application/pdf',
-                            'Content-Disposition' => 'inline; filename="'.addslashes($book->slug.'.pdf').'"',
-                            'Cache-Control' => 'public, max-age=86400',
-                        ]);
-                    }
-                } catch (\Throwable $e) {
-                    Log::warning("Error streaming remote document for book {$book->id}: ".$e->getMessage());
-                }
-            }
-
-            return redirect()->away($book->external_url);
-        }
-
-        abort(404, 'Archivo PDF no disponible en el almacenamiento.');
-    }
-
-    /**
-     * Toggle a book in user's favorites ("Mi Biblioteca").
-     */
-    public function toggleFavorite(Book $book): JsonResponse
-    {
-        $user = auth()->user();
-
-        $existing = BookFavorite::where('user_id', $user->id)
+        $exists = DB::table('book_favorites')
+            ->where('user_id', $userId)
             ->where('book_id', $book->id)
-            ->first();
+            ->exists();
 
-        if ($existing) {
-            $existing->delete();
+        if ($exists) {
+            DB::table('book_favorites')
+                ->where('user_id', $userId)
+                ->where('book_id', $book->id)
+                ->delete();
             $favorited = false;
-            $message = 'Eliminado de tu biblioteca';
         } else {
-            BookFavorite::create([
-                'user_id' => $user->id,
+            DB::table('book_favorites')->insert([
+                'user_id' => $userId,
                 'book_id' => $book->id,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
             $favorited = true;
-            $message = 'Agregado a tu biblioteca';
         }
 
         return response()->json([
             'success' => true,
             'favorited' => $favorited,
-            'message' => $message,
         ]);
+    }
+
+    /**
+     * Display the interactive document reader view (/biblioteca/leer/{book:slug}).
+     * Automatically heals legacy landing-page URLs into direct PDF links and logs reader activity.
+     */
+    public function read(Request $request, Book $book, AcademicLibraryService $academicService): View
+    {
+        $user = $request->user();
+
+        // 1. Verificar que el documento esté activo (salvo administradores/docentes/bibliotecarios)
+        if (! $book->is_active && (! $user || ! in_array($user->role, ['Admin', 'Administrador', 'Director', 'Docente', 'Bibliotecario']))) {
+            abort(404, 'El documento solicitado no se encuentra disponible actualmente.');
+        }
+
+        $book->loadMissing('studyProgram');
+
+        // 2. Auto-reparación en caliente: si es un recurso externo y su URL aún apunta a una página web entera,
+        // resolvemos y actualizamos en la BD el enlace directo al PDF antes de renderizar el lector.
+        if (empty($book->file_path) && ! empty($book->external_url)) {
+            $currentUrl = trim((string) $book->external_url);
+
+            if (! $academicService->isDirectDocumentOrPdfUrl($currentUrl, false)) {
+                $resolvedUrl = $academicService->resolveDirectDocumentLink($currentUrl);
+
+                if ($resolvedUrl !== '' && $resolvedUrl !== $currentUrl && $academicService->isDirectDocumentOrPdfUrl($resolvedUrl, true)) {
+                    $book->update(['external_url' => Str::limit($resolvedUrl, 495)]);
+                    $book->refresh();
+                }
+            }
+        }
+
+        // 3. Registrar visualización y trazabilidad en LibraryAccessLog (con ventana anti-spam de 15 min)
+        $this->recordReaderAccess($request, $book);
+
+        // 4. Construir las URLs para el visor embebido
+        $streamUrl = route('biblioteca.stream', $book->slug);
+
+        // URL directa de respaldo al binario PDF para abrir en pestaña nueva
+        $directPdfUrl = ! empty($book->file_path)
+            ? $streamUrl
+            : $this->toDirectBinaryPdfUrl((string) $book->external_url, $academicService);
+
+        // 5. Libros o documentos relacionados de la misma carrera
+        $relatedBooks = Book::with('studyProgram')
+            ->where('is_active', true)
+            ->where('id', '!=', $book->id)
+            ->when($book->study_program_id, fn ($q) => $q->where('study_program_id', $book->study_program_id))
+            ->latest('id')
+            ->take(6)
+            ->get();
+
+        $isFavorite = false;
+        if ($user) {
+            $isFavorite = DB::table('book_favorites')
+                ->where('user_id', $user->id)
+                ->where('book_id', $book->id)
+                ->exists();
+        }
+
+        return view('library.reader', compact(
+            'book',
+            'streamUrl',
+            'directPdfUrl',
+            'relatedBooks',
+            'isFavorite'
+        ));
+    }
+
+    /**
+     * Stream the PDF binary directly inline (/biblioteca/stream/{book:slug}).
+     * Serves local files or proxies external repository PDFs stripping X-Frame-Options
+     * and converting HTML galley wrappers into raw PDF streams.
+     */
+    public function stream(Request $request, Book $book, AcademicLibraryService $academicService): BinaryFileResponse|StreamedResponse|RedirectResponse|Response
+    {
+        $user = $request->user();
+
+        if (! $book->is_active && (! $user || ! in_array($user->role, ['Admin', 'Administrador', 'Director', 'Docente', 'Bibliotecario']))) {
+            abort(404);
+        }
+
+        $safeFilename = Str::slug($book->title ?: 'documento-academico').'.pdf';
+        $dispositionType = $request->boolean('download') ? 'attachment' : 'inline';
+
+        // ── CASO 1: Archivo PDF almacenado localmente en el servidor ──
+        if (! empty($book->file_path) && Storage::disk('public')->exists($book->file_path)) {
+            $fullPath = Storage::disk('public')->path($book->file_path);
+
+            return response()->file($fullPath, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => $dispositionType.'; filename="'.$safeFilename.'"',
+                'Accept-Ranges' => 'bytes',
+                'Cache-Control' => 'public, max-age=86400',
+                'X-Content-Type-Options' => 'nosniff',
+            ]);
+        }
+
+        // ── CASO 2: Recurso Académico Externo (SciELO, Redalyc, Google Scholar, DOAJ, DSpace, OJS) ──
+        if (empty($book->external_url)) {
+            abort(404, 'El documento no cuenta con un archivo o enlace asociado.');
+        }
+
+        $targetUrl = trim((string) $book->external_url);
+
+        // Si aún no es un enlace directo, resolverlo con AcademicLibraryService
+        if (! $academicService->isDirectDocumentOrPdfUrl($targetUrl, false)) {
+            $resolved = $academicService->resolveDirectDocumentLink($targetUrl);
+            if ($resolved !== '' && $resolved !== $targetUrl) {
+                $targetUrl = $resolved;
+                if ($academicService->isDirectDocumentOrPdfUrl($resolved, false)) {
+                    $book->update(['external_url' => Str::limit($resolved, 495)]);
+                }
+            }
+        }
+
+        // Transformar rutas de visor HTML de OJS (/article/view/ID/GALLEY) a descarga binaria (/article/download/ID/GALLEY)
+        $binaryCandidateUrl = $this->toDirectBinaryPdfUrl($targetUrl, $academicService);
+
+        try {
+            $upstreamResponse = $this->fetchUpstreamPdfResponse($binaryCandidateUrl, $request);
+
+            if ($upstreamResponse && ($upstreamResponse->successful() || $upstreamResponse->status() === 206)) {
+                $psrResponse = $upstreamResponse->toPsrResponse();
+                $psrBody = $psrResponse->getBody();
+                $firstBytes = $psrBody->read(5);
+                $contentType = strtolower((string) $upstreamResponse->header('Content-Type'));
+
+                // Si los primeros bytes NO son %PDF- (ej. es una página HTML intermedia de OJS, SciELO o DSpace),
+                // leemos el HTML, extraemos la URL real del binario PDF y ejecutamos un segundo salto.
+                if ($firstBytes !== '%PDF-' && (str_contains($contentType, 'text/html') || str_starts_with(ltrim($firstBytes), '<'))) {
+                    $htmlSnippet = $firstBytes.$psrBody->getContents();
+                    $psrBody->close();
+
+                    $effectiveUri = (string) ($upstreamResponse->effectiveUri() ?: $binaryCandidateUrl);
+                    $extractedPdf = $academicService->extractDirectDocumentLinkFromHtml($htmlSnippet, $effectiveUri);
+
+                    if ($extractedPdf) {
+                        if ($academicService->isMoreDirectDocumentUrl($extractedPdf, $book->external_url)) {
+                            $book->update(['external_url' => Str::limit($extractedPdf, 495)]);
+                        }
+
+                        $secondHopUrl = $this->toDirectBinaryPdfUrl($extractedPdf, $academicService);
+                        if ($secondHopUrl !== $binaryCandidateUrl) {
+                            $upstreamResponse = $this->fetchUpstreamPdfResponse($secondHopUrl, $request);
+                            if ($upstreamResponse && ($upstreamResponse->successful() || $upstreamResponse->status() === 206)) {
+                                $psrResponse = $upstreamResponse->toPsrResponse();
+                                $psrBody = $psrResponse->getBody();
+                                $firstBytes = $psrBody->read(5);
+                                $contentType = strtolower((string) $upstreamResponse->header('Content-Type'));
+                            }
+                        }
+                    }
+                }
+
+                $isPdfBinary = ($firstBytes === '%PDF-') || (str_contains($contentType, 'application/pdf') && ! str_starts_with(ltrim($firstBytes), '<'));
+
+                if ($isPdfBinary) {
+                    $headers = [
+                        'Content-Type' => 'application/pdf',
+                        'Content-Disposition' => $dispositionType.'; filename="'.$safeFilename.'"',
+                        'Cache-Control' => 'public, max-age=3600',
+                        'X-Content-Type-Options' => 'nosniff',
+                        'X-Frame-Options' => 'SAMEORIGIN',
+                    ];
+
+                    if ($contentLength = $upstreamResponse->header('Content-Length')) {
+                        $headers['Content-Length'] = $contentLength;
+                    }
+                    if ($contentRange = $upstreamResponse->header('Content-Range')) {
+                        $headers['Content-Range'] = $contentRange;
+                    }
+                    if ($acceptRanges = $upstreamResponse->header('Accept-Ranges')) {
+                        $headers['Accept-Ranges'] = $acceptRanges;
+                    }
+
+                    $statusCode = $upstreamResponse->status() === 206 ? 206 : 200;
+
+                    return response()->stream(function () use ($firstBytes, $psrBody): void {
+                        if ($firstBytes !== '') {
+                            echo $firstBytes;
+                        }
+                        while (! $psrBody->eof()) {
+                            echo $psrBody->read(65536); // Chunks de 64 KB
+                            if (ob_get_level() > 0) {
+                                ob_flush();
+                            }
+                            flush();
+                        }
+                        $psrBody->close();
+                    }, $statusCode, $headers);
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::info("Stream proxy fallback note for book [{$book->id} - {$binaryCandidateUrl}]: ".$e->getMessage());
+        }
+
+        // ── FALLBACK SEGURO: Redirigir al URL binario directo si el repositorio remoto bloquea conexiones proxy ──
+        return redirect()->away($binaryCandidateUrl);
+    }
+
+    /**
+     * Convert viewer wrapper URLs (like OJS /article/view/ID/GALLEY, PDF.js viewers, or Google Drive view)
+     * into raw binary stream URLs (/article/download/ID/GALLEY) so the proxy fetches pure %PDF- bytes.
+     */
+    private function toDirectBinaryPdfUrl(string $url, ?AcademicLibraryService $academicService = null): string
+    {
+        $url = trim($url);
+
+        // Desempaquetar visores PDF.js (?file=...)
+        if ($academicService && preg_match('/[?&](?:file|pdf|doc|url)=(https?%3A%2F%2F[^&#]+|https?:\/\/[^&#]+|%2F[^&#]+\.pdf)/i', $url, $viewerMatch)) {
+            $url = $academicService->makeAbsoluteUrl(rawurldecode($viewerMatch[1]), $url);
+        }
+
+        // OJS: /article/view/{articleId}/{galleyId} -> /article/download/{articleId}/{galleyId}
+        if (preg_match('~(/article/)(?:view|viewFile)/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', $url)) {
+            return (string) preg_replace('~(/article/)(?:view|viewFile)/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', '$1download/$2', $url);
+        }
+
+        // Google Drive sharing link -> direct binary download
+        if (preg_match('~drive\.google\.com/file/d/([a-zA-Z0-9_-]+)~i', $url, $gdMatch)) {
+            return "https://drive.google.com/uc?export=download&id={$gdMatch[1]}";
+        }
+
+        return $url;
+    }
+
+    /**
+     * Execute an upstream HTTP request with streaming enabled and academic headers.
+     */
+    private function fetchUpstreamPdfResponse(string $url, Request $request): ?ClientResponse
+    {
+        $parsed = parse_url($url);
+        $referer = isset($parsed['scheme'], $parsed['host'])
+            ? "{$parsed['scheme']}://{$parsed['host']}/"
+            : $url;
+
+        $headers = array_merge(AcademicLibraryService::SCRAPE_HEADERS, [
+            'Accept' => 'application/pdf,application/octet-stream;q=0.9,text/html;q=0.8,*/*;q=0.7',
+            'Referer' => $referer,
+        ]);
+
+        if ($request->hasHeader('Range')) {
+            $headers['Range'] = $request->header('Range');
+        }
+
+        return Http::timeout(25)
+            ->connectTimeout(8)
+            ->withHeaders($headers)
+            ->withOptions([
+                'stream' => true,
+                'verify' => false,
+                'allow_redirects' => [
+                    'max' => 10,
+                    'strict' => false,
+                    'referer' => true,
+                    'track_redirects' => true,
+                ],
+            ])
+            ->get($url);
+    }
+
+    /**
+     * Attach is_favorited boolean subquery to avoid N+1 queries in catalog views.
+     */
+    private function attachFavoriteFlag(Builder $query, ?int $userId): void
+    {
+        if ($userId) {
+            $query->addSelect([
+                'books.*',
+                'is_favorited' => DB::table('book_favorites')
+                    ->selectRaw('COUNT(*)')
+                    ->whereColumn('book_favorites.book_id', 'books.id')
+                    ->where('book_favorites.user_id', $userId),
+            ]);
+        }
+    }
+
+    /**
+     * Increment book view counter and log access session in LibraryAccessLog.
+     */
+    private function recordReaderAccess(Request $request, Book $book): void
+    {
+        try {
+            $userId = auth()->id();
+
+            $recentlyLogged = LibraryAccessLog::where('book_id', $book->id)
+                ->when($userId, fn ($q) => $q->where('user_id', $userId))
+                ->where('created_at', '>=', now()->subMinutes(15))
+                ->exists();
+
+            if (! $recentlyLogged) {
+                $book->increment('views_count');
+
+                LibraryAccessLog::create([
+                    'user_id' => $userId,
+                    'book_id' => $book->id,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => Str::limit((string) $request->userAgent(), 250),
+                    'accessed_at' => now(),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('No se pudo registrar el acceso de lectura: '.$e->getMessage());
+        }
     }
 }

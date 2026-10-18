@@ -3,22 +3,16 @@
 @section('title', 'Leyendo: ' . $book->title . ' - Biblioteca Virtual')
 
 @php
-    $effectiveExternalUrl = $book->external_url;
-    if ($effectiveExternalUrl && preg_match('~(/article/)download/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', $effectiveExternalUrl)) {
-        $effectiveExternalUrl = preg_replace('~(/article/)download/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', '$1view/$2', $effectiveExternalUrl);
-    }
-
-    $viewerUrl = $book->is_external && $effectiveExternalUrl
-        ? $effectiveExternalUrl
-        : route('biblioteca.stream', $book->slug) . '#toolbar=1&navpanes=0&scrollbar=1';
+    // Siempre utilizamos el proxy de streaming institucional ($streamUrl) para renderizar
+    // únicamente el documento PDF limpio dentro del visor sin menús externos ni bloqueos X-Frame-Options.
+    $baseStreamUrl = $streamUrl ?? route('biblioteca.stream', $book->slug);
+    $viewerUrl =$baseStreamUrl . '#toolbar=1&navpanes=0&scrollbar=1&view=FitH';
+    $downloadStreamUrl = $baseStreamUrl . '?download=1';$externalDirectUrl = $directPdfUrl ?? $book->external_url;
 @endphp
 
 @section('content')
 <div class="h-[calc(100vh-64px)] flex flex-col bg-slate-900 font-sans" x-data="readerViewerApp()">
-
-    {{-- ══════════════════════════════════════════════════════════════════ --}}
-    {{-- READER TOP TOOLBAR                                                 --}}
-    {{-- ══════════════════════════════════════════════════════════════════ --}}
+    {{-- READER TOP TOOLBAR --}}
     <header class="bg-slate-950/95 backdrop-blur-md text-white border-b border-slate-800 px-4 sm:px-6 py-2.5 flex items-center justify-between z-20 flex-shrink-0">
         
         {{-- Left: Back & Title --}}
@@ -35,10 +29,10 @@
                     <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-500/20 text-blue-300 border border-blue-500/30">
                         {{ $book->category }}
                     </span>
-                    @if($book->is_external)
+                    @if($book->is_external || $book->external_url)
                         <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 inline-flex items-center gap-1">
-                            <i class="bi bi-globe2 text-[9px]"></i>
-                            <span>{{ Str::limit($book->publisher ?: 'Enlace Académico', 25) }}</span>
+                            <i class="bi bi-file-earmark-pdf-fill text-[9px]"></i>
+                            <span>{{ Str::limit($book->publisher ?: 'PDF Académico Directo', 28) }}</span>
                         </span>
                     @endif
                     <h1 class="text-xs sm:text-sm font-bold text-white truncate max-w-sm sm:max-w-xl" title="{{ $book->title }}">
@@ -51,7 +45,7 @@
             </div>
         </div>
 
-        {{-- Right: Actions (Favorite Toggle, Download, Reload, Fullscreen) --}}
+        {{-- Right: Actions (Favorite Toggle, Download PDF, External PDF, Reload, Fullscreen) --}}
         <div class="flex items-center gap-2 flex-shrink-0">
             {{-- Favorite Button --}}
             <button type="button" @click="toggleFavorite()"
@@ -65,7 +59,7 @@
             {{-- Reload Iframe --}}
             <button type="button" @click="reloadIframe()"
                 class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition text-xs"
-                title="Recargar Visor">
+                title="Recargar Documento PDF">
                 <i class="bi bi-arrow-clockwise text-sm"></i>
             </button>
 
@@ -76,82 +70,75 @@
                 <i class="bi" :class="isFullscreen ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'"></i>
             </button>
 
-            {{-- Direct Download / Open Tab --}}
-            @if($book->is_external)
-                <a href="{{ $book->external_url }}" target="_blank" rel="noopener noreferrer"
+            {{-- Download Direct PDF --}}
+            <a href="{{ $downloadStreamUrl }}"
+                class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs font-semibold transition flex items-center gap-1.5"
+                title="Descargar archivo PDF">
+                <i class="bi bi-download"></i>
+                <span class="hidden sm:inline">Descargar PDF</span>
+            </a>
+
+            {{-- Open Direct PDF in New Tab if External --}}
+            @if($externalDirectUrl)
+                <a href="{{ $externalDirectUrl }}" target="_blank" rel="noopener noreferrer"
                     class="px-3 py-1.5 rounded-xl bg-teal-600/90 hover:bg-teal-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-xs"
-                    title="Abrir fuente original en pestaña nueva">
+                    title="Abrir PDF directo en pestaña nueva">
                     <i class="bi bi-box-arrow-up-right text-xs"></i>
-                    <span class="hidden md:inline">Fuente Externa</span>
-                </a>
-            @else
-                <a href="{{ route('biblioteca.stream', $book->slug) }}" download target="_blank"
-                    class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs font-semibold transition flex items-center gap-1.5"
-                    title="Descargar documento PDF">
-                    <i class="bi bi-download"></i>
-                    <span class="hidden sm:inline">Descargar</span>
+                    <span class="hidden md:inline">Abrir PDF</span>
                 </a>
             @endif
         </div>
-
     </header>
-
-    {{-- ══════════════════════════════════════════════════════════════════ --}}
-    {{-- IFRAME VIEWER BODY (INTEGRATED IN-SITE READER)                       --}}
-    {{-- ══════════════════════════════════════════════════════════════════ --}}
+    {{-- IFRAME VIEWER BODY (INTEGRATED DIRECT PDF READER) --}}
     <main class="flex-1 w-full bg-slate-900 relative overflow-hidden flex flex-col" id="readerContainer">
-        @if($book->is_external)
-            {{-- Institutional In-Site Notification Bar --}}
-            <div class="bg-slate-800/90 border-b border-slate-700/80 px-4 py-1.5 text-[11px] text-slate-300 flex items-center justify-between gap-3 flex-shrink-0">
-                <div class="flex items-center gap-2 truncate">
-                    <i class="bi bi-shield-check text-emerald-400"></i>
-                    <span class="truncate">
-                        Visualizador integrado: <strong>{{ $book->publisher ?: 'Publicación Académica Verificada' }}</strong>
-                        @if($book->publication_year) ({{ $book->publication_year }}) @endif
-                    </span>
-                </div>
-                <div class="flex items-center gap-2 flex-shrink-0 text-[10px]">
-                    <span class="text-slate-400">Permaneciendo en el sitio institucional</span>
-                </div>
+        <div class="bg-slate-800/90 border-b border-slate-700/80 px-4 py-1.5 text-[11px] text-slate-300 flex items-center justify-between gap-3 flex-shrink-0">
+            <div class="flex items-center gap-2 truncate">
+                <i class="bi bi-shield-check text-emerald-400"></i>
+                <span class="truncate">
+                    Lector de Documento Directo (PDF): <strong>{{ $book->publisher ?: 'Repositorio Académico Verificado' }}</strong>
+                    @if($book->publication_year) ({{$book->publication_year }}) @endif
+                </span>
             </div>
-        @endif
+            <div class="flex items-center gap-3 flex-shrink-0 text-[10px]">
+                <span class="text-slate-400 hidden sm:inline">Visualización limpia sin páginas externas</span>
+            </div>
+        </div>
 
         <div class="flex-1 w-full h-full relative bg-slate-900">
+            {{-- Loading Overlay --}}
+            <div x-show="isLoading" x-transition.opacity
+                class="absolute inset-0 bg-slate-900/80 backdrop-blur-xs z-10 flex flex-col items-center justify-center text-slate-300 space-y-3">
+                <div class="w-8 h-8 border-2 border-teal-400 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-xs font-semibold tracking-wide">Cargando documento PDF directo...</p>
+            </div>
+
             <iframe src="{{ $viewerUrl }}" 
                 id="libraryViewerIframe"
-                class="w-full h-full border-0 bg-white"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                @load="isLoading = false"
+                class="w-full h-full border-0 bg-slate-800"
+                allow="fullscreen; clipboard-write"
                 allowfullscreen
-                loading="lazy"
                 title="{{ $book->title }}">
-                <div class="h-full flex flex-col items-center justify-center p-8 text-center text-slate-400 space-y-4">
-                    <i class="bi bi-journal-text text-5xl text-slate-500"></i>
-                    <p class="text-sm">Tu navegador no soporta la visualización integrada de este marco.</p>
-                    <a href="{{ $viewerUrl }}" target="_blank"
-                        class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition inline-flex items-center gap-2">
-                        <i class="bi bi-box-arrow-up-right"></i> Abrir Contenido en Ventana Auxiliar
-                    </a>
-                </div>
             </iframe>
         </div>
     </main>
-
 </div>
 @endsection
-
 @push('scripts')
 <script>
     function readerViewerApp() {
         return {
-            isFavorited: {{ $isFavorited ? 'true' : 'false' }},
+            isFavorited: {{ $isFavorite ? 'true' : 'false' }},
             isFullscreen: false,
+            isLoading: true,
 
             reloadIframe() {
                 const iframe = document.getElementById('libraryViewerIframe');
                 if (iframe) {
+                    this.isLoading = true;
                     const currentSrc = iframe.src;
                     iframe.src = '';
-                    setTimeout(() => { iframe.src = currentSrc; }, 50);
+                    setTimeout(() => { iframe.src = currentSrc; }, 60);
                 }
             },
 
@@ -177,7 +164,7 @@
             async toggleFavorite() {
                 try {
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                    const res = await fetch(`/biblioteca/favorito/{{ $book->id }}`, {
+                    const res = await fetch(`{{ route('biblioteca.favorite.toggle', $book->id) }}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

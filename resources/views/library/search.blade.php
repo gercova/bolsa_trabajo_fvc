@@ -1,26 +1,33 @@
 @extends('library.layout')
-
 @section('title', 'Buscar en la Biblioteca Virtual')
 @section('page_title', 'Buscar')
-
 @section('reader_content')
 <div class="space-y-6" x-data="readerSearchApp()">
-
     {{-- Search and Filter Toolbar --}}
     <div class="space-y-4">
-        
         <div>
             <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Buscar en el Catálogo</h1>
-            <p class="text-xs text-slate-500">Explore libros, revistas científicas, investigaciones y documentos por título, autor o temática.</p>
+            <p class="text-xs text-slate-500">Explore libros, revistas científicas, papers, tesis y documentos en formato PDF directo por título, autor o temática.</p>
         </div>
 
-        {{-- Search Input --}}
-        <div class="relative">
-            <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-            <input type="text" placeholder="Escriba un título, autor, temática o código ISBN..."
-                value="{{ $searchQuery }}"
-                @keydown.enter="filter('q', $event.target.value)"
-                class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition text-slate-900">
+        {{-- Search Input with Submit & Clear Actions --}}
+        <div class="relative flex items-center">
+            <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none"></i>
+            <input type="text" x-model="queryText"
+                placeholder="Escriba un título, autor, temática, DOI o código ISBN..."
+                @keydown.enter="filter('q', queryText)"
+                class="w-full pl-11 pr-28 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition text-slate-900">
+            
+            <div class="absolute right-2 flex items-center gap-1">
+                <button type="button" x-show="queryText.length > 0" @click="queryText = ''; filter('q', '')"
+                    class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg transition" title="Limpiar texto">
+                    <i class="bi bi-x-lg text-xs"></i>
+                </button>
+                <button type="button" @click="filter('q', queryText)"
+                    class="px-3.5 py-1.5 bg-[#0b4d57] hover:bg-[#093d45] text-white text-xs font-bold rounded-xl transition shadow-2xs">
+                    Buscar
+                </button>
+            </div>
         </div>
 
         {{-- Career Filter Chips --}}
@@ -37,39 +44,25 @@
             @endforeach
         </div>
 
-        {{-- Category Filter Pills --}}
-        <div class="flex items-center gap-2 text-xs">
+        {{-- Category Filter Pills (Incluye Tesis) --}}
+        <div class="flex items-center gap-2 flex-wrap text-xs">
             <span class="text-slate-400 font-bold uppercase text-[10px] mr-1">Tipo:</span>
-            <button type="button" @click="filter('category', 'all')"
-                class="px-2.5 py-1 rounded-lg text-xs font-semibold {{ $selectedCategory === 'all' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-slate-500 hover:text-slate-800' }}">
-                Todos
-            </button>
-            <button type="button" @click="filter('category', 'Libro')"
-                class="px-2.5 py-1 rounded-lg text-xs font-semibold {{ $selectedCategory === 'Libro' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-slate-500 hover:text-slate-800' }}">
-                Libros
-            </button>
-            <button type="button" @click="filter('category', 'Revista')"
-                class="px-2.5 py-1 rounded-lg text-xs font-semibold {{ $selectedCategory === 'Revista' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-slate-500 hover:text-slate-800' }}">
-                Revistas
-            </button>
-            <button type="button" @click="filter('category', 'Paper')"
-                class="px-2.5 py-1 rounded-lg text-xs font-semibold {{ $selectedCategory === 'Paper' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-slate-500 hover:text-slate-800' }}">
-                Papers
-            </button>
-            <button type="button" @click="filter('category', 'Documento')"
-                class="px-2.5 py-1 rounded-lg text-xs font-semibold {{ $selectedCategory === 'Documento' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-slate-500 hover:text-slate-800' }}">
-                Documentos
-            </button>
+            @foreach(['all' => 'Todos', 'Libro' => 'Libros', 'Revista' => 'Revistas', 'Paper' => 'Papers', 'Tesis' => 'Tesis', 'Documento' => 'Documentos'] as $catKey =>$catLabel)
+                <button type="button" @click="filter('category', '{{ $catKey }}')"
+                    class="px-2.5 py-1 rounded-lg text-xs font-semibold transition {{ $selectedCategory ===$catKey ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100' }}">
+                    {{ $catLabel }}
+                </button>
+            @endforeach
         </div>
 
     </div>
 
     {{-- Results Counter --}}
     <div class="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
-        <span>Se encontraron <strong>{{ $books->total() }}</strong> resultados</span>
+        <span>Se encontraron <strong>{{ $books->total() }}</strong> documentos verificados</span>
         @if($searchQuery || $selectedCareer !== 'all' || $selectedCategory !== 'all')
-            <a href="{{ route('biblioteca.search') }}" class="text-blue-600 hover:underline font-bold">
-                Limpiar filtros
+            <a href="{{ route('biblioteca.search') }}" class="text-blue-600 hover:underline font-bold inline-flex items-center gap-1">
+                <i class="bi bi-arrow-counterclockwise"></i> Limpiar filtros
             </a>
         @endif
     </div>
@@ -85,29 +78,39 @@
                         <div class="w-full aspect-[2/3] rounded-lg overflow-hidden bg-slate-100 border border-slate-100 flex items-center justify-center relative">
                             @if($book->cover_url)
                                 <img src="{{ $book->cover_url }}" alt="{{ $book->title }}"
-                                    class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                    class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                                    loading="lazy">
                             @else
                                 <div class="p-3 text-center flex flex-col items-center justify-center h-full w-full bg-slate-50 text-slate-400">
-                                    <i class="bi bi-book text-3xl mb-1 text-slate-300"></i>
-                                    <span class="text-[10px] font-bold text-slate-500 line-clamp-2">{{ $book->title }}</span>
+                                    <i class="bi bi-file-earmark-pdf text-3xl mb-1 text-rose-500/70"></i>
+                                    <span class="text-[10px] font-bold text-slate-600 line-clamp-3">{{ $book->title }}</span>
                                 </div>
                             @endif
 
                             {{-- Career tag --}}
                             <span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-900/80 text-white backdrop-blur-xs">
-                                {{ $book->studyProgram ? Str::limit($book->studyProgram->name, 12) : 'General' }}
+                                {{ $book->studyProgram ? Str::limit($book->studyProgram->name, 14) : 'General' }}
+                            </span>
+
+                            {{-- Category badge --}}
+                            <span class="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-600/90 text-white backdrop-blur-xs">
+                                {{ $book->category ?: 'PDF' }}
                             </span>
                         </div>
                     </a>
 
                     {{-- Metadata --}}
                     <div class="space-y-1">
-                        <div class="flex items-center gap-0.5 text-amber-400 text-xs">
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
+                        <div class="flex items-center justify-between text-xs">
+                            <div class="flex items-center gap-0.5 text-amber-400 text-[11px]">
+                                @php $stars = (int) round($book->rating ?? 5); @endphp
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="bi {{ $i <=$stars ? 'bi-star-fill' : 'bi-star text-slate-300' }}"></i>
+                                @endfor
+                            </div>
+                            @if($book->publication_year)
+                                <span class="text-[10px] font-semibold text-slate-400">{{ $book->publication_year }}</span>
+                            @endif
                         </div>
 
                         <a href="{{ route('biblioteca.read', $book->slug) }}" class="block">
@@ -125,11 +128,11 @@
                     <div class="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between text-xs">
                         <a href="{{ route('biblioteca.read', $book->slug) }}"
                             class="text-blue-600 hover:text-blue-800 font-bold text-[11px] inline-flex items-center gap-1">
-                            <i class="bi bi-eye"></i> Leer
+                            <i class="bi bi-file-earmark-pdf-fill"></i> Leer PDF
                         </a>
                         <button type="button" @click="toggleFavorite({{ $book->id }})"
                             :class="favoritesMap[{{ $book->id }}] ? 'text-rose-500' : 'text-slate-400 hover:text-rose-500'"
-                            class="transition p-1" title="Favorito">
+                            class="transition p-1" title="Guardar en Favoritos">
                             <i class="bi" :class="favoritesMap[{{ $book->id }}] ? 'bi-heart-fill' : 'bi-heart'"></i>
                         </button>
                     </div>
@@ -137,7 +140,6 @@
                 </div>
             @endforeach
         </div>
-
         <div class="pt-4">
             {{ $books->links() }}
         </div>
@@ -148,26 +150,25 @@
             <p class="text-xs text-slate-500">Prueba con palabras clave más generales o selecciona otra carrera.</p>
         </div>
     @endif
-
 </div>
 @endsection
-
 @push('scripts')
 <script>
     function readerSearchApp() {
         return {
+            queryText: @js($searchQuery),
             favoritesMap: {
                 @foreach($books as $b)
-                    {{ $b->id }}: {{ $b->is_favorited ? 'true' : 'false' }},
+                    {{ $b->id }}: {{ !empty($b->is_favorited) ? 'true' : 'false' }},
                 @endforeach
             },
 
             filter(param, value) {
                 const url = new URL(window.location.href);
-                if (value === 'all' || !value) {
+                if (value === 'all' || !value || String(value).trim() === '') {
                     url.searchParams.delete(param);
                 } else {
-                    url.searchParams.set(param, value);
+                    url.searchParams.set(param, String(value).trim());
                 }
                 url.searchParams.delete('page');
                 window.location.href = url.toString();

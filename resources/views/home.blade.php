@@ -782,7 +782,6 @@
             @endif
         </div>
     </section>
-
     {{-- 8. ALIADOS / PARTNERS — Carrusel infinito --}}
     <section class="py-16 bg-white border-t border-sky-100 overflow-hidden" aria-label="Empresas e instituciones aliadas">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 text-center reveal">
@@ -793,7 +792,6 @@
             <p class="text-gray-500 mt-3 text-sm">Aliados estratégicos en la formación y el empleo de nuestros estudiantes.
             </p>
         </div>
-
         @if ($partners->isNotEmpty())
             <div class="relative w-full max-w-[1400px] mx-auto overflow-hidden flex items-center">
                 <div
@@ -826,7 +824,6 @@
             </div>
         @endif
     </section>
-
     {{-- 9. CTA FINAL — Llamada a la acción --}}
     <section class="relative py-24 bg-blue-800 overflow-hidden text-white"
         aria-label="Llamada a la acción">
@@ -857,7 +854,6 @@
             </div>
         </div>
     </section>
-
     {{-- 10. CONTADOR DE VISITAS — Visitor Counter Section at End of View --}}
     @php
         $totalVisits = $totalVisits ?? \App\Models\VisitorCounter::getTotalVisits();

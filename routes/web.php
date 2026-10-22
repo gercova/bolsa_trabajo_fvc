@@ -171,28 +171,28 @@ Route::middleware(['auth'])->group(function () {
 
     // ── BIBLIOTECA VIRTUAL: Portal para Lectores (Docentes y Estudiantes) ──────
     Route::prefix('biblioteca')->name('biblioteca.')->group(function () {
-        Route::get('/',                     [LibraryReaderController::class, 'index'])->name('index');
-        Route::get('/buscar',               [LibraryReaderController::class, 'search'])->name('search');
-        Route::get('/mi-biblioteca',        [LibraryReaderController::class, 'myLibrary'])->name('favorites');
-        Route::get('/leer/{book:slug}',     [LibraryReaderController::class, 'read'])->name('read');
-        Route::get('/stream/{book:slug}',   [LibraryReaderController::class, 'stream'])->name('stream');
-        Route::post('/favorito/{book}',     [LibraryReaderController::class, 'toggleFavorite'])->name('favorite.toggle');
+        Route::get('/', [LibraryReaderController::class, 'index'])->name('index');
+        Route::get('/buscar', [LibraryReaderController::class, 'search'])->name('search');
+        Route::get('/mi-biblioteca', [LibraryReaderController::class, 'myLibrary'])->name('favorites');
+        Route::get('/leer/{book:slug}', [LibraryReaderController::class, 'read'])->name('read');
+        Route::get('/stream/{book:slug}', [LibraryReaderController::class, 'stream'])->name('stream');
+        Route::post('/favorito/{book}', [LibraryReaderController::class, 'toggleFavorite'])->name('favorite.toggle');
     });
 
     // ── BIBLIOTECA VIRTUAL: Panel de Gestión Administrativa ────────────────────
     Route::prefix('admin-biblioteca')->name('admin.library.')->group(function () {
-        Route::get('/',                     [AdminLibraryController::class, 'index'])->name('index');
-        Route::get('/libros',               [AdminLibraryController::class, 'index'])->name('books.index');
-        Route::get('/repositorio',          [AdminLibraryController::class, 'repository'])->name('repository');
+        Route::get('/', [AdminLibraryController::class, 'index'])->name('index');
+        Route::get('/libros', [AdminLibraryController::class, 'index'])->name('books.index');
+        Route::get('/repositorio', [AdminLibraryController::class, 'repository'])->name('repository');
         Route::post('/importar-academicos', [AdminLibraryController::class, 'fetchAcademicResources'])->name('fetch-academic');
-        Route::post('/guardar',             [AdminLibraryController::class, 'store'])->name('store');
-        Route::get('/editar/{book}',        [AdminLibraryController::class, 'edit'])->name('edit');
-        Route::put('/editar/{book}',        [AdminLibraryController::class, 'update'])->name('update');
-        Route::delete('/{book}',            [AdminLibraryController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{book}',      [AdminLibraryController::class, 'toggleStatus'])->name('toggle-status');
-        Route::get('/lectores',             [AdminLibraryController::class, 'readers'])->name('readers');
-        Route::get('/administradores',      [AdminLibraryController::class, 'administrators'])->name('administrators');
-        Route::get('/reportes',             [AdminLibraryController::class, 'reports'])->name('reports');
+        Route::post('/guardar', [AdminLibraryController::class, 'store'])->name('store');
+        Route::get('/editar/{book}', [AdminLibraryController::class, 'edit'])->name('edit');
+        Route::put('/editar/{book}', [AdminLibraryController::class, 'update'])->name('update');
+        Route::delete('/{book}', [AdminLibraryController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{book}', [AdminLibraryController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/lectores', [AdminLibraryController::class, 'readers'])->name('readers');
+        Route::get('/administradores', [AdminLibraryController::class, 'administrators'])->name('administrators');
+        Route::get('/reportes', [AdminLibraryController::class, 'reports'])->name('reports');
     });
 
     // tupa

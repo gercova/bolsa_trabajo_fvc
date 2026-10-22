@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 {{-- ════ SEO FULL SUITE ════════════════════════════════════════════════════ --}}
 @section('title', 'Enlaces Institucionales Oficiales MINEDU — IESTP Francisco Vigo Caballero')
 @section('meta_description', 'Portales web oficiales del Ministerio de Educación (MINEDU) para Educación Superior
@@ -9,7 +8,6 @@
 @section('meta_robots', 'index, follow, max-snippet:-1, max-image-preview:large')
 @section('canonical_url', route('enlaces-institucionales'))
 @section('og_image', url(isset($enterprise) && $enterprise->logo_path ? $enterprise->logo_path : '/img/og-default.png'))
-
 @push('styles')
     <style>
         /* ─── Link Card Styling ────────────────────────────────────────────────── */
@@ -102,16 +100,13 @@
         }
     </script>
 @endpush
-
 @section('content')
     {{-- ═══ HERO ════════════════════════════════════════════════════════════ --}}
     <section aria-label="Portada Enlaces Institucionales"
         class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
         <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
-
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-
                 {{-- Left: Title + Intro --}}
                 <div class="lg:col-span-7 space-y-6">
                     <p
@@ -119,19 +114,16 @@
                         <i class="bi bi-shield-check text-emerald-400" aria-hidden="true"></i>
                         Portales Oficiales MINEDU & Educación Superior
                     </p>
-
                     <h1
                         class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-white font-sans">
                         Enlaces e Integración <br>
                         <span class="text-sky-400">Institucional Oficial</span>
                     </h1>
-
                     <p class="text-lg sm:text-xl text-blue-100 max-w-2xl leading-relaxed">
                         Accede de manera directa y segura a las plataformas nacionales del <strong
                             class="text-white">Ministerio de Educación (MINEDU)</strong> para la consulta de matrícula,
                         verificación de títulos a Nombre de la Nación y servicios académicos.
                     </p>
-
                     {{-- Quick Stats / Features --}}
                     <div class="flex flex-wrap gap-4 pt-2">
                         <div
@@ -151,7 +143,6 @@
                             </div>
                         </div>
                     </div>
-
                     {{-- CTA Button --}}
                     <div class="pt-2">
                         <a href="#plataformas"
@@ -162,12 +153,9 @@
                         </a>
                     </div>
                 </div>
-
                 {{-- Right: Visual Info Graphic Panel --}}
                 <div class="lg:col-span-5 relative" aria-hidden="true">
-                    <div
-                        class="relative bg-slate-800 border border-slate-700 p-8 rounded-3xl shadow-xl space-y-5">
-
+                    <div class="relative bg-slate-800 border border-slate-700 p-8 rounded-3xl shadow-xl space-y-5">
                         <div class="flex items-center justify-between border-b border-white/10 pb-5">
                             <div class="flex items-center gap-3">
                                 <div
@@ -185,7 +173,6 @@
                                 IESTP FVC
                             </span>
                         </div>
-
                         @foreach ([['icon' => 'bi-pencil-square', 'color' => 'text-blue-300', 'title' => 'REGISTRA MINEDU', 'desc' => 'Nómina de matriculados y registro modular de estudiantes.'], ['icon' => 'bi-award-fill', 'color' => 'text-emerald-400', 'title' => 'TITULA MINEDU', 'desc' => 'Verificación de títulos profesionales a Nombre de la Nación.'], ['icon' => 'bi-people-fill', 'color' => 'text-purple-300', 'title' => 'CONECTA MINEDU', 'desc' => 'Plataforma de comunidad y recursos pedagógicos de IESTP.'], ['icon' => 'bi-graph-up-arrow', 'color' => 'text-amber-300', 'title' => 'AVANZA MINEDU', 'desc' => 'Seguimiento de trayectoria formativa y desarrollo laboral.']] as $item)
                             <div class="flex items-start gap-3 bg-white/5 p-3.5 rounded-2xl border border-white/10">
                                 <i class="bi {{ $item['icon'] }} {{ $item['color'] }} text-lg mt-0.5 shrink-0"></i>
@@ -200,15 +187,11 @@
             </div>
         </div>
     </section>
-
-
     {{-- ═══ PLATAFORMAS OFICIALES GRID ═════════════════════════════════════ --}}
     <section id="plataformas" aria-label="Portales institucionales de MINEDU" class="py-16 bg-slate-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
             <div class="text-center max-w-3xl mx-auto mb-14">
-                <span
-                    class="text-[11px] font-extrabold tracking-widest text-blue-700 uppercase bg-blue-100 px-4 py-1.5 rounded-full border border-blue-200/60">
+                <span class="text-[11px] font-extrabold tracking-widest text-blue-700 uppercase bg-blue-100 px-4 py-1.5 rounded-full border border-blue-200/60">
                     Plataformas del Ministerio de Educación
                 </span>
                 <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-950 mt-4 font-sans">
@@ -220,58 +203,51 @@
                     correspondiente a su trámite o consulta.
                 </p>
             </div>
-
             {{-- Dynamic Links Grid --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 @forelse($links as $link)
                     @php
                         $nameLower = mb_strtolower($link->name ?? '');
-
                         // Contextual enrichment mapping based on seeder names
                         if (str_contains($nameLower, 'registra')) {
-                            $subtitle = 'Sistema de Registro de Matrícula y Notas';
-                            $description =
-                                'Plataforma del MINEDU para la administración y validación oficial de nóminas de matrícula, actas de evaluación modular e historial académico de estudiantes de IESTP a nivel nacional.';
-                            $barColor = 'bg-blue-600';
-                            $avatarColor = 'bg-blue-600';
-                            $badgeClass = 'bg-blue-50 text-blue-800 border-blue-200';
-                            $iconName = 'bi-pencil-square';
+                            $subtitle       = 'Sistema de Registro de Matrícula y Notas';
+                            $description    = 'Plataforma del MINEDU para la administración y validación oficial de nóminas de matrícula, actas de evaluación modular e historial académico de estudiantes de IESTP a nivel nacional.';
+                            $barColor       = 'bg-blue-600';
+                            $avatarColor    = 'bg-blue-600';
+                            $badgeClass     = 'bg-blue-50 text-blue-800 border-blue-200';
+                            $iconName       = 'bi-pencil-square';
                             $targetAudience = 'Estudiantes, Docentes y Secretaría Académica';
                         } elseif (str_contains($nameLower, 'titula')) {
-                            $subtitle = 'Registro Nacional de Títulos Profesionales';
-                            $description =
-                                'Portal oficial para la consulta pública, verificación y validación legal de títulos técnicos profesionales y certificados modulares emitidos a Nombre de la Nación.';
-                            $barColor = 'bg-emerald-600';
-                            $avatarColor = 'bg-emerald-600';
-                            $badgeClass = 'bg-emerald-50 text-emerald-800 border-emerald-200';
-                            $iconName = 'bi-award';
+                            $subtitle       = 'Registro Nacional de Títulos Profesionales';
+                            $description    = 'Portal oficial para la consulta pública, verificación y validación legal de títulos técnicos profesionales y certificados modulares emitidos a Nombre de la Nación.';
+                            $barColor       = 'bg-emerald-600';
+                            $avatarColor    = 'bg-emerald-600';
+                            $badgeClass     = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+                            $iconName       = 'bi-award';
                             $targetAudience = 'Egresados, Empleadores y Público en General';
                         } elseif (str_contains($nameLower, 'conecta')) {
-                            $subtitle = 'Plataforma de Articulación y Comunidad Tecnológica';
-                            $description =
-                                'Red de interacción digital que vincula a estudiantes, docentes y graduados de Educación Superior Tecnológica con oportunidades formativas, recursos y redes de innovación.';
-                            $barColor = 'bg-indigo-600';
-                            $avatarColor = 'bg-indigo-600';
-                            $badgeClass = 'bg-purple-50 text-purple-800 border-purple-200';
-                            $iconName = 'bi-people';
+                            $subtitle       = 'Plataforma de Articulación y Comunidad Tecnológica';
+                            $description    = 'Red de interacción digital que vincula a estudiantes, docentes y graduados de Educación Superior Tecnológica con oportunidades formativas, recursos y redes de innovación.';
+                            $barColor       = 'bg-indigo-600';
+                            $avatarColor    = 'bg-indigo-600';
+                            $badgeClass     = 'bg-purple-50 text-purple-800 border-purple-200';
+                            $iconName       = 'bi-people';
                             $targetAudience = 'Estudiantes, Egresados y Comunidad Académica';
                         } elseif (str_contains($nameLower, 'avanza')) {
-                            $subtitle = 'Sistema de Trayectoria y Desarrollo Profesional';
-                            $description =
-                                'Herramienta de seguimiento del progreso laboral, desarrollo de competencias profesionales, formación continua y empleabilidad para técnicos del Perú.';
-                            $barColor = 'bg-amber-600';
-                            $avatarColor = 'bg-amber-600';
-                            $badgeClass = 'bg-amber-50 text-amber-800 border-amber-200';
-                            $iconName = 'bi-graph-up-arrow';
+                            $subtitle       = 'Sistema de Trayectoria y Desarrollo Profesional';
+                            $description    = 'Herramienta de seguimiento del progreso laboral, desarrollo de competencias profesionales, formación continua y empleabilidad para técnicos del Perú.';
+                            $barColor       = 'bg-amber-600';
+                            $avatarColor    = 'bg-amber-600';
+                            $badgeClass     = 'bg-amber-50 text-amber-800 border-amber-200';
+                            $iconName       = 'bi-graph-up-arrow';
                             $targetAudience = 'Egresados Técnicos y Orientadores de Carrera';
                         } else {
-                            $subtitle = 'Portal Oficial del Ministerio de Educación';
-                            $description =
-                                'Enlace institucional oficial de consulta y trámite de la Educación Superior Tecnológica del Perú.';
-                            $barColor = 'bg-blue-700';
-                            $avatarColor = 'bg-blue-700';
-                            $badgeClass = 'bg-blue-50 text-blue-800 border-blue-200';
-                            $iconName = $link->icon ?: 'bi-link-45deg';
+                            $subtitle       = 'Portal Oficial del Ministerio de Educación';
+                            $description    = 'Enlace institucional oficial de consulta y trámite de la Educación Superior Tecnológica del Perú.';
+                            $barColor       = 'bg-blue-700';
+                            $avatarColor    = 'bg-blue-700';
+                            $badgeClass     = 'bg-blue-50 text-blue-800 border-blue-200';
+                            $iconName       = $link->icon ?: 'bi-link-45deg';
                             $targetAudience = 'Comunidad Institucional IESTP FVC';
                         }
 
@@ -295,7 +271,6 @@
                                     <i class="bi bi-shield-lock-fill text-emerald-600"></i> Portal Seguro
                                 </span>
                             </div>
-
                             {{-- Main Title & Avatar --}}
                             <div class="flex items-start gap-4">
                                 <div
@@ -312,32 +287,27 @@
                                     </p>
                                 </div>
                             </div>
-
                             {{-- Description --}}
                             <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
                                 {{ $description }}
                             </p>
-
                             {{-- Metadata Pills --}}
                             <div class="pt-1 flex flex-wrap items-center gap-2">
                                 <span
                                     class="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-xl border border-slate-200/70">
                                     <i class="bi bi-person-badge text-blue-600"></i> {{ $targetAudience }}
                                 </span>
-                                <span
-                                    class="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 bg-slate-50 px-3 py-1 rounded-xl border border-slate-200/50 font-mono">
+                                <span class="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 bg-slate-50 px-3 py-1 rounded-xl border border-slate-200/50 font-mono">
                                     <i class="bi bi-globe"></i> {{ $domainHost }}
                                 </span>
                             </div>
                         </div>
-
                         {{-- Card Footer Action --}}
                         <div
                             class="px-7 sm:px-8 py-4 bg-slate-50/90 border-t border-slate-100 flex items-center justify-between gap-4">
                             <span class="text-xs text-slate-500 font-medium hidden sm:inline-flex items-center gap-1">
                                 <i class="bi bi-info-circle text-blue-500"></i> Redirección externa
                             </span>
-
                             <a href="{{ $link->link }}" target="_blank" rel="noopener noreferrer"
                                 class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 {{ $barColor }} hover:brightness-110 text-white font-extrabold text-xs sm:text-sm rounded-xl transition-all shadow-sm gap-2">
                                 <span>Ingresar a {{ $link->name }} MINEDU</span>
@@ -347,8 +317,7 @@
                     </article>
                 @empty
                     <div class="col-span-full py-16 bg-white rounded-3xl border border-blue-100 text-center shadow-sm">
-                        <div
-                            class="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mx-auto text-3xl mb-4">
+                        <div class="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mx-auto text-3xl mb-4">
                             <i class="bi bi-link-45deg"></i>
                         </div>
                         <h3 class="text-xl font-bold text-blue-950 mb-2">No hay enlaces disponibles en este momento</h3>
@@ -360,7 +329,6 @@
             </div>
         </div>
     </section>
-
     {{-- ═══ MÁS SERVICIOS DIGITALES ═════════════════════════════════════════ --}}
     <section aria-label="Servicios digitales institucionales" class="py-16 bg-white border-t border-slate-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -378,9 +346,7 @@
                     Complemente sus trámites accediendo a las herramientas virtuales del propio instituto.
                 </p>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-
                 {{-- Card 1 --}}
                 <div
                     class="bg-slate-50/60 hover:bg-white border border-slate-200/80 hover:border-blue-200 p-8 rounded-3xl transition-all duration-300 shadow-sm hover:shadow-md group">
@@ -398,7 +364,6 @@
                         Ingresar a Mesa de Partes <i class="bi bi-arrow-right ml-1"></i>
                     </a>
                 </div>
-
                 {{-- Card 2 --}}
                 <div
                     class="bg-slate-50/60 hover:bg-white border border-slate-200/80 hover:border-blue-200 p-8 rounded-3xl transition-all duration-300 shadow-sm hover:shadow-md group">
@@ -417,7 +382,6 @@
                         Acceder a Biblioteca <i class="bi bi-box-arrow-up-right ml-1 text-[10px]"></i>
                     </a>
                 </div>
-
                 {{-- Card 3 --}}
                 <div
                     class="bg-slate-50/60 hover:bg-white border border-slate-200/80 hover:border-blue-200 p-8 rounded-3xl transition-all duration-300 shadow-sm hover:shadow-md group">
@@ -438,7 +402,6 @@
             </div>
         </div>
     </section>
-
     {{-- ═══ PREGUNTAS FRECUENTES (FAQ) ═══════════════════════════════════════ --}}
     <section aria-label="Preguntas frecuentes sobre portales MINEDU" class="py-16 bg-slate-50 border-t border-slate-100">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8" x-data="{ activeFaq: null }">
@@ -451,7 +414,6 @@
                     Preguntas Frecuentes
                 </h2>
             </div>
-
             <div class="space-y-4">
                 {{-- FAQ 1 --}}
                 <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
@@ -471,7 +433,6 @@
                         el instituto a Nombre de la Nación.
                     </div>
                 </div>
-
                 {{-- FAQ 2 --}}
                 <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
                     <button @click="activeFaq = activeFaq === 2 ? null : 2"
@@ -490,7 +451,6 @@
                         sus registros según los periodos académicos.
                     </div>
                 </div>
-
                 {{-- FAQ 3 --}}
                 <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
                     <button @click="activeFaq = activeFaq === 3 ? null : 3"
@@ -512,17 +472,13 @@
             </div>
         </div>
     </section>
-
     {{-- ═══ CTA DE SOPORTE INSTITUCIONAL ════════════════════════════════════ --}}
     <section aria-label="Soporte y contacto" class="py-16 bg-slate-950 text-white relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div
-                class="bg-blue-900 rounded-3xl p-8 sm:p-12 border border-blue-800 shadow-md">
+            <div class="bg-blue-900 rounded-3xl p-8 sm:p-12 border border-blue-800 shadow-md">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-
                     <div class="lg:col-span-8 space-y-4">
-                        <p
-                            class="text-[11px] font-extrabold uppercase tracking-widest text-blue-300 bg-blue-950/70 px-4 py-1.5 rounded-full border border-blue-400/30 inline-block">
+                        <p class="text-[11px] font-extrabold uppercase tracking-widest text-blue-300 bg-blue-950/70 px-4 py-1.5 rounded-full border border-blue-400/30 inline-block">
                             Atención al Usuario
                         </p>
                         <h2 class="text-3xl sm:text-4xl font-extrabold text-white font-sans leading-tight">
@@ -549,7 +505,6 @@
                             @endif
                         </div>
                     </div>
-
                     <div class="lg:col-span-4 flex flex-col gap-4">
                         @if (!empty($enterprise->whatsapp_link))
                             <a href="{{ $enterprise->whatsapp_link }}" target="_blank" rel="noopener noreferrer"

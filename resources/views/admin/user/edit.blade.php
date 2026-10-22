@@ -248,16 +248,7 @@
             }
         }
 
-        // Validación del lado del cliente
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const password  = document.getElementById('password').value;
-            const confirm   = document.getElementById('password_confirmation').value;
-            
-            if (password !== confirm) {
-                e.preventDefault();
-                alert('Las contraseñas no coinciden');
-            }
-        });
+
     </script>
 @endpush
 

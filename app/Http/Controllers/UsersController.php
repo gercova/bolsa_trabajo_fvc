@@ -12,6 +12,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -30,6 +31,7 @@ class UsersController extends Controller
         $search = $request->input('search');
         $status = $request->input('status');                // 'active', 'inactive', o null (todos)
         $role = $request->input('role');                  // filtrar por rol
+        $jobPosition = $request->input('job_position');    // filtrar por puesto
         $perPage = $request->input('per_page', 10);          // items por página (10, 25, 50)
         $sortBy = $request->input('sort_by', 'created_at'); // campo de ordenamiento
         $sortOrder = $request->input('sort_order', 'desc');    // ascendente o descendente
@@ -48,9 +50,50 @@ class UsersController extends Controller
             $sortOrder = 'desc';
         }
 
-        // Construir la consulta
-        $users = User::query()
-            // Búsqueda por texto
+        // Construir la consulta reutilizable con los filtros
+        $users = $this->buildFilteredQuery($request)
+            ->orderBy($sortBy, $sortOrder)
+            ->paginate($perPage)
+            ->appends($request->only(['search', 'status', 'role', 'job_position', 'per_page', 'sort_by', 'sort_order']));
+
+        // Obtener todos los roles para el filtro
+        $roles = Role::all();
+
+        // Obtener lista de puestos distintos registrados para el filtro
+        $jobPositions = User::query()
+            ->whereNotNull('job_position')
+            ->where('job_position', '!=', '')
+            ->distinct()
+            ->orderBy('job_position')
+            ->pluck('job_position');
+
+        return view('admin.user.index', compact(
+            'users',
+            'search',
+            'status',
+            'role',
+            'jobPosition',
+            'jobPositions',
+            'perPage',
+            'sortBy',
+            'sortOrder',
+            'roles'
+        ));
+    }
+
+    /**
+     * Construye la consulta filtrada según los parámetros de la solicitud.
+     */
+    protected function buildFilteredQuery(Request $request)
+    {
+        $search = $request->input('search');
+        $status = $request->input('status');
+        $role = $request->input('role');
+        $jobPosition = $request->input('job_position');
+        $createdBefore = $request->input('created_before');
+
+        return User::query()
+            // Búsqueda por texto (nombres, email, DNI, puesto)
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('names', 'LIKE', "%{$search}%")
@@ -61,23 +104,23 @@ class UsersController extends Controller
             })
             // Filtrar por estado (activo/inactivo)
             ->when($status !== null && $status !== '', function ($query) use ($status) {
-                $query->where('is_active', $status === 'active');
+                $query->where('is_active', $status === 'active' || $status === '1');
             })
-            // Filtrar por rol usando Spatie
+            // Filtrar por rol (Spatie y columna role)
             ->when($role, function ($query) use ($role) {
-                $query->role($role);
+                $query->where(function ($q) use ($role) {
+                    $q->where('role', $role)
+                        ->orWhereHas('roles', fn ($r) => $r->where('name', $role));
+                });
             })
-            // Ordenamiento
-            ->orderBy($sortBy, $sortOrder)
-            // Paginación
-            ->paginate($perPage)
-            // Mantener los parámetros en los links de paginación
-            ->appends($request->only(['search', 'status', 'role', 'per_page', 'sort_by', 'sort_order']));
-
-        // Obtener todos los roles para el filtro
-        $roles = Role::all();
-
-        return view('admin.user.index', compact('users', 'search', 'status', 'role', 'perPage', 'sortBy', 'sortOrder', 'roles'));
+            // Filtrar por puesto de trabajo
+            ->when($jobPosition, function ($query) use ($jobPosition) {
+                $query->where('job_position', $jobPosition);
+            })
+            // Filtrar por fecha de creación (registrados antes de)
+            ->when($createdBefore, function ($query) use ($createdBefore) {
+                $query->whereDate('created_at', '<=', $createdBefore);
+            });
     }
 
     /**
@@ -217,16 +260,36 @@ class UsersController extends Controller
 
     public function destroy(User $user): JsonResponse|RedirectResponse
     {
-        // Verificar que no sea el último admin
-        if ($user->role === 'admin' && User::where('role', 'admin')->count() <= 1) {
+        // Prevenir auto-eliminación
+        if (auth()->id() && $user->id === auth()->id()) {
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No se puede eliminar el único administrador.',
+                    'message' => 'No puedes eliminar tu propia cuenta en sesión activa.',
                 ], 400);
             }
 
-            return redirect()->back()->with('error', 'No se puede eliminar el único administrador.');
+            return redirect()->back()->with('error', 'No puedes eliminar tu propia cuenta en sesión activa.');
+        }
+
+        // Verificar que no sea el último admin
+        if ($this->isUserAdmin($user) && $this->getTotalAdminCount() <= 1) {
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se puede eliminar el único administrador del sistema.',
+                ], 400);
+            }
+
+            return redirect()->back()->with('error', 'No se puede eliminar el único administrador del sistema.');
+        }
+
+        // Eliminar archivos físicos asociados
+        if ($user->photo_profile) {
+            Storage::disk('public')->delete($user->photo_profile);
+        }
+        if ($user->cv_file) {
+            Storage::disk('public')->delete($user->cv_file);
         }
 
         $user->delete();
@@ -239,6 +302,229 @@ class UsersController extends Controller
         }
 
         return redirect()->back()->with('success', 'Usuario eliminado exitosamente.');
+    }
+
+    /**
+     * Calcula la cantidad de usuarios que coinciden con los filtros para la previsualización del modal de eliminación masiva.
+     */
+    public function countBulkDelete(Request $request): JsonResponse
+    {
+        $query = $this->buildFilteredQuery($request);
+
+        $currentUserId = auth()->id();
+        $totalMatching = (clone $query)->count();
+        $queryWithoutSelf = (clone $query)->when($currentUserId, fn ($q) => $q->where('id', '!=', $currentUserId));
+        $count = $queryWithoutSelf->count();
+
+        // Contar administradores afectados
+        $adminCountInFilter = (clone $queryWithoutSelf)
+            ->where(function ($q) {
+                $q->whereRaw('LOWER(role) IN (?, ?)', ['admin', 'administrador'])
+                    ->orWhereHas('roles', fn ($r) => $r->whereRaw('LOWER(name) IN (?, ?)', ['admin', 'administrador']));
+            })
+            ->count();
+
+        $totalAdmins = $this->getTotalAdminCount();
+
+        return response()->json([
+            'success' => true,
+            'count' => $count,
+            'total_matching' => $totalMatching,
+            'includes_self' => $totalMatching > $count,
+            'admin_count_in_filter' => $adminCountInFilter,
+            'total_admins' => $totalAdmins,
+            'will_delete_all_admins' => $totalAdmins > 0 && $adminCountInFilter >= $totalAdmins,
+        ]);
+    }
+
+    /**
+     * Elimina usuarios de forma masiva (por selección de IDs o por criterios de filtrado).
+     */
+    public function bulkDelete(Request $request): JsonResponse|RedirectResponse
+    {
+        $byFilters = $request->boolean('by_filters') || $request->boolean('select_all');
+        $currentUserId = auth()->id();
+        $excludedSelf = false;
+        $protectedAdminCount = 0;
+
+        if ($byFilters) {
+            // Validar que se haya especificado al menos un filtro o confirmación explícita
+            $hasFilter = $request->filled('role')
+                || $request->filled('job_position')
+                || ($request->input('status') !== null && $request->input('status') !== '')
+                || $request->filled('search')
+                || $request->filled('created_before');
+
+            if (! $hasFilter && ! $request->boolean('confirm_all')) {
+                $msg = 'Debe especificar al menos un filtro (rol, puesto, estado o búsqueda) para la eliminación masiva.';
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json(['success' => false, 'message' => $msg], 422);
+                }
+
+                return redirect()->back()->with('error', $msg);
+            }
+
+            $query = $this->buildFilteredQuery($request);
+
+            // Excluir la cuenta propia en sesión activa
+            if ($currentUserId) {
+                $hasSelf = (clone $query)->where('id', $currentUserId)->exists();
+                if ($hasSelf) {
+                    $excludedSelf = true;
+                    $query->where('id', '!=', $currentUserId);
+                }
+            }
+
+            $usersToDelete = $query->get();
+
+            if ($usersToDelete->isEmpty()) {
+                $msg = 'No se encontraron usuarios para eliminar con los filtros seleccionados.';
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json(['success' => false, 'message' => $msg], 404);
+                }
+
+                return redirect()->back()->with('info', $msg);
+            }
+
+            // Protección de administradores: verificar si dejaría al sistema sin administradores
+            $totalAdmins = $this->getTotalAdminCount();
+            $adminUsersInList = $usersToDelete->filter(fn ($u) => $this->isUserAdmin($u));
+            if ($totalAdmins > 0 && $adminUsersInList->count() >= $totalAdmins) {
+                // Proteger a todos los administradores en el grupo para no dejar sin acceso
+                $usersToDelete = $usersToDelete->reject(fn ($u) => $this->isUserAdmin($u));
+                $protectedAdminCount = $adminUsersInList->count();
+            }
+        } else {
+            // Modo por selección explícita de IDs
+            $ids = $request->input('ids', []);
+            if (empty($ids) || ! is_array($ids)) {
+                $msg = 'Debe seleccionar al menos un usuario para eliminar.';
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json(['success' => false, 'message' => $msg], 422);
+                }
+
+                return redirect()->back()->with('error', $msg);
+            }
+
+            $validIds = array_values(array_filter(array_map('intval', $ids)));
+            if (empty($validIds)) {
+                $msg = 'Identificadores de usuario no válidos.';
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json(['success' => false, 'message' => $msg], 422);
+                }
+
+                return redirect()->back()->with('error', $msg);
+            }
+
+            // Excluir cuenta activa propia
+            if ($currentUserId && in_array($currentUserId, $validIds, true)) {
+                $validIds = array_values(array_diff($validIds, [$currentUserId]));
+                $excludedSelf = true;
+            }
+
+            if (empty($validIds)) {
+                $msg = 'No se puede eliminar la cuenta propia que se encuentra en sesión activa.';
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json(['success' => false, 'message' => $msg], 422);
+                }
+
+                return redirect()->back()->with('error', $msg);
+            }
+
+            $usersToDelete = User::whereIn('id', $validIds)->get();
+
+            // Verificación de protección de administradores
+            $totalAdmins = $this->getTotalAdminCount();
+            $adminUsersInList = $usersToDelete->filter(fn ($u) => $this->isUserAdmin($u));
+            if ($totalAdmins > 0 && $adminUsersInList->count() >= $totalAdmins) {
+                $msg = 'No se puede eliminar a todos los administradores del sistema. Debe permanecer al menos un administrador.';
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json(['success' => false, 'message' => $msg], 400);
+                }
+
+                return redirect()->back()->with('error', $msg);
+            }
+        }
+
+        if ($usersToDelete->isEmpty()) {
+            $msg = 'No hay usuarios disponibles para eliminar (fueron protegidos por seguridad).';
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $msg], 404);
+            }
+
+            return redirect()->back()->with('info', $msg);
+        }
+
+        // Ejecutar eliminación en transacción y limpiar archivos multimedia
+        $deletedCount = DB::transaction(function () use ($usersToDelete) {
+            $count = 0;
+            foreach ($usersToDelete as $user) {
+                if ($user->photo_profile) {
+                    Storage::disk('public')->delete($user->photo_profile);
+                }
+                if ($user->cv_file) {
+                    Storage::disk('public')->delete($user->cv_file);
+                }
+                $user->delete();
+                $count++;
+            }
+
+            return $count;
+        });
+
+        $message = $deletedCount === 1
+            ? 'Se ha eliminado 1 usuario exitosamente.'
+            : "Se han eliminado exitosamente {$deletedCount} usuarios.";
+
+        $notices = [];
+        if ($excludedSelf) {
+            $notices[] = 'Su propia cuenta de usuario fue protegida y no se eliminó.';
+        }
+        if ($protectedAdminCount > 0) {
+            $notices[] = "{$protectedAdminCount} cuenta(s) de administrador fueron protegidas para garantizar el acceso al sistema.";
+        }
+
+        if (! empty($notices)) {
+            $message .= ' ('.implode(' ', $notices).')';
+        }
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'deleted_count' => $deletedCount,
+                'excluded_self' => $excludedSelf,
+                'protected_admin_count' => $protectedAdminCount,
+            ]);
+        }
+
+        return redirect()->route('admin.users.index')->with('success', $message);
+    }
+
+    /**
+     * Determina si un usuario tiene rol de administrador.
+     */
+    protected function isUserAdmin(User $user): bool
+    {
+        $roleName = strtolower((string) $user->role);
+        if (in_array($roleName, ['admin', 'administrador'])) {
+            return true;
+        }
+
+        return $user->hasAnyRole(['admin', 'Admin', 'administrador', 'Administrador']);
+    }
+
+    /**
+     * Retorna el total de administradores registrados en la plataforma.
+     */
+    protected function getTotalAdminCount(): int
+    {
+        return User::query()
+            ->where(function ($q) {
+                $q->whereRaw('LOWER(role) IN (?, ?)', ['admin', 'administrador'])
+                    ->orWhereHas('roles', fn ($r) => $r->whereRaw('LOWER(name) IN (?, ?)', ['admin', 'administrador']));
+            })
+            ->count();
     }
 
     /**

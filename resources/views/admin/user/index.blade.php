@@ -25,7 +25,7 @@
             </div>
         </header>
 
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden" x-data="userManagement()">
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden" x-data="userManagement({{ json_encode($users->pluck('id')) }}, {{ auth()->id() ?? 'null' }}, {{ json_encode($users->map(fn($u) => ['id' => $u->id, 'names' => $u->names, 'email' => $u->email, 'dni' => $u->dni, 'role' => $u->role])) }})">
             <div class="max-w-7xl mx-auto space-y-6">
                 
                 <!-- Mensaje de éxito -->
@@ -140,6 +140,23 @@
                                 <i class="bi bi-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
                             </div>
                             
+                            <!-- Filtro por puesto / cargo -->
+                            <div class="relative">
+                                <select 
+                                    name="job_position" 
+                                    class="appearance-none w-full sm:w-44 pl-3 pr-8 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm bg-white"
+                                    onchange="this.form.submit()"
+                                >
+                                    <option value="">Todos los puestos</option>
+                                    @foreach($jobPositions as $pos)
+                                    <option value="{{ $pos }}" {{ request('job_position') === $pos ? 'selected' : '' }}>
+                                        {{ $pos }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                <i class="bi bi-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                            </div>
+
                             <!-- Items por página -->
                             <div class="relative">
                                 <select 
@@ -161,32 +178,38 @@
                         <input type="hidden" name="sort_order" value="{{ request('sort_order', 'desc') }}">
                     </form>
 
-                    <!-- Resultados y botón de nuevo usuario -->
+                    <!-- Resultados y botones de acción -->
                     <div class="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2">
                         <div class="text-sm text-gray-600">
                             @if($users->total() > 0)
                                 Mostrando <span class="font-semibold text-gray-900">{{ $users->firstItem() }}</span> 
                                 a <span class="font-semibold text-gray-900">{{ $users->lastItem() }}</span> 
                                 de <span class="font-semibold text-gray-900">{{ $users->total() }}</span> usuarios
-                                @if(request('search') || request('status') || request('role'))
-                                    <button 
-                                        onclick="window.location.href='{{ route('admin.users.index') }}'"
-                                        class="ml-2 text-purple-600 hover:text-purple-800 underline"
+                                @if(request('search') || request('status') || request('role') || request('job_position'))
+                                    <a 
+                                        href="{{ route('admin.users.index') }}"
+                                        class="ml-2 text-purple-600 hover:text-purple-800 underline font-medium"
                                     >
                                         Limpiar filtros
-                                    </button>
+                                    </a>
                                 @endif
                             @else
                                 No se encontraron usuarios
-                                <button 
-                                    onclick="window.location.href='{{ route('admin.users.index') }}'"
-                                    class="ml-2 text-purple-600 hover:text-purple-800 underline"
+                                <a 
+                                    href="{{ route('admin.users.index') }}"
+                                    class="ml-2 text-purple-600 hover:text-purple-800 underline font-medium"
                                 >
                                     Limpiar filtros
-                                </button>
+                                </a>
                             @endif
                         </div>
                         <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                            <!-- Botón Eliminación Masiva -->
+                            <button type="button" 
+                                    @click="openBulkDeleteModal()" 
+                                    class="w-full sm:w-auto bg-white border border-rose-300 text-rose-700 px-4 py-2.5 rounded-lg hover:bg-rose-50 hover:border-rose-400 hover:text-rose-800 transition flex items-center justify-center gap-2 shadow-sm font-medium text-sm">
+                                <i class="bi bi-trash3 text-rose-600"></i> Eliminación Masiva
+                            </button>
                             <button type="button" 
                                     @click="openImportModal()" 
                                     class="w-full sm:w-auto bg-white border border-gray-300 text-gray-700 px-4 py-2.5 rounded-lg hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700 transition flex items-center justify-center gap-2 shadow-sm font-medium text-sm">
@@ -200,12 +223,52 @@
                     </div>
                 </div>
 
+                <!-- Barra flotante de selección para eliminación masiva -->
+                <div x-show="selectedUsers.length > 0" 
+                     x-cloak 
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 -translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-2"
+                     class="bg-gradient-to-r from-slate-900 via-gray-900 to-slate-900 text-white p-3.5 sm:p-4 rounded-xl shadow-xl border border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3 sticky top-[120px] lg:top-[60px] z-20">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center text-lg border border-rose-500/30">
+                            <i class="bi bi-check2-square"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-white flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded-full bg-rose-600 text-white text-xs font-black" x-text="selectedUsers.length"></span>
+                                <span>usuario(s) seleccionado(s)</span>
+                            </p>
+                            <p class="text-xs text-slate-400">Listos para eliminación o gestión grupal</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        <button type="button" @click="deselectAll()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs font-bold transition">
+                            <i class="bi bi-x-circle mr-1"></i> Desmarcar todos
+                        </button>
+                        <button type="button" @click="openSelectedBulkDelete()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-rose-600/30">
+                            <i class="bi bi-trash-fill"></i>
+                            <span>Eliminar Seleccionados (<span x-text="selectedUsers.length"></span>)</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Tabla de usuarios -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-left border-collapse min-w-[900px]">
                             <thead>
                                 <tr class="bg-gray-50 border-b border-gray-200 text-xs uppercase tracking-wider text-gray-500 font-semibold">
+                                    <th class="p-4 w-12 text-center">
+                                        <input type="checkbox" 
+                                               @change="toggleSelectAll($event)" 
+                                               :checked="isAllOnPageSelected()" 
+                                               class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer"
+                                               title="Seleccionar todos en esta página">
+                                    </th>
                                     <th class="p-4">
                                         <a href="{{ route('admin.users.index', array_merge(request()->except(['sort_by', 'sort_order']), ['sort_by' => 'names', 'sort_order' => request('sort_by') === 'names' && request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}" 
                                            class="flex items-center gap-1 hover:text-purple-600 transition-colors">
@@ -247,7 +310,14 @@
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 @forelse($users as $user)
-                                <tr class="hover:bg-gray-50/50 transition-colors group">
+                                <tr class="hover:bg-gray-50/50 transition-colors group" :class="selectedUsers.includes({{ $user->id }}) || selectedUsers.includes('{{ $user->id }}') ? 'bg-purple-50/40' : ''">
+                                    <td class="p-4 text-center">
+                                        <input type="checkbox" 
+                                               :value="{{ $user->id }}" 
+                                               x-model="selectedUsers" 
+                                               @click.stop
+                                               class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer">
+                                    </td>
                                     <td class="p-4">
                                         <div class="flex items-center space-x-3">
                                             <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold flex-shrink-0">
@@ -362,12 +432,12 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="p-12 text-center text-gray-500">
+                                    <td colspan="6" class="p-12 text-center text-gray-500">
                                         <div class="flex flex-col items-center justify-center">
                                             <i class="bi bi-inbox text-5xl mb-4 text-gray-300"></i>
                                             <p class="text-lg font-medium text-gray-900 mb-1">No se encontraron usuarios</p>
                                             <p class="text-sm">
-                                                @if(request('search') || request('status') || request('role'))
+                                                @if(request('search') || request('status') || request('role') || request('job_position'))
                                                     Intenta ajustar los filtros de búsqueda
                                                 @else
                                                     Comienza creando tu primer usuario
@@ -444,6 +514,321 @@
                                     </button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal de Eliminación Masiva de Usuarios -->
+                <div x-show="bulkDeleteModalOpen" x-cloak
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                    @keydown.escape.window="bulkDeleteModalOpen = false">
+
+                    <div @click.outside="bulkDeleteModalOpen = false"
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 scale-95"
+                        x-transition:enter-end="opacity-100 scale-100"
+                        class="bg-white rounded-2xl shadow-2xl border border-gray-200 w-full max-w-2xl overflow-hidden flex flex-col max-h-[92vh]">
+
+                        {{-- Modal Header --}}
+                        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-rose-700 via-red-700 to-rose-800 text-white shrink-0">
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-xl bg-white/15 backdrop-blur-md text-white flex items-center justify-center text-xl shadow-inner border border-white/20">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-base font-extrabold tracking-tight">Eliminación Masiva de Usuarios</h3>
+                                        <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-rose-500/40 text-rose-100 border border-rose-300/30">
+                                            Operación Crítica
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-rose-100/90">Eliminación por selección individual o por filtros institucionales</p>
+                                </div>
+                            </div>
+                            <button type="button" @click="bulkDeleteModalOpen = false" class="text-white/80 hover:text-white p-1.5 rounded-xl hover:bg-white/10 transition-colors">
+                                <i class="bi bi-x-lg text-sm"></i>
+                            </button>
+                        </div>
+
+                        {{-- Navigation Tabs --}}
+                        <div class="flex items-center gap-2 px-6 pt-3 border-b border-gray-200 bg-gray-50/80 shrink-0">
+                            <button type="button" @click="bulkTab = 'selected'"
+                                class="px-4 py-2.5 text-xs font-bold rounded-t-xl transition-all border-b-2 flex items-center gap-2 -mb-px cursor-pointer"
+                                :class="bulkTab === 'selected' ? 'border-rose-600 text-rose-800 bg-white shadow-sm' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100/60'">
+                                <i class="bi bi-check2-square text-sm"></i>
+                                <span>1. Usuarios Seleccionados</span>
+                                <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full"
+                                    :class="selectedUsers.length > 0 ? 'bg-rose-100 text-rose-700' : 'bg-gray-200 text-gray-600'"
+                                    x-text="selectedUsers.length">
+                                </span>
+                            </button>
+                            <button type="button" @click="bulkTab = 'filters'; fetchFilterCount();"
+                                class="px-4 py-2.5 text-xs font-bold rounded-t-xl transition-all border-b-2 flex items-center gap-2 -mb-px cursor-pointer"
+                                :class="bulkTab === 'filters' ? 'border-rose-600 text-rose-800 bg-white shadow-sm' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100/60'">
+                                <i class="bi bi-funnel-fill text-sm"></i>
+                                <span>2. Por Criterios y Filtros</span>
+                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-800">
+                                    Avanzado
+                                </span>
+                            </button>
+                        </div>
+
+                        {{-- Modal Body --}}
+                        <div class="p-6 space-y-5 overflow-y-auto flex-1 bg-white">
+
+                            {{-- ══ TAB 1: ELIMINAR SELECCIONADOS ══════════════════════ --}}
+                            <div x-show="bulkTab === 'selected'" class="space-y-4">
+                                <template x-if="selectedUsers.length === 0">
+                                    <div class="text-center py-8 px-4 bg-gray-50 rounded-2xl border border-dashed border-gray-300">
+                                        <div class="w-12 h-12 rounded-2xl bg-gray-100 text-gray-400 flex items-center justify-center text-2xl mx-auto mb-3">
+                                            <i class="bi bi-check2-circle"></i>
+                                        </div>
+                                        <h4 class="text-sm font-bold text-gray-800 mb-1">No hay usuarios seleccionados en la tabla</h4>
+                                        <p class="text-xs text-gray-500 max-w-sm mx-auto mb-4">
+                                            Marca las casillas de verificación de los usuarios que deseas eliminar en la tabla, o utiliza la pestaña <strong>"Por Criterios y Filtros"</strong> para eliminar en masa por rol, puesto o estado.
+                                        </p>
+                                        <button type="button" @click="bulkTab = 'filters'; fetchFilterCount();" class="inline-flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition shadow-sm cursor-pointer">
+                                            <i class="bi bi-funnel"></i> Ir a Eliminación por Filtros
+                                        </button>
+                                    </div>
+                                </template>
+
+                                <template x-if="selectedUsers.length > 0">
+                                    <div class="space-y-4">
+                                        <div class="p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-3">
+                                            <i class="bi bi-exclamation-triangle-fill text-rose-600 text-xl flex-shrink-0 mt-0.5"></i>
+                                            <div>
+                                                <h4 class="text-sm font-bold text-rose-900">¿Está seguro de eliminar los usuarios seleccionados?</h4>
+                                                <p class="text-xs text-rose-700 mt-1">
+                                                    Se eliminarán de forma permanente <strong class="font-extrabold text-rose-900" x-text="selectedUsers.length"></strong> usuario(s) seleccionado(s) junto con sus fotos de perfil y currículums adjuntos. Esta acción no se puede deshacer.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {{-- Resumen de seleccionados --}}
+                                        <div>
+                                            <h5 class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2 flex items-center justify-between">
+                                                <span>Usuarios a eliminar (<span x-text="selectedUsers.length"></span>)</span>
+                                                <button type="button" @click="deselectAll()" class="text-gray-500 hover:text-rose-600 text-xs normal-case font-normal underline cursor-pointer">
+                                                    Limpiar selección
+                                                </button>
+                                            </h5>
+                                            <div class="max-h-48 overflow-y-auto divide-y divide-gray-100 border border-gray-200 rounded-xl bg-gray-50/50 p-2 text-xs">
+                                                <template x-for="user in getSelectedUsersData()" :key="user.id">
+                                                    <div class="py-1.5 px-2 flex items-center justify-between hover:bg-white rounded-lg transition">
+                                                        <div class="flex items-center gap-2">
+                                                            <div class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[10px]" x-text="user.names.charAt(0)"></div>
+                                                            <div>
+                                                                <p class="font-bold text-gray-800" x-text="user.names"></p>
+                                                                <p class="text-[11px] text-gray-500 font-mono" x-text="user.email || user.dni"></p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-center gap-1.5">
+                                                            <template x-if="user.id == authUserId">
+                                                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                                                    Tu cuenta (Protegida)
+                                                                </span>
+                                                            </template>
+                                                            <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-700" x-text="user.role || 'Usuario'"></span>
+                                                            <button type="button" @click="toggleUserSelection(user.id)" class="text-gray-400 hover:text-rose-600 p-0.5 cursor-pointer" title="Quitar de la lista">
+                                                                <i class="bi bi-x-circle"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+
+                                        {{-- Formulario para enviar IDs --}}
+                                        <form action="{{ route('admin.users.bulk-delete') }}" method="POST" @submit="isDeleting = true">
+                                            @csrf
+                                            @method('DELETE')
+                                            <template x-for="id in selectedUsers" :key="id">
+                                                <input type="hidden" name="ids[]" :value="id">
+                                            </template>
+
+                                            <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                                                <button type="button" @click="bulkDeleteModalOpen = false" class="px-4 py-2.5 text-xs font-bold text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition cursor-pointer">
+                                                    Cancelar
+                                                </button>
+                                                <button type="submit"
+                                                    :disabled="isDeleting"
+                                                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md transition disabled:opacity-50 cursor-pointer">
+                                                    <span x-show="!isDeleting" class="flex items-center gap-1.5">
+                                                        <i class="bi bi-trash-fill"></i>
+                                                        <span>Eliminar <strong x-text="selectedUsers.length"></strong> Seleccionados</span>
+                                                    </span>
+                                                    <span x-show="isDeleting" x-cloak class="flex items-center gap-1.5">
+                                                        <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                                        </svg>
+                                                        <span>Eliminando registros...</span>
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </template>
+                            </div>
+
+                            {{-- ══ TAB 2: ELIMINAR POR CRITERIOS / FILTROS ════════════ --}}
+                            <div x-show="bulkTab === 'filters'" x-cloak class="space-y-4">
+                                <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-start gap-2.5">
+                                    <i class="bi bi-shield-exclamation text-amber-600 text-lg flex-shrink-0 mt-0.5"></i>
+                                    <div>
+                                        <p class="font-bold text-amber-900">Eliminación directa por criterios institucionales</p>
+                                        <p class="mt-0.5 text-amber-800">
+                                            Configure los filtros deseados. El sistema buscará todos los usuarios coincidentes en la base de datos y los eliminará de forma segura.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {{-- Selector de Criterios --}}
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                                    <!-- Filtro Rol -->
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">
+                                            <i class="bi bi-shield-fill text-purple-600 mr-1"></i> Rol
+                                        </label>
+                                        <select x-model="filterRole" @change="fetchFilterCount()" class="w-full text-xs p-2.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-purple-500">
+                                            <option value="">Todos los roles</option>
+                                            @foreach($roles as $roleItem)
+                                                <option value="{{ $roleItem->name }}">{{ ucfirst($roleItem->name) }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- Filtro Puesto / Job Position -->
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">
+                                            <i class="bi bi-briefcase-fill text-purple-600 mr-1"></i> Puesto / Cargo
+                                        </label>
+                                        <select x-model="filterJobPosition" @change="fetchFilterCount()" class="w-full text-xs p-2.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-purple-500">
+                                            <option value="">Todos los puestos</option>
+                                            @foreach($jobPositions as $pos)
+                                                <option value="{{ $pos }}">{{ $pos }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- Filtro Estado -->
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">
+                                            <i class="bi bi-toggle-on text-purple-600 mr-1"></i> Estado del Usuario
+                                        </label>
+                                        <select x-model="filterStatus" @change="fetchFilterCount()" class="w-full text-xs p-2.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-purple-500">
+                                            <option value="">Todos los estados</option>
+                                            <option value="inactive">Solo Inactivos (Recomendado)</option>
+                                            <option value="active">Solo Activos</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Registrados antes de -->
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">
+                                            <i class="bi bi-calendar-event text-purple-600 mr-1"></i> Registrados antes de (Opcional)
+                                        </label>
+                                        <input type="date" x-model="filterCreatedBefore" @change="fetchFilterCount()" class="w-full text-xs p-2.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-purple-500">
+                                    </div>
+
+                                    <!-- Búsqueda adicional opcional -->
+                                    <div class="sm:col-span-2">
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">
+                                            <i class="bi bi-search text-purple-600 mr-1"></i> Búsqueda por texto (Opcional)
+                                        </label>
+                                        <input type="text" x-model="filterSearch" @input.debounce.500ms="fetchFilterCount()" placeholder="Filtrar además por término en nombres, email o DNI..." class="w-full text-xs p-2.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-purple-500">
+                                    </div>
+                                </div>
+
+                                {{-- Tarjeta de previsualización en tiempo real --}}
+                                <div class="p-4 rounded-xl border transition-all"
+                                    :class="filterMatchCount > 0 ? 'bg-rose-50/70 border-rose-200' : 'bg-gray-50 border-gray-200'">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs font-bold text-gray-700">Usuarios que coinciden con los criterios:</span>
+                                            <template x-if="filterIsLoading">
+                                                <svg class="animate-spin h-3.5 w-3.5 text-purple-600" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                                </svg>
+                                            </template>
+                                        </div>
+                                        <div>
+                                            <span class="px-3 py-1 rounded-full text-xs font-black shadow-xs"
+                                                :class="filterMatchCount > 0 ? 'bg-rose-600 text-white' : 'bg-gray-200 text-gray-700'"
+                                                x-text="(filterMatchCount !== null ? filterMatchCount : 0) + ' usuario(s)'">
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div x-show="filterIncludesSelf" class="mt-2 text-[11px] text-amber-800 font-medium flex items-center gap-1.5">
+                                        <i class="bi bi-shield-check text-green-600"></i>
+                                        <span>Su propia cuenta está protegida y no será eliminada durante el proceso.</span>
+                                    </div>
+
+                                    <div x-show="filterAdminCount > 0" class="mt-1 text-[11px] text-purple-800 font-medium flex items-center gap-1.5">
+                                        <i class="bi bi-info-circle text-purple-600"></i>
+                                        <span>El filtro abarca administradores; se conservarán automáticamente las cuentas necesarias para no perder acceso.</span>
+                                    </div>
+                                </div>
+
+                                {{-- Confirmación de Seguridad --}}
+                                <form action="{{ route('admin.users.bulk-delete') }}" method="POST" @submit="isDeleting = true">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input type="hidden" name="by_filters" value="1">
+                                    <input type="hidden" name="role" :value="filterRole">
+                                    <input type="hidden" name="job_position" :value="filterJobPosition">
+                                    <input type="hidden" name="status" :value="filterStatus">
+                                    <input type="hidden" name="created_before" :value="filterCreatedBefore">
+                                    <input type="hidden" name="search" :value="filterSearch">
+                                    <input type="hidden" name="confirm_all" value="1">
+
+                                    <div class="p-3 bg-red-50/60 rounded-xl border border-red-200 space-y-2">
+                                        <label class="block text-xs font-bold text-red-900">
+                                            Escriba la palabra <strong class="text-rose-600 uppercase underline">ELIMINAR</strong> para confirmar esta acción:
+                                        </label>
+                                        <input type="text"
+                                            x-model="confirmFilterText"
+                                            placeholder="Escriba ELIMINAR para desbloquear"
+                                            class="w-full text-xs p-2.5 border border-red-300 rounded-lg bg-white focus:ring-2 focus:ring-rose-500 font-mono">
+                                    </div>
+
+                                    <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                                        <button type="button" @click="fetchFilterCount()" class="text-xs text-purple-600 hover:text-purple-800 font-semibold flex items-center gap-1 cursor-pointer">
+                                            <i class="bi bi-arrow-clockwise"></i> Recalcular total
+                                        </button>
+                                        <div class="flex items-center gap-2">
+                                            <button type="button" @click="bulkDeleteModalOpen = false" class="px-4 py-2.5 text-xs font-bold text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition cursor-pointer">
+                                                Cancelar
+                                            </button>
+                                            <button type="submit"
+                                                :disabled="confirmFilterText.trim().toUpperCase() !== 'ELIMINAR' || filterMatchCount === 0 || filterIsLoading || isDeleting"
+                                                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                                                <span x-show="!isDeleting" class="flex items-center gap-1.5">
+                                                    <i class="bi bi-trash3-fill"></i>
+                                                    <span>Eliminar <strong x-text="filterMatchCount || 0"></strong> Usuarios Coincidentes</span>
+                                                </span>
+                                                <span x-show="isDeleting" x-cloak class="flex items-center gap-1.5">
+                                                    <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                                    </svg>
+                                                    <span>Procesando eliminación...</span>
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -903,15 +1288,45 @@
             }));
         }
 
-        Alpine.data('userManagement', () => ({
+        Alpine.data('userManagement', (pageIds = [], authUserId = null, initialUsersData = []) => ({
+            // Password modal
             showModal: false,
             selectedUserId: null,
             selectedUserName: '',
             
+            // Import modal
             importModalOpen: false,
             importTab: 'upload',
             fileName: '',
             isImporting: false,
+
+            // Bulk selection state
+            pageIds: pageIds.map(id => Number(id)),
+            authUserId: authUserId ? Number(authUserId) : null,
+            usersData: initialUsersData || [],
+            selectedUsers: [],
+            
+            // Bulk delete modal state
+            bulkDeleteModalOpen: false,
+            bulkTab: 'selected', // 'selected' | 'filters'
+            filterRole: '{{ request('role', '') }}',
+            filterJobPosition: '{{ request('job_position', '') }}',
+            filterStatus: '{{ request('status', '') }}',
+            filterCreatedBefore: '',
+            filterSearch: '{{ request('search', '') }}',
+            filterMatchCount: null,
+            filterIsLoading: false,
+            filterIncludesSelf: false,
+            filterAdminCount: 0,
+            confirmFilterText: '',
+            isDeleting: false,
+
+            init() {
+                // Pre-count matches if current view has active filters
+                if (this.filterRole || this.filterJobPosition || this.filterStatus || this.filterSearch) {
+                    this.fetchFilterCount();
+                }
+            },
 
             openImportModal() {
                 this.importModalOpen = true;
@@ -924,6 +1339,97 @@
                 this.selectedUserId = id;
                 this.selectedUserName = name;
                 this.showModal = true;
+            },
+
+            openBulkDeleteModal() {
+                this.confirmFilterText = '';
+                this.isDeleting = false;
+                if (this.selectedUsers.length > 0) {
+                    this.bulkTab = 'selected';
+                } else {
+                    this.bulkTab = 'filters';
+                }
+                this.bulkDeleteModalOpen = true;
+                this.fetchFilterCount();
+            },
+
+            openSelectedBulkDelete() {
+                this.bulkTab = 'selected';
+                this.isDeleting = false;
+                this.bulkDeleteModalOpen = true;
+            },
+
+            toggleSelectAll(event) {
+                const checked = event.target.checked;
+                if (checked) {
+                    this.pageIds.forEach(id => {
+                        if (!this.selectedUsers.includes(id) && !this.selectedUsers.includes(String(id))) {
+                            this.selectedUsers.push(id);
+                        }
+                    });
+                } else {
+                    this.selectedUsers = this.selectedUsers.filter(id => !this.pageIds.includes(Number(id)));
+                }
+            },
+
+            isAllOnPageSelected() {
+                if (!this.pageIds || this.pageIds.length === 0) return false;
+                return this.pageIds.every(id => this.selectedUsers.includes(id) || this.selectedUsers.includes(String(id)));
+            },
+
+            deselectAll() {
+                this.selectedUsers = [];
+            },
+
+            toggleUserSelection(userId) {
+                const numericId = Number(userId);
+                this.selectedUsers = this.selectedUsers.filter(id => Number(id) !== numericId);
+            },
+
+            getSelectedUsersData() {
+                return this.selectedUsers.map(id => {
+                    const numericId = Number(id);
+                    const found = this.usersData.find(u => Number(u.id) === numericId);
+                    if (found) return found;
+                    return {
+                        id: numericId,
+                        names: 'Usuario #' + numericId,
+                        email: '',
+                        dni: '',
+                        role: ''
+                    };
+                });
+            },
+
+            async fetchFilterCount() {
+                this.filterIsLoading = true;
+                try {
+                    const res = await fetch('{{ route('admin.users.count-bulk-delete') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            role: this.filterRole,
+                            job_position: this.filterJobPosition,
+                            status: this.filterStatus,
+                            created_before: this.filterCreatedBefore,
+                            search: this.filterSearch
+                        })
+                    });
+                    const data = await res.json();
+                    if (data && data.success) {
+                        this.filterMatchCount = data.count;
+                        this.filterIncludesSelf = data.includes_self;
+                        this.filterAdminCount = data.admin_count_in_filter;
+                    }
+                } catch (e) {
+                    console.error('Error calculating filter count:', e);
+                } finally {
+                    this.filterIsLoading = false;
+                }
             }
         }));
     })

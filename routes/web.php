@@ -382,6 +382,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [UsersController::class, 'store'])->name('store');
         Route::put('/{user}', [UsersController::class, 'update'])->name('update');
         Route::patch('/estado/{user}', [UsersController::class, 'toggleStatus'])->name('toggle-status');
+        Route::match(['post', 'delete'], '/eliminar-masivo', [UsersController::class, 'bulkDelete'])->name('bulk-delete');
+        Route::post('/conteo-masivo', [UsersController::class, 'countBulkDelete'])->name('count-bulk-delete');
         Route::delete('/{user}', [UsersController::class, 'destroy'])->name('destroy');
     });
 

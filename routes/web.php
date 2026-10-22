@@ -27,6 +27,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScholarshipBeneficiaryController;
 use App\Http\Controllers\ScholarshipController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StadisticController;
 use App\Http\Controllers\StudentCouncilController;
 use App\Http\Controllers\StudyProgramsController;
@@ -35,6 +36,10 @@ use App\Http\Controllers\TupaController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+// SEO: Sitemap XML & Robots
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::redirect('/robot.txt', '/robots.txt');
 
 Route::get('/', [AppController::class, 'index'])->name('inicio');
 

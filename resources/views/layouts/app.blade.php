@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     {{-- ═══ PRIMARY META ══════════════════════════════════════════ --}}
+    <meta name="google-site-verification" content="n-kFDeVvGTkr1sar6qNZRP1l5kFEqJzI-4PDgCCTC2s" />
     <title>@yield('title', $enterprise->company_name ?? 'IESTP Francisco Vigo Caballero')</title>
     <meta name="description" content="@yield('meta_description', 'Bolsa de Trabajo del IESTP Francisco Vigo Caballero — Conecta con las mejores ofertas de empleo y prácticas profesionales en Uchiza.')">
     <meta name="keywords" content="@yield('meta_keywords', 'bolsa de trabajo, empleo, prácticas, instituto, francisco vigo caballero, uchiza, carreras técnicas, san martín')">

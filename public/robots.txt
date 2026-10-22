@@ -1,2 +1,59 @@
+# Robots.txt for IESTP Francisco Vigo Caballero
+# Official Website: https://iestpfranciscovigocaballero.edu.pe/
+
 User-agent: *
-Disallow:
+Allow: /
+
+# Admin panel routes
+Disallow: /admin-*
+Disallow: /admin-dashboard
+Disallow: /admin-perfil
+Disallow: /admin-blogs
+Disallow: /admin-exams
+Disallow: /admin-scholarships
+Disallow: /admin-biblioteca
+Disallow: /admin-tupa
+Disallow: /admin-documentos
+Disallow: /admin-areas
+Disallow: /admin-programas
+Disallow: /admin-cursos
+Disallow: /admin-modulos
+Disallow: /admin-certificados
+Disallow: /admin-itinerarios
+Disallow: /admin-trabajos
+Disallow: /admin-usuarios
+Disallow: /admin-docentes-roles
+Disallow: /admin-consejo-estudiantil
+Disallow: /admin-enlaces
+Disallow: /admin-roles
+Disallow: /admin-reclamos
+Disallow: /admin-estadisticas
+Disallow: /admin-titulos
+Disallow: /admin-licenciamiento
+Disallow: /admin-socios
+Disallow: /admin-empresa
+Disallow: /admin-matriculas
+Disallow: /admin-historia
+Disallow: /admin-carrusel
+Disallow: /admin-inversiones
+
+# Authenticated reader portal
+Disallow: /biblioteca/
+
+# Authentication and user accounts
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /confirm-password
+Disallow: /verify-email
+
+# Allow search engines to access static assets
+Allow: /build/
+Allow: /css/
+Allow: /js/
+Allow: /images/
+Allow: /storage/
+
+# XML Sitemap
+Sitemap: https://iestpfranciscovigocaballero.edu.pe/sitemap.xml

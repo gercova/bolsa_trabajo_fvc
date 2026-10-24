@@ -505,17 +505,167 @@
 
                     {{-- Student & Course Row --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Estudiante / Usuario <span class="text-red-500">*</span>
+                        {{-- Select2-like Student/User Search Component --}}
+                        <div class="relative" @click.outside="studentDropdownOpen = false">
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                                <span>Estudiante / Usuario <span class="text-red-500">*</span></span>
+                                <span class="text-[10px] text-purple-600 font-semibold tracking-normal normal-case">Búsqueda rápida</span>
                             </label>
-                            <select name="user_id" x-model="form.user_id" required
-                                class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-medium">
-                                <option value="">-- Seleccione estudiante --</option>
-                                @foreach ($users as $u)
-                                    <option value="{{ $u->id }}">{{ $u->names }} (DNI: {{ $u->dni ?? 'S/D' }})</option>
-                                @endforeach
-                            </select>
+
+                            {{-- Hidden input for form submission --}}
+                            <input type="hidden" name="user_id" :value="form.user_id" required>
+
+                            {{-- Select2 Trigger Button --}}
+                            <button type="button" @click="toggleStudentDropdown()"
+                                class="w-full text-left text-sm border rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-medium flex items-center justify-between transition-all shadow-sm cursor-pointer"
+                                :class="selectedStudent ? 'border-purple-300 bg-purple-50/20' : 'border-gray-300 hover:border-gray-400'">
+                                
+                                <div class="flex items-center gap-2.5 overflow-hidden truncate">
+                                    <template x-if="selectedStudent">
+                                        <div class="flex items-center gap-2 truncate">
+                                            <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-sm"
+                                                x-text="(selectedStudent.names || 'U').charAt(0).toUpperCase()">
+                                            </div>
+                                            <div class="truncate leading-tight">
+                                                <div class="font-bold text-gray-900 text-xs truncate" x-text="selectedStudent.names"></div>
+                                                <div class="text-[11px] text-gray-500 flex items-center gap-1.5 truncate">
+                                                    <span class="font-semibold text-purple-700" x-text="'DNI: ' + (selectedStudent.dni || 'S/D')"></span>
+                                                    <span x-show="selectedStudent.email" class="text-gray-400 truncate" x-text="'• ' + selectedStudent.email"></span>
+                                                    <span x-show="selectedStudent.phone" class="text-emerald-600 font-medium" x-text="'• Tel: ' + selectedStudent.phone"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <template x-if="!selectedStudent">
+                                        <span class="text-gray-400 flex items-center gap-2 text-xs">
+                                            <i class="bi bi-search text-gray-400"></i>
+                                            <span>Buscar por nombre, DNI, correo o teléfono...</span>
+                                        </span>
+                                    </template>
+                                </div>
+
+                                <div class="flex items-center gap-1.5 flex-shrink-0 ml-2">
+                                    <template x-if="selectedStudent">
+                                        <span role="button" @click.stop="clearStudentSelection()"
+                                            class="p-1 hover:text-red-500 hover:bg-red-50 rounded-md text-gray-400 transition"
+                                            title="Quitar estudiante">
+                                            <i class="bi bi-x-lg text-xs"></i>
+                                        </span>
+                                    </template>
+                                    <i class="bi bi-chevron-expand text-gray-400 text-xs"></i>
+                                </div>
+                            </button>
+
+                            {{-- Select2 Dropdown Panel --}}
+                            <div x-show="studentDropdownOpen" style="display: none;"
+                                x-transition:enter="transition ease-out duration-150"
+                                x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-100"
+                                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                                x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                                class="absolute left-0 right-0 top-full mt-1.5 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-gray-100">
+                                
+                                {{-- Search Input with Icons --}}
+                                <div class="p-2.5 bg-gray-50/80">
+                                    <div class="relative">
+                                        <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                        <input type="text" x-ref="studentSearchInput" x-model="studentSearch"
+                                            @input="onStudentSearchInput()"
+                                            @keydown.arrow-down.prevent="navigateStudents(1)"
+                                            @keydown.arrow-up.prevent="navigateStudents(-1)"
+                                            @keydown.enter.prevent="selectHighlightedStudent()"
+                                            @keydown.escape="studentDropdownOpen = false"
+                                            placeholder="Escriba nombre, DNI, correo o teléfono..."
+                                            class="w-full pl-8 pr-8 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white outline-none">
+                                        
+                                        <template x-if="isSearchingStudents">
+                                            <i class="bi bi-arrow-repeat animate-spin absolute right-2.5 top-1/2 -translate-y-1/2 text-purple-600 text-xs"></i>
+                                        </template>
+                                        <template x-if="!isSearchingStudents && studentSearch">
+                                            <button type="button" @click="studentSearch = ''; onStudentSearchInput();"
+                                                class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer">
+                                                <i class="bi bi-x-circle-fill text-xs"></i>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                {{-- Results List (Limited to max 5 matches) --}}
+                                <ul class="max-h-60 overflow-y-auto divide-y divide-gray-50 py-1 text-xs">
+                                    {{-- Initial Prompt when search is empty --}}
+                                    <template x-if="!studentSearch.trim()">
+                                        <li class="px-4 py-5 text-center text-xs text-gray-400 space-y-1">
+                                            <i class="bi bi-person-bounding-box text-2xl text-purple-300 block mb-1"></i>
+                                            <p class="font-semibold text-gray-600">Búsqueda de Estudiante / Usuario</p>
+                                            <p class="text-[11px] text-gray-400">Escriba para buscar por nombre, DNI, correo o teléfono.<br>Se mostrarán los primeros 5 resultados.</p>
+                                        </li>
+                                    </template>
+
+                                    {{-- Loading State --}}
+                                    <template x-if="isSearchingStudents">
+                                        <li class="px-4 py-4 text-center text-xs text-purple-600 flex items-center justify-center gap-2">
+                                            <i class="bi bi-arrow-repeat animate-spin"></i>
+                                            <span>Buscando coincidencias...</span>
+                                        </li>
+                                    </template>
+
+                                    {{-- Empty State --}}
+                                    <template x-if="!isSearchingStudents && studentSearch.trim() && studentResults.length === 0">
+                                        <li class="px-4 py-6 text-center text-xs text-gray-400 space-y-1">
+                                            <i class="bi bi-search text-xl text-gray-300 block mb-1"></i>
+                                            <p class="font-medium text-gray-700">Sin coincidencias encontradas</p>
+                                            <p class="text-[11px] text-gray-400">No encontramos ningún estudiante con "<span x-text="studentSearch"></span>".</p>
+                                        </li>
+                                    </template>
+
+                                    {{-- Results Items (Max 5) --}}
+                                    <template x-for="(st, idx) in studentResults" :key="st.id">
+                                        <li>
+                                            <button type="button" @click="selectStudent(st)"
+                                                @mouseenter="highlightedStudentIndex = idx"
+                                                class="w-full px-3.5 py-2.5 text-left flex items-center justify-between transition-colors cursor-pointer"
+                                                :class="{
+                                                    'bg-purple-50 text-purple-900': highlightedStudentIndex === idx,
+                                                    'hover:bg-gray-50 text-gray-800': highlightedStudentIndex !== idx,
+                                                    'font-semibold': form.user_id == st.id
+                                                }">
+                                                <div class="flex items-center gap-2.5 overflow-hidden min-w-0">
+                                                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0"
+                                                        :class="form.user_id == st.id ? 'bg-purple-600 text-white' : 'bg-purple-100 text-purple-700'"
+                                                        x-text="(st.names || 'U').charAt(0).toUpperCase()">
+                                                    </div>
+                                                    <div class="leading-tight truncate">
+                                                        <div class="font-bold text-gray-900 text-xs truncate" x-text="st.names"></div>
+                                                        <div class="text-[11px] text-gray-500 flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
+                                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-gray-100 text-gray-700">
+                                                                DNI: <span x-text="st.dni || 'S/D'" class="ml-0.5"></span>
+                                                            </span>
+                                                            <template x-if="st.email">
+                                                                <span class="text-gray-500 truncate" x-text="st.email"></span>
+                                                            </template>
+                                                            <template x-if="st.phone">
+                                                                <span class="text-emerald-600 font-medium flex items-center gap-0.5">
+                                                                    <i class="bi bi-telephone text-[9px]"></i> <span x-text="st.phone"></span>
+                                                                </span>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <template x-if="form.user_id == st.id">
+                                                    <i class="bi bi-check2 text-purple-600 text-base font-bold ml-2"></i>
+                                                </template>
+                                            </button>
+                                        </li>
+                                    </template>
+                                </ul>
+
+                                {{-- Footer --}}
+                                <div class="px-3.5 py-2 bg-gray-50 flex items-center justify-between text-[11px] text-gray-500">
+                                    <span x-text="studentResults.length > 0 ? (studentResults.length + ' de máx. 5 coincidencias') : 'Filtro: Nombre, DNI, Correo, Teléfono'"></span>
+                                    <span class="text-[10px] text-purple-600 font-semibold uppercase">Primeros 5 registros</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div>
@@ -724,32 +874,69 @@
                     <form :action="activeCert ? `{{ url('admin-certificados') }}/${activeCert.id}/detalles` : '#'" method="POST"
                         class="bg-purple-50/50 border border-purple-200 rounded-xl p-4 space-y-3">
                         @csrf
-                        <div class="text-xs font-bold text-purple-900 uppercase tracking-wider">
-                            <i class="bi bi-plus-circle-fill mr-1"></i> Asignar Nota de Módulo
+                        <div class="text-xs font-bold text-purple-900 uppercase tracking-wider flex items-center justify-between">
+                            <span class="flex items-center gap-1.5">
+                                <i class="bi bi-plus-circle-fill text-purple-600"></i>
+                                <span x-text="detailForm.module_id && getExistingScore(detailForm.module_id) ? 'Actualizar Nota de Módulo' : 'Asignar Nota de Módulo'"></span>
+                            </span>
+                            <template x-if="detailForm.module_id">
+                                <button type="button" @click="resetDetailForm()" class="text-[11px] text-gray-500 hover:text-purple-700 underline font-normal cursor-pointer">
+                                    Limpiar campos
+                                </button>
+                            </template>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                             <div class="sm:col-span-7">
-                                <label class="block text-xs font-semibold text-gray-700 mb-1">Módulo *</label>
-                                <select name="module_id" required
-                                    class="w-full text-xs border border-gray-300 rounded-lg py-2 px-2.5 bg-white font-medium">
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                    Módulo asociado al curso <span class="text-red-500">*</span>
+                                </label>
+                                <select name="module_id" x-model="detailForm.module_id" @change="onDetailModuleChange()" required
+                                    class="w-full text-xs border border-gray-300 rounded-lg py-2 px-2.5 bg-white font-medium focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500">
                                     <option value="">-- Seleccionar Módulo --</option>
+                                    <template x-if="isLoadingModules">
+                                        <option value="" disabled>Cargando módulos del curso...</option>
+                                    </template>
+                                    <template x-if="!isLoadingModules && availableModules.length === 0">
+                                        <option value="" disabled>No hay módulos registrados para este curso</option>
+                                    </template>
                                     <template x-for="mod in availableModules" :key="mod.id">
-                                        <option :value="mod.id" x-text="mod.name + (mod.credits ? ' (' + mod.credits + ')' : '')"></option>
+                                        <option :value="mod.id"
+                                            x-text="mod.name + (mod.credits ? ' (' + mod.credits + ' créditos)' : '') + (getExistingScore(mod.id) ? ' — [Nota actual: ' + getExistingScore(mod.id) + ']' : '')">
+                                        </option>
                                     </template>
                                 </select>
                             </div>
                             <div class="sm:col-span-3">
-                                <label class="block text-xs font-semibold text-gray-700 mb-1">Calificación / Nota</label>
-                                <input type="text" name="score" placeholder="Ej: 18, Aprobado" maxlength="50"
-                                    class="w-full text-xs border border-gray-300 rounded-lg py-2 px-2.5 font-bold">
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Calificación / Nota *</label>
+                                <input type="text" name="score" x-model="detailForm.score" required placeholder="Ej: 18, Aprobado" maxlength="50"
+                                    class="w-full text-xs border border-gray-300 rounded-lg py-2 px-2.5 font-bold focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500">
                             </div>
                             <div class="sm:col-span-2">
                                 <button type="submit"
-                                    class="w-full py-2 px-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold shadow transition flex items-center justify-center gap-1">
-                                    <i class="bi bi-save"></i> Guardar
+                                    class="w-full py-2 px-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold shadow transition flex items-center justify-center gap-1 cursor-pointer">
+                                    <i class="bi bi-save"></i>
+                                    <span x-text="detailForm.module_id && getExistingScore(detailForm.module_id) ? 'Actualizar' : 'Guardar'"></span>
                                 </button>
                             </div>
                         </div>
+
+                        {{-- Helper / Status Messages --}}
+                        <template x-if="isLoadingModules">
+                            <p class="text-[11px] text-purple-600 flex items-center gap-1">
+                                <i class="bi bi-arrow-repeat animate-spin"></i> Cargando lista de módulos correspondientes al curso...
+                            </p>
+                        </template>
+                        <template x-if="!isLoadingModules && availableModules.length === 0">
+                            <p class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2.5 flex items-center gap-1.5">
+                                <i class="bi bi-exclamation-triangle-fill text-amber-500"></i>
+                                Este curso aún no tiene módulos registrados o activos. Puede crearlos en el módulo de Cursos y Módulos.
+                            </p>
+                        </template>
+                        <template x-if="!isLoadingModules && availableModules.length > 0">
+                            <p class="text-[11px] text-gray-500">
+                                Mostrando <strong class="text-purple-700" x-text="availableModules.length"></strong> módulo(s) asociados a este curso. Seleccione el módulo e ingrese la calificación correspondiente.
+                            </p>
+                        </template>
                     </form>
 
                     {{-- List of Current Details --}}
@@ -779,15 +966,23 @@
                                                 <td class="px-3 py-2 text-center">
                                                     <span class="px-2 py-0.5 rounded-full font-bold bg-purple-100 text-purple-800" x-text="d.score || 'Aprobado'"></span>
                                                 </td>
-                                                <td class="px-3 py-2 text-center">
-                                                    <form :action="`{{ url('admin-certificados/detalles') }}/${d.id}`" method="POST"
-                                                        onsubmit="return confirm('¿Eliminar esta calificación?')">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="text-red-500 hover:text-red-700 p-1">
-                                                            <i class="bi bi-trash"></i>
+                                                <td class="px-3 py-2 text-center whitespace-nowrap">
+                                                    <div class="flex items-center justify-center gap-1">
+                                                        <button type="button" @click="editDetail(d)"
+                                                            class="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 p-1 rounded transition cursor-pointer"
+                                                            title="Editar calificación de este módulo">
+                                                            <i class="bi bi-pencil-square"></i>
                                                         </button>
-                                                    </form>
+                                                        <form :action="`{{ url('admin-certificados/detalles') }}/${d.id}`" method="POST"
+                                                            onsubmit="return confirm('¿Eliminar esta calificación?')">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition cursor-pointer"
+                                                                title="Eliminar calificación">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         </template>
@@ -1736,8 +1931,91 @@
             updateUrl: '',
             activeCert: null,
             availableModules: [],
+            isLoadingModules: false,
+            coursesData: @json($courses),
+            detailForm: {
+                module_id: '',
+                score: '',
+            },
             selectedCerts: [],
             pageCertIds: @json($certificates->pluck('id')->values()->all()),
+
+            // Student Search & Select2-like State
+            selectedStudent: null,
+            studentSearch: '',
+            studentResults: [],
+            studentDropdownOpen: false,
+            isSearchingStudents: false,
+            studentSearchTimer: null,
+            highlightedStudentIndex: 0,
+
+            toggleStudentDropdown() {
+                this.studentDropdownOpen = !this.studentDropdownOpen;
+                if (this.studentDropdownOpen) {
+                    this.$nextTick(() => {
+                        if (this.$refs.studentSearchInput) {
+                            this.$refs.studentSearchInput.focus();
+                        }
+                    });
+                }
+            },
+
+            onStudentSearchInput() {
+                clearTimeout(this.studentSearchTimer);
+                const query = (this.studentSearch || '').trim();
+
+                if (!query) {
+                    this.studentResults = [];
+                    this.isSearchingStudents = false;
+                    this.highlightedStudentIndex = 0;
+                    return;
+                }
+
+                this.isSearchingStudents = true;
+                this.studentSearchTimer = setTimeout(() => {
+                    fetch(`{{ route('admin.certificates.search-students') }}?q=${encodeURIComponent(query)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (Array.isArray(data)) {
+                                this.studentResults = data.slice(0, 5);
+                                this.highlightedStudentIndex = 0;
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Error buscando estudiantes:', err);
+                            this.studentResults = [];
+                        })
+                        .finally(() => {
+                            this.isSearchingStudents = false;
+                        });
+                }, 250);
+            },
+
+            navigateStudents(direction) {
+                if (!this.studentResults.length) return;
+                this.highlightedStudentIndex = (this.highlightedStudentIndex + direction + this.studentResults.length) % this.studentResults.length;
+            },
+
+            selectHighlightedStudent() {
+                if (this.studentResults.length && this.studentResults[this.highlightedStudentIndex]) {
+                    this.selectStudent(this.studentResults[this.highlightedStudentIndex]);
+                }
+            },
+
+            selectStudent(student) {
+                this.selectedStudent = student;
+                this.form.user_id = student.id;
+                this.studentDropdownOpen = false;
+                this.studentSearch = '';
+                this.studentResults = [];
+            },
+
+            clearStudentSelection() {
+                this.selectedStudent = null;
+                this.form.user_id = '';
+                this.studentSearch = '';
+                this.studentResults = [];
+            },
 
             toggleSelectAll(checked) {
                 if (checked) {
@@ -1759,6 +2037,7 @@
             deselectAll() {
                 this.selectedCerts = [];
             },
+
             form: {
                 id: null,
                 user_id: '',
@@ -1779,6 +2058,7 @@
             openCreateModal() {
                 this.isEdit = false;
                 this.updateUrl = '';
+                this.clearStudentSelection();
                 this.form = {
                     id: null,
                     user_id: '',
@@ -1801,6 +2081,23 @@
             openEditModal(cert) {
                 this.isEdit = true;
                 this.updateUrl = `{{ url('admin-certificados') }}/${cert.id}`;
+                this.studentSearch = '';
+                this.studentResults = [];
+                this.studentDropdownOpen = false;
+                this.selectedStudent = cert.user ? {
+                    id: cert.user.id,
+                    names: cert.user.names,
+                    dni: cert.user.dni || '',
+                    email: cert.user.email || '',
+                    phone: cert.user.phone || '',
+                } : (cert.user_id ? {
+                    id: cert.user_id,
+                    names: 'Estudiante #' + cert.user_id,
+                    dni: '',
+                    email: '',
+                    phone: '',
+                } : null);
+
                 this.form = {
                     id: cert.id,
                     user_id: cert.user_id || '',
@@ -1820,10 +2117,74 @@
                 this.modalOpen = true;
             },
 
+            resetDetailForm() {
+                this.detailForm = {
+                    module_id: '',
+                    score: '',
+                };
+            },
+
             openDetailsModal(cert) {
                 this.activeCert = cert;
-                this.availableModules = cert.course?.modules || [];
+                this.resetDetailForm();
+                this.availableModules = [];
+                this.isLoadingModules = true;
+
+                // 1. Initial resolution from cert.course.modules if present
+                if (cert.course?.modules && Array.isArray(cert.course.modules) && cert.course.modules.length > 0) {
+                    this.availableModules = cert.course.modules;
+                    this.isLoadingModules = false;
+                } else {
+                    // 2. Fallback to coursesData
+                    const found = this.coursesData.find(c => c.id == cert.course_id);
+                    if (found?.modules && Array.isArray(found.modules) && found.modules.length > 0) {
+                        this.availableModules = found.modules;
+                        this.isLoadingModules = false;
+                    }
+                }
+
+                // 3. Always fetch fresh modules for this course
+                if (cert.course_id) {
+                    fetch(`{{ url('admin-modulos/por-curso') }}/${cert.course_id}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (Array.isArray(data)) {
+                                this.availableModules = data;
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Error al cargar módulos del curso:', err);
+                        })
+                        .finally(() => {
+                            this.isLoadingModules = false;
+                        });
+                } else {
+                    this.isLoadingModules = false;
+                }
+
                 this.detailsModalOpen = true;
+            },
+
+            getExistingScore(moduleId) {
+                if (!this.activeCert?.details || !moduleId) return null;
+                const d = this.activeCert.details.find(item => item.module_id == moduleId);
+                return d ? (d.score || 'Aprobado') : null;
+            },
+
+            onDetailModuleChange() {
+                const existing = this.getExistingScore(this.detailForm.module_id);
+                if (existing && !this.detailForm.score) {
+                    this.detailForm.score = existing;
+                }
+            },
+
+            editDetail(d) {
+                this.detailForm.module_id = d.module_id;
+                this.detailForm.score = d.score || '';
+                this.$nextTick(() => {
+                    const el = document.querySelector('input[name="score"]');
+                    if (el) el.focus();
+                });
             },
 
             generateCodeStr() {

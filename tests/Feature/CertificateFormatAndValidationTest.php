@@ -1120,4 +1120,114 @@ class CertificateFormatAndValidationTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('EXPORTACIÓN MASIVA PDF');
     }
+
+    public function test_search_students_returns_first_five_matches_by_name(): void
+    {
+        $uniquePrefix = 'TestStudentSearch'.rand(1000, 9999);
+        $createdIds = [];
+
+        for ($i = 1; $i <= 7; $i++) {
+            $user = User::create([
+                'names' => "{$uniquePrefix} Name {$i}",
+                'dni' => '99'.rand(100000, 999999),
+                'email' => strtolower("{$uniquePrefix}_{$i}@example.com"),
+                'phone' => '9'.rand(10000000, 99999999),
+                'password' => bcrypt('password'),
+                'is_active' => true,
+            ]);
+            $createdIds[] = $user->id;
+        }
+
+        $response = $this->actingAs($this->adminUser)
+            ->getJson("/admin-certificados/buscar-estudiantes?q={$uniquePrefix}");
+
+        $response->assertStatus(200);
+        $data = $response->json();
+
+        $this->assertCount(5, $data);
+        foreach ($data as $item) {
+            $this->assertStringContainsString($uniquePrefix, $item['names']);
+            $this->assertArrayHasKey('id', $item);
+            $this->assertArrayHasKey('dni', $item);
+            $this->assertArrayHasKey('email', $item);
+            $this->assertArrayHasKey('phone', $item);
+        }
+
+        User::whereIn('id', $createdIds)->delete();
+    }
+
+    public function test_search_students_matches_by_dni_email_and_phone(): void
+    {
+        $testDni = '88'.rand(100000, 999999);
+        $testEmail = 'search_test_'.rand(1000, 9999).'@domain.com';
+        $testPhone = '955'.rand(100000, 999999);
+
+        $user = User::create([
+            'names' => 'Alumno Busqueda Unica '.rand(100, 999),
+            'dni' => $testDni,
+            'email' => $testEmail,
+            'phone' => $testPhone,
+            'password' => bcrypt('password'),
+            'is_active' => true,
+        ]);
+
+        // Search by DNI
+        $resDni = $this->actingAs($this->adminUser)
+            ->getJson("/admin-certificados/buscar-estudiantes?q={$testDni}");
+        $resDni->assertStatus(200);
+        $this->assertTrue(collect($resDni->json())->contains('id', $user->id));
+
+        // Search by email
+        $resEmail = $this->actingAs($this->adminUser)
+            ->getJson("/admin-certificados/buscar-estudiantes?q={$testEmail}");
+        $resEmail->assertStatus(200);
+        $this->assertTrue(collect($resEmail->json())->contains('id', $user->id));
+
+        // Search by phone
+        $resPhone = $this->actingAs($this->adminUser)
+            ->getJson("/admin-certificados/buscar-estudiantes?q={$testPhone}");
+        $resPhone->assertStatus(200);
+        $this->assertTrue(collect($resPhone->json())->contains('id', $user->id));
+
+        // Blank query returns empty
+        $resEmpty = $this->actingAs($this->adminUser)
+            ->getJson('/admin-certificados/buscar-estudiantes?q=');
+        $resEmpty->assertStatus(200);
+        $this->assertEmpty($resEmpty->json());
+
+        $user->delete();
+    }
+
+    public function test_admin_certificates_assign_module_grade_stores_detail(): void
+    {
+        $module = $this->certificate->course->modules()->first();
+        $this->assertNotNull($module, 'Course must have at least one module');
+
+        $response = $this->actingAs($this->adminUser)
+            ->post("/admin-certificados/{$this->certificate->id}/detalles", [
+                'module_id' => $module->id,
+                'score' => '19',
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('certificate_details', [
+            'certificate_id'    => $this->certificate->id,
+            'module_id'         => $module->id,
+            'score'             => '19',
+        ]);
+    }
+
+    public function test_admin_certificates_view_renders_select2_component_and_modules_structure(): void
+    {
+        $response = $this->actingAs($this->adminUser)->get('/admin-certificados');
+
+        $response->assertStatus(200);
+        $response->assertSee('toggleStudentDropdown');
+        $response->assertSee('studentSearchInput');
+        $response->assertSee('onStudentSearchInput');
+        $response->assertSee('availableModules');
+        $response->assertSee('Módulo asociado al curso');
+    }
 }

@@ -336,6 +336,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Certificados
     Route::prefix('admin-certificados')->name('admin.certificates.')->group(function () {
+        Route::get('/buscar-estudiantes', [CertificateController::class, 'searchStudents'])->name('search-students');
         Route::get('/', [CertificateController::class, 'index'])->name('index');
         Route::post('/', [CertificateController::class, 'store'])->name('store');
         Route::get('/plantilla', [CertificateController::class, 'downloadTemplate'])->name('template');

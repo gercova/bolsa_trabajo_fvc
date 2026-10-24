@@ -38,7 +38,7 @@ class CertificateController extends Controller
 
         $query = Certificate::with([
             'user' => fn ($q) => $q->withCount('certificates'),
-            'course',
+            'course.modules' => fn ($q) => $q->where('is_active', true)->orderBy('name'),
             'details.module',
         ])
             ->when($search, function ($q) use ($search) {
@@ -69,7 +69,7 @@ class CertificateController extends Controller
 
         $certificates = $query->paginate(10)->appends($request->only(['search', 'course_id', 'user_id', 'modality', 'status']));
         $courses = Course::where('is_active', true)->with('modules')->withCount('certificates')->orderBy('name')->get();
-        $users = User::where('is_active', true)->withCount('certificates')->orderBy('names')->get(['id', 'names', 'dni', 'email']);
+        $users = collect([]);
 
         // Stat counters
         $totalCertificates = Certificate::count();
@@ -95,6 +95,33 @@ class CertificateController extends Controller
             'modality',
             'status'
         ));
+    }
+
+    /**
+     * Search students/users for certificate issuance (Select2-like search).
+     * Searches by name, ID number (DNI), email, or phone number, limited to 5 results.
+     */
+    public function searchStudents(Request $request): JsonResponse
+    {
+        $search = trim((string) $request->input('q', ''));
+
+        if ($search === '') {
+            return response()->json([]);
+        }
+
+        $students = User::query()
+            ->where('is_active', true)
+            ->where(function ($q) use ($search) {
+                $q->where('names', 'LIKE', "%{$search}%")
+                    ->orWhere('dni', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%")
+                    ->orWhere('phone', 'LIKE', "%{$search}%");
+            })
+            ->orderBy('names')
+            ->limit(5)
+            ->get(['id', 'names', 'dni', 'email', 'phone']);
+
+        return response()->json($students);
     }
 
     /**
@@ -509,12 +536,15 @@ class CertificateController extends Controller
                 $match['topic_name'] = $data['topic_name'];
             }
 
+            $existing = ! empty($match) ? $certificate->details()->where($match)->first() : null;
+            $order = $data['order'] ?? ($existing?->order ?? (((int) $certificate->details()->max('order')) + 1));
+
             $detail = $certificate->details()->updateOrCreate(
                 $match,
                 [
                     'module_id' => $data['module_id'] ?? null,
                     'topic_name' => $data['topic_name'] ?? null,
-                    'order' => $data['order'] ?? null,
+                    'order' => $order,
                     'score' => $data['score'] ?? null,
                     'is_active' => $data['is_active'],
                 ]

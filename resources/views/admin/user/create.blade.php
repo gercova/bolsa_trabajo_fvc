@@ -16,7 +16,7 @@
                     </h1>
                 </div>
                 <div class="hidden sm:flex items-center text-sm font-medium text-gray-500">
-                    <a href="{{ route('admin.partners.index') }}" class="hover:text-purple-600 transition">Usuarios</a>
+                    <a href="{{ route('admin.users.index') }}" class="hover:text-purple-600 transition">Usuarios</a>
                     <i class="bi bi-chevron-right mx-2 text-xs text-gray-400"></i>
                     <span class="text-purple-600">Crear nuevo usuario</span>
                 </div>
@@ -27,6 +27,20 @@
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
             <form action="{{ route('admin.users.store') }}" method="POST" enctype="multipart/form-data" class="p-6 md:p-8">
                 @csrf
+
+                @if ($errors->any())
+                    <div class="mb-6 p-4 rounded-xl bg-red-50 border border-red-200">
+                        <div class="flex items-center gap-2 text-red-800 font-semibold mb-2">
+                            <i class="bi bi-exclamation-triangle-fill text-red-600"></i>
+                            <span>Por favor corrige los siguientes errores:</span>
+                        </div>
+                        <ul class="list-disc list-inside text-sm text-red-700 space-y-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 {{-- Grid de 2 columnas --}}
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {{-- Columna Izquierda: Foto de Perfil y Estado --}}
@@ -175,36 +189,43 @@
                             </div>
 
                             {{-- Contraseña --}}
-                            {{-- <div class="md:col-span-2">
+                            <div class="md:col-span-2">
                                 <label for="password" class="block mb-2 text-sm font-medium text-gray-700">
                                     <i class="bi bi-lock-fill text-purple-600 mr-1"></i>
                                     Contraseña
-                                    <span class="text-red-500">*</span>
+                                    <span class="text-xs text-gray-500 font-normal ml-1">(Opcional: si se deja en blanco, será su número de DNI)</span>
                                 </label>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <i class="bi bi-key text-gray-400"></i>
+                                    <div>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <i class="bi bi-key text-gray-400"></i>
+                                            </div>
+                                            <input type="password" name="password" id="password" placeholder="Mínimo 8 caracteres (o vacío para DNI)" class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition @error('password') border-red-500 @enderror">
+                                            <button type="button" onclick="togglePassword('password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600" title="Ver / Ocultar contraseña">
+                                                <i class="bi bi-eye-fill" id="password-icon"></i>
+                                            </button>
                                         </div>
-                                        <input type="password" name="password" id="password" placeholder="Mínimo 8 caracteres" class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition @error('password') border-red-500 @enderror">
-                                        <button type="button" onclick="togglePassword('password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
-                                            <i class="bi bi-eye-fill" id="password-icon"></i>
-                                        </button>
+                                        @error('password')
+                                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
                                     </div>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <i class="bi bi-key-fill text-gray-400"></i>
+                                    <div>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <i class="bi bi-key-fill text-gray-400"></i>
+                                            </div>
+                                            <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirmar contraseña" class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition @error('password_confirmation') border-red-500 @enderror">
+                                            <button type="button" onclick="togglePassword('password_confirmation')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600" title="Ver / Ocultar confirmación">
+                                                <i class="bi bi-eye-fill" id="password_confirmation-icon"></i>
+                                            </button>
                                         </div>
-                                        <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirmar contraseña" class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
-                                        <button type="button" onclick="togglePassword('password_confirmation')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
-                                            <i class="bi bi-eye-fill" id="password_confirmation-icon"></i>
-                                        </button>
+                                        @error('password_confirmation')
+                                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
                                     </div>
                                 </div>
-                                @error('password')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div> --}}
+                            </div>
 
                             {{-- CV File --}}
                             <div class="md:col-span-2">
@@ -290,13 +311,15 @@
     }
 
     // Validación del lado del cliente
-    document.querySelector('form').addEventListener('submit', function(e) {
-        const password = document.getElementById('password').value;
-        const confirm = document.getElementById('password_confirmation').value;
+    document.querySelector('form')?.addEventListener('submit', function(e) {
+        const passwordInput = document.getElementById('password');
+        const confirmInput = document.getElementById('password_confirmation');
         
-        if (password !== confirm) {
-            e.preventDefault();
-            alert('Las contraseñas no coinciden');
+        if (passwordInput && confirmInput && passwordInput.value) {
+            if (passwordInput.value !== confirmInput.value) {
+                e.preventDefault();
+                alert('Las contraseñas no coinciden');
+            }
         }
     });
 </script>

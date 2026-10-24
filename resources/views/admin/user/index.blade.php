@@ -466,50 +466,211 @@
                     @endif
                 </div>
 
-                <!-- Modal de cambio de contraseña (sin cambios) -->
+                <!-- Modal de cambio de contraseña -->
                 <div x-show="showModal" class="fixed inset-0 z-[60] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" x-cloak>
-                    <!-- ... (mantén el modal como está) ... -->
                     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                        <div x-show="showModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm transition-opacity" aria-hidden="true" @click="showModal = false"></div>
+                        <div x-show="showModal" 
+                            x-transition:enter="ease-out duration-300" 
+                            x-transition:enter-start="opacity-0" 
+                            x-transition:enter-end="opacity-100" 
+                            x-transition:leave="ease-in duration-200" 
+                            x-transition:leave-start="opacity-100" 
+                            x-transition:leave-end="opacity-0" 
+                            class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm transition-opacity" 
+                            aria-hidden="true" 
+                            @click="closePwdModal()"></div>
 
                         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                        <div x-show="showModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+                        <div x-show="showModal" 
+                            x-transition:enter="ease-out duration-300" 
+                            x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
+                            x-transition:leave="ease-in duration-200" 
+                            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" 
+                            x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                            class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full border border-gray-100">
                             
-                            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-100">
-                                <div class="sm:flex sm:items-start">
-                                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 sm:mx-0 sm:h-10 sm:w-10">
-                                        <i class="bi bi-shield-lock text-purple-600 text-xl"></i>
+                            {{-- Header del Modal --}}
+                            <div class="bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-800 px-6 py-5 text-white flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-white/15 backdrop-blur-md flex items-center justify-center text-white text-xl shadow-inner border border-white/20">
+                                        <i class="bi bi-shield-lock-fill"></i>
                                     </div>
-                                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                    <div>
+                                        <h3 class="text-base font-bold tracking-tight text-white" id="modal-title">
                                             Actualizar Contraseña
                                         </h3>
-                                        <p class="text-sm text-gray-500 mt-1">
-                                            Estableciendo nueva clave para <span class="font-bold text-purple-700" x-text="selectedUserName"></span>.
+                                        <p class="text-xs text-purple-100/90 mt-0.5">
+                                            Usuario: <span class="font-semibold text-white underline decoration-purple-300" x-text="selectedUserName"></span>
                                         </p>
                                     </div>
                                 </div>
+                                <button type="button" @click="closePwdModal()" class="text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors">
+                                    <i class="bi bi-x-lg text-sm"></i>
+                                </button>
                             </div>
 
-                            <form :action="'/admin/usuarios/' + selectedUserId + '/password'" method="POST">
+                            <form :action="'/admin/usuarios/' + selectedUserId + '/password'" method="POST" @submit.prevent="submitPasswordChange($event)">
                                 @csrf
                                 @method('PATCH')
-                                <div class="px-4 py-5 sm:p-6 space-y-4">
-                                    <div>
-                                        <label for="password" class="block text-sm font-medium text-gray-700">Nueva Contraseña</label>
-                                        <input type="password" name="password" id="password" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm px-3 py-2 border">
+                                
+                                <div class="px-6 py-5 space-y-4">
+                                    {{-- Alert de Error --}}
+                                    <div x-show="passwordFormError" x-cloak class="p-3.5 bg-red-50 border-l-4 border-red-500 rounded-lg flex items-start gap-2.5 text-xs text-red-700 animate-shake">
+                                        <i class="bi bi-exclamation-triangle-fill text-red-500 text-sm mt-0.5 shrink-0"></i>
+                                        <span x-text="passwordFormError" class="leading-relaxed"></span>
                                     </div>
+
+                                    {{-- Alert de Éxito --}}
+                                    <div x-show="passwordFormSuccess" x-cloak class="p-3.5 bg-emerald-50 border-l-4 border-emerald-500 rounded-lg flex items-center gap-2.5 text-xs text-emerald-800">
+                                        <i class="bi bi-check-circle-fill text-emerald-500 text-base shrink-0"></i>
+                                        <span x-text="passwordFormSuccess" class="font-medium"></span>
+                                    </div>
+
+                                    {{-- Campo 1: Nueva Contraseña --}}
                                     <div>
-                                        <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirmar Contraseña</label>
-                                        <input type="password" name="password_confirmation" id="password_confirmation" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm px-3 py-2 border">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <label for="modal_password_input" class="block text-xs font-bold uppercase tracking-wider text-gray-700">
+                                                Nueva Contraseña <span class="text-red-500">*</span>
+                                            </label>
+                                            <span class="text-[11px] text-gray-400 font-medium">Mínimo 8 caracteres</span>
+                                        </div>
+                                        <div class="relative">
+                                            <input :type="showPassword ? 'text' : 'password'"
+                                                   name="password"
+                                                   id="modal_password_input"
+                                                   x-model="password"
+                                                   required
+                                                   autocomplete="new-password"
+                                                   placeholder="••••••••"
+                                                   class="w-full pr-10 pl-3.5 py-2.5 text-sm bg-gray-50/50 border rounded-xl shadow-xs transition-colors focus:bg-white focus:outline-none"
+                                                   :class="{
+                                                       'border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200': !password,
+                                                       'border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-100': password && passwordScore < 50,
+                                                       'border-amber-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-100': password && passwordScore >= 50 && passwordScore < 75,
+                                                       'border-emerald-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100': password && passwordScore >= 75
+                                                   }">
+                                            <button type="button"
+                                                    @click="showPassword = !showPassword"
+                                                    tabindex="-1"
+                                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                                                    :title="showPassword ? 'Ocultar contraseña' : 'Ver contraseña'">
+                                                <i class="bi text-base" :class="showPassword ? 'bi-eye-slash-fill' : 'bi-eye-fill'"></i>
+                                            </button>
+                                        </div>
+
+                                        {{-- Barra de Dificultad / Seguridad en tiempo real --}}
+                                        <div class="mt-2.5 p-3 rounded-xl bg-gray-50 border border-gray-100">
+                                            <div class="flex items-center justify-between mb-1.5">
+                                                <span class="text-xs font-semibold text-gray-600 flex items-center gap-1.5">
+                                                    <i class="bi bi-speedometer2 text-purple-600"></i> Dificultad de la contraseña:
+                                                </span>
+                                                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full transition-all"
+                                                      :class="passwordStrength.badgeClass"
+                                                      x-text="passwordStrength.label"></span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                <div class="h-2 rounded-full transition-all duration-300"
+                                                     :class="passwordStrength.barColor"
+                                                     :style="'width: ' + passwordStrength.percent + '%'"></div>
+                                            </div>
+
+                                            {{-- Checklist de Requisitos en Vivo --}}
+                                            <div class="grid grid-cols-2 gap-x-2 gap-y-1.5 mt-2.5 pt-2 border-t border-gray-200/60 text-[11px]">
+                                                <div class="flex items-center gap-1.5"
+                                                     :class="passwordCriteria.length ? 'text-emerald-700 font-semibold' : 'text-gray-400'">
+                                                    <i class="bi" :class="passwordCriteria.length ? 'bi-check-circle-fill text-emerald-500' : 'bi-circle text-gray-300'"></i>
+                                                    <span>Mínimo 8 caracteres</span>
+                                                </div>
+                                                <div class="flex items-center gap-1.5"
+                                                     :class="passwordCriteria.hasLower && passwordCriteria.hasUpper ? 'text-emerald-700 font-semibold' : 'text-gray-400'">
+                                                    <i class="bi" :class="passwordCriteria.hasLower && passwordCriteria.hasUpper ? 'bi-check-circle-fill text-emerald-500' : 'bi-circle text-gray-300'"></i>
+                                                    <span>Mayúsc. y minúsc.</span>
+                                                </div>
+                                                <div class="flex items-center gap-1.5"
+                                                     :class="passwordCriteria.hasNumber ? 'text-emerald-700 font-semibold' : 'text-gray-400'">
+                                                    <i class="bi" :class="passwordCriteria.hasNumber ? 'bi-check-circle-fill text-emerald-500' : 'bi-circle text-gray-300'"></i>
+                                                    <span>Al menos un número</span>
+                                                </div>
+                                                <div class="flex items-center gap-1.5"
+                                                     :class="passwordCriteria.hasSpecial ? 'text-emerald-700 font-semibold' : 'text-gray-400'">
+                                                    <i class="bi" :class="passwordCriteria.hasSpecial ? 'bi-check-circle-fill text-emerald-500' : 'bi-circle text-gray-300'"></i>
+                                                    <span>Símbolo (@$!%*#?)</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Campo 2: Confirmar Contraseña --}}
+                                    <div>
+                                        <div class="flex items-center justify-between mb-1">
+                                            <label for="modal_password_confirmation_input" class="block text-xs font-bold uppercase tracking-wider text-gray-700">
+                                                Confirmar Contraseña <span class="text-red-500">*</span>
+                                            </label>
+                                        </div>
+                                        <div class="relative">
+                                            <input :type="showPasswordConfirmation ? 'text' : 'password'"
+                                                   name="password_confirmation"
+                                                   id="modal_password_confirmation_input"
+                                                   x-model="passwordConfirmation"
+                                                   required
+                                                   autocomplete="new-password"
+                                                   placeholder="••••••••"
+                                                   class="w-full pr-10 pl-3.5 py-2.5 text-sm bg-gray-50/50 border rounded-xl shadow-xs transition-colors focus:bg-white focus:outline-none"
+                                                   :class="{
+                                                       'border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200': passwordMatchStatus === 'empty',
+                                                       'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-200 bg-red-50/20': passwordMatchStatus === 'mismatch',
+                                                       'border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200 bg-emerald-50/20': passwordMatchStatus === 'match'
+                                                   }">
+                                            <button type="button"
+                                                    @click="showPasswordConfirmation = !showPasswordConfirmation"
+                                                    tabindex="-1"
+                                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                                                    :title="showPasswordConfirmation ? 'Ocultar confirmación' : 'Ver confirmación'">
+                                                <i class="bi text-base" :class="showPasswordConfirmation ? 'bi-eye-slash-fill' : 'bi-eye-fill'"></i>
+                                            </button>
+                                        </div>
+
+                                        {{-- Feedback de coincidencia en tiempo real --}}
+                                        <div class="mt-1.5 min-h-[22px]">
+                                            <template x-if="passwordMatchStatus === 'mismatch'">
+                                                <div class="flex items-center gap-1.5 text-xs text-red-600 font-medium">
+                                                    <i class="bi bi-x-circle-fill text-red-500"></i>
+                                                    <span>Las contraseñas no coinciden.</span>
+                                                </div>
+                                            </template>
+                                            <template x-if="passwordMatchStatus === 'match'">
+                                                <div class="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+                                                    <i class="bi bi-check-circle-fill text-emerald-500"></i>
+                                                    <span>¡Las contraseñas coinciden correctamente!</span>
+                                                </div>
+                                            </template>
+                                            <template x-if="passwordMatchStatus === 'empty' && password">
+                                                <p class="text-xs text-gray-400">
+                                                    Escriba nuevamente la contraseña para confirmarla.
+                                                </p>
+                                            </template>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-100">
-                                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-purple-600 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                        Guardar Contraseña
+
+                                {{-- Footer botones --}}
+                                <div class="bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse gap-3 border-t border-gray-100 rounded-b-2xl">
+                                    <button type="submit" 
+                                            :disabled="!canSubmitPassword || isSubmittingPassword"
+                                            :class="(!canSubmitPassword || isSubmittingPassword) 
+                                                ? 'opacity-50 cursor-not-allowed bg-purple-400' 
+                                                : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-md hover:shadow-lg'"
+                                            class="w-full sm:w-auto inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                                        <i class="bi bi-arrow-repeat animate-spin mr-2" x-show="isSubmittingPassword" x-cloak></i>
+                                        <i class="bi bi-check2-circle mr-2" x-show="!isSubmittingPassword"></i>
+                                        <span x-text="isSubmittingPassword ? 'Guardando...' : 'Guardar Contraseña'"></span>
                                     </button>
-                                    <button type="button" @click="showModal = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                    <button type="button" 
+                                            @click="closePwdModal()" 
+                                            :disabled="isSubmittingPassword"
+                                            class="mt-2 sm:mt-0 w-full sm:w-auto inline-flex items-center justify-center rounded-xl border border-gray-300 px-5 py-2.5 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 shadow-xs">
                                         Cancelar
                                     </button>
                                 </div>
@@ -1293,6 +1454,13 @@
             showModal: false,
             selectedUserId: null,
             selectedUserName: '',
+            password: '',
+            passwordConfirmation: '',
+            showPassword: false,
+            showPasswordConfirmation: false,
+            isSubmittingPassword: false,
+            passwordFormError: '',
+            passwordFormSuccess: '',
             
             // Import modal
             importModalOpen: false,
@@ -1338,7 +1506,175 @@
             openPwdModal(id, name) {
                 this.selectedUserId = id;
                 this.selectedUserName = name;
+                this.password = '';
+                this.passwordConfirmation = '';
+                this.showPassword = false;
+                this.showPasswordConfirmation = false;
+                this.isSubmittingPassword = false;
+                this.passwordFormError = '';
+                this.passwordFormSuccess = '';
                 this.showModal = true;
+                this.$nextTick(() => {
+                    const input = document.getElementById('modal_password_input');
+                    if (input) input.focus();
+                });
+            },
+
+            closePwdModal() {
+                this.showModal = false;
+                this.password = '';
+                this.passwordConfirmation = '';
+                this.passwordFormError = '';
+                this.passwordFormSuccess = '';
+            },
+
+            // Criterios de dificultad en tiempo real
+            get passwordCriteria() {
+                const p = this.password || '';
+                return {
+                    length: p.length >= 8,
+                    hasLower: /[a-z]/.test(p),
+                    hasUpper: /[A-Z]/.test(p),
+                    hasNumber: /[0-9]/.test(p),
+                    hasSpecial: /[^A-Za-z0-9]/.test(p),
+                };
+            },
+
+            // Puntuación de dificultad
+            get passwordScore() {
+                const p = this.password || '';
+                if (!p) return 0;
+                let score = 0;
+                const c = this.passwordCriteria;
+                if (c.length) score += 25;
+                if (c.hasLower && c.hasUpper) score += 25;
+                if (c.hasNumber) score += 25;
+                if (c.hasSpecial) score += 25;
+                return Math.min(100, score);
+            },
+
+            // Visualización de la dificultad
+            get passwordStrength() {
+                if (!this.password) {
+                    return {
+                        label: 'Sin ingresar',
+                        percent: 0,
+                        barColor: 'bg-gray-200',
+                        textColor: 'text-gray-400',
+                        badgeClass: 'bg-gray-100 text-gray-500 border border-gray-200',
+                    };
+                }
+                const score = this.passwordScore;
+                if (score < 50) {
+                    return {
+                        label: 'Débil',
+                        percent: 25,
+                        barColor: 'bg-red-500',
+                        textColor: 'text-red-600',
+                        badgeClass: 'bg-red-50 text-red-700 border border-red-200',
+                    };
+                }
+                if (score < 75) {
+                    return {
+                        label: 'Media',
+                        percent: 60,
+                        barColor: 'bg-amber-500',
+                        textColor: 'text-amber-600',
+                        badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+                    };
+                }
+                if (score < 100) {
+                    return {
+                        label: 'Fuerte',
+                        percent: 85,
+                        barColor: 'bg-blue-600',
+                        textColor: 'text-blue-600',
+                        badgeClass: 'bg-blue-50 text-blue-700 border border-blue-200',
+                    };
+                }
+                return {
+                    label: 'Muy Segura',
+                    percent: 100,
+                    barColor: 'bg-emerald-500',
+                    textColor: 'text-emerald-600',
+                    badgeClass: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+                };
+            },
+
+            // Estado de coincidencia de contraseñas
+            get passwordMatchStatus() {
+                if (!this.passwordConfirmation) {
+                    return 'empty';
+                }
+                if (this.password === this.passwordConfirmation) {
+                    return 'match';
+                }
+                return 'mismatch';
+            },
+
+            // ¿Es válida para enviar?
+            get canSubmitPassword() {
+                return (this.password || '').length >= 8 &&
+                       (this.passwordConfirmation || '').length >= 8 &&
+                       this.password === this.passwordConfirmation &&
+                       !this.isSubmittingPassword;
+            },
+
+            // Envío asíncrono con fallback
+            async submitPasswordChange(e) {
+                if (!this.canSubmitPassword) {
+                    if ((this.password || '').length < 8) {
+                        this.passwordFormError = 'La contraseña debe tener una longitud mínima de 8 caracteres.';
+                    } else if (this.password !== this.passwordConfirmation) {
+                        this.passwordFormError = 'La confirmación no coincide con la contraseña.';
+                    }
+                    return;
+                }
+
+                this.isSubmittingPassword = true;
+                this.passwordFormError = '';
+                this.passwordFormSuccess = '';
+
+                try {
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+                    const response = await fetch('/admin/usuarios/' + this.selectedUserId + '/password', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'X-HTTP-Method-Override': 'PATCH',
+                        },
+                        body: JSON.stringify({
+                            _method: 'PATCH',
+                            password: this.password,
+                            password_confirmation: this.passwordConfirmation,
+                        })
+                    });
+
+                    const data = await response.json().catch(() => ({}));
+
+                    if (response.ok && (data.success || response.status === 200)) {
+                        this.passwordFormSuccess = data.message || 'Contraseña actualizada exitosamente.';
+                        setTimeout(() => {
+                            this.closePwdModal();
+                            window.location.reload();
+                        }, 1200);
+                    } else {
+                        if (data.errors && data.errors.password) {
+                            this.passwordFormError = data.errors.password.join(' ');
+                        } else {
+                            this.passwordFormError = data.message || 'No se pudo actualizar la contraseña. Verifique que los campos sean válidos.';
+                        }
+                    }
+                } catch (err) {
+                    // Fallback a envío clásico de formulario HTML
+                    if (e && e.target && typeof e.target.submit === 'function') {
+                        e.target.submit();
+                    }
+                } finally {
+                    this.isSubmittingPassword = false;
+                }
             },
 
             openBulkDeleteModal() {

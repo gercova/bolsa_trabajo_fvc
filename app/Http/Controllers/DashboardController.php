@@ -25,7 +25,10 @@ class DashboardController extends Controller
     public function index(): View|RedirectResponse
     {
         $user = auth()->user();
-        if ($user && in_array($user->role, ['Estudiante', 'student', 'Lector', 'Solicitante', 'Egresado']) && ! $user->can('ver-dashboard')) {
+        if ($user && (
+            in_array(strtolower((string) $user->role), ['estudiante', 'student', 'lector', 'solicitante', 'egresado']) ||
+            (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['Estudiante', 'Student']))
+        ) && ! $user->can('ver-dashboard')) {
             return redirect()->route('biblioteca.index');
         }
         // ── Usuarios ──────────────────────────────────────────

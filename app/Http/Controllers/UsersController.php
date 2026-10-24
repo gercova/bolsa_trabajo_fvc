@@ -146,18 +146,17 @@ class UsersController extends Controller
     public function store(UserValidate $request): RedirectResponse
     {
         $validated = $request->validated();
-
         // Manejar la subida de la foto de perfil
         $photoPath = null;
         if ($request->hasFile('photo_profile')) {
             $photoPath = $request->file('photo_profile')->store('profile-photos', 'public');
         }
-
         // Manejar la subida del CV
         $cvPath = null;
         if ($request->hasFile('cv_file')) {
             $cvPath = $request->file('cv_file')->store('cv-files', 'public');
         }
+        $password = ! empty($validated['password']) ? $validated['password'] : $validated['dni'];
 
         // Crear el usuario
         $user = User::create([
@@ -168,31 +167,34 @@ class UsersController extends Controller
             'job_position' => $validated['job_position'] ?? null,
             'photo_profile' => $photoPath,
             'cv_file' => $cvPath,
-            'password' => Hash::make($validated['password']),
+            'password' => Hash::make($password),
             'is_active' => $request->boolean('is_active', true),
         ]);
 
         // Asignar rol con Spatie
         $user->assignRole($validated['role']);
 
-        return redirect()->route('admin.usuarios')->with('success', 'Usuario creado exitosamente.');
+        return redirect()->route('admin.users.index')->with('success', 'Usuario creado exitosamente.');
     }
 
-    public function updatePassword(PasswordValidate $request, User $user): JsonResponse
+    public function updatePassword(PasswordValidate $request, User $user): JsonResponse|RedirectResponse
     {
         $validated = $request->validated();
         $user->update(['password' => Hash::make($validated['password'])]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Contraseña actualizada',
-        ], 200);
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Contraseña de '.($user->names ?? 'usuario').' actualizada exitosamente.',
+            ], 200);
+        }
+
+        return redirect()->route('admin.users.index')->with('success', 'Contraseña de '.($user->names ?? 'usuario').' actualizada exitosamente.');
     }
 
     public function update(UserValidate $request, User $user): RedirectResponse
     {
         $validated = $request->validated();
-
         // Manejar la subida de la foto de perfil
         if ($request->hasFile('photo_profile')) {
             // Eliminar foto anterior si existe
@@ -310,7 +312,6 @@ class UsersController extends Controller
     public function countBulkDelete(Request $request): JsonResponse
     {
         $query = $this->buildFilteredQuery($request);
-
         $currentUserId = auth()->id();
         $totalMatching = (clone $query)->count();
         $queryWithoutSelf = (clone $query)->when($currentUserId, fn ($q) => $q->where('id', '!=', $currentUserId));
@@ -346,7 +347,6 @@ class UsersController extends Controller
         $currentUserId = auth()->id();
         $excludedSelf = false;
         $protectedAdminCount = 0;
-
         if ($byFilters) {
             // Validar que se haya especificado al menos un filtro o confirmación explícita
             $hasFilter = $request->filled('role')

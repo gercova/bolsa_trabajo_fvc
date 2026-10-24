@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -26,9 +28,7 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
-
         Log::info('Inicio de sesión exitoso', [
             'user_id' => Auth::id(),
             'email' => Auth::user()?->email,
@@ -37,7 +37,88 @@ class AuthenticatedSessionController extends Controller
         ]);
 
         $user = Auth::user();
-        $isAdminOrStaff = $user && (
+
+        // Garantizar acceso y permisos específicos para el rol Estudiante / Student
+        $isStudent = $user && (
+            in_array(strtolower((string) $user->role), ['estudiante', 'student']) ||
+            (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['Estudiante', 'Student', 'estudiante', 'student']))
+        );
+
+        if ($isStudent) {
+            $studentRoleName = ($user->role === 'Student' || (method_exists($user, 'hasRole') && $user->hasRole('Student')))
+                ? 'Student'
+                : 'Estudiante';
+
+            $studentRole = Role::findOrCreate($studentRoleName, 'web');
+            if (method_exists($user, 'hasRole') && ! $user->hasRole($studentRoleName)) {
+                $user->assignRole($studentRole);
+            }
+
+            // Permisos iniciales exclusivos para estudiantes:
+            // 1. Actualizar información personal
+            // 2. Acceso a la biblioteca virtual
+            // 3. Presentar solicitudes administrativas
+            // 4. Ver sus certificados
+            // 5. Consultar el reglamento interno
+            $allowedPermissions = [
+                // Actualizar información personal
+                'actualizar-informacion-personal',
+                'actualizar-perfil',
+                'update-personal-information',
+                // Acceso a la biblioteca virtual
+                'acceder-biblioteca-virtual',
+                'acceder-biblioteca',
+                'access-virtual-library',
+                // Presentar solicitudes administrativas
+                'presentar-solicitudes-administrativas',
+                'enviar-solicitudes-administrativas',
+                'submit-administrative-requests',
+                // Ver sus certificados
+                'ver-certificados',
+                'consultar-certificados',
+                'view-certificates',
+                // Consultar el reglamento interno
+                'consultar-reglamento-interno',
+                'ver-reglamento-interno',
+                'consult-internal-regulations',
+            ];
+
+            foreach ($allowedPermissions as $permissionName) {
+                Permission::findOrCreate($permissionName, 'web');
+            }
+
+            // Sincronizar permisos en los roles de estudiante y en el usuario garantizando acceso exclusivo únicamente a estas funciones
+            $rolesToSync = array_unique(array_filter([
+                $studentRoleName,
+                'Estudiante',
+                'Student',
+            ]));
+
+            foreach ($rolesToSync as $roleName) {
+                $role = Role::findOrCreate($roleName, 'web');
+                $role->syncPermissions($allowedPermissions);
+            }
+
+            // Remover posibles roles administrativos residuales para mantener permisos estrictos de estudiante
+            $adminRoles = [
+                'Admin', 'Administrador', 'Director', 'Docente', 'Administrativo',
+                'Coordinador de Área', 'Coordinador de Calidad', 'Coordinador de Empleabilidad',
+                'Coordinador de Educación Continua', 'Coordinador de Investigación',
+            ];
+            foreach ($adminRoles as $adminRole) {
+                if (method_exists($user, 'hasRole') && $user->hasRole($adminRole)) {
+                    $user->removeRole($adminRole);
+                }
+            }
+
+            $user->syncPermissions($allowedPermissions);
+
+            if (session()->has('url.intended') && str_contains(session('url.intended'), 'admin')) {
+                session()->forget('url.intended');
+            }
+        }
+
+        $isAdminOrStaff = $user && ! $isStudent && (
             in_array($user->role, [
                 'Admin', 'Administrador', 'Director', 'Docente', 'Administrativo',
                 'Coordinador de Área', 'Coordinador de Calidad', 'Coordinador de Empleabilidad',
@@ -66,11 +147,8 @@ class AuthenticatedSessionController extends Controller
         $email = Auth::user()?->email;
 
         Auth::guard('web')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
-
         Log::info('Cierre de sesión', [
             'user_id' => $userId,
             'email' => $email,

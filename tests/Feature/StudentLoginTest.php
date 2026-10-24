@@ -24,11 +24,13 @@ class StudentLoginTest extends TestCase
         );
 
         Role::findOrCreate('Estudiante', 'web');
+        Role::findOrCreate('Student', 'web');
         Role::findOrCreate('Admin', 'web');
 
         // Limpiar posibles usuarios previos de prueba
         User::whereIn('email', [
             'estudiante_unit_test@iestp.edu.pe',
+            'student_role_unit_test@iestp.edu.pe',
             'estudiante_inactivo@iestp.edu.pe',
             'admin_unit_test@iestp.edu.pe',
         ])->delete();
@@ -46,6 +48,7 @@ class StudentLoginTest extends TestCase
 
         User::whereIn('email', [
             'estudiante_unit_test@iestp.edu.pe',
+            'student_role_unit_test@iestp.edu.pe',
             'estudiante_inactivo@iestp.edu.pe',
             'admin_unit_test@iestp.edu.pe',
         ])->delete();
@@ -198,5 +201,123 @@ class StudentLoginTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Hola, Carlos Estudiante Prueba');
+    }
+
+    /**
+     * Prueba que un usuario con rol "Student" puede iniciar sesión y recibe exclusivamente los 5 permisos iniciales permitidos.
+     */
+    public function test_user_with_student_role_can_login_and_has_exclusive_initial_permissions(): void
+    {
+        $this->testStudent = User::create([
+            'document_type_id' => 1,
+            'dni' => '88776633',
+            'names' => 'Ana Estudiante Student Role',
+            'email' => 'student_role_unit_test@iestp.edu.pe',
+            'role' => 'Student',
+            'password' => Hash::make('password123'),
+            'is_active' => true,
+        ]);
+        $this->testStudent->assignRole('Student');
+
+        $response = $this->post('/login', [
+            'email' => 'student_role_unit_test@iestp.edu.pe',
+            'password' => 'password123',
+        ]);
+
+        $response->assertRedirect(route('biblioteca.index', absolute: false));
+        $this->assertAuthenticatedAs($this->testStudent);
+
+        $this->testStudent->refresh();
+
+        // 1. Actualizar su información personal
+        $this->assertTrue(
+            $this->testStudent->can('actualizar-informacion-personal') || $this->testStudent->can('update-personal-information'),
+            'El estudiante debe tener permiso para actualizar su información personal.'
+        );
+
+        // 2. Acceder a la biblioteca virtual
+        $this->assertTrue(
+            $this->testStudent->can('acceder-biblioteca-virtual') || $this->testStudent->can('access-virtual-library'),
+            'El estudiante debe tener permiso para acceder a la biblioteca virtual.'
+        );
+
+        // 3. Presentar solicitudes administrativas
+        $this->assertTrue(
+            $this->testStudent->can('presentar-solicitudes-administrativas') || $this->testStudent->can('submit-administrative-requests'),
+            'El estudiante debe tener permiso para presentar solicitudes administrativas.'
+        );
+
+        // 4. Ver sus certificados
+        $this->assertTrue(
+            $this->testStudent->can('ver-certificados') || $this->testStudent->can('view-certificates'),
+            'El estudiante debe tener permiso para ver sus certificados.'
+        );
+
+        // 5. Consultar el reglamento interno
+        $this->assertTrue(
+            $this->testStudent->can('consultar-reglamento-interno') || $this->testStudent->can('consult-internal-regulations'),
+            'El estudiante debe tener permiso para consultar el reglamento interno.'
+        );
+
+        // Asegurar que NO tiene permisos administrativos
+        $this->assertFalse(
+            $this->testStudent->can('ver-dashboard'),
+            'El estudiante NO debe tener permiso para ver el panel de control administrativo.'
+        );
+        $this->assertFalse(
+            $this->testStudent->can('gestionar-usuarios'),
+            'El estudiante NO debe tener permiso para gestionar usuarios.'
+        );
+        $this->assertFalse(
+            $this->testStudent->can('gestionar-roles'),
+            'El estudiante NO debe tener permiso para gestionar roles.'
+        );
+        $this->assertFalse(
+            $this->testStudent->can('gestionar-inversiones'),
+            'El estudiante NO debe tener permiso para gestionar inversiones.'
+        );
+    }
+
+    /**
+     * Prueba que si un estudiante tenía permisos o roles administrativos por error, se revocan al iniciar sesión dejando solo los 5 permitidos.
+     */
+    public function test_student_with_residual_admin_permissions_is_stripped_to_only_student_permissions_on_login(): void
+    {
+        $this->testStudent = User::create([
+            'document_type_id' => 1,
+            'dni' => '88776622',
+            'names' => 'Estudiante Con Permisos Residuales',
+            'email' => 'estudiante_unit_test@iestp.edu.pe',
+            'role' => 'Estudiante',
+            'password' => Hash::make('password123'),
+            'is_active' => true,
+        ]);
+        $this->testStudent->assignRole('Estudiante');
+
+        // Asignar indebidamente un permiso administrativo previo
+        $this->testStudent->givePermissionTo('gestionar-usuarios');
+        $this->assertTrue($this->testStudent->can('gestionar-usuarios'));
+
+        $response = $this->post('/login', [
+            'email' => 'estudiante_unit_test@iestp.edu.pe',
+            'password' => 'password123',
+        ]);
+
+        $response->assertRedirect(route('biblioteca.index', absolute: false));
+
+        $this->testStudent->refresh();
+
+        // Tras el inicio de sesión, el permiso administrativo fue revocado
+        $this->assertFalse(
+            $this->testStudent->can('gestionar-usuarios'),
+            'Los permisos administrativos no permitidos deben haber sido eliminados al iniciar sesión.'
+        );
+
+        // Los 5 permisos requeridos siguen presentes
+        $this->assertTrue($this->testStudent->can('actualizar-informacion-personal'));
+        $this->assertTrue($this->testStudent->can('acceder-biblioteca-virtual'));
+        $this->assertTrue($this->testStudent->can('presentar-solicitudes-administrativas'));
+        $this->assertTrue($this->testStudent->can('ver-certificados'));
+        $this->assertTrue($this->testStudent->can('consultar-reglamento-interno'));
     }
 }

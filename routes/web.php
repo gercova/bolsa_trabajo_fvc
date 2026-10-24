@@ -88,12 +88,6 @@ Route::get('/verificar-certificado/{certificate_code?}', function (?string $cert
     return redirect()->route('validar-certificado', array_filter(['code' => $code]));
 })->name('verificar.certificado');
 
-Route::get('/verify-certificate/{certificate_code?}', function (?string $certificate_code = null, ?Request $request = null) {
-    $code = $certificate_code ?: request('code');
-
-    return redirect()->route('validar-certificado', array_filter(['code' => $code]));
-})->name('verify.certificate');
-
 // Links institucionales
 Route::get('/servicios/enlaces-institucionales', [AppController::class, 'institutionalLinks'])->name('enlaces-institucionales');
 
@@ -387,11 +381,17 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{user}/editar/', [UsersController::class, 'edit'])->name('edit');
         Route::post('/', [UsersController::class, 'store'])->name('store');
         Route::put('/{user}', [UsersController::class, 'update'])->name('update');
+        Route::match(['patch', 'post'], '/{user}/password', [UsersController::class, 'updatePassword'])->name('password.update');
+        Route::get('/{user}/password', fn () => redirect()->route('admin.users.index'))->name('password.show');
         Route::patch('/estado/{user}', [UsersController::class, 'toggleStatus'])->name('toggle-status');
         Route::match(['post', 'delete'], '/eliminar-masivo', [UsersController::class, 'bulkDelete'])->name('bulk-delete');
         Route::post('/conteo-masivo', [UsersController::class, 'countBulkDelete'])->name('count-bulk-delete');
         Route::delete('/{user}', [UsersController::class, 'destroy'])->name('destroy');
     });
+
+    // Rutas directas para compatibilidad con /admin/usuarios/{user}/password
+    Route::match(['patch', 'post'], '/admin/usuarios/{user}/password', [UsersController::class, 'updatePassword'])->name('admin.users.password.alias');
+    Route::get('/admin/usuarios/{user}/password', fn () => redirect()->route('admin.users.index'))->name('admin.users.password.alias.get');
 
     // Teacher role details
     Route::prefix('admin-docentes-roles')->name('admin.teacher-roles.')->group(function () {

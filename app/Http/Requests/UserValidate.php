@@ -12,11 +12,20 @@ class UserValidate extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('dni')) {
+            $this->merge(['dni' => trim((string) $this->dni)]);
+        }
+        if ($this->has('email')) {
+            $this->merge(['email' => trim((string) $this->email)]);
+        }
+    }
+
     public function rules(): array
     {
         // On update routes the User model is bound via route model binding.
         // On store (create) $userId is null, so the unique rule applies without exception.
-        $isUpdate = $this->isMethod('PUT') || $this->isMethod('PATCH');
         $userId = $this->route('user')?->id;
 
         return [
@@ -28,11 +37,9 @@ class UserValidate extends FormRequest
             'photo_profile' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'cv_file' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
             'is_active' => 'nullable|boolean',
-            // Password is required on create, optional (but strong) on update
-            'password' => $isUpdate
-                ? ['nullable', 'string', Password::min(8)->mixedCase()->numbers()->symbols(), 'confirmed']
-                : ['required', 'string', Password::min(8)->mixedCase()->numbers()->symbols(), 'confirmed'],
-            'password_confirmation' => $isUpdate ? 'nullable|string' : 'required|string',
+            // Password is optional: if omitted on create it defaults to DNI in controller; optional on update
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'password_confirmation' => ['nullable', 'string'],
         ];
     }
 
@@ -66,6 +73,9 @@ class UserValidate extends FormRequest
             'cv_file.file' => 'El archivo de CV debe ser un documento válido.',
             'cv_file.mimes' => 'El CV debe ser de tipo: pdf, doc, docx.',
             'cv_file.max' => 'El CV no puede superar los 5 MB.',
+            // Contraseña
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'La confirmación de la contraseña no coincide.',
         ];
     }
 }

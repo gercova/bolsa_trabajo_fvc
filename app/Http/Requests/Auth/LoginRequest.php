@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -26,8 +27,13 @@ class LoginRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
+        $input = trim((string) $this->input('email'));
+        if (str_contains($input, '@')) {
+            $input = Str::lower($input);
+        }
+
         $this->merge([
-            'email' => Str::lower(trim((string) $this->input('email'))),
+            'email' => $input,
         ]);
     }
 
@@ -39,10 +45,10 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email', 'max:255'],
+            'email' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'max:255'],
             'remember' => ['nullable', 'boolean'],
-            '_hp_security_check' => ['nullable', 'prohibited'], // Honeypot bot protection
+            '_hp_security_check' => ['nullable', 'string', 'max:255'],
         ];
     }
 
@@ -54,12 +60,10 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.required' => 'El correo electrónico es obligatorio.',
-            'email.email' => 'Ingrese una dirección de correo electrónico válida.',
-            'email.max' => 'El correo electrónico no debe exceder 255 caracteres.',
+            'email.required' => 'El correo electrónico o N° de DNI es obligatorio.',
+            'email.max' => 'El identificador de acceso no debe exceder 255 caracteres.',
             'password.required' => 'La contraseña es obligatoria.',
             'password.max' => 'La contraseña ingresada es demasiado extensa.',
-            '_hp_security_check.prohibited' => 'Acceso denegado por detección de actividad automatizada sospechosa.',
         ];
     }
 
@@ -72,13 +76,18 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        // Trampa honeypot para scripts o bots automatizados
-        if ($this->filled('_hp_security_check')) {
+        $loginInput = (string) $this->input('email');
+        $password = (string) $this->input('password');
+        $remember = $this->boolean('remember');
+        $hp = $this->input('_hp_security_check');
+
+        // Trampa honeypot para scripts o bots automatizados (ignorar si es autofill del navegador idéntico al usuario)
+        if (! empty($hp) && $hp !== $loginInput) {
             RateLimiter::hit($this->throttleKey(), 300);
             Log::warning('Alerta de seguridad: Trampa honeypot activada en login', [
                 'ip' => $this->ip(),
                 'user_agent' => $this->userAgent(),
-                'email_intent' => $this->input('email'),
+                'email_intent' => $loginInput,
             ]);
 
             throw ValidationException::withMessages([
@@ -86,13 +95,46 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $isEmail = str_contains($loginInput, '@');
+        $primaryField = $isEmail ? 'email' : 'dni';
+        $secondaryField = $isEmail ? 'dni' : 'email';
+
+        // Verificar si el usuario existe para validar su estado activo
+        $user = User::where($primaryField, $loginInput)
+            ->orWhere($secondaryField, $loginInput)
+            ->first();
+
+        if ($user && ! $user->is_active) {
+            RateLimiter::hit($this->throttleKey(), 60);
+            RateLimiter::hit($this->ipThrottleKey(), 60);
+
+            Log::warning('Intento de inicio de sesión de usuario inactivo', [
+                'user_id' => $user->id,
+                'login_input' => $loginInput,
+                'role' => $user->role,
+                'ip' => $this->ip(),
+            ]);
+
+            throw ValidationException::withMessages([
+                'email' => 'Su cuenta se encuentra inactiva o inhabilitada. Comuníquese con la administración institucional.',
+            ]);
+        }
+
+        // Intento con campo primario
+        $authenticated = Auth::attempt([$primaryField => $loginInput, 'password' => $password], $remember);
+
+        // Si falló, intentar con campo secundario (por ejemplo DNI si escribió email o viceversa)
+        if (! $authenticated) {
+            $authenticated = Auth::attempt([$secondaryField => $loginInput, 'password' => $password], $remember);
+        }
+
+        if (! $authenticated) {
             RateLimiter::hit($this->throttleKey(), 60);
             RateLimiter::hit($this->ipThrottleKey(), 60);
 
             $currentAttempts = RateLimiter::attempts($this->throttleKey());
             Log::warning('Intento de inicio de sesión fallido', [
-                'email' => $this->input('email'),
+                'login_input' => $loginInput,
                 'ip' => $this->ip(),
                 'intentos' => $currentAttempts,
                 'user_agent' => $this->userAgent(),

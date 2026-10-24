@@ -286,14 +286,32 @@
                                 <span class="dp-icon"><i class="bi bi-person-circle"></i></span>
                                 <span class="dp-label">Mi Perfil</span>
                             </a>
+                            @can('ver-dashboard')
+                            <a href="{{ route('admin.dashboard.index') }}" class="dp-item">
+                                <span class="dp-icon"><i class="bi bi-grid-1x2"></i></span>
+                                <span class="dp-label">Panel de Control</span>
+                            </a>
+                            @endcan
+                            <a href="{{ route('biblioteca.index') }}" class="dp-item">
+                                <span class="dp-icon"><i class="bi bi-book"></i></span>
+                                <span class="dp-label">Biblioteca Virtual</span>
+                            </a>
+                            <a href="{{ route('biblioteca.favorites') }}" class="dp-item">
+                                <span class="dp-icon"><i class="bi bi-bookmarks"></i></span>
+                                <span class="dp-label">Mi Biblioteca</span>
+                            </a>
+                            @can('gestionar-empresa')
                             <a href="{{ route('admin.enterprise.edit') }}" class="dp-item">
                                 <span class="dp-icon"><i class="bi bi-buildings"></i></span>
                                 <span class="dp-label">Datos de Empresa</span>
                             </a>
+                            @endcan
+                            @can('gestionar-usuarios')
                             <a href="{{ route('admin.users.index') }}" class="dp-item">
                                 <span class="dp-icon"><i class="bi bi-people"></i></span>
                                 <span class="dp-label">Usuarios</span>
                             </a>
+                            @endcan
                             <div class="dp-divider"></div>
 
                             <form method="POST" action="{{ route('logout') }}">
@@ -484,12 +502,27 @@
             <a href="{{ route('admin.profile.edit', auth()->user()) }}" class="mobile-link">
                 <i class="bi bi-person-circle"></i> Mi Perfil
             </a>
+            @can('ver-dashboard')
+            <a href="{{ route('admin.dashboard.index') }}" class="mobile-link">
+                <i class="bi bi-grid-1x2"></i> Panel de Control
+            </a>
+            @endcan
+            <a href="{{ route('biblioteca.index') }}" class="mobile-link">
+                <i class="bi bi-book"></i> Biblioteca Virtual
+            </a>
+            <a href="{{ route('biblioteca.favorites') }}" class="mobile-link">
+                <i class="bi bi-bookmarks"></i> Mi Biblioteca
+            </a>
+            @can('gestionar-empresa')
             <a href="{{ route('admin.enterprise.edit') }}" class="mobile-link">
                 <i class="bi bi-buildings"></i> Datos de Empresa
             </a>
+            @endcan
+            @can('gestionar-usuarios')
             <a href="{{ route('admin.users.index') }}" class="mobile-link">
                 <i class="bi bi-people"></i> Usuarios
             </a>
+            @endcan
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="mobile-link mobile-link--danger w-full text-left">

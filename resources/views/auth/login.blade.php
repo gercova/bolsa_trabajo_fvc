@@ -48,21 +48,18 @@
             <form method="POST" action="{{ route('login') }}" class="space-y-5" x-data="{ showPassword: false }">
                 @csrf
 
-                {{-- Campo Honeypot de seguridad para detección de bots automatizados --}}
-                <input type="text" name="_hp_security_check" style="position: absolute; left: -9999px; top: -9999px; opacity: 0; width: 0; height: 0; pointer-events: none;" tabindex="-1" autocomplete="off" aria-hidden="true">
-
-                {{-- Correo --}}
+                {{-- Correo o DNI --}}
                 <div>
-                    <label for="email" class="block text-sm font-medium mb-1.5" style="color: var(--ink);">Correo Electrónico</label>
+                    <label for="email" class="block text-sm font-medium mb-1.5" style="color: var(--ink);">Correo Electrónico o N° de DNI</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                            <i class="bi bi-envelope text-lg" style="color: var(--ink-muted);"></i>
+                            <i class="bi bi-person-vcard text-lg" style="color: var(--ink-muted);"></i>
                         </div>
-                        <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus autocomplete="username"
+                        <input id="email" name="email" type="text" value="{{ old('email') }}" required autofocus autocomplete="username"
                             class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm transition-all duration-200 outline-none
                             @error('email') border-red-300 ring-2 ring-red-100 @else border-[#E2E0DA] focus:ring-2 focus:ring-[#FEF3C7] focus:border-[#B45309] @enderror"
                             style="background: var(--white); color: var(--ink);"
-                            placeholder="correo@ejemplo.com">
+                            placeholder="correo@ejemplo.com o N° de DNI">
                     </div>
                     @error('email')
                         @unless(str_contains($message, 'intentos'))
@@ -126,6 +123,11 @@
                 <div class="pt-2 flex items-center justify-center gap-1.5 text-[11.5px] text-slate-500">
                     <i class="bi bi-shield-check text-emerald-600 text-sm"></i>
                     <span>Protección activa contra accesos no autorizados y fuerza bruta</span>
+                </div>
+
+                {{-- Campo Honeypot de seguridad para detección de bots automatizados --}}
+                <div style="position: absolute; left: -9999px; top: -9999px; opacity: 0; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
+                    <input type="text" name="_hp_security_check" tabindex="-1" autocomplete="off" value="">
                 </div>
             </form>
         </div>

@@ -52,8 +52,32 @@ class LibraryReaderController extends Controller
 
         $studyPrograms = StudyProgram::select('id', 'name')->orderBy('name')->get();
         $totalBooks = Book::where('is_active', true)->count();
+        $user = auth()->user();
+        $favoriteBooks = $user
+            ? $user->favoriteBooks()->with('studyProgram')->latest()->take(10)->get()
+            : collect();
+
+        $recentlyReadBookIds = $user
+            ? LibraryAccessLog::where('user_id', $user->id)
+                ->where('access_type', 'view')
+                ->recent()
+                ->pluck('book_id')
+                ->unique()
+                ->take(5)
+            : collect();
+
+        if ($recentlyReadBookIds->isNotEmpty()) {
+            $recentReadQuery = Book::with('studyProgram')->whereIn('id', $recentlyReadBookIds);
+            $this->attachFavoriteFlag($recentReadQuery, $userId);
+            $recentlyReadBooks = $recentReadQuery->get();
+        } else {
+            $recentlyReadBooks = collect();
+        }
 
         return view('library.home', compact(
+            'user',
+            'favoriteBooks',
+            'recentlyReadBooks',
             'featuredBooks',
             'recentBooks',
             'studyPrograms',

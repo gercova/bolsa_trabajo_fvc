@@ -18,70 +18,74 @@ use App\Models\Tupa;
 use App\Models\User;
 use App\Models\VisitorCounter;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\RedirectResponse;
 
 class DashboardController extends Controller
 {
-    public function index(): View
+    public function index(): View|RedirectResponse
     {
+        $user = auth()->user();
+        if ($user && in_array($user->role, ['Estudiante', 'student', 'Lector', 'Solicitante', 'Egresado']) && ! $user->can('ver-dashboard')) {
+            return redirect()->route('biblioteca.index');
+        }
         // ── Usuarios ──────────────────────────────────────────
-        $usersTotal      = User::count();
-        $usersActive     = User::where('is_active', true)->count();
-        $usersThisMonth  = User::whereMonth('created_at', now()->month)
+        $usersTotal = User::count();
+        $usersActive = User::where('is_active', true)->count();
+        $usersThisMonth = User::whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
-        $usersRoles      = User::selectRaw('role, count(*) as total')
+        $usersRoles = User::selectRaw('role, count(*) as total')
             ->groupBy('role')
             ->pluck('total', 'role')
             ->toArray();
-        $recentUsers     = User::latest()->take(6)->get();
+        $recentUsers = User::latest()->take(6)->get();
 
         // ── Bolsa de Trabajo (JobOffers) ──────────────────────
-        $jobOffersTotal  = JobOffer::count();
+        $jobOffersTotal = JobOffer::count();
         $jobOffersActive = JobOffer::where('is_active', true)->count();
-        $recentOffers    = JobOffer::latest()->take(5)->get();
+        $recentOffers = JobOffer::latest()->take(5)->get();
 
         // ── Reclamos ──────────────────────────────────────────
-        $claimsTotal     = Claim::count();
-        $claimsPending   = Claim::where('status', 'pendiente')->orWhereNull('status')->count();
+        $claimsTotal = Claim::count();
+        $claimsPending = Claim::where('status', 'pendiente')->orWhereNull('status')->count();
         $claimsThisMonth = Claim::whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
-        $recentClaims    = Claim::latest()->take(5)->get();
+        $recentClaims = Claim::latest()->take(5)->get();
 
         // ── Partners / Aliados ────────────────────────────────
-        $partnersTotal   = Partner::count();
-        $partnersActive  = Partner::where('is_active', true)->count();
+        $partnersTotal = Partner::count();
+        $partnersActive = Partner::where('is_active', true)->count();
 
         // ── Programas de Estudio ──────────────────────────────
-        $programsTotal   = StudyProgram::count();
-        $programsActive  = StudyProgram::where('is_active', true)->count();
+        $programsTotal = StudyProgram::count();
+        $programsActive = StudyProgram::where('is_active', true)->count();
 
         // ── Admisiones & Matrículas ───────────────────────────
-        $admissionsTotal  = Admission::count();
+        $admissionsTotal = Admission::count();
         $admissionsActive = Admission::where('is_active', true)->count();
         $recentAdmissions = Admission::latest()->take(4)->get();
         $enrollmentSchedulesActive = EnrollmentSchedule::where('is_active', true)->count();
         $scholarshipsTotal = Scholarship::count();
 
         // ── TUPA & Documentos ─────────────────────────────────
-        $tupaTotal       = Tupa::count();
-        $tupaActive      = Tupa::where('is_active', true)->count();
-        $documentsTotal  = ManagementDocument::count();
+        $tupaTotal = Tupa::count();
+        $tupaActive = Tupa::where('is_active', true)->count();
+        $documentsTotal = ManagementDocument::count();
         $documentsActive = ManagementDocument::where('is_active', true)->count();
 
         // ── Blog / Noticias ───────────────────────────────────
-        $blogsTotal      = Blog::count();
-        $blogsPublished  = Blog::where('is_published', true)->count();
-        $recentBlogs     = Blog::latest()->take(4)->get();
+        $blogsTotal = Blog::count();
+        $blogsPublished = Blog::where('is_published', true)->count();
+        $recentBlogs = Blog::latest()->take(4)->get();
 
         // ── Carrusel Institucional ────────────────────────────
-        $carouselsTotal  = InstitutionalCarousel::count();
+        $carouselsTotal = InstitutionalCarousel::count();
         $carouselsActive = InstitutionalCarousel::where('is_active', true)->count();
 
         // ── Contador de Visitas & Transparencia ───────────────
-        $totalVisits     = VisitorCounter::getTotalVisits();
-        $visitDigits     = VisitorCounter::getPaddedDigits($totalVisits, 6);
+        $totalVisits = VisitorCounter::getTotalVisits();
+        $visitDigits = VisitorCounter::getPaddedDigits($totalVisits, 6);
         $degreeRecordsTotal = DegreeRecord::count();
         $studentRecordsTotal = StudentRecord::count();
 

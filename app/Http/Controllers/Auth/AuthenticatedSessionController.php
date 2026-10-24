@@ -36,7 +36,25 @@ class AuthenticatedSessionController extends Controller
             'user_agent' => $request->userAgent(),
         ]);
 
-        return redirect()->intended(route('admin.dashboard.index', absolute: false));
+        $user = Auth::user();
+        $isAdminOrStaff = $user && (
+            in_array($user->role, [
+                'Admin', 'Administrador', 'Director', 'Docente', 'Administrativo',
+                'Coordinador de Área', 'Coordinador de Calidad', 'Coordinador de Empleabilidad',
+                'Coordinador de Educación Continua', 'Coordinador de Investigación',
+            ]) ||
+            (method_exists($user, 'hasAnyRole') && $user->hasAnyRole([
+                'Admin', 'Administrador', 'Director', 'Docente', 'Administrativo',
+                'Coordinador de Área', 'Coordinador de Calidad', 'Coordinador de Empleabilidad',
+                'Coordinador de Educación Continua', 'Coordinador de Investigación',
+            ]))
+        );
+
+        $defaultRoute = $isAdminOrStaff
+            ? route('admin.dashboard.index', absolute: false)
+            : route('biblioteca.index', absolute: false);
+
+        return redirect()->intended($defaultRoute);
     }
 
     /**

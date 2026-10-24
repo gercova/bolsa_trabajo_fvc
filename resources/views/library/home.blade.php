@@ -9,7 +9,7 @@
     {{-- Greeting Header (Matching Screenshot 2) --}}
     <div>
         <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-            Hola, {{ $user->names }}.
+            Hola, {{ $user?->names ?? 'Estudiante' }}.
         </h1>
     </div>
 
@@ -202,7 +202,7 @@
         return {
             favoritesMap: {
                 @foreach($recentlyReadBooks as $b)
-                    {{ $b->id }}: {{ $b->is_favorited ? 'true' : 'false' }},
+                    {{ $b->id }}: {{ !empty($b->is_favorited) ? 'true' : 'false' }},
                 @endforeach
             },
 

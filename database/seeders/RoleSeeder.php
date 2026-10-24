@@ -19,19 +19,19 @@ class RoleSeeder extends Seeder
 
         // 1. Definir Permisos del Sistema
         $permissions = [
-            'ver-dashboard'               => 'Ver Panel de Control',
-            'gestionar-examenes'          => 'Gestionar Exámenes y Admisión',
-            'gestionar-programas'         => 'Gestionar Programas de Estudio',
-            'gestionar-tupa'              => 'Gestionar Reglamento TUPA',
-            'gestionar-trabajos'          => 'Gestionar Bolsa de Trabajo',
-            'gestionar-usuarios'          => 'Gestionar Usuarios',
-            'gestionar-roles'             => 'Gestionar Roles y Permisos',
-            'gestionar-reclamos'          => 'Gestionar Libro de Reclamaciones',
-            'gestionar-empresa'           => 'Configurar Empresa e Institución',
-            'gestionar-partners'          => 'Gestionar Alianzas y Partners',
-            'gestionar-investigacion'     => 'Gestionar Unidad de Investigación',
-            'gestionar-educacion-continua'=> 'Gestionar Educación Continua',
-            'gestionar-inversiones'       => 'Gestionar Inversión y Gastos (incluye vaciado de tabla)',
+            'ver-dashboard' => 'Ver Panel de Control',
+            'gestionar-examenes' => 'Gestionar Exámenes y Admisión',
+            'gestionar-programas' => 'Gestionar Programas de Estudio',
+            'gestionar-tupa' => 'Gestionar Reglamento TUPA',
+            'gestionar-trabajos' => 'Gestionar Bolsa de Trabajo',
+            'gestionar-usuarios' => 'Gestionar Usuarios',
+            'gestionar-roles' => 'Gestionar Roles y Permisos',
+            'gestionar-reclamos' => 'Gestionar Libro de Reclamaciones',
+            'gestionar-empresa' => 'Configurar Empresa e Institución',
+            'gestionar-partners' => 'Gestionar Alianzas y Partners',
+            'gestionar-investigacion' => 'Gestionar Unidad de Investigación',
+            'gestionar-educacion-continua' => 'Gestionar Educación Continua',
+            'gestionar-inversiones' => 'Gestionar Inversión y Gastos (incluye vaciado de tabla)',
         ];
 
         foreach ($permissions as $name => $displayName) {
@@ -59,26 +59,27 @@ class RoleSeeder extends Seeder
                 'gestionar-educacion-continua', 'gestionar-inversiones',
             ],
             'Docente' => [
-                'ver-dashboard', 'gestionar-programas', 'gestionar-examenes'
+                'ver-dashboard', 'gestionar-programas', 'gestionar-examenes',
             ],
             'Coordinador de Área' => [
-                'ver-dashboard', 'gestionar-programas', 'gestionar-examenes'
+                'ver-dashboard', 'gestionar-programas', 'gestionar-examenes',
             ],
             'Coordinador de Calidad' => [
-                'ver-dashboard', 'gestionar-tupa', 'gestionar-programas', 'gestionar-reclamos'
+                'ver-dashboard', 'gestionar-tupa', 'gestionar-programas', 'gestionar-reclamos',
             ],
             'Coordinador de Empleabilidad' => [
-                'ver-dashboard', 'gestionar-trabajos', 'gestionar-partners'
+                'ver-dashboard', 'gestionar-trabajos', 'gestionar-partners',
             ],
             'Coordinador de Educación Continua' => [
-                'ver-dashboard', 'gestionar-educacion-continua', 'gestionar-programas'
+                'ver-dashboard', 'gestionar-educacion-continua', 'gestionar-programas',
             ],
             'Coordinador de Investigación' => [
-                'ver-dashboard', 'gestionar-investigacion'
+                'ver-dashboard', 'gestionar-investigacion',
             ],
             'Administrativo' => [
-                'ver-dashboard', 'gestionar-tupa', 'gestionar-reclamos'
+                'ver-dashboard', 'gestionar-tupa', 'gestionar-reclamos',
             ],
+            'Estudiante' => [],
         ];
 
         foreach ($rolesData as $roleName => $assignedPermissions) {

@@ -1213,9 +1213,9 @@ class CertificateFormatAndValidationTest extends TestCase
         $response->assertRedirect();
 
         $this->assertDatabaseHas('certificate_details', [
-            'certificate_id'    => $this->certificate->id,
-            'module_id'         => $module->id,
-            'score'             => '19',
+            'certificate_id' => $this->certificate->id,
+            'module_id' => $module->id,
+            'score' => '19',
         ]);
     }
 

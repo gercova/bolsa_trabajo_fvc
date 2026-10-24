@@ -10,35 +10,39 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
-class RegisteredUserController extends Controller {
-
-    public function create(): View {
+class RegisteredUserController extends Controller
+{
+    public function create(): View
+    {
         return view('auth.register');
     }
 
-    public function store(Request $request): RedirectResponse {
+    public function store(Request $request): RedirectResponse
+    {
         $request->validate([
-            'dni'       => ['required', 'string', 'digits:8', 'unique:'.User::class],
-            'name'      => ['required', 'string', 'max:255'],
-            'email'     => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password'  => ['required', 'confirmed', Rules\Password::defaults()],
+            'dni' => ['required', 'string', 'digits:8', 'unique:'.User::class],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
-            'dni'       => $request->dni,
-            'names'     => $request->name,
-            'email'     => $request->email,
-            'password'  => Hash::make($request->password),
-            'role'      => 'student',
+            'dni' => $request->dni,
+            'names' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'Estudiante',
+            'is_active' => true,
         ]);
+
+        $user->assignRole('Estudiante');
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('biblioteca.index', absolute: false));
     }
 }

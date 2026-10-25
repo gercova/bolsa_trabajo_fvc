@@ -55,13 +55,13 @@ class AreaController extends Controller
         }
 
         // Estadísticas rápidas para tarjetas
-        $totalAreas         = Area::count();
-        $withProgramCount   = Area::whereNotNull('program_id')->count();
-        $withLeaderCount    = Area::whereNotNull('user_id')->count();
-        $generalAreasCount  = Area::whereNull('program_id')->count();
+        $totalAreas = Area::count();
+        $withProgramCount = Area::whereNotNull('program_id')->count();
+        $withLeaderCount = Area::whereNotNull('user_id')->count();
+        $generalAreasCount = Area::whereNull('program_id')->count();
 
-        $areas      = $query->orderBy('name', 'asc')->paginate(12)->withQueryString();
-        $programs   = StudyProgram::orderBy('name')->get();
+        $areas = $query->orderBy('name', 'asc')->paginate(12)->withQueryString();
+        $programs = StudyProgram::orderBy('name')->get();
 
         return view('admin.areas.index', compact(
             'areas',
@@ -102,6 +102,7 @@ class AreaController extends Controller
     public function store(AreaRequest $request)
     {
         Area::create($request->validated());
+
         return redirect()->route('admin.areas.index')
             ->with('success', 'El área institucional ha sido creada exitosamente.');
     }
@@ -127,9 +128,9 @@ class AreaController extends Controller
                     $sq->whereNull('role')
                         ->orWhereNotIn('role', ['Estudiante', 'estudiante', 'Student', 'student']);
                 })
-                ->whereDoesntHave('roles', function ($sq) {
-                    $sq->whereIn('name', ['Estudiante', 'estudiante', 'Student', 'student']);
-                });
+                    ->whereDoesntHave('roles', function ($sq) {
+                        $sq->whereIn('name', ['Estudiante', 'estudiante', 'Student', 'student']);
+                    });
 
                 if ($area->user_id) {
                     $q->orWhere('id', $area->user_id);
@@ -148,6 +149,7 @@ class AreaController extends Controller
     public function update(AreaRequest $request, Area $area)
     {
         $area->update($request->validated());
+
         return redirect()->route('admin.areas.index')
             ->with('success', 'El área institucional ha sido actualizada exitosamente.');
     }
@@ -159,6 +161,7 @@ class AreaController extends Controller
     {
         $areaName = $area->name;
         $area->delete();
+
         return redirect()->route('admin.areas.index')
             ->with('success', "El área \"{$areaName}\" ha sido eliminada correctamente.");
     }

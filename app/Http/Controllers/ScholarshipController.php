@@ -24,7 +24,7 @@ class ScholarshipController extends Controller
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%")
-                      ->orWhere('description', 'LIKE', "%{$search}%");
+                        ->orWhere('description', 'LIKE', "%{$search}%");
                 });
             })
             ->when($status !== null && $status !== '', function ($query) use ($status) {
@@ -44,8 +44,8 @@ class ScholarshipController extends Controller
             ->when($beneficiarySearch, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('title', 'LIKE', "%{$search}%")
-                      ->orWhere('resolution_number', 'LIKE', "%{$search}%")
-                      ->orWhere('description', 'LIKE', "%{$search}%");
+                        ->orWhere('resolution_number', 'LIKE', "%{$search}%")
+                        ->orWhere('description', 'LIKE', "%{$search}%");
                 });
             })
             ->when($beneficiaryPeriod, function ($query, $period) {
@@ -60,14 +60,14 @@ class ScholarshipController extends Controller
 
         $beneficiaries = $beneficiariesQuery->paginate(10, ['*'], 'beneficiaries_page')->withQueryString();
 
-        $allScholarships    = Scholarship::orderBy('sort_order')->orderBy('name')->get();
-        $periods            = ScholarshipBeneficiary::distinct()->orderBy('academic_period', 'desc')->pluck('academic_period');
-        $totalModalities    = Scholarship::count();
+        $allScholarships = Scholarship::orderBy('sort_order')->orderBy('name')->get();
+        $periods = ScholarshipBeneficiary::distinct()->orderBy('academic_period', 'desc')->pluck('academic_period');
+        $totalModalities = Scholarship::count();
         $totalBeneficiaries = ScholarshipBeneficiary::count();
 
         // Active tab determination
         $activeTab = $request->input('tab');
-        if (!$activeTab) {
+        if (! $activeTab) {
             if ($request->hasAny(['beneficiary_search', 'beneficiary_period', 'beneficiary_status', 'beneficiaries_page'])) {
                 $activeTab = 'beneficiaries';
             } else {
@@ -114,7 +114,7 @@ class ScholarshipController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Modalidad de beca creada con éxito.',
-                'data'    => $scholarship,
+                'data' => $scholarship,
             ], 201);
         }
 
@@ -128,7 +128,7 @@ class ScholarshipController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data'    => $scholarship,
+            'data' => $scholarship,
         ]);
     }
 
@@ -155,7 +155,7 @@ class ScholarshipController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Modalidad de beca actualizada correctamente.',
-                'data'    => $scholarship->fresh(),
+                'data' => $scholarship->fresh(),
             ]);
         }
 
@@ -168,7 +168,7 @@ class ScholarshipController extends Controller
     public function toggleStatus(Scholarship $scholarship): RedirectResponse|JsonResponse
     {
         $scholarship->update([
-            'is_active' => !$scholarship->is_active,
+            'is_active' => ! $scholarship->is_active,
         ]);
 
         if (request()->wantsJson()) {

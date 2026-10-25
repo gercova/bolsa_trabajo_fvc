@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\Scholarship;
 use App\Models\ScholarshipBeneficiary;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -20,16 +20,16 @@ class ScholarshipBeneficiariesFeatureTest extends TestCase
     {
         parent::setUp();
 
-        $docTypeId = \Illuminate\Support\Facades\DB::table('document_type')->value('id') ?? 1;
+        $docTypeId = DB::table('document_type')->value('id') ?? 1;
 
         $this->admin = User::firstOrCreate(
             ['email' => 'admin@iestpfvc.edu.pe'],
             [
-                'dni'              => '77889900',
-                'names'            => 'Admin Test',
-                'password'         => bcrypt('secret123'),
+                'dni' => '77889900',
+                'names' => 'Admin Test',
+                'password' => bcrypt('secret123'),
                 'document_type_id' => $docTypeId,
-                'role'             => 'Admin',
+                'role' => 'Admin',
             ]
         );
     }
@@ -63,14 +63,14 @@ class ScholarshipBeneficiariesFeatureTest extends TestCase
         $file = UploadedFile::fake()->create('relacion_becarios_2027_i.pdf', 500, 'application/pdf');
 
         $payload = [
-            'academic_period'   => '2027-I',
-            'title'             => 'Padrón Test Beneficiarios 2027-I',
-            'description'       => 'Descripción de prueba para el padrón 2027-I',
+            'academic_period' => '2027-I',
+            'title' => 'Padrón Test Beneficiarios 2027-I',
+            'description' => 'Descripción de prueba para el padrón 2027-I',
             'resolution_number' => 'R.D. N° 999-2027-IESTP-FVC',
-            'publication_date'  => '2027-03-01',
-            'file'              => $file,
-            'is_active'         => '1',
-            'sort_order'        => 5,
+            'publication_date' => '2027-03-01',
+            'file' => $file,
+            'is_active' => '1',
+            'sort_order' => 5,
         ];
 
         $response = $this->actingAs($this->admin)
@@ -79,8 +79,8 @@ class ScholarshipBeneficiariesFeatureTest extends TestCase
         $response->assertRedirect(route('admin.scholarships.index', ['tab' => 'beneficiaries']));
 
         $this->assertDatabaseHas('scholarship_beneficiaries', [
-            'academic_period'   => '2027-I',
-            'title'             => 'Padrón Test Beneficiarios 2027-I',
+            'academic_period' => '2027-I',
+            'title' => 'Padrón Test Beneficiarios 2027-I',
             'resolution_number' => 'R.D. N° 999-2027-IESTP-FVC',
         ]);
 
@@ -93,9 +93,9 @@ class ScholarshipBeneficiariesFeatureTest extends TestCase
     {
         $beneficiary = ScholarshipBeneficiary::create([
             'academic_period' => '2028-I',
-            'title'           => 'Padrón para toggle',
-            'file_path'       => 'scholarships/beneficiaries/dummy.pdf',
-            'is_active'       => true,
+            'title' => 'Padrón para toggle',
+            'file_path' => 'scholarships/beneficiaries/dummy.pdf',
+            'is_active' => true,
         ]);
 
         $response = $this->actingAs($this->admin)
@@ -109,11 +109,11 @@ class ScholarshipBeneficiariesFeatureTest extends TestCase
     public function test_admin_can_fetch_beneficiary_details_json(): void
     {
         $beneficiary = ScholarshipBeneficiary::create([
-            'academic_period'   => '2029-I',
-            'title'             => 'Padrón JSON test',
+            'academic_period' => '2029-I',
+            'title' => 'Padrón JSON test',
             'resolution_number' => 'R.D. 123',
-            'file_path'         => 'scholarships/beneficiaries/dummy.pdf',
-            'is_active'         => true,
+            'file_path' => 'scholarships/beneficiaries/dummy.pdf',
+            'is_active' => true,
         ]);
 
         $response = $this->actingAs($this->admin)
@@ -122,10 +122,10 @@ class ScholarshipBeneficiariesFeatureTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'data'    => [
-                'id'              => $beneficiary->id,
+            'data' => [
+                'id' => $beneficiary->id,
                 'academic_period' => '2029-I',
-                'title'           => 'Padrón JSON test',
+                'title' => 'Padrón JSON test',
             ],
         ]);
     }
@@ -134,17 +134,17 @@ class ScholarshipBeneficiariesFeatureTest extends TestCase
     {
         $beneficiary = ScholarshipBeneficiary::create([
             'academic_period' => '2030-I',
-            'title'           => 'Padrón Original',
-            'file_path'       => 'scholarships/beneficiaries/original.pdf',
-            'is_active'       => true,
+            'title' => 'Padrón Original',
+            'file_path' => 'scholarships/beneficiaries/original.pdf',
+            'is_active' => true,
         ]);
 
         $updateData = [
-            'academic_period'   => '2030-II',
-            'title'             => 'Padrón Actualizado',
+            'academic_period' => '2030-II',
+            'title' => 'Padrón Actualizado',
             'resolution_number' => 'R.D. N° 555-2030',
-            'is_active'         => '1',
-            'sort_order'        => 2,
+            'is_active' => '1',
+            'sort_order' => 2,
         ];
 
         $response = $this->actingAs($this->admin)
@@ -153,9 +153,9 @@ class ScholarshipBeneficiariesFeatureTest extends TestCase
         $response->assertRedirect(route('admin.scholarships.index', ['tab' => 'beneficiaries']));
 
         $this->assertDatabaseHas('scholarship_beneficiaries', [
-            'id'              => $beneficiary->id,
+            'id' => $beneficiary->id,
             'academic_period' => '2030-II',
-            'title'           => 'Padrón Actualizado',
+            'title' => 'Padrón Actualizado',
         ]);
     }
 
@@ -168,9 +168,9 @@ class ScholarshipBeneficiariesFeatureTest extends TestCase
 
         $beneficiary = ScholarshipBeneficiary::create([
             'academic_period' => '2031-I',
-            'title'           => 'Padrón Para Eliminar',
-            'file_path'       => $path,
-            'is_active'       => true,
+            'title' => 'Padrón Para Eliminar',
+            'file_path' => $path,
+            'is_active' => true,
         ]);
 
         Storage::disk('public')->assertExists($path);

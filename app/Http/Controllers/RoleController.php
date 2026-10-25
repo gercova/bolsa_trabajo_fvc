@@ -36,6 +36,7 @@ class RoleController extends Controller
     public function create(): View
     {
         $permissions = Permission::all();
+
         return view('admin.roles.create', compact('permissions'));
     }
 
@@ -45,18 +46,18 @@ class RoleController extends Controller
     public function store(Request $request): JsonResponse|RedirectResponse
     {
         $request->validate([
-            'name'          => 'required|string|max:255|unique:roles,name',
-            'permissions'   => 'nullable|array',
+            'name' => 'required|string|max:255|unique:roles,name',
+            'permissions' => 'nullable|array',
             'permissions.*' => 'string|exists:permissions,name',
         ], [
             'name.required' => 'El nombre del rol es obligatorio.',
-            'name.unique'   => 'Ya existe un rol registrado con este nombre.',
-            'name.max'      => 'El nombre del rol no debe superar los 255 caracteres.',
+            'name.unique' => 'Ya existe un rol registrado con este nombre.',
+            'name.max' => 'El nombre del rol no debe superar los 255 caracteres.',
         ]);
 
         try {
             $role = Role::create([
-                'name'       => trim($request->name),
+                'name' => trim($request->name),
                 'guard_name' => 'web',
             ]);
 
@@ -66,23 +67,23 @@ class RoleController extends Controller
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
-                    'success'  => true,
-                    'message'  => "Rol '{$role->name}' creado con éxito.",
+                    'success' => true,
+                    'message' => "Rol '{$role->name}' creado con éxito.",
                     'redirect' => route('admin.roles.index'),
-                    'role'     => $role,
+                    'role' => $role,
                 ], 201);
             }
 
             return redirect()->route('admin.roles.index')
-                             ->with('success', "El rol '{$role->name}' ha sido registrado correctamente.");
+                ->with('success', "El rol '{$role->name}' ha sido registrado correctamente.");
 
         } catch (\Exception $e) {
-            Log::error('Error creando rol: ' . $e->getMessage());
+            Log::error('Error creando rol: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ocurrió un error al crear el rol: ' . $e->getMessage(),
+                    'message' => 'Ocurrió un error al crear el rol: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -107,13 +108,13 @@ class RoleController extends Controller
     public function update(Request $request, Role $role): JsonResponse|RedirectResponse
     {
         $request->validate([
-            'name'          => 'required|string|max:255|unique:roles,name,' . $role->id,
-            'permissions'   => 'nullable|array',
+            'name' => 'required|string|max:255|unique:roles,name,'.$role->id,
+            'permissions' => 'nullable|array',
             'permissions.*' => 'string|exists:permissions,name',
         ], [
             'name.required' => 'El nombre del rol es obligatorio.',
-            'name.unique'   => 'Ya existe un rol registrado con este nombre.',
-            'name.max'      => 'El nombre del rol no debe superar los 255 caracteres.',
+            'name.unique' => 'Ya existe un rol registrado con este nombre.',
+            'name.max' => 'El nombre del rol no debe superar los 255 caracteres.',
         ]);
 
         try {
@@ -125,8 +126,8 @@ class RoleController extends Controller
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
-                    'success'  => true,
-                    'message'  => "Rol '{$role->name}' actualizado correctamente.",
+                    'success' => true,
+                    'message' => "Rol '{$role->name}' actualizado correctamente.",
                     'redirect' => route('admin.roles.index'),
                 ], 200);
             }
@@ -135,12 +136,12 @@ class RoleController extends Controller
                 ->with('success', "El rol '{$role->name}' se ha actualizado correctamente.");
 
         } catch (\Exception $e) {
-            Log::error('Error actualizando rol: ' . $e->getMessage());
+            Log::error('Error actualizando rol: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ocurrió un error al actualizar el rol: ' . $e->getMessage(),
+                    'message' => 'Ocurrió un error al actualizar el rol: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -160,6 +161,7 @@ class RoleController extends Controller
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json(['success' => false, 'message' => $msg], 403);
             }
+
             return back()->with('error', $msg);
         }
 
@@ -179,7 +181,7 @@ class RoleController extends Controller
                 ->with('success', "El rol '{$roleName}' ha sido eliminado correctamente.");
 
         } catch (\Exception $e) {
-            Log::error('Error eliminando rol: ' . $e->getMessage());
+            Log::error('Error eliminando rol: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([

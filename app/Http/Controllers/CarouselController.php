@@ -25,9 +25,9 @@ class CarouselController extends Controller
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('title', 'LIKE', "%{$search}%")
-                      ->orWhere('highlight_text', 'LIKE', "%{$search}%")
-                      ->orWhere('tag', 'LIKE', "%{$search}%")
-                      ->orWhere('description', 'LIKE', "%{$search}%");
+                        ->orWhere('highlight_text', 'LIKE', "%{$search}%")
+                        ->orWhere('tag', 'LIKE', "%{$search}%")
+                        ->orWhere('description', 'LIKE', "%{$search}%");
                 });
             })
             ->when($status !== null && $status !== '', function ($query) use ($status) {
@@ -47,6 +47,7 @@ class CarouselController extends Controller
     public function create(): View
     {
         $nextOrder = (InstitutionalCarousel::max('order') ?? 0) + 1;
+
         return view('admin.carousel.create', compact('nextOrder'));
     }
 
@@ -57,7 +58,7 @@ class CarouselController extends Controller
     {
         $validated = $request->validated();
         $validated['is_active'] = $request->has('is_active');
-        $validated['order']     = $validated['order'] ?? ((InstitutionalCarousel::max('order') ?? 0) + 1);
+        $validated['order'] = $validated['order'] ?? ((InstitutionalCarousel::max('order') ?? 0) + 1);
 
         unset($validated['image']);
 
@@ -68,10 +69,10 @@ class CarouselController extends Controller
             $path = $request->file('image')->store('carousel', 'public');
 
             $carousel->image()->create([
-                'path'           => $path,
-                'is_main'        => true,
+                'path' => $path,
+                'is_main' => true,
                 'imageable_type' => InstitutionalCarousel::class,
-                'imageable_id'   => $carousel->id,
+                'imageable_id' => $carousel->id,
             ]);
         }
 
@@ -79,7 +80,7 @@ class CarouselController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Diapositiva del carrusel registrada correctamente.',
-                'data'    => $carousel->load('image'),
+                'data' => $carousel->load('image'),
             ], 201);
         }
 
@@ -93,6 +94,7 @@ class CarouselController extends Controller
     public function edit(InstitutionalCarousel $carousel): View
     {
         $carousel->load('image');
+
         return view('admin.carousel.edit', compact('carousel'));
     }
 
@@ -103,7 +105,7 @@ class CarouselController extends Controller
     {
         $validated = $request->validated();
         $validated['is_active'] = $request->has('is_active');
-        $validated['order']     = $validated['order'] ?? $carousel->order;
+        $validated['order'] = $validated['order'] ?? $carousel->order;
 
         unset($validated['image']);
 
@@ -111,22 +113,22 @@ class CarouselController extends Controller
         if ($request->hasFile('image')) {
             if ($carousel->image) {
                 // Eliminar archivo previo si está en storage y no es estático por defecto
-                if (!str_starts_with($carousel->image->path, 'images/')) {
+                if (! str_starts_with($carousel->image->path, 'images/')) {
                     Storage::disk('public')->delete($carousel->image->path);
                 }
 
                 $path = $request->file('image')->store('carousel', 'public');
                 $carousel->image->update([
-                    'path'    => $path,
+                    'path' => $path,
                     'is_main' => true,
                 ]);
             } else {
                 $path = $request->file('image')->store('carousel', 'public');
                 $carousel->image()->create([
-                    'path'           => $path,
-                    'is_main'        => true,
+                    'path' => $path,
+                    'is_main' => true,
                     'imageable_type' => InstitutionalCarousel::class,
-                    'imageable_id'   => $carousel->id,
+                    'imageable_id' => $carousel->id,
                 ]);
             }
         }
@@ -137,7 +139,7 @@ class CarouselController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Diapositiva del carrusel actualizada correctamente.',
-                'data'    => $carousel->fresh(['image']),
+                'data' => $carousel->fresh(['image']),
             ]);
         }
 
@@ -151,13 +153,13 @@ class CarouselController extends Controller
     public function toggleStatus(InstitutionalCarousel $carousel): RedirectResponse|JsonResponse
     {
         $carousel->update([
-            'is_active' => !$carousel->is_active,
+            'is_active' => ! $carousel->is_active,
         ]);
 
         if (request()->wantsJson()) {
             return response()->json([
-                'success'   => true,
-                'message'   => 'Estado de la diapositiva actualizado.',
+                'success' => true,
+                'message' => 'Estado de la diapositiva actualizado.',
                 'is_active' => $carousel->is_active,
             ]);
         }
@@ -171,7 +173,7 @@ class CarouselController extends Controller
     public function destroy(InstitutionalCarousel $carousel): RedirectResponse|JsonResponse
     {
         if ($carousel->image) {
-            if (!str_starts_with($carousel->image->path, 'images/')) {
+            if (! str_starts_with($carousel->image->path, 'images/')) {
                 Storage::disk('public')->delete($carousel->image->path);
             }
             $carousel->image->delete();

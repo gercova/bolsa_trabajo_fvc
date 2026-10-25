@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ExternalInstitutionalLinkValidate extends FormRequest
@@ -17,14 +18,14 @@ class ExternalInstitutionalLinkValidate extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            'name'      => ['required', 'string', 'max:255'],
-            'link'      => ['required', 'url', 'max:500'],
-            'icon'      => ['nullable', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:255'],
+            'link' => ['required', 'url', 'max:500'],
+            'icon' => ['nullable', 'string', 'max:100'],
             'is_active' => ['nullable', 'boolean'],
         ];
     }
@@ -38,13 +39,13 @@ class ExternalInstitutionalLinkValidate extends FormRequest
     {
         return [
             'name.required' => 'El nombre de la plataforma o enlace institucional es obligatorio.',
-            'name.string'   => 'El nombre debe ser una cadena de texto válida.',
-            'name.max'      => 'El nombre no debe exceder los 255 caracteres.',
+            'name.string' => 'El nombre debe ser una cadena de texto válida.',
+            'name.max' => 'El nombre no debe exceder los 255 caracteres.',
             'link.required' => 'La URL del enlace institucional es obligatoria.',
-            'link.url'      => 'Ingrese una dirección URL válida (ej. https://registra.minedu.gob.pe).',
-            'link.max'      => 'La URL no debe exceder los 500 caracteres.',
-            'icon.string'   => 'El nombre del icono debe ser texto.',
-            'icon.max'      => 'El nombre del icono no debe exceder los 100 caracteres.',
+            'link.url' => 'Ingrese una dirección URL válida (ej. https://registra.minedu.gob.pe).',
+            'link.max' => 'La URL no debe exceder los 500 caracteres.',
+            'icon.string' => 'El nombre del icono debe ser texto.',
+            'icon.max' => 'El nombre del icono no debe exceder los 100 caracteres.',
         ];
     }
 

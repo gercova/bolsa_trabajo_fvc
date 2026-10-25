@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\DocumentType;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -18,7 +18,7 @@ class StudentLoginTest extends TestCase
     {
         parent::setUp();
 
-        DocumentType::firstOrCreate(
+        DB::table('document_type')->updateOrInsert(
             ['id' => 1],
             ['name' => 'DNI', 'abreviation' => 'DNI', 'is_active' => true]
         );

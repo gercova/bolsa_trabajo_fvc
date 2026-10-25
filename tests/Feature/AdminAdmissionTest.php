@@ -22,7 +22,7 @@ class AdminAdmissionTest extends TestCase
     {
         $user = User::factory()->create();
         $response = $this->actingAs($user)->get('/admin-exams');
-        
+
         $response->assertOk();
         $response->assertViewHas('admission');
     }
@@ -299,7 +299,7 @@ class AdminAdmissionTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get('/admin-exams/crear-examen');
-        
+
         $response->assertOk();
         $response->assertSee('Crear Nuevo Examen / CEPRE');
         $response->assertSee('Computación e Informática');
@@ -331,8 +331,8 @@ class AdminAdmissionTest extends TestCase
                 [
                     'program_id' => $program->id,
                     'vacancies' => 45,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $response->assertRedirect('/admin-exams');
@@ -410,7 +410,7 @@ class AdminAdmissionTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get("/admin-exams/editar-examen/{$exam->id}");
-        
+
         $response->assertOk();
         $response->assertSee('Actualizar Examen / CEPRE');
         $response->assertSee('Contabilidad');
@@ -460,8 +460,8 @@ class AdminAdmissionTest extends TestCase
                 [
                     'program_id' => $program->id,
                     'vacancies' => 30,
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $response->assertRedirect('/admin-exams');

@@ -35,9 +35,9 @@ class DegreeRecord extends Model
     ];
 
     protected $casts = [
-        'birth_date'                => 'date',
-        'graduation_date'           => 'date',
-        'diploma_issue_date'        => 'date',
-        'minedu_registration_date'  => 'datetime',
+        'birth_date' => 'date',
+        'graduation_date' => 'date',
+        'diploma_issue_date' => 'date',
+        'minedu_registration_date' => 'datetime',
     ];
 }

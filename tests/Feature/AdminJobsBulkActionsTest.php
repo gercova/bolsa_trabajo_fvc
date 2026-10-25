@@ -23,11 +23,11 @@ class AdminJobsBulkActionsTest extends TestCase
             ['email' => 'admin_jobs_test@example.com'],
             [
                 'document_type_id' => $docType->id,
-                'dni'              => '99887766',
-                'names'            => 'Admin Test Jobs',
-                'role'             => 'Admin',
-                'password'         => bcrypt('password'),
-                'is_active'        => true,
+                'dni' => '99887766',
+                'names' => 'Admin Test Jobs',
+                'role' => 'Admin',
+                'password' => bcrypt('password'),
+                'is_active' => true,
             ]
         );
     }
@@ -48,13 +48,13 @@ class AdminJobsBulkActionsTest extends TestCase
         // Create 15 job offers so pagination (10 per page) has 2 pages
         for ($i = 1; $i <= 15; $i++) {
             JobOffer::create([
-                'title'       => "Oferta de Prueba {$i}",
-                'company'     => "Empresa {$i}",
-                'location'    => 'Lima, Perú',
+                'title' => "Oferta de Prueba {$i}",
+                'company' => "Empresa {$i}",
+                'location' => 'Lima, Perú',
                 'description' => 'Descripción de la oferta laboral.',
-                'url'         => 'https://example.com',
-                'source'      => 'Bolsa Institucional',
-                'is_active'   => true,
+                'url' => 'https://example.com',
+                'source' => 'Bolsa Institucional',
+                'is_active' => true,
             ]);
         }
 
@@ -111,7 +111,7 @@ class AdminJobsBulkActionsTest extends TestCase
         $response->assertOk();
         $response->assertJson([
             'success' => true,
-            'count'   => 2,
+            'count' => 2,
         ]);
 
         $this->assertDatabaseMissing('job_offers', ['id' => $job1->id]);
@@ -140,36 +140,36 @@ class AdminJobsBulkActionsTest extends TestCase
         // Create active offers matching search
         for ($i = 1; $i <= 12; $i++) {
             JobOffer::create([
-                'title'       => "Especialista en Computación {$i}",
-                'company'     => "Empresa IT {$i}",
-                'location'    => 'Lima',
+                'title' => "Especialista en Computación {$i}",
+                'company' => "Empresa IT {$i}",
+                'location' => 'Lima',
                 'description' => 'Soporte y desarrollo',
-                'url'         => 'https://example.com',
-                'source'      => 'Computrabajo',
-                'is_active'   => true,
+                'url' => 'https://example.com',
+                'source' => 'Computrabajo',
+                'is_active' => true,
             ]);
         }
 
         // Create an offer that does NOT match the search
         $differentJob = JobOffer::create([
-            'title'       => 'Chef de Cocina',
-            'company'     => 'Restaurante Gourmet',
-            'location'    => 'Cusco',
+            'title' => 'Chef de Cocina',
+            'company' => 'Restaurante Gourmet',
+            'location' => 'Cusco',
             'description' => 'Cocina internacional',
-            'url'         => 'https://example.com',
-            'source'      => 'Bumeran',
-            'is_active'   => true,
+            'url' => 'https://example.com',
+            'source' => 'Bumeran',
+            'is_active' => true,
         ]);
 
         $response = $this->actingAs($user)->postJson('/admin-trabajos/eliminar-masivo', [
             'select_all' => true,
-            'search'     => 'Computación',
+            'search' => 'Computación',
         ]);
 
         $response->assertOk();
         $response->assertJson([
             'success' => true,
-            'count'   => 12,
+            'count' => 12,
         ]);
 
         $this->assertDatabaseCount('job_offers', 1);
@@ -182,13 +182,13 @@ class AdminJobsBulkActionsTest extends TestCase
 
         for ($i = 1; $i <= 20; $i++) {
             JobOffer::create([
-                'title'       => "Oferta {$i}",
-                'company'     => "Empresa {$i}",
-                'location'    => 'Lima',
+                'title' => "Oferta {$i}",
+                'company' => "Empresa {$i}",
+                'location' => 'Lima',
                 'description' => 'Trabajo técnico',
-                'url'         => 'https://example.com',
-                'source'      => 'Bolsa Institucional',
-                'is_active'   => true,
+                'url' => 'https://example.com',
+                'source' => 'Bolsa Institucional',
+                'is_active' => true,
             ]);
         }
 
@@ -199,7 +199,7 @@ class AdminJobsBulkActionsTest extends TestCase
         $response->assertOk();
         $response->assertJson([
             'success' => true,
-            'count'   => 20,
+            'count' => 20,
         ]);
 
         $this->assertDatabaseCount('job_offers', 0);
@@ -216,7 +216,7 @@ class AdminJobsBulkActionsTest extends TestCase
         $response->assertOk();
         $response->assertJson([
             'success' => true,
-            'count'   => 0,
+            'count' => 0,
         ]);
     }
 }

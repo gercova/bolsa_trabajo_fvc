@@ -10,26 +10,28 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
-class AccountBalanceImport implements ToCollection, WithStartRow, WithChunkReading
+class AccountBalanceImport implements ToCollection, WithChunkReading, WithStartRow
 {
     public int $importedCount = 0;
-    public int $skippedCount  = 0;
+
+    public int $skippedCount = 0;
+
     private ?int $lastSeenYear = null;
 
     private const MONTH_MAP = [
-        'ENERO'      => '01',
-        'FEBRERO'    => '02',
-        'MARZO'      => '03',
-        'ABRIL'      => '04',
-        'MAYO'       => '05',
-        'JUNIO'      => '06',
-        'JULIO'      => '07',
-        'AGOSTO'     => '08',
-        'SETIEMBRE'  => '09',
+        'ENERO' => '01',
+        'FEBRERO' => '02',
+        'MARZO' => '03',
+        'ABRIL' => '04',
+        'MAYO' => '05',
+        'JUNIO' => '06',
+        'JULIO' => '07',
+        'AGOSTO' => '08',
+        'SETIEMBRE' => '09',
         'SEPTIEMBRE' => '09',
-        'OCTUBRE'    => '10',
-        'NOVIEMBRE'  => '11',
-        'DICIEMBRE'  => '12',
+        'OCTUBRE' => '10',
+        'NOVIEMBRE' => '11',
+        'DICIEMBRE' => '12',
     ];
 
     /**
@@ -63,55 +65,58 @@ class AccountBalanceImport implements ToCollection, WithStartRow, WithChunkReadi
      */
     public function collection(Collection $rows): void
     {
-        $now   = now()->toDateTimeString();
+        $now = now()->toDateTimeString();
         $batch = [];
 
         foreach ($rows as $row) {
-            $monthRaw       = $this->cleanString($row[0] ?? null);
-            $dateRaw        = $row[1] ?? null;
-            $receiptNumber  = $this->cleanString($row[2] ?? null);
-            $client         = $this->cleanString($row[3] ?? null);
-            $description    = $this->cleanString($row[4] ?? null);
-            $category       = $this->cleanString($row[5] ?? null);
-            $programCode    = $this->cleanString($row[6] ?? null);
-            $programName    = $this->cleanString($row[7] ?? null);
-            $amount         = $this->parseDecimal($row[8] ?? null);
-            $reason         = $this->cleanString($row[9] ?? null);
+            $monthRaw = $this->cleanString($row[0] ?? null);
+            $dateRaw = $row[1] ?? null;
+            $receiptNumber = $this->cleanString($row[2] ?? null);
+            $client = $this->cleanString($row[3] ?? null);
+            $description = $this->cleanString($row[4] ?? null);
+            $category = $this->cleanString($row[5] ?? null);
+            $programCode = $this->cleanString($row[6] ?? null);
+            $programName = $this->cleanString($row[7] ?? null);
+            $amount = $this->parseDecimal($row[8] ?? null);
+            $reason = $this->cleanString($row[9] ?? null);
 
             // Skip header or metadata rows
             if ($this->isHeaderOrMetadataRow($monthRaw, $receiptNumber, $category, $client)) {
                 $this->skippedCount++;
+
                 continue;
             }
 
             // Skip rows without a valid amount or without client/category
             if ($amount === null || $amount <= 0) {
                 $this->skippedCount++;
+
                 continue;
             }
 
             // Skip summary rows (e.g. 'TOTAL', 'PROGRAMA', pivot headers)
             if ($this->isSummaryRow($monthRaw, $receiptNumber, $client, $category)) {
                 $this->skippedCount++;
+
                 continue;
             }
 
             $normalizedMonth = $this->normalizeMonth($monthRaw);
-            $parsedDate      = $this->parseDate($dateRaw, $normalizedMonth);
+            $parsedDate = $this->parseDate($dateRaw, $normalizedMonth);
 
             $batch[] = [
-                'month'          => $normalizedMonth ?? $monthRaw,
-                'date'           => $parsedDate,
+                'month' => $normalizedMonth ?? $monthRaw,
+                'date' => $parsedDate,
                 'receipt_number' => $receiptNumber,
-                'client'         => $client,
-                'description'    => $description,
-                'category'       => $category ?? 'OTROS',
-                'program_code'   => $programCode,
-                'program_name'   => $programName,
-                'amount'         => $amount,
-                'reason'         => $reason,
-                'created_at'     => $now,
-                'updated_at'     => $now,
+                'client' => $client,
+                'description' => $description,
+                'category' => $category ?? 'OTROS',
+                'program_code' => $programCode,
+                'program_name' => $programName,
+                'amount' => $amount,
+                'reason' => $reason,
+                'created_at' => $now,
+                'updated_at' => $now,
             ];
         }
 
@@ -129,6 +134,7 @@ class AccountBalanceImport implements ToCollection, WithStartRow, WithChunkReadi
             return null;
         }
         $str = trim((string) $value);
+
         return $str !== '' ? $str : null;
     }
 
@@ -138,6 +144,7 @@ class AccountBalanceImport implements ToCollection, WithStartRow, WithChunkReadi
             return null;
         }
         $upper = mb_strtoupper(trim($month), 'UTF-8');
+
         return array_key_exists($upper, self::MONTH_MAP) ? $upper : $month;
     }
 
@@ -222,6 +229,7 @@ class AccountBalanceImport implements ToCollection, WithStartRow, WithChunkReadi
             if ($this->lastSeenYear) {
                 return sprintf('%04d-%02d-01', $this->lastSeenYear, $monthNum);
             }
+
             return null;
         }
 
@@ -229,6 +237,7 @@ class AccountBalanceImport implements ToCollection, WithStartRow, WithChunkReadi
         if (is_numeric($value) && (int) $value >= 1990 && (int) $value <= 2100) {
             $year = (int) $value;
             $this->lastSeenYear = $year;
+
             return sprintf('%04d-%02d-01', $year, $monthNum);
         }
 
@@ -237,6 +246,7 @@ class AccountBalanceImport implements ToCollection, WithStartRow, WithChunkReadi
             try {
                 $dt = ExcelDate::excelToDateTimeObject((float) $value);
                 $this->lastSeenYear = (int) $dt->format('Y');
+
                 return $dt->format('Y-m-d');
             } catch (\Exception) {
                 // Continue to string checks
@@ -250,6 +260,7 @@ class AccountBalanceImport implements ToCollection, WithStartRow, WithChunkReadi
             $year = (int) $matches[1];
             if ($year >= 1990 && $year <= 2100) {
                 $this->lastSeenYear = $year;
+
                 return sprintf('%04d-%02d-01', $year, $monthNum);
             }
         }
@@ -260,6 +271,7 @@ class AccountBalanceImport implements ToCollection, WithStartRow, WithChunkReadi
                 $date = Carbon::createFromFormat($fmt, $str);
                 if ($date && $date->year >= 1990 && $date->year <= 2100) {
                     $this->lastSeenYear = $date->year;
+
                     return $date->format('Y-m-d');
                 }
             } catch (\Exception) {
@@ -271,6 +283,7 @@ class AccountBalanceImport implements ToCollection, WithStartRow, WithChunkReadi
         if (preg_match('/\b(20\d{2})\b/', $str, $matches)) {
             $year = (int) $matches[1];
             $this->lastSeenYear = $year;
+
             return sprintf('%04d-%02d-01', $year, $monthNum);
         }
 

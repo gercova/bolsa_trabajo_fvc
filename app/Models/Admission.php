@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Admission extends Model
 {
-    protected $table        = 'admission';
-    protected $primaryKey   = 'id';
-    protected $fillable     = [
+    protected $table = 'admission';
+
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
         'activity',
         'period',
         'total_vacancies',
@@ -32,19 +34,21 @@ class Admission extends Model
     ];
 
     protected $casts = [
-        'is_active'    => 'boolean',
-        'monthly_fee'  => 'decimal:2',
-        'tuition_fee'  => 'decimal:2',
-        'price'        => 'decimal:2',
-        'created_at'   => 'datetime',
-        'updated_at'   => 'datetime',
+        'is_active' => 'boolean',
+        'monthly_fee' => 'decimal:2',
+        'tuition_fee' => 'decimal:2',
+        'price' => 'decimal:2',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
-    public function area(): BelongsTo {
+    public function area(): BelongsTo
+    {
         return $this->belongsTo(Area::class, 'area_id', 'id');
     }
 
-    public function admissionDetail(): HasMany {
+    public function admissionDetail(): HasMany
+    {
         return $this->hasMany(AdmissionDetail::class, 'admission_id', 'id');
     }
 }

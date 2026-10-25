@@ -6,7 +6,6 @@ use App\Http\Requests\ScholarshipBeneficiaryRequest;
 use App\Models\ScholarshipBeneficiary;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -22,7 +21,7 @@ class ScholarshipBeneficiaryController extends Controller
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $filename = 'padron_' . Str::slug($validated['academic_period']) . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $filename = 'padron_'.Str::slug($validated['academic_period']).'_'.time().'.'.$file->getClientOriginalExtension();
             $path = $file->storeAs('scholarships/beneficiaries', $filename, 'public');
             $validated['file_path'] = $path;
             $validated['file_size'] = $file->getSize();
@@ -40,7 +39,7 @@ class ScholarshipBeneficiaryController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Padrón de beneficiarios subido correctamente.',
-                'data'    => $beneficiary->load('scholarship'),
+                'data' => $beneficiary->load('scholarship'),
             ], 201);
         }
 
@@ -57,18 +56,18 @@ class ScholarshipBeneficiaryController extends Controller
 
         return response()->json([
             'success' => true,
-            'data'    => [
-                'id'                => $beneficiary->id,
-                'academic_period'   => $beneficiary->academic_period,
-                'title'             => $beneficiary->title,
-                'description'       => $beneficiary->description,
+            'data' => [
+                'id' => $beneficiary->id,
+                'academic_period' => $beneficiary->academic_period,
+                'title' => $beneficiary->title,
+                'description' => $beneficiary->description,
                 'resolution_number' => $beneficiary->resolution_number,
-                'publication_date'  => $beneficiary->publication_date ? $beneficiary->publication_date->format('Y-m-d') : null,
-                'scholarship_id'    => $beneficiary->scholarship_id,
-                'is_active'         => $beneficiary->is_active,
-                'sort_order'        => $beneficiary->sort_order,
-                'file_url'          => $beneficiary->file_url,
-                'file_size'         => $beneficiary->formatted_file_size,
+                'publication_date' => $beneficiary->publication_date ? $beneficiary->publication_date->format('Y-m-d') : null,
+                'scholarship_id' => $beneficiary->scholarship_id,
+                'is_active' => $beneficiary->is_active,
+                'sort_order' => $beneficiary->sort_order,
+                'file_url' => $beneficiary->file_url,
+                'file_size' => $beneficiary->formatted_file_size,
             ],
         ]);
     }
@@ -87,7 +86,7 @@ class ScholarshipBeneficiaryController extends Controller
             }
 
             $file = $request->file('file');
-            $filename = 'padron_' . Str::slug($validated['academic_period']) . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $filename = 'padron_'.Str::slug($validated['academic_period']).'_'.time().'.'.$file->getClientOriginalExtension();
             $path = $file->storeAs('scholarships/beneficiaries', $filename, 'public');
             $validated['file_path'] = $path;
             $validated['file_size'] = $file->getSize();
@@ -102,7 +101,7 @@ class ScholarshipBeneficiaryController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Padrón de beneficiarios actualizado correctamente.',
-                'data'    => $beneficiary->fresh()->load('scholarship'),
+                'data' => $beneficiary->fresh()->load('scholarship'),
             ]);
         }
 
@@ -116,13 +115,13 @@ class ScholarshipBeneficiaryController extends Controller
     public function toggleStatus(ScholarshipBeneficiary $beneficiary): RedirectResponse|JsonResponse
     {
         $beneficiary->update([
-            'is_active' => !$beneficiary->is_active,
+            'is_active' => ! $beneficiary->is_active,
         ]);
 
         if (request()->wantsJson()) {
             return response()->json([
-                'success'   => true,
-                'message'   => 'Estado del padrón actualizado con éxito.',
+                'success' => true,
+                'message' => 'Estado del padrón actualizado con éxito.',
                 'is_active' => $beneficiary->is_active,
             ]);
         }
@@ -158,11 +157,11 @@ class ScholarshipBeneficiaryController extends Controller
      */
     public function download(ScholarshipBeneficiary $beneficiary): StreamedResponse|RedirectResponse
     {
-        if (!$beneficiary->file_path || !Storage::disk('public')->exists($beneficiary->file_path)) {
+        if (! $beneficiary->file_path || ! Storage::disk('public')->exists($beneficiary->file_path)) {
             return back()->with('error', 'El archivo PDF no se encuentra disponible.');
         }
 
-        $safeName = 'padron_beneficiarios_' . Str::slug($beneficiary->academic_period . '_' . $beneficiary->title) . '.pdf';
+        $safeName = 'padron_beneficiarios_'.Str::slug($beneficiary->academic_period.'_'.$beneficiary->title).'.pdf';
 
         return Storage::disk('public')->download($beneficiary->file_path, $safeName);
     }

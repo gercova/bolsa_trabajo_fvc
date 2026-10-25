@@ -107,7 +107,7 @@ class UserBulkImportTest extends TestCase
         $this->assertEquals(1, $user1->document_type_id, 'document_type_id must always be 1 (DNI)');
         $this->assertEquals('student/graduate', $user1->job_position);
         $this->assertEquals('jperezg@iestpfvc.edu.pe', $user1->email, 'Email should follow initial+paternal+initial_maternal formula');
-        $this->assertTrue(Hash::check('P4$$w0rd*', $user1->password), 'Password must be P4$$w0rd*');
+        $this->assertTrue(Hash::check('password', $user1->password), 'Password must be password');
 
         // Verify User 2
         $user2 = User::where('dni', '45003344')->first();
@@ -115,7 +115,7 @@ class UserBulkImportTest extends TestCase
         $this->assertEquals(1, $user2->document_type_id, 'document_type_id must always be 1 (DNI)');
         $this->assertEquals('teaching/administrative staff', $user2->job_position);
         $this->assertEquals('mramosc@iestpfvc.edu.pe', $user2->email);
-        $this->assertTrue(Hash::check('P4$$w0rd*', $user2->password), 'Password must be P4$$w0rd*');
+        $this->assertTrue(Hash::check('password', $user2->password), 'Password must be password');
 
         // Verify User 3
         $user3 = User::where('dni', '78005566')->first();
@@ -123,7 +123,7 @@ class UserBulkImportTest extends TestCase
         $this->assertEquals(1, $user3->document_type_id);
         $this->assertEquals('student/graduate', $user3->job_position);
         $this->assertEquals('lvasquez_custom@gmail.com', $user3->email, 'Explicit email should be kept');
-        $this->assertTrue(Hash::check('P4$$w0rd*', $user3->password), 'Password must be P4$$w0rd*');
+        $this->assertTrue(Hash::check('password', $user3->password), 'Password must be password');
     }
 
     public function test_bulk_import_validates_and_rejects_invalid_job_position_and_dni(): void
@@ -167,7 +167,7 @@ class UserBulkImportTest extends TestCase
         $this->assertEquals(1, $validUser->document_type_id);
         $this->assertEquals('teaching/administrative staff', $validUser->job_position);
         $this->assertEquals('rmedinav@iestpfvc.edu.pe', $validUser->email);
-        $this->assertTrue(Hash::check('P4$$w0rd*', $validUser->password));
+        $this->assertTrue(Hash::check('password', $validUser->password));
     }
 
     public function test_bulk_import_updates_existing_user_with_new_rules(): void
@@ -207,6 +207,6 @@ class UserBulkImportTest extends TestCase
         $existing->refresh();
         $this->assertEquals(1, $existing->document_type_id, 'Must be updated to DNI [1]');
         $this->assertEquals('teaching/administrative staff', $existing->job_position);
-        $this->assertTrue(Hash::check('P4$$w0rd*', $existing->password), 'Password must be updated to P4$$w0rd*');
+        $this->assertTrue(Hash::check('password', $existing->password), 'Password must be updated to password');
     }
 }

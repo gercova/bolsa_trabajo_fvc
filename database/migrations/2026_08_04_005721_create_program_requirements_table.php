@@ -1,4 +1,5 @@
 <?php
+
 // database/migrations/2026_08_04_000004_create_program_requirements_table.php
 
 use Illuminate\Database\Migrations\Migration;

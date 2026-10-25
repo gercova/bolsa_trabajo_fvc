@@ -19,9 +19,9 @@ class TeacherRoleController extends Controller
      */
     public function index(Request $request): View
     {
-        $search     = $request->input('search');
-        $programId  = $request->input('program_id');
-        $onlyCoord  = $request->boolean('only_coordinators');
+        $search = $request->input('search');
+        $programId = $request->input('program_id');
+        $onlyCoord = $request->boolean('only_coordinators');
 
         $query = UserRoleDetail::with(['user', 'program'])
             ->when($search, function ($q) use ($search) {
@@ -31,14 +31,14 @@ class TeacherRoleController extends Controller
                         ->orWhere('job_position', 'LIKE', "%{$search}%");
                 });
             })
-            ->when($programId, fn($q) => $q->where('program_id', $programId))
-            ->when($onlyCoord,  fn($q) => $q->where('is_coordinator', true))
+            ->when($programId, fn ($q) => $q->where('program_id', $programId))
+            ->when($onlyCoord, fn ($q) => $q->where('is_coordinator', true))
             ->orderByDesc('is_coordinator')
             ->orderBy('created_at');
 
-        $details  = $query->paginate(10)->appends($request->only(['search', 'program_id', 'only_coordinators']));
+        $details = $query->paginate(10)->appends($request->only(['search', 'program_id', 'only_coordinators']));
         $programs = StudyProgram::orderBy('name')->get();
-        $teachers = User::whereHas('roles', fn($q) => $q->where('name', 'Docente'))
+        $teachers = User::whereHas('roles', fn ($q) => $q->where('name', 'Docente'))
             ->orWhere('role', 'Docente')
             ->where('is_active', true)
             ->orderBy('names')
@@ -57,14 +57,14 @@ class TeacherRoleController extends Controller
     public function store(Request $request): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
-            'user_id'        => 'required|exists:users,id',
-            'program_id'     => 'nullable|exists:study_programs,id',
+            'user_id' => 'required|exists:users,id',
+            'program_id' => 'nullable|exists:study_programs,id',
             'is_coordinator' => 'boolean',
-            'specialty'      => 'nullable|string|max:255',
-            'is_active'      => 'boolean',
+            'specialty' => 'nullable|string|max:255',
+            'is_active' => 'boolean',
         ], [
-            'user_id.required'  => 'Debe seleccionar un usuario.',
-            'user_id.exists'    => 'El usuario seleccionado no existe.',
+            'user_id.required' => 'Debe seleccionar un usuario.',
+            'user_id.exists' => 'El usuario seleccionado no existe.',
             'program_id.exists' => 'El programa seleccionado no existe.',
         ]);
 
@@ -78,16 +78,17 @@ class TeacherRoleController extends Controller
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json(['success' => false, 'message' => $msg], 422);
             }
+
             return back()->withInput()->with('error', $msg);
         }
 
         try {
             UserRoleDetail::create([
-                'user_id'        => $validated['user_id'],
-                'program_id'     => $validated['program_id'] ?? null,
+                'user_id' => $validated['user_id'],
+                'program_id' => $validated['program_id'] ?? null,
                 'is_coordinator' => $request->boolean('is_coordinator'),
-                'specialty'      => $validated['specialty'] ?? null,
-                'is_active'      => $request->boolean('is_active', true),
+                'specialty' => $validated['specialty'] ?? null,
+                'is_active' => $request->boolean('is_active', true),
             ]);
 
             if ($request->expectsJson() || $request->ajax()) {
@@ -98,7 +99,7 @@ class TeacherRoleController extends Controller
                 ->with('success', 'Asignación de docente guardada correctamente.');
 
         } catch (\Exception $e) {
-            Log::error('Error creando asignación de docente: ' . $e->getMessage());
+            Log::error('Error creando asignación de docente: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
@@ -114,16 +115,16 @@ class TeacherRoleController extends Controller
     public function update(Request $request, UserRoleDetail $teacherRole): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
-            'user_id'        => 'required|exists:users,id',
-            'program_id'     => 'nullable|exists:study_programs,id',
+            'user_id' => 'required|exists:users,id',
+            'program_id' => 'nullable|exists:study_programs,id',
             'is_coordinator' => 'boolean',
-            'specialty'      => 'nullable|string|max:255',
-            'is_active'      => 'boolean',
+            'specialty' => 'nullable|string|max:255',
+            'is_active' => 'boolean',
         ]);
 
         // Check duplicate only if user or programme changed
         if (
-            $teacherRole->user_id    != $validated['user_id'] ||
+            $teacherRole->user_id != $validated['user_id'] ||
             $teacherRole->program_id != ($validated['program_id'] ?? null)
         ) {
             $exists = UserRoleDetail::where('user_id', $validated['user_id'])
@@ -136,17 +137,18 @@ class TeacherRoleController extends Controller
                 if ($request->expectsJson() || $request->ajax()) {
                     return response()->json(['success' => false, 'message' => $msg], 422);
                 }
+
                 return back()->withInput()->with('error', $msg);
             }
         }
 
         try {
             $teacherRole->update([
-                'user_id'        => $validated['user_id'],
-                'program_id'     => $validated['program_id'] ?? null,
+                'user_id' => $validated['user_id'],
+                'program_id' => $validated['program_id'] ?? null,
                 'is_coordinator' => $request->boolean('is_coordinator'),
-                'specialty'      => $validated['specialty'] ?? null,
-                'is_active'      => $request->boolean('is_active', true),
+                'specialty' => $validated['specialty'] ?? null,
+                'is_active' => $request->boolean('is_active', true),
             ]);
 
             if ($request->expectsJson() || $request->ajax()) {
@@ -157,7 +159,7 @@ class TeacherRoleController extends Controller
                 ->with('success', 'Asignación actualizada correctamente.');
 
         } catch (\Exception $e) {
-            Log::error('Error actualizando asignación de docente: ' . $e->getMessage());
+            Log::error('Error actualizando asignación de docente: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
@@ -172,12 +174,12 @@ class TeacherRoleController extends Controller
      */
     public function toggleStatus(UserRoleDetail $teacherRole): JsonResponse
     {
-        $teacherRole->update(['is_active' => !$teacherRole->is_active]);
+        $teacherRole->update(['is_active' => ! $teacherRole->is_active]);
 
         return response()->json([
             'success' => true,
             'message' => 'Estado actualizado.',
-            'status'  => $teacherRole->is_active,
+            'status' => $teacherRole->is_active,
         ]);
     }
 
@@ -197,7 +199,7 @@ class TeacherRoleController extends Controller
                 ->with('success', 'Asignación eliminada correctamente.');
 
         } catch (\Exception $e) {
-            Log::error('Error eliminando asignación: ' . $e->getMessage());
+            Log::error('Error eliminando asignación: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json(['success' => false, 'message' => 'No se pudo eliminar la asignación.'], 500);

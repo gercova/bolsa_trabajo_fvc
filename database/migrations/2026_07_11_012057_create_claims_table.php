@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('claims', function (Blueprint $table) {
             $table->id();
-            $table->string('dni', 11); 
+            $table->string('dni', 11);
             $table->string('names');
             $table->string('email');
             $table->string('subject')->nullable();

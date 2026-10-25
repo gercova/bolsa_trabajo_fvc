@@ -3,12 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\Image;
-use App\Models\StudyProgram;
 use App\Models\ModularCertification;
-use App\Models\ProgramMeta;
 use App\Models\ProgramCompetency;
 use App\Models\ProgramJobField;
+use App\Models\ProgramMeta;
 use App\Models\ProgramRequirement;
+use App\Models\StudyProgram;
 use Illuminate\Database\Seeder;
 
 class StudyProgramSeeder extends Seeder
@@ -283,7 +283,7 @@ class StudyProgramSeeder extends Seeder
                     'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&q=80&w=800',
                     'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=800',
                     'https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5?auto=format&fit=crop&q=80&w=800',
-                ]
+                ],
             ],
             [
                 'name' => 'Enfermería Técnica',
@@ -301,7 +301,7 @@ class StudyProgramSeeder extends Seeder
                     'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800',
                     'https://images.unsplash.com/photo-1581056771107-24ca5f033842?auto=format&fit=crop&q=80&w=800',
                     'https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?auto=format&fit=crop&q=80&w=800',
-                ]
+                ],
             ],
             [
                 'name' => 'Administración de Redes y Comunicaciones',
@@ -319,7 +319,7 @@ class StudyProgramSeeder extends Seeder
                     'https://images.unsplash.com/photo-1600132806370-bf17e65e942f?auto=format&fit=crop&q=80&w=800',
                     'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=800',
                     'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=800',
-                ]
+                ],
             ],
             [
                 'name' => 'Asistencia Administrativa',
@@ -337,7 +337,7 @@ class StudyProgramSeeder extends Seeder
                     'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=800',
                     'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=800',
                     'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=800',
-                ]
+                ],
             ],
             [
                 'name' => 'Manejo Forestal',
@@ -355,7 +355,7 @@ class StudyProgramSeeder extends Seeder
                     'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&q=80&w=800',
                     'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=800',
                     'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&q=80&w=800',
-                ]
+                ],
             ],
         ];
 

@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Claim extends Model
 {
     protected $table = 'claims';
+
     protected $primaryKey = 'id';
+
     protected $fillable = [
         'dni',
         'names',

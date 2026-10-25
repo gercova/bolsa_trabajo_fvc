@@ -33,6 +33,7 @@ class User extends Authenticatable
         'sex',
         'ubigeo',
         'email',
+        'personal_email',
         'photo_profile',
         'cv_file',
         'role',

@@ -19,8 +19,8 @@ class StudentCouncilController extends Controller
      */
     public function index(Request $request): View
     {
-        $search    = $request->input('search');
-        $period    = $request->input('period');
+        $search = $request->input('search');
+        $period = $request->input('period');
         $programId = $request->input('program_id');
 
         $query = StudentCouncil::with(['user', 'studyProgram'])
@@ -36,16 +36,16 @@ class StudentCouncilController extends Controller
                         });
                 });
             })
-            ->when($period, fn($q) => $q->where('academic_period', $period))
-            ->when($programId, fn($q) => $q->where('study_program_id', $programId))
+            ->when($period, fn ($q) => $q->where('academic_period', $period))
+            ->when($programId, fn ($q) => $q->where('study_program_id', $programId))
             ->orderBy('academic_period', 'desc')
             ->orderBy('id', 'asc');
 
         $councils = $query->paginate(12)->appends($request->only(['search', 'period', 'program_id']));
 
-        $users      = User::where('is_active', true)->orderBy('names')->get();
-        $programs   = StudyProgram::where('is_active', true)->orderBy('name')->get();
-        $periods    = StudentCouncil::select('academic_period')
+        $users = User::where('is_active', true)->orderBy('names')->get();
+        $programs = StudyProgram::where('is_active', true)->orderBy('name')->get();
+        $periods = StudentCouncil::select('academic_period')
             ->distinct()
             ->orderBy('academic_period', 'desc')
             ->pluck('academic_period');
@@ -86,7 +86,7 @@ class StudentCouncilController extends Controller
             return redirect()->route('admin.student-council.index')
                 ->with('success', 'Miembro del Consejo de Estudiantes guardado correctamente.');
         } catch (\Exception $e) {
-            Log::error('Error al guardar miembro del Consejo de Estudiantes: ' . $e->getMessage());
+            Log::error('Error al guardar miembro del Consejo de Estudiantes: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json(['success' => false, 'message' => 'Ocurrió un error al guardar el registro.'], 500);
@@ -121,7 +121,7 @@ class StudentCouncilController extends Controller
             return redirect()->route('admin.student-council.index')
                 ->with('success', 'Miembro del Consejo actualizado correctamente.');
         } catch (\Exception $e) {
-            Log::error('Error al actualizar miembro del Consejo de Estudiantes: ' . $e->getMessage());
+            Log::error('Error al actualizar miembro del Consejo de Estudiantes: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json(['success' => false, 'message' => 'Ocurrió un error al actualizar el registro.'], 500);
@@ -136,12 +136,12 @@ class StudentCouncilController extends Controller
      */
     public function toggleStatus(StudentCouncil $studentCouncil): JsonResponse
     {
-        $studentCouncil->update(['is_active' => !$studentCouncil->is_active]);
+        $studentCouncil->update(['is_active' => ! $studentCouncil->is_active]);
 
         return response()->json([
             'success' => true,
             'message' => 'Estado del miembro actualizado.',
-            'status'  => $studentCouncil->is_active,
+            'status' => $studentCouncil->is_active,
         ]);
     }
 
@@ -160,7 +160,7 @@ class StudentCouncilController extends Controller
             return redirect()->route('admin.student-council.index')
                 ->with('success', 'Registro del Consejo eliminado correctamente.');
         } catch (\Exception $e) {
-            Log::error('Error al eliminar miembro del Consejo: ' . $e->getMessage());
+            Log::error('Error al eliminar miembro del Consejo: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json(['success' => false, 'message' => 'No se pudo eliminar el registro.'], 500);

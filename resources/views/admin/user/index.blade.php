@@ -1134,7 +1134,7 @@
                                             <span>Contraseña</span>
                                         </div>
                                         <p class="text-[11px] text-gray-600">
-                                            Se asigna fija y segura a <strong><code>P4$$w0rd*</code></strong> para todos los importados.
+                                            Se asigna fija y segura a <strong><code>password</code></strong> para todos los importados.
                                         </p>
                                     </div>
                                 </div>
@@ -1239,7 +1239,7 @@
                                             </div>
                                             <span class="text-gray-500 text-[11px] ml-4 block">Ejemplo: Juan Pérez Gómez &rarr; <code>jperezg@iestpfvc.edu.pe</code>. Si existe homonimia, se agrega sufijo correlativo.</span>
                                         </li>
-                                        <li><strong>Contraseña (password):</strong> Por seguridad y estándar institucional, se asigna automáticamente la contraseña inicial <strong><code>P4$$w0rd*</code></strong>. No requiere columna de clave en el archivo.</li>
+                                        <li><strong>Contraseña (password):</strong> Por seguridad y estándar institucional, se asigna automáticamente la contraseña inicial <strong><code>password</code></strong>. No requiere columna de clave en el archivo.</li>
                                         <li><strong>Rol en el Sistema (role):</strong> Puede indicar <code>Estudiante</code>, <code>Docente</code>, <code>Administrativo</code> o <code>Egresado</code>. Si se omite, se asigna acorde a la condición (Estudiante para student/graduate, Docente para personal).</li>
                                     </ul>
                                 </div>
@@ -1345,7 +1345,7 @@
                                                 <td class="p-2.5">Estudiante</td>
                                                 <td class="p-2.5">
                                                     <span class="font-mono text-[11px] text-emerald-700 font-bold">jperezg@iestpfvc.edu.pe</span>
-                                                    <br><span class="text-[10px] text-gray-500">Clave: P4$$w0rd*</span>
+                                                    <br><span class="text-[10px] text-gray-500">Clave: password</span>
                                                 </td>
                                             </tr>
                                             <tr class="hover:bg-indigo-50/20">
@@ -1358,7 +1358,7 @@
                                                 <td class="p-2.5">Docente</td>
                                                 <td class="p-2.5">
                                                     <span class="font-mono text-[11px] text-emerald-700 font-bold">mramosc@iestpfvc.edu.pe</span>
-                                                    <br><span class="text-[10px] text-gray-500">Clave: P4$$w0rd*</span>
+                                                    <br><span class="text-[10px] text-gray-500">Clave: password</span>
                                                 </td>
                                             </tr>
                                             <tr class="hover:bg-purple-50/20">
@@ -1371,7 +1371,7 @@
                                                 <td class="p-2.5">Estudiante</td>
                                                 <td class="p-2.5">
                                                     <span class="font-mono text-[11px] text-blue-800 font-bold">lvasquezt_personal@gmail.com</span>
-                                                    <br><span class="text-[10px] text-gray-500">Clave: P4$$w0rd*</span>
+                                                    <br><span class="text-[10px] text-gray-500">Clave: password</span>
                                                 </td>
                                             </tr>
                                             <tr class="hover:bg-indigo-50/20">
@@ -1384,7 +1384,7 @@
                                                 <td class="p-2.5">Administrativo</td>
                                                 <td class="p-2.5">
                                                     <span class="font-mono text-[11px] text-emerald-700 font-bold">rmendozaf@iestpfvc.edu.pe</span>
-                                                    <br><span class="text-[10px] text-gray-500">Clave: P4$$w0rd*</span>
+                                                    <br><span class="text-[10px] text-gray-500">Clave: password</span>
                                                 </td>
                                             </tr>
                                         </tbody>

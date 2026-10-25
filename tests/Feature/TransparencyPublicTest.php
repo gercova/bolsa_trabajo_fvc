@@ -38,7 +38,7 @@ class TransparencyPublicTest extends TestCase
         $response->assertSee('Formulario de Reclamos y Quejas');
         $response->assertSee('Identificación del Consumidor Reclamante');
         $response->assertSee('Descargar Libro de Reclamaciones');
-        
+
         // Assert SEO tags are present
         $response->assertSee('<meta name="description"', false);
         $response->assertSee('<meta name="keywords"', false);

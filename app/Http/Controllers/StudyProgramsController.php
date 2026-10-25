@@ -28,11 +28,11 @@ class StudyProgramsController extends Controller
     public function index(Request $request): View
     {
         $validated = $request->validate([
-            'search'           => 'nullable|string|max:255',
-            'status'           => 'nullable|string|in:active,inactive',
+            'search' => 'nullable|string|max:255',
+            'status' => 'nullable|string|in:active,inactive',
             'study_program_id' => 'nullable|integer',
-            'tab'              => 'nullable|string|in:programs,modules,competencies,job_fields,meta,requirements',
-            'per_page'         => 'nullable|integer|min:1|max:100',
+            'tab' => 'nullable|string|in:programs,modules,competencies,job_fields,meta,requirements',
+            'per_page' => 'nullable|integer|min:1|max:100',
         ]);
 
         $activeTab = $validated['tab'] ?? 'programs';
@@ -75,7 +75,7 @@ class StudyProgramsController extends Controller
         if ($search && $activeTab === 'competencies') {
             $compQuery->where(function ($q) use ($search) {
                 $q->where('title', 'LIKE', "%{$search}%")
-                  ->orWhere('description', 'LIKE', "%{$search}%");
+                    ->orWhere('description', 'LIKE', "%{$search}%");
             });
         }
         if ($statusFilter && $activeTab === 'competencies') {
@@ -153,6 +153,7 @@ class StudyProgramsController extends Controller
     public function create(): View
     {
         $nextOrder = (StudyProgram::max('order') ?? 0) + 1;
+
         return view('admin.programs.create', compact('nextOrder'));
     }
 
@@ -214,7 +215,7 @@ class StudyProgramsController extends Controller
     public function toggleStatus(StudyProgram $program): RedirectResponse
     {
         $program->update([
-            'is_active' => !$program->is_active
+            'is_active' => ! $program->is_active,
         ]);
 
         return redirect()->back()->with('success', 'Estado del programa de estudio actualizado correctamente.');
@@ -240,6 +241,7 @@ class StudyProgramsController extends Controller
     public function createModule(): View
     {
         $programs = StudyProgram::orderBy('name')->get();
+
         return view('admin.programs.modules.create', compact('programs'));
     }
 
@@ -247,7 +249,7 @@ class StudyProgramsController extends Controller
     {
         $validated = $request->validated();
         $validated['model_type'] = StudyProgram::class;
-        $validated['is_active']  = $request->has('is_active');
+        $validated['is_active'] = $request->has('is_active');
 
         ModularCertification::create($validated);
 
@@ -257,6 +259,7 @@ class StudyProgramsController extends Controller
     public function editModule(ModularCertification $module): View
     {
         $programs = StudyProgram::orderBy('name')->get();
+
         return view('admin.programs.modules.edit', compact('module', 'programs'));
     }
 
@@ -264,7 +267,7 @@ class StudyProgramsController extends Controller
     {
         $validated = $request->validated();
         $validated['model_type'] = StudyProgram::class;
-        $validated['is_active']  = $request->has('is_active');
+        $validated['is_active'] = $request->has('is_active');
 
         $module->update($validated);
 
@@ -274,7 +277,7 @@ class StudyProgramsController extends Controller
     public function toggleModuleStatus(ModularCertification $module): RedirectResponse
     {
         $module->update([
-            'is_active' => !$module->is_active
+            'is_active' => ! $module->is_active,
         ]);
 
         return redirect()->back()->with('success', 'Estado del módulo actualizado correctamente.');
@@ -294,6 +297,7 @@ class StudyProgramsController extends Controller
     public function createCompetency(): View
     {
         $programs = StudyProgram::orderBy('name')->get();
+
         return view('admin.programs.competencies.create', compact('programs'));
     }
 
@@ -310,6 +314,7 @@ class StudyProgramsController extends Controller
     public function editCompetency(ProgramCompetency $competency): View
     {
         $programs = StudyProgram::orderBy('name')->get();
+
         return view('admin.programs.competencies.edit', compact('competency', 'programs'));
     }
 
@@ -326,7 +331,7 @@ class StudyProgramsController extends Controller
     public function toggleCompetencyStatus(ProgramCompetency $competency): RedirectResponse
     {
         $competency->update([
-            'is_active' => !$competency->is_active
+            'is_active' => ! $competency->is_active,
         ]);
 
         return redirect()->back()->with('success', 'Estado de la competencia actualizado correctamente.');
@@ -346,6 +351,7 @@ class StudyProgramsController extends Controller
     public function createJobField(): View
     {
         $programs = StudyProgram::orderBy('name')->get();
+
         return view('admin.programs.job_fields.create', compact('programs'));
     }
 
@@ -362,6 +368,7 @@ class StudyProgramsController extends Controller
     public function editJobField(ProgramJobField $jobField): View
     {
         $programs = StudyProgram::orderBy('name')->get();
+
         return view('admin.programs.job_fields.edit', compact('jobField', 'programs'));
     }
 
@@ -378,7 +385,7 @@ class StudyProgramsController extends Controller
     public function toggleJobFieldStatus(ProgramJobField $jobField): RedirectResponse
     {
         $jobField->update([
-            'is_active' => !$jobField->is_active
+            'is_active' => ! $jobField->is_active,
         ]);
 
         return redirect()->back()->with('success', 'Estado del campo laboral actualizado correctamente.');
@@ -398,6 +405,7 @@ class StudyProgramsController extends Controller
     public function createMeta(): View
     {
         $programs = StudyProgram::orderBy('name')->get();
+
         return view('admin.programs.meta.create', compact('programs'));
     }
 
@@ -413,6 +421,7 @@ class StudyProgramsController extends Controller
     public function editMeta(ProgramMeta $meta): View
     {
         $programs = StudyProgram::orderBy('name')->get();
+
         return view('admin.programs.meta.edit', compact('meta', 'programs'));
     }
 
@@ -439,6 +448,7 @@ class StudyProgramsController extends Controller
     public function createRequirement(): View
     {
         $programs = StudyProgram::orderBy('name')->get();
+
         return view('admin.programs.requirements.create', compact('programs'));
     }
 
@@ -455,6 +465,7 @@ class StudyProgramsController extends Controller
     public function editRequirement(ProgramRequirement $requirement): View
     {
         $programs = StudyProgram::orderBy('name')->get();
+
         return view('admin.programs.requirements.edit', compact('requirement', 'programs'));
     }
 
@@ -471,7 +482,7 @@ class StudyProgramsController extends Controller
     public function toggleRequirementStatus(ProgramRequirement $requirement): RedirectResponse
     {
         $requirement->update([
-            'is_active' => !$requirement->is_active
+            'is_active' => ! $requirement->is_active,
         ]);
 
         return redirect()->back()->with('success', 'Estado del requisito actualizado correctamente.');

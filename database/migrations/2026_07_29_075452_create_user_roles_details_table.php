@@ -22,19 +22,19 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('user_id')
-                  ->constrained('users')
-                  ->cascadeOnDelete();
+                ->constrained('users')
+                ->cascadeOnDelete();
 
             $table->foreignId('program_id')
-                  ->nullable()
-                  ->constrained('study_programs')
-                  ->nullOnDelete();
+                ->nullable()
+                ->constrained('study_programs')
+                ->nullOnDelete();
 
             $table->boolean('is_coordinator')->default(false)
-                  ->comment('True when the teacher is also the programme coordinator');
+                ->comment('True when the teacher is also the programme coordinator');
 
             $table->string('specialty')->nullable()
-                  ->comment('Area of expertise / subject specialty');
+                ->comment('Area of expertise / subject specialty');
 
             $table->boolean('is_active')->default(true);
 

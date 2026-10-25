@@ -10,10 +10,11 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
-class DegreeRecordImport implements ToCollection, WithStartRow, WithChunkReading
+class DegreeRecordImport implements ToCollection, WithChunkReading, WithStartRow
 {
     public int $importedCount = 0;
-    public int $skippedCount  = 0;
+
+    public int $skippedCount = 0;
 
     /**
      * Data rows begin at row 5.
@@ -66,7 +67,7 @@ class DegreeRecordImport implements ToCollection, WithStartRow, WithChunkReading
      */
     public function collection(Collection $rows): void
     {
-        $now   = now()->toDateTimeString();
+        $now = now()->toDateTimeString();
         $batch = [];
 
         foreach ($rows as $row) {
@@ -76,40 +77,41 @@ class DegreeRecordImport implements ToCollection, WithStartRow, WithChunkReading
 
             if (empty($docNumber) && empty($fullNames)) {
                 $this->skippedCount++;
+
                 continue;
             }
 
             $batch[] = [
                 // A [0] → IGNORED (record_number not mapped per user request)
-                'modular_code'                      => $this->cleanString($row[1]  ?? null),
-                'institution_name'                  => $this->cleanString($row[2]  ?? null),
-                'management_type'                   => $this->cleanString($row[3]  ?? null),
-                'department'                        => $this->cleanString($row[4]  ?? null),
-                'study_program'                     => $this->cleanString($row[5]  ?? null),
+                'modular_code' => $this->cleanString($row[1] ?? null),
+                'institution_name' => $this->cleanString($row[2] ?? null),
+                'management_type' => $this->cleanString($row[3] ?? null),
+                'department' => $this->cleanString($row[4] ?? null),
+                'study_program' => $this->cleanString($row[5] ?? null),
                 // G [6] → IGNORED (mention)
-                'formative_level'                   => $this->cleanString($row[7]  ?? null),
-                'productive_family'                 => $this->cleanString($row[8]  ?? null),
-                'document_type'                     => $this->cleanString($row[9]  ?? null),
-                'document_number'                   => $docNumber,
-                'full_names'                        => $fullNames,
-                'birth_date'                        => $this->parseDate($row[12]   ?? null),
-                'gender'                            => $this->cleanString($row[13] ?? null),
-                'graduation_date'                   => $this->parseDate($row[14]   ?? null),
+                'formative_level' => $this->cleanString($row[7] ?? null),
+                'productive_family' => $this->cleanString($row[8] ?? null),
+                'document_type' => $this->cleanString($row[9] ?? null),
+                'document_number' => $docNumber,
+                'full_names' => $fullNames,
+                'birth_date' => $this->parseDate($row[12] ?? null),
+                'gender' => $this->cleanString($row[13] ?? null),
+                'graduation_date' => $this->parseDate($row[14] ?? null),
                 'institutional_registration_number' => $this->cleanString($row[15] ?? null),
-                'diploma_issue_date'                => $this->parseDate($row[16]   ?? null),
-                'minedu_registration_date'          => $this->parseDate($row[17]   ?? null),
-                'generated_title_code'              => $this->cleanString($row[18] ?? null),
-                'file_number'                       => $this->cleanString($row[19] ?? null),
-                'registration_type'                 => $this->cleanString($row[20] ?? null),
-                'specialist_user'                   => $this->cleanString($row[21] ?? null),
+                'diploma_issue_date' => $this->parseDate($row[16] ?? null),
+                'minedu_registration_date' => $this->parseDate($row[17] ?? null),
+                'generated_title_code' => $this->cleanString($row[18] ?? null),
+                'file_number' => $this->cleanString($row[19] ?? null),
+                'registration_type' => $this->cleanString($row[20] ?? null),
+                'specialist_user' => $this->cleanString($row[21] ?? null),
                 // W [22] → IGNORED
-                'diploma_type'                      => $this->cleanString($row[23] ?? null),
-                'created_at'                        => $now,
-                'updated_at'                        => $now,
+                'diploma_type' => $this->cleanString($row[23] ?? null),
+                'created_at' => $now,
+                'updated_at' => $now,
             ];
         }
 
-        if (!empty($batch)) {
+        if (! empty($batch)) {
             DB::table('degree_records')->insert($batch);
             $this->importedCount += count($batch);
         }
@@ -123,6 +125,7 @@ class DegreeRecordImport implements ToCollection, WithStartRow, WithChunkReading
             return null;
         }
         $str = trim((string) $value);
+
         return $str !== '' ? $str : null;
     }
 

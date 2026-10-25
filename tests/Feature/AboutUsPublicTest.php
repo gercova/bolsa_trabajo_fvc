@@ -45,7 +45,7 @@ class AboutUsPublicTest extends TestCase
         $response->assertSee('Nuestros Valores');
         $response->assertSee('Principios Institucionales');
         $response->assertSee('Datos de la Institución');
-        
+
         // Assert SEO tags are present
         $response->assertSee('<meta name="description"', false);
         $response->assertSee('<meta name="keywords"', false);

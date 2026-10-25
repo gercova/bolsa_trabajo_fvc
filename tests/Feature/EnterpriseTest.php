@@ -15,19 +15,20 @@ class EnterpriseTest extends TestCase
 
     private function createEnterprise(array $overrides = []): Enterprise
     {
-        $enterprise = new Enterprise();
+        $enterprise = new Enterprise;
         $enterprise->ruc = '20123456789';
         $enterprise->company_name = 'Test Enterprise';
         $enterprise->trade_name = 'Test Trade';
         $enterprise->legal_representative_dni = '12345678';
         $enterprise->legal_representative = 'John Doe';
         $enterprise->email = 'test@example.com';
-        
+
         foreach ($overrides as $key => $value) {
             $enterprise->{$key} = $value;
         }
-        
+
         $enterprise->save();
+
         return $enterprise;
     }
 

@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Enterprise;
-use App\Models\LicensingPhase;
 use Database\Seeders\LicensingPhaseSeeder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;

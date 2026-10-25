@@ -13,11 +13,11 @@ class ManagementDocument extends Model
         'file_path',
         'resolution_document_path',
         'validity_period',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [
         'validity_period' => 'date',
-        'is_active'       => 'boolean'
+        'is_active' => 'boolean',
     ];
 }

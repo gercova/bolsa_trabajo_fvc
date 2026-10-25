@@ -2,15 +2,17 @@
 
 namespace Database\Seeders;
 
+use App\Models\DocumentType;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        $docType = \App\Models\DocumentType::first();
+        $docType = DocumentType::first();
         $docTypeId = $docType ? $docType->id : null;
 
         // Usuario administrador
@@ -39,7 +41,7 @@ class UserSeeder extends Seeder
                 'email' => 'quimarini23ch@gmail.com',
                 'job_position' => 'Director General',
                 'phone' => '979901975',
-                'role' => 'Admin'
+                'role' => 'Admin',
             ],
 
             // Docentes
@@ -49,7 +51,7 @@ class UserSeeder extends Seeder
                 'email' => 'roaldelc.2017@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '900568542',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '46251646',
@@ -57,7 +59,7 @@ class UserSeeder extends Seeder
                 'email' => 'joselitobarto@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '957176037',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '40959908',
@@ -65,7 +67,7 @@ class UserSeeder extends Seeder
                 'email' => 'educr004@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '956703570',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '71719922',
@@ -73,7 +75,7 @@ class UserSeeder extends Seeder
                 'email' => 'germancotrina17@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '920307572',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '42333874',
@@ -81,7 +83,7 @@ class UserSeeder extends Seeder
                 'email' => 'estrellagomezetel@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '955502124',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '01110179',
@@ -89,7 +91,7 @@ class UserSeeder extends Seeder
                 'email' => 'genry_flores6_@hotmail.com',
                 'job_position' => 'Docente',
                 'phone' => '925784436',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '01186455',
@@ -97,7 +99,7 @@ class UserSeeder extends Seeder
                 'email' => 'manueladolfoguerra22@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '982318678',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '70745784',
@@ -105,7 +107,7 @@ class UserSeeder extends Seeder
                 'email' => 'wid_ingenier20@hotmail.com',
                 'job_position' => 'Docente',
                 'phone' => '987759134',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '70745776',
@@ -113,7 +115,7 @@ class UserSeeder extends Seeder
                 'email' => 'u201520179@upc.edu.pe',
                 'job_position' => 'Docente',
                 'phone' => '972554330',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '73622421',
@@ -121,7 +123,7 @@ class UserSeeder extends Seeder
                 'email' => 'lopez.fvc.2018@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '969666826',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '42960630',
@@ -129,7 +131,7 @@ class UserSeeder extends Seeder
                 'email' => 'martelfabian1685@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '993973626',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '25770273',
@@ -137,7 +139,7 @@ class UserSeeder extends Seeder
                 'email' => 'jhonmoralesponce22@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '997236993',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '42867623',
@@ -145,7 +147,7 @@ class UserSeeder extends Seeder
                 'email' => 'angelrainey1@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '937384295',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '42038635',
@@ -153,7 +155,7 @@ class UserSeeder extends Seeder
                 'email' => 'limbermosolo.10@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '973579809',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '22428334',
@@ -161,7 +163,7 @@ class UserSeeder extends Seeder
                 'email' => 'marinoblejas63@hotmail.com',
                 'job_position' => 'Docente',
                 'phone' => '979286203',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '45618816',
@@ -169,7 +171,7 @@ class UserSeeder extends Seeder
                 'email' => '967592572olivas@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '967592572',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '42789859',
@@ -177,7 +179,7 @@ class UserSeeder extends Seeder
                 'email' => 'olivas_forestales@hotmail.com',
                 'job_position' => 'Docente',
                 'phone' => '968243016',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '42478645',
@@ -185,7 +187,7 @@ class UserSeeder extends Seeder
                 'email' => 'ntitoortizg@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '928207505',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '41508077',
@@ -193,7 +195,7 @@ class UserSeeder extends Seeder
                 'email' => 'paleyber@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '988599481',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '23018349',
@@ -201,7 +203,7 @@ class UserSeeder extends Seeder
                 'email' => 'negrita_09_12@hotmail.com',
                 'job_position' => 'Docente',
                 'phone' => '997289591',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '23009889',
@@ -209,7 +211,7 @@ class UserSeeder extends Seeder
                 'email' => 'yessica_panduro@hotmail.com',
                 'job_position' => 'Docente',
                 'phone' => '931084733',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '22438844',
@@ -217,7 +219,7 @@ class UserSeeder extends Seeder
                 'email' => 'olyprimera@hotmail.com',
                 'job_position' => 'Docente',
                 'phone' => '962992564',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '45299539',
@@ -225,7 +227,7 @@ class UserSeeder extends Seeder
                 'email' => 'abrauliopardo22@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '928527525',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '04010081',
@@ -233,7 +235,7 @@ class UserSeeder extends Seeder
                 'email' => 'modestopaucarserpa@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '942131215',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '42428407',
@@ -241,7 +243,7 @@ class UserSeeder extends Seeder
                 'email' => 'romerponceramirez@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '944383367',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '72269144',
@@ -249,7 +251,7 @@ class UserSeeder extends Seeder
                 'email' => 'elizabethprincipeprincipe@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '952432074',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '44015514',
@@ -257,7 +259,7 @@ class UserSeeder extends Seeder
                 'email' => 'veritojara762@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '944242925',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '41311115',
@@ -265,7 +267,7 @@ class UserSeeder extends Seeder
                 'email' => 'martinsg301@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '960619361',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '47912203',
@@ -273,7 +275,7 @@ class UserSeeder extends Seeder
                 'email' => 'inessaldana2608@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '953976298',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '45345455',
@@ -281,7 +283,7 @@ class UserSeeder extends Seeder
                 'email' => 'sirelove20@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '976464938',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '41476770',
@@ -289,7 +291,7 @@ class UserSeeder extends Seeder
                 'email' => 'horlandosulcabermudez@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '910201183',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '46104578',
@@ -297,7 +299,7 @@ class UserSeeder extends Seeder
                 'email' => 'neyrivizcarra@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '914902252',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
             [
                 'dni' => '45988617',
@@ -305,7 +307,7 @@ class UserSeeder extends Seeder
                 'email' => 'frankcorie@gmail.com',
                 'job_position' => 'Docente',
                 'phone' => '999777498',
-                'role' => 'Docente'
+                'role' => 'Docente',
             ],
 
             // Personal Administrativo adicional del seeder anterior
@@ -315,7 +317,7 @@ class UserSeeder extends Seeder
                 'email' => 'nathyaretzi@gmail.com',
                 'job_position' => 'Asistente Administración',
                 'phone' => '925616468',
-                'role' => 'Administrativo'
+                'role' => 'Administrativo',
             ],
             [
                 'dni' => '80469081',
@@ -323,7 +325,7 @@ class UserSeeder extends Seeder
                 'email' => 'figoca.75@gmail.com',
                 'job_position' => 'Personal Administrativo Nombrado',
                 'phone' => '988063810',
-                'role' => 'Administrativo'
+                'role' => 'Administrativo',
             ],
             [
                 'dni' => '41308640',
@@ -331,7 +333,7 @@ class UserSeeder extends Seeder
                 'email' => 'nelidaatero@gmail.com',
                 'job_position' => 'Seguridad y Vigilancia',
                 'phone' => '918163856',
-                'role' => 'Administrativo'
+                'role' => 'Administrativo',
             ],
             [
                 'dni' => '33819807',
@@ -339,7 +341,7 @@ class UserSeeder extends Seeder
                 'email' => 'orfe1118@gmail.com',
                 'job_position' => 'Secretaria Nombrada',
                 'phone' => '935789879',
-                'role' => 'Administrativo'
+                'role' => 'Administrativo',
             ],
             [
                 'dni' => '47258037',
@@ -347,7 +349,7 @@ class UserSeeder extends Seeder
                 'email' => 'caldassifuentespeter@gmail.com',
                 'job_position' => 'Auxiliar Servicio II',
                 'phone' => '972746352',
-                'role' => 'Administrativo'
+                'role' => 'Administrativo',
             ],
             [
                 'dni' => '76382716',
@@ -355,7 +357,7 @@ class UserSeeder extends Seeder
                 'email' => 'iesfranciscovigocaballero@gmail.com',
                 'job_position' => 'Secretaria de Dirección General',
                 'phone' => '935947402',
-                'role' => 'Administrativo'
+                'role' => 'Administrativo',
             ],
             [
                 'dni' => '01014470',
@@ -363,7 +365,7 @@ class UserSeeder extends Seeder
                 'email' => 'manueleonidas57@gmail.com',
                 'job_position' => 'Administrador del IESTP',
                 'phone' => '921573015',
-                'role' => 'Administrativo'
+                'role' => 'Administrativo',
             ],
         ];
 
@@ -371,19 +373,19 @@ class UserSeeder extends Seeder
         foreach ($users as $userData) {
             $user = User::create([
                 'document_type_id' => $docTypeId,
-                'dni'           => $userData['dni'],
-                'names'         => $userData['names'],
-                'email'         => strtolower($userData['email']),
-                'password'      => Hash::make('password'),
-                'job_position'  => $userData['job_position'],
-                'ubigeo'        => null,
-                'phone'         => $userData['phone'],
-                'address'       => null,
-                'role'          => $userData['role'],
+                'dni' => $userData['dni'],
+                'names' => $userData['names'],
+                'email' => strtolower($userData['email']),
+                'password' => Hash::make('password'),
+                'job_position' => $userData['job_position'],
+                'ubigeo' => null,
+                'phone' => $userData['phone'],
+                'address' => null,
+                'role' => $userData['role'],
                 'email_verified_at' => now(),
             ]);
 
-            if (!empty($userData['role']) && \Spatie\Permission\Models\Role::where('name', $userData['role'])->exists()) {
+            if (! empty($userData['role']) && Role::where('name', $userData['role'])->exists()) {
                 $user->assignRole($userData['role']);
             }
         }

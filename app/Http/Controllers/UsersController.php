@@ -31,7 +31,7 @@ class UsersController extends Controller
         $search = $request->input('search');
         $status = $request->input('status');                // 'active', 'inactive', o null (todos)
         $role = $request->input('role');                  // filtrar por rol
-        $jobPosition = $request->input('job_position');    // filtrar por puesto
+        $jobPosition = $request->input('job_position');          // filtrar por puesto
         $perPage = $request->input('per_page', 10);          // items por página (10, 25, 50)
         $sortBy = $request->input('sort_by', 'created_at'); // campo de ordenamiento
         $sortOrder = $request->input('sort_order', 'desc');    // ascendente o descendente
@@ -243,9 +243,7 @@ class UsersController extends Controller
 
     public function toggleStatus(User $user): JsonResponse|RedirectResponse
     {
-        $user->update([
-            'is_active' => ! $user->is_active,
-        ]);
+        $user->update(['is_active' => ! $user->is_active]);
 
         if (request()->expectsJson() || request()->ajax()) {
             return response()->json([
@@ -546,10 +544,8 @@ class UsersController extends Controller
 
         return response()->streamDownload(function () {
             $out = fopen('php://output', 'w');
-
             // UTF-8 BOM so Excel opens accents correctly
             fwrite($out, "\xEF\xBB\xBF");
-
             // Header line
             fputcsv($out, [
                 'N°',

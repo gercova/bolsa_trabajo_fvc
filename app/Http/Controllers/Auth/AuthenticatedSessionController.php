@@ -31,10 +31,10 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
         $request->session()->regenerate();
         Log::info('Inicio de sesión exitoso', [
-            'user_id'       => Auth::id(),
-            'email'         => Auth::user()?->email,
-            'ip'            => $request->ip(),
-            'user_agent'    => $request->userAgent(),
+            'user_id' => Auth::id(),
+            'email' => Auth::user()?->email,
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
         ]);
 
         $user = Auth::user();

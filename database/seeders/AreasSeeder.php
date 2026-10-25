@@ -3,12 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\Area;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class AreasSeeder extends Seeder
 {
-    
     public function run(): void
     {
         $area = [
@@ -48,6 +46,6 @@ class AreasSeeder extends Seeder
                 'name' => $item,
             ]);
         }
-        
+
     }
 }

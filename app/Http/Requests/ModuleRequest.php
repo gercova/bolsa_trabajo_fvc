@@ -39,9 +39,9 @@ class ModuleRequest extends FormRequest
     {
         return [
             'course_id.required' => 'Debe seleccionar un curso para el módulo.',
-            'course_id.exists'   => 'El curso seleccionado no existe.',
-            'name.required'      => 'El nombre del módulo es obligatorio.',
-            'name.max'           => 'El nombre no debe superar los 255 caracteres.',
+            'course_id.exists' => 'El curso seleccionado no existe.',
+            'name.required' => 'El nombre del módulo es obligatorio.',
+            'name.max' => 'El nombre no debe superar los 255 caracteres.',
         ];
     }
 
@@ -49,8 +49,8 @@ class ModuleRequest extends FormRequest
     {
         return [
             'course_id' => 'curso',
-            'name'      => 'nombre del módulo',
-            'credits'   => 'créditos',
+            'name' => 'nombre del módulo',
+            'credits' => 'créditos',
             'is_active' => 'estado activo',
         ];
     }

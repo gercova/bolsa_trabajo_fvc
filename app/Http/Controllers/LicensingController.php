@@ -23,10 +23,10 @@ class LicensingController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('subtitle', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('resolution_number', 'like', "%{$search}%");
+                    ->orWhere('subtitle', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('resolution_number', 'like', "%{$search}%");
             });
         }
 
@@ -41,11 +41,11 @@ class LicensingController extends Controller
         $phases = $query->orderBy('phase_number', 'asc')->paginate(15)->withQueryString();
 
         $stats = [
-            'total'       => LicensingPhase::count(),
-            'completed'   => LicensingPhase::where('status', 'completed')->count(),
+            'total' => LicensingPhase::count(),
+            'completed' => LicensingPhase::where('status', 'completed')->count(),
             'in_progress' => LicensingPhase::where('status', 'in_progress')->count(),
-            'current'     => LicensingPhase::where('is_current', true)->first(),
-            'avg_progress'=> round(LicensingPhase::avg('progress_percentage') ?? 0),
+            'current' => LicensingPhase::where('is_current', true)->first(),
+            'avg_progress' => round(LicensingPhase::avg('progress_percentage') ?? 0),
         ];
 
         return view('admin.licensing.index', compact('phases', 'stats'));
@@ -74,18 +74,18 @@ class LicensingController extends Controller
             $data['file_path'] = $file->store('licensing', 'public');
         }
 
-        $data['is_active']              = $request->boolean('is_active', true);
-        $data['is_current']             = $request->boolean('is_current', false);
-        $data['progress_percentage']    = $request->input('progress_percentage', 0);
-        $data['order']                  = $request->input('order', $request->input('phase_number', 1));
+        $data['is_active'] = $request->boolean('is_active', true);
+        $data['is_current'] = $request->boolean('is_current', false);
+        $data['progress_percentage'] = $request->input('progress_percentage', 0);
+        $data['order'] = $request->input('order', $request->input('phase_number', 1));
 
         // Auto-assign stage tag if not provided
         if (empty($data['stage_tag'])) {
             $data['stage_tag'] = match ($data['status']) {
-                'completed'   => 'C',
+                'completed' => 'C',
                 'in_progress' => 'P',
-                'observed'    => 'OBS',
-                default       => 'PTE',
+                'observed' => 'OBS',
+                default => 'PTE',
             };
         }
 
@@ -112,7 +112,7 @@ class LicensingController extends Controller
     /**
      * Show the form for editing the specified licensing phase.
      */
-    public function edit(LicensingPhase $licensing): View 
+    public function edit(LicensingPhase $licensing): View
     {
         return view('admin.licensing.edit', compact('licensing'));
     }
@@ -141,10 +141,10 @@ class LicensingController extends Controller
 
         if (empty($data['stage_tag'])) {
             $data['stage_tag'] = match ($data['status']) {
-                'completed'   => 'C',
+                'completed' => 'C',
                 'in_progress' => 'P',
-                'observed'    => 'OBS',
-                default       => 'PTE',
+                'observed' => 'OBS',
+                default => 'PTE',
             };
         }
 
@@ -191,14 +191,14 @@ class LicensingController extends Controller
     public function toggleStatus(Request $request, LicensingPhase $licensing): RedirectResponse|JsonResponse
     {
         $licensing->update([
-            'is_active' => !$licensing->is_active,
+            'is_active' => ! $licensing->is_active,
         ]);
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
-                'success'   => true,
+                'success' => true,
                 'is_active' => $licensing->is_active,
-                'message'   => 'Estado actualizado correctamente.',
+                'message' => 'Estado actualizado correctamente.',
             ]);
         }
 
@@ -215,8 +215,8 @@ class LicensingController extends Controller
 
         $licensing->update([
             'is_current' => true,
-            'status'     => 'in_progress',
-            'stage_tag'  => 'P',
+            'status' => 'in_progress',
+            'stage_tag' => 'P',
         ]);
 
         if ($request->expectsJson() || $request->ajax()) {

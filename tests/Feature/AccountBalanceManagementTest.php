@@ -31,11 +31,11 @@ class AccountBalanceManagementTest extends TestCase
             ['email' => 'admin_investments_test@example.com'],
             [
                 'document_type_id' => $docType->id,
-                'dni'              => '99887755',
-                'names'            => 'Admin Test Investments',
-                'role'             => 'Administrador',
-                'password'         => bcrypt('password'),
-                'is_active'        => true,
+                'dni' => '99887755',
+                'names' => 'Admin Test Investments',
+                'role' => 'Administrador',
+                'password' => bcrypt('password'),
+                'is_active' => true,
             ]
         );
 
@@ -48,27 +48,27 @@ class AccountBalanceManagementTest extends TestCase
     {
         // Seed some records
         AccountBalance::create([
-            'month'          => 'ENERO',
-            'date'           => '2025-01-01',
+            'month' => 'ENERO',
+            'date' => '2025-01-01',
             'receipt_number' => '567',
-            'client'         => 'AILCIA EMELDA ALVARADO HERRERA',
-            'description'    => 'CERTIFICACIÓN MODULAR A.A',
-            'category'       => 'CERTIFICACIÓN MODULAR',
-            'program_code'   => 'A.A',
-            'program_name'   => 'Asistencia Administrativa',
-            'amount'         => 245.00,
+            'client' => 'AILCIA EMELDA ALVARADO HERRERA',
+            'description' => 'CERTIFICACIÓN MODULAR A.A',
+            'category' => 'CERTIFICACIÓN MODULAR',
+            'program_code' => 'A.A',
+            'program_name' => 'Asistencia Administrativa',
+            'amount' => 245.00,
         ]);
 
         AccountBalance::create([
-            'month'          => 'ENERO',
-            'date'           => '2025-01-01',
+            'month' => 'ENERO',
+            'date' => '2025-01-01',
             'receipt_number' => '574',
-            'client'         => 'HINOSTROZA CERNA AZUCENA',
-            'description'    => 'CONSTANCIA DE EGRESADO',
-            'category'       => 'CONSTANCIA',
-            'program_code'   => 'A.A',
-            'program_name'   => 'Asistencia Administrativa',
-            'amount'         => 21.00,
+            'client' => 'HINOSTROZA CERNA AZUCENA',
+            'description' => 'CONSTANCIA DE EGRESADO',
+            'category' => 'CONSTANCIA',
+            'program_code' => 'A.A',
+            'program_name' => 'Asistencia Administrativa',
+            'amount' => 21.00,
         ]);
 
         $response = $this->get('/transparencia/inversion-y-gestion?year=2025');
@@ -85,7 +85,7 @@ class AccountBalanceManagementTest extends TestCase
 
     public function test_import_correctly_parses_4_digit_years_and_peruvian_decimals(): void
     {
-        $importer = new AccountBalanceImport();
+        $importer = new AccountBalanceImport;
 
         // Simulate Excel rows with 4-digit year in column B (1), commas in amount (8), and metadata row
         $rows = new Collection([
@@ -128,30 +128,30 @@ class AccountBalanceManagementTest extends TestCase
 
         // 2 records in 2025
         AccountBalance::create([
-            'month'          => 'ENERO',
-            'date'           => '2025-01-01',
+            'month' => 'ENERO',
+            'date' => '2025-01-01',
             'receipt_number' => '101',
-            'client'         => 'Juan Pérez',
-            'category'       => 'MATRÍCULA',
-            'amount'         => 150.00,
+            'client' => 'Juan Pérez',
+            'category' => 'MATRÍCULA',
+            'amount' => 150.00,
         ]);
         AccountBalance::create([
-            'month'          => 'FEBRERO',
-            'date'           => '2025-02-01',
+            'month' => 'FEBRERO',
+            'date' => '2025-02-01',
             'receipt_number' => '102',
-            'client'         => 'María López',
-            'category'       => 'MATRÍCULA',
-            'amount'         => 150.00,
+            'client' => 'María López',
+            'category' => 'MATRÍCULA',
+            'amount' => 150.00,
         ]);
 
         // 1 record in 2024
         $rec2024 = AccountBalance::create([
-            'month'          => 'NOVIEMBRE',
-            'date'           => '2024-11-01',
+            'month' => 'NOVIEMBRE',
+            'date' => '2024-11-01',
             'receipt_number' => '201',
-            'client'         => 'Carlos Díaz',
-            'category'       => 'CONSTANCIA',
-            'amount'         => 20.00,
+            'client' => 'Carlos Díaz',
+            'category' => 'CONSTANCIA',
+            'amount' => 20.00,
         ]);
 
         $this->assertDatabaseCount('account_balances', 3);
@@ -173,12 +173,12 @@ class AccountBalanceManagementTest extends TestCase
         $admin = $this->createAdminUser();
 
         AccountBalance::create([
-            'month'          => 'ENERO',
-            'date'           => '2025-01-01',
+            'month' => 'ENERO',
+            'date' => '2025-01-01',
             'receipt_number' => '101',
-            'client'         => 'Juan Pérez',
-            'category'       => 'MATRÍCULA',
-            'amount'         => 150.00,
+            'client' => 'Juan Pérez',
+            'category' => 'MATRÍCULA',
+            'amount' => 150.00,
         ]);
 
         $this->assertDatabaseCount('account_balances', 1);
@@ -199,18 +199,18 @@ class AccountBalanceManagementTest extends TestCase
         $admin = $this->createAdminUser();
 
         AccountBalance::create([
-            'month'          => 'ENERO',
-            'date'           => '2025-01-01',
+            'month' => 'ENERO',
+            'date' => '2025-01-01',
             'receipt_number' => '101',
-            'client'         => 'Juan Pérez',
-            'amount'         => 100.00,
+            'client' => 'Juan Pérez',
+            'amount' => 100.00,
         ]);
         AccountBalance::create([
-            'month'          => 'NOVIEMBRE',
-            'date'           => '2024-11-01',
+            'month' => 'NOVIEMBRE',
+            'date' => '2024-11-01',
             'receipt_number' => '102',
-            'client'         => 'María López',
-            'amount'         => 200.00,
+            'client' => 'María López',
+            'amount' => 200.00,
         ]);
 
         $this->assertDatabaseCount('account_balances', 2);
@@ -223,8 +223,8 @@ class AccountBalanceManagementTest extends TestCase
         $response->assertOk()
             ->assertJson([
                 'success' => true,
-                'count'   => 1,
-                'year'    => 2025,
+                'count' => 1,
+                'year' => 2025,
             ]);
 
         $this->assertDatabaseCount('account_balances', 1);
@@ -236,11 +236,11 @@ class AccountBalanceManagementTest extends TestCase
         $admin = $this->createAdminUser();
 
         AccountBalance::create([
-            'month'          => 'ENERO',
-            'date'           => '2025-01-01',
+            'month' => 'ENERO',
+            'date' => '2025-01-01',
             'receipt_number' => '101',
-            'client'         => 'Juan Pérez',
-            'amount'         => 100.00,
+            'client' => 'Juan Pérez',
+            'amount' => 100.00,
         ]);
 
         $this->assertDatabaseCount('account_balances', 1);
@@ -253,7 +253,7 @@ class AccountBalanceManagementTest extends TestCase
         $response->assertOk()
             ->assertJson([
                 'success' => true,
-                'count'   => 1,
+                'count' => 1,
             ]);
 
         $this->assertDatabaseCount('account_balances', 0);

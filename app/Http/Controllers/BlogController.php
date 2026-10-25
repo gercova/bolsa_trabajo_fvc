@@ -25,7 +25,7 @@ class BlogController extends Controller
 
         $query = Blog::with('images');
 
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
                     ->orWhere('content', 'like', "%{$search}%")
@@ -42,9 +42,9 @@ class BlogController extends Controller
         }
 
         // Summary Statistics
-        $totalBlogs     = Blog::count();
+        $totalBlogs = Blog::count();
         $publishedBlogs = Blog::where('is_published', true)->count();
-        $draftBlogs     = Blog::where('is_published', false)->count();
+        $draftBlogs = Blog::where('is_published', false)->count();
 
         // Paginated results sorted by newest first
         $blogs = $query->orderBy('id', 'desc')
@@ -79,18 +79,18 @@ class BlogController extends Controller
 
             // Generate unique slug
             $baseSlug = Str::slug($validated['title']);
-            $slug     = $baseSlug;
-            $count    = 1;
+            $slug = $baseSlug;
+            $count = 1;
             while (Blog::where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $count;
+                $slug = $baseSlug.'-'.$count;
                 $count++;
             }
 
             $blog = Blog::create([
-                'title'        => $validated['title'],
-                'slug'         => $slug,
-                'content'      => $validated['content'],
-                'details'      => $validated['details'] ?? null,
+                'title' => $validated['title'],
+                'slug' => $slug,
+                'content' => $validated['content'],
+                'details' => $validated['details'] ?? null,
                 'is_published' => $request->has('is_published') ? (bool) $request->input('is_published') : false,
             ]);
 
@@ -99,29 +99,29 @@ class BlogController extends Controller
                 $path = $request->file('image')->store('blogs', 'public');
 
                 $blog->images()->create([
-                    'path'    => $path,
+                    'path' => $path,
                     'is_main' => true,
                 ]);
             }
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
-                    'success'  => true,
-                    'message'  => 'Publicación creada con éxito.',
+                    'success' => true,
+                    'message' => 'Publicación creada con éxito.',
                     'redirect' => route('admin.blogs.index'),
-                    'data'     => $blog->load('images'),
+                    'data' => $blog->load('images'),
                 ], 201);
             }
 
             return redirect()->route('admin.blogs.index')
                 ->with('success', 'Publicación creada con éxito.');
         } catch (\Exception $e) {
-            Log::error('Error creando blog: ' . $e->getMessage());
+            Log::error('Error creando blog: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al guardar la publicación: ' . $e->getMessage(),
+                    'message' => 'Error al guardar la publicación: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -135,6 +135,7 @@ class BlogController extends Controller
     public function edit(Blog $blog): View
     {
         $blog->load('images');
+
         return view('admin.blogs.edit', compact('blog'));
     }
 
@@ -149,18 +150,18 @@ class BlogController extends Controller
             // Update slug if title changed
             if ($validated['title'] !== $blog->title) {
                 $baseSlug = Str::slug($validated['title']);
-                $slug     = $baseSlug;
-                $count    = 1;
+                $slug = $baseSlug;
+                $count = 1;
                 while (Blog::where('slug', $slug)->where('id', '!=', $blog->id)->exists()) {
-                    $slug = $baseSlug . '-' . $count;
+                    $slug = $baseSlug.'-'.$count;
                     $count++;
                 }
                 $blog->slug = $slug;
             }
 
-            $blog->title        = $validated['title'];
-            $blog->content      = $validated['content'];
-            $blog->details      = $validated['details'] ?? null;
+            $blog->title = $validated['title'];
+            $blog->content = $validated['content'];
+            $blog->details = $validated['details'] ?? null;
             $blog->is_published = $request->has('is_published') ? (bool) $request->input('is_published') : false;
             $blog->save();
 
@@ -176,29 +177,29 @@ class BlogController extends Controller
 
                 $path = $request->file('image')->store('blogs', 'public');
                 $blog->images()->create([
-                    'path'    => $path,
+                    'path' => $path,
                     'is_main' => true,
                 ]);
             }
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
-                    'success'  => true,
-                    'message'  => 'Publicación actualizada correctamente.',
+                    'success' => true,
+                    'message' => 'Publicación actualizada correctamente.',
                     'redirect' => route('admin.blogs.index'),
-                    'data'     => $blog->load('images'),
+                    'data' => $blog->load('images'),
                 ], 200);
             }
 
             return redirect()->route('admin.blogs.index')
                 ->with('success', 'Publicación actualizada correctamente.');
         } catch (\Exception $e) {
-            Log::error('Error actualizando blog: ' . $e->getMessage());
+            Log::error('Error actualizando blog: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al actualizar la publicación: ' . $e->getMessage(),
+                    'message' => 'Error al actualizar la publicación: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -212,19 +213,19 @@ class BlogController extends Controller
     public function toggleStatus(Blog $blog): JsonResponse|RedirectResponse
     {
         try {
-            $blog->update(['is_published' => !$blog->is_published]);
+            $blog->update(['is_published' => ! $blog->is_published]);
 
             if (request()->expectsJson() || request()->ajax() || request()->wantsJson()) {
                 return response()->json([
-                    'success'      => true,
+                    'success' => true,
                     'is_published' => $blog->is_published,
-                    'message'      => 'Estado de publicación actualizado correctamente.',
+                    'message' => 'Estado de publicación actualizado correctamente.',
                 ]);
             }
 
             return back()->with('success', 'Estado de publicación actualizado correctamente.');
         } catch (\Exception $e) {
-            Log::error('Error alternando estado del blog: ' . $e->getMessage());
+            Log::error('Error alternando estado del blog: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax() || request()->wantsJson()) {
                 return response()->json([
@@ -263,7 +264,7 @@ class BlogController extends Controller
             return redirect()->route('admin.blogs.index')
                 ->with('success', 'La publicación de blog ha sido eliminada correctamente.');
         } catch (\Exception $e) {
-            Log::error('Error eliminando blog: ' . $e->getMessage());
+            Log::error('Error eliminando blog: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax() || request()->wantsJson()) {
                 return response()->json([

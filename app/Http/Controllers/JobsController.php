@@ -69,7 +69,8 @@ class JobsController extends Controller
 
     // ─── Source brand names used for upsert matching ────────────────────────
     private const SOURCE_COMPUTRABAJO = 'Computrabajo Perú';
-    private const SOURCE_BUMERAN      = 'Bumeran Perú';
+
+    private const SOURCE_BUMERAN = 'Bumeran Perú';
 
     /**
      * List all job offers with search, filters, and pagination.
@@ -82,12 +83,12 @@ class JobsController extends Controller
 
         $query = JobOffer::query();
 
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('company', 'like', "%{$search}%")
-                  ->orWhere('location', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('company', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -99,20 +100,20 @@ class JobsController extends Controller
             }
         }
 
-        if (!empty($source)) {
+        if (! empty($source)) {
             $query->where('source', 'like', "%{$source}%");
         }
 
         // Statistics Summary
-        $totalJobs    = JobOffer::count();
-        $activeJobs   = JobOffer::where('is_active', true)->count();
+        $totalJobs = JobOffer::count();
+        $activeJobs = JobOffer::where('is_active', true)->count();
         $inactiveJobs = JobOffer::where('is_active', false)->count();
         $internalJobs = JobOffer::where('source', 'like', '%Interna%')->count();
 
         // Paginated results
         $jobs = $query->orderBy('created_at', 'desc')
-                      ->paginate(10)
-                      ->withQueryString();
+            ->paginate(10)
+            ->withQueryString();
 
         return view('admin.jobs.index', compact(
             'jobs',
@@ -129,26 +130,27 @@ class JobsController extends Controller
     /**
      * List internal calls only.
      */
-    public function internalCalls(Request $request): View {
+    public function internalCalls(Request $request): View
+    {
         $search = $request->input('search');
-        $query  = JobOffer::where('source', 'like', '%Interna%');
+        $query = JobOffer::where('source', 'like', '%Interna%');
 
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('company', 'like', "%{$search}%")
-                  ->orWhere('location', 'like', "%{$search}%");
+                    ->orWhere('company', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%");
             });
         }
 
-        $totalJobs    = JobOffer::count();
-        $activeJobs   = JobOffer::where('is_active', true)->count();
+        $totalJobs = JobOffer::count();
+        $activeJobs = JobOffer::where('is_active', true)->count();
         $inactiveJobs = JobOffer::where('is_active', false)->count();
         $internalJobs = JobOffer::where('source', 'like', '%Interna%')->count();
 
         $jobs = $query->orderBy('created_at', 'desc')
-                      ->paginate(10)
-                      ->withQueryString();
+            ->paginate(10)
+            ->withQueryString();
 
         return view('admin.jobs.index', compact(
             'jobs',
@@ -163,40 +165,42 @@ class JobsController extends Controller
     /**
      * Show form for creating a new job offer.
      */
-    public function create(): View {
+    public function create(): View
+    {
         return view('admin.jobs.create');
     }
 
     /**
      * Store a newly created job offer.
      */
-    public function store(JobValidate $request): JsonResponse|RedirectResponse {
+    public function store(JobValidate $request): JsonResponse|RedirectResponse
+    {
         try {
             $validated = $request->validated();
             $validated['is_active'] = $request->has('is_active') ? (bool) $request->input('is_active') : true;
-            $validated['url']       = !empty($validated['url']) ? $validated['url'] : '#';
-            $validated['source']    = !empty($validated['source']) ? $validated['source'] : 'Bolsa Institucional';
+            $validated['url'] = ! empty($validated['url']) ? $validated['url'] : '#';
+            $validated['source'] = ! empty($validated['source']) ? $validated['source'] : 'Bolsa Institucional';
 
             $job = JobOffer::create($validated);
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
-                    'success'  => true,
-                    'message'  => 'Oferta laboral creada con éxito.',
+                    'success' => true,
+                    'message' => 'Oferta laboral creada con éxito.',
                     'redirect' => route('admin.works.index'),
-                    'data'     => $job,
+                    'data' => $job,
                 ], 201);
             }
 
             return redirect()->route('admin.works.index')
-                             ->with('success', 'Oferta laboral creada con éxito.');
+                ->with('success', 'Oferta laboral creada con éxito.');
         } catch (\Exception $e) {
-            Log::error('Error creando oferta laboral: ' . $e->getMessage());
+            Log::error('Error creando oferta laboral: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al guardar la oferta: ' . $e->getMessage(),
+                    'message' => 'Error al guardar la oferta: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -207,40 +211,42 @@ class JobsController extends Controller
     /**
      * Show form for editing an existing job offer.
      */
-    public function edit(JobOffer $offer): View {
+    public function edit(JobOffer $offer): View
+    {
         return view('admin.jobs.edit', compact('offer'));
     }
 
     /**
      * Update an existing job offer.
      */
-    public function update(JobValidate $request, JobOffer $offer): JsonResponse|RedirectResponse {
+    public function update(JobValidate $request, JobOffer $offer): JsonResponse|RedirectResponse
+    {
         try {
             $validated = $request->validated();
             $validated['is_active'] = $request->has('is_active') ? (bool) $request->input('is_active') : false;
-            $validated['url']       = !empty($validated['url']) ? $validated['url'] : '#';
-            $validated['source']    = !empty($validated['source']) ? $validated['source'] : 'Bolsa Institucional';
+            $validated['url'] = ! empty($validated['url']) ? $validated['url'] : '#';
+            $validated['source'] = ! empty($validated['source']) ? $validated['source'] : 'Bolsa Institucional';
 
             $offer->update($validated);
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
-                    'success'  => true,
-                    'message'  => 'Oferta laboral actualizada correctamente.',
+                    'success' => true,
+                    'message' => 'Oferta laboral actualizada correctamente.',
                     'redirect' => route('admin.works.index'),
-                    'data'     => $offer->fresh(),
+                    'data' => $offer->fresh(),
                 ], 200);
             }
 
             return redirect()->route('admin.works.index')
-                             ->with('success', 'Oferta laboral actualizada correctamente.');
+                ->with('success', 'Oferta laboral actualizada correctamente.');
         } catch (\Exception $e) {
-            Log::error('Error actualizando oferta laboral: ' . $e->getMessage());
+            Log::error('Error actualizando oferta laboral: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al actualizar la oferta: ' . $e->getMessage(),
+                    'message' => 'Error al actualizar la oferta: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -251,21 +257,22 @@ class JobsController extends Controller
     /**
      * Toggle active / inactive status.
      */
-    public function toggleStatus(JobOffer $offer): JsonResponse|RedirectResponse {
+    public function toggleStatus(JobOffer $offer): JsonResponse|RedirectResponse
+    {
         try {
-            $offer->update(['is_active' => !$offer->is_active]);
+            $offer->update(['is_active' => ! $offer->is_active]);
 
             if (request()->expectsJson() || request()->ajax() || request()->wantsJson()) {
                 return response()->json([
-                    'success'   => true,
+                    'success' => true,
                     'is_active' => $offer->is_active,
-                    'message'   => 'Estado de la oferta actualizado correctamente.',
+                    'message' => 'Estado de la oferta actualizado correctamente.',
                 ]);
             }
 
             return back()->with('success', 'Estado de la oferta actualizado correctamente.');
         } catch (\Exception $e) {
-            Log::error('Error alternando estado de oferta: ' . $e->getMessage());
+            Log::error('Error alternando estado de oferta: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax() || request()->wantsJson()) {
                 return response()->json([
@@ -294,9 +301,9 @@ class JobsController extends Controller
             }
 
             return redirect()->route('admin.works.index')
-                             ->with('success', 'La oferta ha sido eliminada correctamente.');
+                ->with('success', 'La oferta ha sido eliminada correctamente.');
         } catch (\Exception $e) {
-            Log::error('Error eliminando oferta laboral: ' . $e->getMessage());
+            Log::error('Error eliminando oferta laboral: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax() || request()->wantsJson()) {
                 return response()->json([
@@ -314,22 +321,23 @@ class JobsController extends Controller
      * Takes pagination into account by supporting either an array of specific IDs
      * or a select_all flag with active filters.
      */
-    public function bulkDelete(Request $request): JsonResponse|RedirectResponse {
+    public function bulkDelete(Request $request): JsonResponse|RedirectResponse
+    {
         try {
             $selectAll = $request->boolean('select_all');
-            $ids       = $request->input('ids', []);
+            $ids = $request->input('ids', []);
 
             if ($selectAll) {
                 // Delete all records matching the current active query/filters across all pages
                 $query = JobOffer::query();
 
                 $search = $request->input('search');
-                if (!empty($search)) {
+                if (! empty($search)) {
                     $query->where(function ($q) use ($search) {
                         $q->where('title', 'like', "%{$search}%")
-                          ->orWhere('company', 'like', "%{$search}%")
-                          ->orWhere('location', 'like', "%{$search}%")
-                          ->orWhere('description', 'like', "%{$search}%");
+                            ->orWhere('company', 'like', "%{$search}%")
+                            ->orWhere('location', 'like', "%{$search}%")
+                            ->orWhere('description', 'like', "%{$search}%");
                     });
                 }
 
@@ -343,7 +351,7 @@ class JobsController extends Controller
                 }
 
                 $source = $request->input('source');
-                if (!empty($source)) {
+                if (! empty($source)) {
                     $query->where('source', 'like', "%{$source}%");
                 }
 
@@ -355,6 +363,7 @@ class JobsController extends Controller
                             'message' => 'No se encontraron registros para eliminar con los filtros seleccionados.',
                         ], 404);
                     }
+
                     return back()->with('info', 'No se encontraron registros para eliminar.');
                 }
 
@@ -363,13 +372,14 @@ class JobsController extends Controller
                 $message = "Se han eliminado exitosamente {$count} ofertas laborales.";
             } else {
                 // Delete explicitly selected IDs (from one or multiple pages)
-                if (empty($ids) || !is_array($ids)) {
+                if (empty($ids) || ! is_array($ids)) {
                     if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                         return response()->json([
                             'success' => false,
                             'message' => 'Debe seleccionar al menos una oferta laboral para eliminar.',
                         ], 422);
                     }
+
                     return back()->with('error', 'Debe seleccionar al menos un registro.');
                 }
 
@@ -381,6 +391,7 @@ class JobsController extends Controller
                             'message' => 'Identificadores de oferta inválidos.',
                         ], 422);
                     }
+
                     return back()->with('error', 'Identificadores inválidos.');
                 }
 
@@ -393,6 +404,7 @@ class JobsController extends Controller
                             'message' => 'No se encontraron los registros seleccionados para eliminar.',
                         ], 404);
                     }
+
                     return back()->with('info', 'No se encontraron los registros seleccionados.');
                 }
 
@@ -405,19 +417,19 @@ class JobsController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => $message,
-                    'count'   => $count,
+                    'count' => $count,
                 ], 200);
             }
 
             return redirect()->route('admin.works.index')->with('success', $message);
 
         } catch (\Exception $e) {
-            Log::error('Error en eliminación masiva de ofertas laborales: ' . $e->getMessage());
+            Log::error('Error en eliminación masiva de ofertas laborales: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ocurrió un error al procesar la eliminación masiva: ' . $e->getMessage(),
+                    'message' => 'Ocurrió un error al procesar la eliminación masiva: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -428,7 +440,8 @@ class JobsController extends Controller
     /**
      * Completely clear (truncate) all records from the job_offers table.
      */
-    public function clearAll(Request $request): JsonResponse|RedirectResponse {
+    public function clearAll(Request $request): JsonResponse|RedirectResponse
+    {
         try {
             $totalCount = JobOffer::count();
 
@@ -437,9 +450,10 @@ class JobsController extends Controller
                     return response()->json([
                         'success' => true,
                         'message' => 'La tabla de ofertas laborales ya se encuentra vacía.',
-                        'count'   => 0,
+                        'count' => 0,
                     ], 200);
                 }
+
                 return back()->with('info', 'La tabla ya se encuentra vacía.');
             }
 
@@ -448,7 +462,7 @@ class JobsController extends Controller
                 JobOffer::truncate();
                 DB::statement('SET FOREIGN_KEY_CHECKS=1;');
             } catch (\Exception $truncateEx) {
-                Log::warning('Truncate failed, falling back to delete: ' . $truncateEx->getMessage());
+                Log::warning('Truncate failed, falling back to delete: '.$truncateEx->getMessage());
                 JobOffer::query()->delete();
             }
 
@@ -458,19 +472,19 @@ class JobsController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => $message,
-                    'count'   => $totalCount,
+                    'count' => $totalCount,
                 ], 200);
             }
 
             return redirect()->route('admin.works.index')->with('success', $message);
 
         } catch (\Exception $e) {
-            Log::error('Error al vaciar tabla de ofertas laborales: ' . $e->getMessage());
+            Log::error('Error al vaciar tabla de ofertas laborales: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al vaciar la tabla: ' . $e->getMessage(),
+                    'message' => 'Error al vaciar la tabla: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -490,11 +504,11 @@ class JobsController extends Controller
     {
         set_time_limit(120);
 
-        $savedCount   = 0;
+        $savedCount = 0;
         $updatedCount = 0;
         $skippedCount = 0;
-        $errors       = [];
-        $log          = [];
+        $errors = [];
+        $log = [];
 
         foreach (self::SEARCH_QUERIES as $program => $terms) {
             foreach ($terms as $term) {
@@ -503,15 +517,15 @@ class JobsController extends Controller
                     $results = $this->scrapeComputrabajo($term, $program);
                     foreach ($results as $item) {
                         [$action] = $this->upsertJobOffer($item);
-                        $action === 'saved'   ? $savedCount++   :
+                        $action === 'saved' ? $savedCount++ :
                         ($action === 'updated' ? $updatedCount++ : $skippedCount++);
                     }
-                    if (!empty($results)) {
-                        $log[] = "Computrabajo [{$program}] «{$term}»: " . count($results) . " registros.";
+                    if (! empty($results)) {
+                        $log[] = "Computrabajo [{$program}] «{$term}»: ".count($results).' registros.';
                     }
                 } catch (\Throwable $e) {
                     $errors[] = "Computrabajo [{$term}]: {$e->getMessage()}";
-                    Log::warning("fetchJobs Computrabajo error [{$term}]: " . $e->getMessage());
+                    Log::warning("fetchJobs Computrabajo error [{$term}]: ".$e->getMessage());
                 }
 
                 // ── Bumeran Perú ───────────────────────────────────────────
@@ -519,15 +533,15 @@ class JobsController extends Controller
                     $results = $this->scrapeBumeran($term, $program);
                     foreach ($results as $item) {
                         [$action] = $this->upsertJobOffer($item);
-                        $action === 'saved'   ? $savedCount++   :
+                        $action === 'saved' ? $savedCount++ :
                         ($action === 'updated' ? $updatedCount++ : $skippedCount++);
                     }
-                    if (!empty($results)) {
-                        $log[] = "Bumeran [{$program}] «{$term}»: " . count($results) . " registros.";
+                    if (! empty($results)) {
+                        $log[] = "Bumeran [{$program}] «{$term}»: ".count($results).' registros.';
                     }
                 } catch (\Throwable $e) {
                     $errors[] = "Bumeran [{$term}]: {$e->getMessage()}";
-                    Log::warning("fetchJobs Bumeran error [{$term}]: " . $e->getMessage());
+                    Log::warning("fetchJobs Bumeran error [{$term}]: ".$e->getMessage());
                 }
 
                 // Small pause to be respectful to servers
@@ -538,14 +552,14 @@ class JobsController extends Controller
         $total = $savedCount + $updatedCount;
 
         return response()->json([
-            'success'       => true,
-            'saved'         => $savedCount,
-            'updated'       => $updatedCount,
-            'skipped'       => $skippedCount,
-            'total'         => $total,
-            'log'           => $log,
-            'errors'        => $errors,
-            'message'       => $total > 0
+            'success' => true,
+            'saved' => $savedCount,
+            'updated' => $updatedCount,
+            'skipped' => $skippedCount,
+            'total' => $total,
+            'log' => $log,
+            'errors' => $errors,
+            'message' => $total > 0
                 ? "Búsqueda completada: {$savedCount} nuevas y {$updatedCount} actualizadas ({$skippedCount} sin cambios)."
                 : 'Búsqueda completada. No se encontraron nuevas ofertas en este momento.',
         ]);
@@ -556,10 +570,10 @@ class JobsController extends Controller
     private function scrapeComputrabajo(string $term, string $program): array
     {
         $slug = $this->toUrlSlug($term);
-        $url  = "https://www.computrabajo.com.pe/trabajo-de-{$slug}";
+        $url = "https://www.computrabajo.com.pe/trabajo-de-{$slug}";
 
         $html = $this->httpGet($url);
-        if (!$html) {
+        if (! $html) {
             return [];
         }
 
@@ -576,25 +590,25 @@ class JobsController extends Controller
         // 2. Fallback: parse HTML article cards
         if (empty($results)) {
             $crawler = new Crawler($html);
-            $crawler->filter('article.box_offer, div.box_offer, div[data-testid="job-card"]')->each(function (Crawler $node) use (&$results, $program, $url) {
+            $crawler->filter('article.box_offer, div.box_offer, div[data-testid="job-card"]')->each(function (Crawler $node) use (&$results, $program) {
                 try {
-                    $title    = $this->crawlerText($node, 'h2 a, h3 a, .title_offer a, [data-testid="job-title"]');
-                    $company  = $this->crawlerText($node, '.fs16, .company-name, [data-testid="company-name"], p.fs16');
+                    $title = $this->crawlerText($node, 'h2 a, h3 a, .title_offer a, [data-testid="job-title"]');
+                    $company = $this->crawlerText($node, '.fs16, .company-name, [data-testid="company-name"], p.fs16');
                     $location = $this->crawlerText($node, '.fs13.fc_base2, .location, [data-testid="location"]');
-                    $href     = $node->filter('h2 a, h3 a, .title_offer a')->count()
+                    $href = $node->filter('h2 a, h3 a, .title_offer a')->count()
                         ? $node->filter('h2 a, h3 a, .title_offer a')->attr('href')
                         : null;
-                    $jobUrl   = $href ? (str_starts_with($href, 'http') ? $href : 'https://www.computrabajo.com.pe' . $href) : null;
+                    $jobUrl = $href ? (str_starts_with($href, 'http') ? $href : 'https://www.computrabajo.com.pe'.$href) : null;
 
                     if ($title && $company && $jobUrl && $this->isValidPeruJob($location, $title)) {
                         $results[] = [
-                            'title'       => trim($title),
-                            'company'     => trim($company),
-                            'location'    => $this->normalizeLocation($location),
+                            'title' => trim($title),
+                            'company' => trim($company),
+                            'location' => $this->normalizeLocation($location),
                             'description' => $this->buildDescription($title, $company, $program, 'Computrabajo Perú'),
-                            'url'         => $jobUrl,
-                            'source'      => self::SOURCE_COMPUTRABAJO,
-                            'program'     => $program,
+                            'url' => $jobUrl,
+                            'source' => self::SOURCE_COMPUTRABAJO,
+                            'program' => $program,
                         ];
                     }
                 } catch (\Throwable) {
@@ -610,10 +624,10 @@ class JobsController extends Controller
     private function scrapeBumeran(string $term, string $program): array
     {
         $slug = rawurlencode($term);
-        $url  = "https://www.bumeran.com.pe/empleos-busqueda-{$slug}.html?pais=peru";
+        $url = "https://www.bumeran.com.pe/empleos-busqueda-{$slug}.html?pais=peru";
 
         $html = $this->httpGet($url);
-        if (!$html) {
+        if (! $html) {
             return [];
         }
 
@@ -632,21 +646,21 @@ class JobsController extends Controller
             $crawler = new Crawler($html);
             $crawler->filter('article, div.aviso, .styles__JobCard-sc, [class*="JobCard"]')->each(function (Crawler $node) use (&$results, $program) {
                 try {
-                    $title    = $this->crawlerText($node, 'h2, h3, [class*="title"], [class*="Title"]');
-                    $company  = $this->crawlerText($node, '[class*="company"], [class*="Company"], [class*="empresa"]');
+                    $title = $this->crawlerText($node, 'h2, h3, [class*="title"], [class*="Title"]');
+                    $company = $this->crawlerText($node, '[class*="company"], [class*="Company"], [class*="empresa"]');
                     $location = $this->crawlerText($node, '[class*="location"], [class*="Location"], [class*="ubicacion"]');
-                    $href     = $node->filter('a')->count() ? $node->filter('a')->first()->attr('href') : null;
-                    $jobUrl   = $href ? (str_starts_with($href, 'http') ? $href : 'https://www.bumeran.com.pe' . $href) : null;
+                    $href = $node->filter('a')->count() ? $node->filter('a')->first()->attr('href') : null;
+                    $jobUrl = $href ? (str_starts_with($href, 'http') ? $href : 'https://www.bumeran.com.pe'.$href) : null;
 
                     if ($title && strlen($title) > 3 && $jobUrl && $this->isValidPeruJob($location, $title)) {
                         $results[] = [
-                            'title'       => trim($title),
-                            'company'     => trim($company ?: 'Empresa Confidencial'),
-                            'location'    => $this->normalizeLocation($location),
+                            'title' => trim($title),
+                            'company' => trim($company ?: 'Empresa Confidencial'),
+                            'location' => $this->normalizeLocation($location),
                             'description' => $this->buildDescription($title, $company ?: 'Empresa Confidencial', $program, 'Bumeran Perú'),
-                            'url'         => $jobUrl,
-                            'source'      => self::SOURCE_BUMERAN,
-                            'program'     => $program,
+                            'url' => $jobUrl,
+                            'source' => self::SOURCE_BUMERAN,
+                            'program' => $program,
                         ];
                     }
                 } catch (\Throwable) {
@@ -677,28 +691,28 @@ class JobsController extends Controller
                         continue;
                     }
 
-                    $title    = $item['title'] ?? '';
-                    $company  = $item['hiringOrganization']['name'] ?? ($item['hiringOrganization'] ?? '');
+                    $title = $item['title'] ?? '';
+                    $company = $item['hiringOrganization']['name'] ?? ($item['hiringOrganization'] ?? '');
                     $location = $item['jobLocation']['address']['addressLocality'] ?? ($item['jobLocation']['address']['addressRegion'] ?? '');
-                    $country  = strtolower($item['jobLocation']['address']['addressCountry'] ?? '');
-                    $desc     = strip_tags($item['description'] ?? '');
-                    $url      = $item['url'] ?? ($item['sameAs'] ?? '');
+                    $country = strtolower($item['jobLocation']['address']['addressCountry'] ?? '');
+                    $desc = strip_tags($item['description'] ?? '');
+                    $url = $item['url'] ?? ($item['sameAs'] ?? '');
 
                     // Exclude if explicitly tagged as non-Peru country
-                    if ($country && !in_array($country, ['pe', 'peru', 'perú', ''])) {
+                    if ($country && ! in_array($country, ['pe', 'peru', 'perú', ''])) {
                         continue;
                     }
 
-                    if (!$title || !$url) {
+                    if (! $title || ! $url) {
                         continue;
                     }
 
                     $jobs[] = [
-                        'title'       => trim($title),
-                        'company'     => is_string($company) ? trim($company) : 'Empresa Confidencial',
-                        'location'    => $this->normalizeLocation($location),
+                        'title' => trim($title),
+                        'company' => is_string($company) ? trim($company) : 'Empresa Confidencial',
+                        'location' => $this->normalizeLocation($location),
                         'description' => $desc ? mb_substr(trim($desc), 0, 900) : '',
-                        'url'         => $url,
+                        'url' => $url,
                     ];
                 }
             } catch (\Throwable) {
@@ -723,31 +737,33 @@ class JobsController extends Controller
         $existing = JobOffer::where('url', $item['url'])->first();
 
         $payload = [
-            'title'       => mb_substr($item['title'], 0, 255),
-            'company'     => mb_substr($item['company'] ?? 'Empresa Confidencial', 0, 255),
-            'location'    => mb_substr($item['location'] ?? 'Perú', 0, 255),
-            'description' => !empty($item['description'])
+            'title' => mb_substr($item['title'], 0, 255),
+            'company' => mb_substr($item['company'] ?? 'Empresa Confidencial', 0, 255),
+            'location' => mb_substr($item['location'] ?? 'Perú', 0, 255),
+            'description' => ! empty($item['description'])
                 ? $item['description']
                 : $this->buildDescription($item['title'], $item['company'] ?? '', $item['program'] ?? '', $item['source'] ?? ''),
-            'url'         => $item['url'],
-            'source'      => $item['source'] ?? 'Bolsa Institucional',
-            'is_active'   => true,
+            'url' => $item['url'],
+            'source' => $item['source'] ?? 'Bolsa Institucional',
+            'is_active' => true,
         ];
 
         if ($existing) {
             // Only update dynamic fields, keep is_active as it was unless re-enabled
             $existing->update([
-                'title'       => $payload['title'],
-                'company'     => $payload['company'],
-                'location'    => $payload['location'],
+                'title' => $payload['title'],
+                'company' => $payload['company'],
+                'location' => $payload['location'],
                 'description' => $payload['description'],
-                'source'      => $payload['source'],
-                'is_active'   => $existing->is_active, // preserve admin's decision
+                'source' => $payload['source'],
+                'is_active' => $existing->is_active, // preserve admin's decision
             ]);
+
             return ['updated'];
         }
 
         JobOffer::create($payload);
+
         return ['saved'];
     }
 
@@ -758,14 +774,14 @@ class JobsController extends Controller
         try {
             $response = Http::timeout(15)
                 ->withHeaders([
-                    'User-Agent'      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-                    'Accept'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
                     'Accept-Language' => 'es-PE,es;q=0.9,en;q=0.8',
                     'Accept-Encoding' => 'gzip, deflate, br',
-                    'Connection'      => 'keep-alive',
+                    'Connection' => 'keep-alive',
                     'Upgrade-Insecure-Requests' => '1',
-                    'Referer'         => 'https://www.google.com/',
-                    'Cache-Control'   => 'no-cache',
+                    'Referer' => 'https://www.google.com/',
+                    'Cache-Control' => 'no-cache',
                 ])
                 ->get($url);
 
@@ -773,7 +789,7 @@ class JobsController extends Controller
                 return $response->body();
             }
         } catch (\Throwable $e) {
-            Log::debug("httpGet failed [{$url}]: " . $e->getMessage());
+            Log::debug("httpGet failed [{$url}]: ".$e->getMessage());
         }
 
         return null;
@@ -785,17 +801,18 @@ class JobsController extends Controller
     {
         $text = mb_strtolower($text);
         $text = str_replace(
-            ['á','é','í','ó','ú','ñ','ü',' '],
-            ['a','e','i','o','u','n','u','-'],
+            ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü', ' '],
+            ['a', 'e', 'i', 'o', 'u', 'n', 'u', '-'],
             $text
         );
+
         return preg_replace('/[^a-z0-9\-]/', '', $text);
     }
 
     private function isValidPeruJob(string $location, string $title): bool
     {
         $locationLower = mb_strtolower($location);
-        $titleLower    = mb_strtolower($title);
+        $titleLower = mb_strtolower($title);
 
         // Reject if explicitly a foreign country is in title or location
         foreach (self::EXCLUDE_COUNTRIES as $country) {
@@ -829,9 +846,10 @@ class JobsController extends Controller
         }
         // Remove country suffix if already present (e.g. "Lima, Perú" → "Lima, Perú")
         $lower = mb_strtolower($loc);
-        if (!str_contains($lower, 'perú') && !str_contains($lower, 'peru')) {
+        if (! str_contains($lower, 'perú') && ! str_contains($lower, 'peru')) {
             $loc .= ', Perú';
         }
+
         return $loc;
     }
 
@@ -839,6 +857,7 @@ class JobsController extends Controller
     {
         try {
             $filtered = $node->filter($selector);
+
             return $filtered->count() ? trim($filtered->first()->text('')) : '';
         } catch (\Throwable) {
             return '';

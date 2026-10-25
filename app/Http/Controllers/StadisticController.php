@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class StadisticController extends Controller
 {
@@ -21,10 +22,10 @@ class StadisticController extends Controller
      */
     public function index(Request $request): View
     {
-        $search         = $request->input('search');
-        $recordType     = $request->input('record_type');
+        $search = $request->input('search');
+        $recordType = $request->input('record_type');
         $academicPeriod = $request->input('academic_period');
-        $studyProgram   = $request->input('study_program');
+        $studyProgram = $request->input('study_program');
 
         $query = StudentRecord::with('documentType')
             ->when($search, function ($q, $search) {
@@ -37,17 +38,17 @@ class StadisticController extends Controller
                         ->orWhere('institution_name_ie', 'LIKE', "%{$search}%");
                 });
             })
-            ->when($recordType, fn($q, $type) => $q->where('record_type', $type))
-            ->when($academicPeriod, fn($q, $period) => $q->where('academic_period', $period))
-            ->when($studyProgram, fn($q, $prog) => $q->where('study_program', $prog));
+            ->when($recordType, fn ($q, $type) => $q->where('record_type', $type))
+            ->when($academicPeriod, fn ($q, $period) => $q->where('academic_period', $period))
+            ->when($studyProgram, fn ($q, $prog) => $q->where('study_program', $prog));
 
         $studentRecords = $query->latest('id')->paginate(15)->withQueryString();
 
         // High-level KPI Statistics
-        $totalRecords     = StudentRecord::count();
-        $totalAdmission   = StudentRecord::where('record_type', 'ADMISION')->count();
-        $totalEnrollment  = StudentRecord::where('record_type', 'MATRICULA')->count();
-        $totalPrograms    = StudentRecord::whereNotNull('study_program')->distinct('study_program')->count('study_program');
+        $totalRecords = StudentRecord::count();
+        $totalAdmission = StudentRecord::where('record_type', 'ADMISION')->count();
+        $totalEnrollment = StudentRecord::where('record_type', 'MATRICULA')->count();
+        $totalPrograms = StudentRecord::whereNotNull('study_program')->distinct('study_program')->count('study_program');
 
         // Distribution by program
         $programStats = StudentRecord::selectRaw('study_program, COUNT(*) as total, SUM(CASE WHEN record_type = "ADMISION" THEN 1 ELSE 0 END) as admision_count, SUM(CASE WHEN record_type = "MATRICULA" THEN 1 ELSE 0 END) as matricula_count')
@@ -174,16 +175,16 @@ class StadisticController extends Controller
             }
 
             return redirect()->route('admin.statistics.index')->with('success', $msg);
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        } catch (ValidationException $e) {
             $failures = collect($e->failures())->map(
-                fn ($f) => "Fila {$f->row()}: " . implode(', ', $f->errors())
+                fn ($f) => "Fila {$f->row()}: ".implode(', ', $f->errors())
             )->take(10)->implode(' | ');
 
             return redirect()->route('admin.statistics.index')
                 ->with('error', "Error de validación en el archivo: {$failures}");
         } catch (\Exception $e) {
             return redirect()->route('admin.statistics.index')
-                ->with('error', 'Error al procesar el archivo: ' . $e->getMessage());
+                ->with('error', 'Error al procesar el archivo: '.$e->getMessage());
         }
     }
 }

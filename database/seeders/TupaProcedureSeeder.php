@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\TupaProcedure;
+use App\Models\Tupa;
 use App\Models\TupaCategory;
+use App\Models\TupaProcedure;
 use Illuminate\Database\Seeder;
 
 class TupaProcedureSeeder extends Seeder
@@ -14,7 +15,7 @@ class TupaProcedureSeeder extends Seeder
     public function run(): void
     {
         // Asumiendo que el Tupa con ID 1 existe, ajusta según tu caso
-        $tupaId = \App\Models\Tupa::where('is_active', true)->first()?->id ?? 1;
+        $tupaId = Tupa::where('is_active', true)->first()?->id ?? 1;
 
         // Obtener categorías por nombre
         $categories = TupaCategory::pluck('id', 'name')->toArray();
@@ -31,13 +32,13 @@ class TupaProcedureSeeder extends Seeder
                             'Formulario Único de Trámite (FUT) completado y dirigido al Director General.',
                             'Comprobante de pago por derecho de trámite.',
                             '02 fotos tamaño carné a color en fondo blanco.',
-                            'Constancia de no adeudar libros ni materiales a la institución.'
+                            'Constancia de no adeudar libros ni materiales a la institución.',
                         ],
                         'cost' => 'S/. 35.00',
                         'uit_percent' => '0.65%',
                         'qualification' => 'Evaluación Previa (Positivo)',
                         'duration' => '5 días hábiles',
-                        'office' => 'Secretaría Académica'
+                        'office' => 'Secretaría Académica',
                     ],
                     [
                         'code' => 'P-02',
@@ -47,13 +48,13 @@ class TupaProcedureSeeder extends Seeder
                             'FUT dirigido al Director General del instituto.',
                             'Comprobante de pago por derecho de certificado modular.',
                             'Constancia de prácticas preprofesionales / módulo acreditado.',
-                            '02 fotografías tamaño pasaporte en fondo blanco con vestimenta formal.'
+                            '02 fotografías tamaño pasaporte en fondo blanco con vestimenta formal.',
                         ],
                         'cost' => 'S/. 60.00',
                         'uit_percent' => '1.12%',
                         'qualification' => 'Evaluación Previa (Positivo)',
                         'duration' => '7 días hábiles',
-                        'office' => 'Área de Unidad Académica'
+                        'office' => 'Área de Unidad Académica',
                     ],
                     [
                         'code' => 'P-03',
@@ -65,13 +66,13 @@ class TupaProcedureSeeder extends Seeder
                             'Constancias aprobadas de Módulos Profesionales y Prácticas Preprofesionales (EFSRT).',
                             'Constancia de Acreditación de Idioma Extranjero y Computación (si corresponde).',
                             'Comprobante de pago por derecho de Titulación y carpeta de egresado.',
-                            '04 fotografías tamaño pasaporte en papel mate con traje formal.'
+                            '04 fotografías tamaño pasaporte en papel mate con traje formal.',
                         ],
                         'cost' => 'S/. 350.00',
                         'uit_percent' => '6.54%',
                         'qualification' => 'Evaluación Previa (Positivo)',
                         'duration' => '30 días hábiles',
-                        'office' => 'Dirección General / Secretaría Académica'
+                        'office' => 'Dirección General / Secretaría Académica',
                     ],
                     [
                         'code' => 'P-04',
@@ -82,13 +83,13 @@ class TupaProcedureSeeder extends Seeder
                             'Denuncia policial original por pérdida o robo (si aplica) o devolución del original deteriorado.',
                             'Publicación en diario de mayor circulación o declaración jurada legalizada.',
                             'Comprobante de pago por emisión de duplicado.',
-                            '02 fotografías tamaño pasaporte.'
+                            '02 fotografías tamaño pasaporte.',
                         ],
                         'cost' => 'S/. 120.00',
                         'uit_percent' => '2.24%',
                         'qualification' => 'Evaluación Previa (Positivo)',
                         'duration' => '15 días hábiles',
-                        'office' => 'Secretaría Académica'
+                        'office' => 'Secretaría Académica',
                     ],
                     [
                         'code' => 'P-05',
@@ -96,15 +97,15 @@ class TupaProcedureSeeder extends Seeder
                         'description' => 'Emisión de constancia oficial de matrícula, condición de egresado, conducta o ponderado académico.',
                         'requirements' => [
                             'FUT solicitando la constancia específica.',
-                            'Comprobante de pago correspondiente al tipo de constancia.'
+                            'Comprobante de pago correspondiente al tipo de constancia.',
                         ],
                         'cost' => 'S/. 20.00',
                         'uit_percent' => '0.37%',
                         'qualification' => 'Aprobación Automática',
                         'duration' => '2 días hábiles',
-                        'office' => 'Secretaría Académica'
-                    ]
-                ]
+                        'office' => 'Secretaría Académica',
+                    ],
+                ],
             ],
             [
                 'category' => 'Matrícula, Reincorporación y Traslados',
@@ -116,13 +117,13 @@ class TupaProcedureSeeder extends Seeder
                         'requirements' => [
                             'Ficha de matrícula debidamente completada.',
                             'Comprobante de pago de tasa por concepto de matrícula semestral.',
-                            'Estar al día en compromisos administrativos y biblioteca.'
+                            'Estar al día en compromisos administrativos y biblioteca.',
                         ],
                         'cost' => 'S/. 80.00',
                         'uit_percent' => '1.50%',
                         'qualification' => 'Aprobación Automática',
                         'duration' => '1 día hábil',
-                        'office' => 'Unidad de Admisión y Registro'
+                        'office' => 'Unidad de Admisión y Registro',
                     ],
                     [
                         'code' => 'P-07',
@@ -131,13 +132,13 @@ class TupaProcedureSeeder extends Seeder
                         'requirements' => [
                             'FUT justificado indicando motivo extemporáneo.',
                             'Comprobante de pago de recargo por matrícula extemporánea.',
-                            'Aprobación previa de la Jefatura de Unidad Académica.'
+                            'Aprobación previa de la Jefatura de Unidad Académica.',
                         ],
                         'cost' => 'S/. 110.00',
                         'uit_percent' => '2.05%',
                         'qualification' => 'Evaluación Previa (Positivo)',
                         'duration' => '2 días hábiles',
-                        'office' => 'Secretaría Académica'
+                        'office' => 'Secretaría Académica',
                     ],
                     [
                         'code' => 'P-08',
@@ -146,13 +147,13 @@ class TupaProcedureSeeder extends Seeder
                         'requirements' => [
                             'FUT solicitando la reserva de matrícula por razones personales, laborales o de salud.',
                             'Documentos sustentatorios del motivo (si aplica).',
-                            'Comprobante de pago por derecho de trámite de reserva.'
+                            'Comprobante de pago por derecho de trámite de reserva.',
                         ],
                         'cost' => 'S/. 30.00',
                         'uit_percent' => '0.56%',
                         'qualification' => 'Aprobación Automática',
                         'duration' => '3 días hábiles',
-                        'office' => 'Secretaría Académica'
+                        'office' => 'Secretaría Académica',
                     ],
                     [
                         'code' => 'P-09',
@@ -161,13 +162,13 @@ class TupaProcedureSeeder extends Seeder
                         'requirements' => [
                             'FUT pidiendo reincorporación al semestre correspondiente.',
                             'Copia del documento que aprobó la reserva o licencia previa.',
-                            'Comprobante de pago por derecho de reincorporación.'
+                            'Comprobante de pago por derecho de reincorporación.',
                         ],
                         'cost' => 'S/. 40.00',
                         'uit_percent' => '0.75%',
                         'qualification' => 'Evaluación Previa (Positivo)',
                         'duration' => '3 días hábiles',
-                        'office' => 'Unidad Académica'
+                        'office' => 'Unidad Académica',
                     ],
                     [
                         'code' => 'P-10',
@@ -177,15 +178,15 @@ class TupaProcedureSeeder extends Seeder
                             'FUT especificando las asignaturas o módulos a convalidar.',
                             'Certificados de Estudios oficiales originales.',
                             'Sílabos oficiales visados y sellados por la institución de origen.',
-                            'Comprobante de pago por derecho de convalidación por unidad didáctica o módulo.'
+                            'Comprobante de pago por derecho de convalidación por unidad didáctica o módulo.',
                         ],
                         'cost' => 'S/. 50.00',
                         'uit_percent' => '0.93%',
                         'qualification' => 'Evaluación Previa (Positivo)',
                         'duration' => '10 días hábiles',
-                        'office' => 'Comisión de Convalidación / Jefatura de Área'
-                    ]
-                ]
+                        'office' => 'Comisión de Convalidación / Jefatura de Área',
+                    ],
+                ],
             ],
             [
                 'category' => 'Evaluaciones y Exámenes',
@@ -198,13 +199,13 @@ class TupaProcedureSeeder extends Seeder
                             'Certificado de Estudios de Educación Secundaria aprobados.',
                             'Copia simple de DNI o Carné de Extranjería.',
                             'Partida o Acta de Nacimiento.',
-                            'Comprobante de pago por derecho de inscripción al examen de admisión.'
+                            'Comprobante de pago por derecho de inscripción al examen de admisión.',
                         ],
                         'cost' => 'S/. 150.00',
                         'uit_percent' => '2.80%',
                         'qualification' => 'Aprobación Automática',
                         'duration' => 'Inmediata',
-                        'office' => 'Comisión Institucional de Admisión'
+                        'office' => 'Comisión Institucional de Admisión',
                     ],
                     [
                         'code' => 'P-12',
@@ -213,15 +214,15 @@ class TupaProcedureSeeder extends Seeder
                         'requirements' => [
                             'FUT dirigido a la Jefatura de Área Académica.',
                             'Boleta de notas indicando la asignatura a subsanar.',
-                            'Comprobante de pago por examen de subsanación por curso.'
+                            'Comprobante de pago por examen de subsanación por curso.',
                         ],
                         'cost' => 'S/. 45.00',
                         'uit_percent' => '0.84%',
                         'qualification' => 'Evaluación Previa (Positivo)',
                         'duration' => '3 días hábiles',
-                        'office' => 'Jefatura de Unidad Académica'
-                    ]
-                ]
+                        'office' => 'Jefatura de Unidad Académica',
+                    ],
+                ],
             ],
             [
                 'category' => 'Servicios Complementarios y Carnés',
@@ -233,13 +234,13 @@ class TupaProcedureSeeder extends Seeder
                         'requirements' => [
                             'Ficha de matrícula vigente.',
                             '01 foto tamaño carné en digital o físico.',
-                            'Comprobante de pago por derecho de expedición o duplicado de carné.'
+                            'Comprobante de pago por derecho de expedición o duplicado de carné.',
                         ],
                         'cost' => 'S/. 18.00',
                         'uit_percent' => '0.33%',
                         'qualification' => 'Aprobación Automática',
                         'duration' => '5 días hábiles',
-                        'office' => 'Unidad de Bienestar e Infraestructura'
+                        'office' => 'Unidad de Bienestar e Infraestructura',
                     ],
                     [
                         'code' => 'P-14',
@@ -248,23 +249,23 @@ class TupaProcedureSeeder extends Seeder
                         'requirements' => [
                             'FUT solicitando la autenticación o copia fiel del original.',
                             'Presentación de los documentos originales y fotocopias legibles.',
-                            'Comprobante de pago por folio o documento.'
+                            'Comprobante de pago por folio o documento.',
                         ],
                         'cost' => 'S/. 10.00',
                         'uit_percent' => '0.18%',
                         'qualification' => 'Aprobación Automática',
                         'duration' => '1 día hábil',
-                        'office' => 'Secretaría General / Dirección'
-                    ]
-                ]
-            ]
+                        'office' => 'Secretaría General / Dirección',
+                    ],
+                ],
+            ],
         ];
 
         foreach ($procedures as $categoryData) {
             $categoryName = $categoryData['category'];
             $categoryId = $categories[$categoryName] ?? null;
 
-            if (!$categoryId) {
+            if (! $categoryId) {
                 continue; // Saltar si no se encuentra la categoría
             }
 

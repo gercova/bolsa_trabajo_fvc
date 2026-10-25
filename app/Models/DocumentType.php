@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class DocumentType extends Model
 {
     protected $table = 'document_type';
+
     protected $fillable = [
         'name',
         'abreviation',
@@ -18,11 +19,13 @@ class DocumentType extends Model
         'is_active' => 'boolean',
     ];
 
-    public function users(): HasMany {
+    public function users(): HasMany
+    {
         return $this->hasMany(User::class);
     }
 
-    public function studentRecords(): HasMany {
+    public function studentRecords(): HasMany
+    {
         return $this->hasMany(StudentRecord::class);
     }
 }

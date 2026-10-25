@@ -35,7 +35,7 @@ class UserInstructionsSheetExport implements FromArray, ShouldAutoSize, WithStyl
             ['   • Si la celda está VACÍA, el sistema generará automáticamente su correo institucional bajo la fórmula:'],
             ['     primera letra del nombre + apellido paterno completo + primera letra del apellido materno + @iestpfvc.edu.pe'],
             ['     Ejemplo: Juan Pérez Gómez → jperezg@iestpfvc.edu.pe'],
-            ['4. Contraseña por defecto: Todos los usuarios importados tendrán como contraseña inicial: P4$$w0rd*'],
+            ['4. Contraseña por defecto: Todos los usuarios importados tendrán como contraseña inicial: password'],
             ['5. Estado: Todos los usuarios se registran con estado Activo (is_active = 1).'],
             [''],
             ['DETALLE DE COLUMNAS DE LA PLANTILLA'],

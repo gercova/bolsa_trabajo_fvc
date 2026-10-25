@@ -11,7 +11,7 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
-class StudentRecordImport implements ToCollection, WithStartRow, WithChunkReading
+class StudentRecordImport implements ToCollection, WithChunkReading, WithStartRow
 {
     /**
      * Default record type — overridden per-row when cycle column is filled.
@@ -35,14 +35,15 @@ class StudentRecordImport implements ToCollection, WithStartRow, WithChunkReadin
      * Counters exposed to the controller for flash messages.
      */
     public int $importedCount = 0;
-    public int $skippedCount  = 0;
+
+    public int $skippedCount = 0;
 
     /**
-     * @param string $recordType  'ADMISION' | 'MATRICULA' | 'AUTO'
+     * @param  string  $recordType  'ADMISION' | 'MATRICULA' | 'AUTO'
      */
     public function __construct(string $recordType = 'AUTO')
     {
-        $resolved         = strtoupper(trim($recordType));
+        $resolved = strtoupper(trim($recordType));
         $this->recordType = ($resolved === 'AUTO') ? 'ADMISION' : $resolved;
 
         // Pre-load all document types once
@@ -119,7 +120,7 @@ class StudentRecordImport implements ToCollection, WithStartRow, WithChunkReadin
      */
     public function collection(Collection $rows): void
     {
-        $now   = now()->toDateTimeString();
+        $now = now()->toDateTimeString();
         $batch = [];
 
         foreach ($rows as $row) {
@@ -131,107 +132,108 @@ class StudentRecordImport implements ToCollection, WithStartRow, WithChunkReadin
             if ($this->isFullExcel) {
                 // ── Full Excel path ──────────────────────────────────────────
                 $document = $this->cleanString($row[8] ?? null);
-                $names    = $this->cleanString($row[11] ?? null);
+                $names = $this->cleanString($row[11] ?? null);
 
                 if (empty($document) && empty($names)) {
                     $this->skippedCount++;
+
                     continue;
                 }
 
-                $cycle      = $this->cleanString($row[28] ?? null);
-                $recordType = !empty($cycle) ? 'MATRICULA' : $this->recordType;
-
+                $cycle = $this->cleanString($row[28] ?? null);
+                $recordType = ! empty($cycle) ? 'MATRICULA' : $this->recordType;
                 $batch[] = [
                     // Institution where the student studies (cols A-G)
-                    'academic_period'     => $this->cleanString($row[0] ?? null),
-                    'region'              => $this->cleanString($row[1] ?? null),
-                    'province'            => $this->cleanString($row[2] ?? null),
-                    'district'            => $this->cleanString($row[3] ?? null),
-                    'codigo_modular'      => $this->cleanString($row[4] ?? null),
-                    'nombre_institucion'  => $this->cleanString($row[5] ?? null),
-                    'tipo_gestion'        => $this->cleanString($row[6] ?? null),
+                    'academic_period' => $this->cleanString($row[0] ?? null),
+                    'region' => $this->cleanString($row[1] ?? null),
+                    'province' => $this->cleanString($row[2] ?? null),
+                    'district' => $this->cleanString($row[3] ?? null),
+                    'codigo_modular' => $this->cleanString($row[4] ?? null),
+                    'nombre_institucion' => $this->cleanString($row[5] ?? null),
+                    'tipo_gestion' => $this->cleanString($row[6] ?? null),
                     // Student personal data (cols H-R)
-                    'document_type_id'    => $this->resolveDocumentTypeId($this->cleanString($row[7] ?? null)),
-                    'document'            => $document,
-                    'last_name_father'    => $this->cleanString($row[9]  ?? null),
-                    'last_name_mother'    => $this->cleanString($row[10] ?? null),
-                    'names'               => $names,
-                    'birthdate'           => $this->parseDate($row[12] ?? null),
-                    'gender'              => $this->normalizeGender($row[13] ?? null),
-                    'email'               => $this->cleanString($row[14] ?? null),
-                    'phone'               => $this->cleanString($row[15] ?? null),
-                    'mother_tongue'       => $this->cleanString($row[16] ?? null),
-                    'pais_procedencia'    => $this->cleanString($row[17] ?? null),
+                    'document_type_id' => $this->resolveDocumentTypeId($this->cleanString($row[7] ?? null)),
+                    'document' => $document,
+                    'last_name_father' => $this->cleanString($row[9] ?? null),
+                    'last_name_mother' => $this->cleanString($row[10] ?? null),
+                    'names' => $names,
+                    'birthdate' => $this->parseDate($row[12] ?? null),
+                    'gender' => $this->normalizeGender($row[13] ?? null),
+                    'email' => $this->cleanString($row[14] ?? null),
+                    'phone' => $this->cleanString($row[15] ?? null),
+                    'mother_tongue' => $this->cleanString($row[16] ?? null),
+                    'pais_procedencia' => $this->cleanString($row[17] ?? null),
                     // Origin IE (cols S-AA)
-                    'ubigeo_ie'           => $this->cleanString($row[18] ?? null),
-                    'region_ie'           => $this->cleanString($row[19] ?? null),
-                    'province_ie'         => $this->cleanString($row[20] ?? null),
-                    'district_ie'         => $this->cleanString($row[21] ?? null),
+                    'ubigeo_ie' => $this->cleanString($row[18] ?? null),
+                    'region_ie' => $this->cleanString($row[19] ?? null),
+                    'province_ie' => $this->cleanString($row[20] ?? null),
+                    'district_ie' => $this->cleanString($row[21] ?? null),
                     'institution_type_ie' => $this->cleanString($row[22] ?? null),
-                    'modular_code_ie'     => $this->cleanString($row[23] ?? null),
+                    'modular_code_ie' => $this->cleanString($row[23] ?? null),
                     'institution_name_ie' => $this->cleanString($row[24] ?? null),
-                    'management_type_ie'  => $this->cleanString($row[25] ?? null),
-                    'year_graduation'     => $this->cleanInt($row[26] ?? null),
+                    'management_type_ie' => $this->cleanString($row[25] ?? null),
+                    'year_graduation' => $this->cleanInt($row[26] ?? null),
                     // Academic process (cols AB-AF)
-                    'study_program'       => $this->cleanString($row[27] ?? null),
-                    'cycle'               => $cycle,
-                    'enrollment_status'   => $this->cleanString($row[29] ?? null),
-                    'period_status'       => $this->cleanString($row[30] ?? null),
-                    'registration_date'   => $this->parseDate($row[31] ?? null),
-                    'record_type'         => $recordType,
-                    'created_at'          => $now,
-                    'updated_at'          => $now,
+                    'study_program' => $this->cleanString($row[27] ?? null),
+                    'cycle' => $cycle,
+                    'enrollment_status' => $this->cleanString($row[29] ?? null),
+                    'period_status' => $this->cleanString($row[30] ?? null),
+                    'registration_date' => $this->parseDate($row[31] ?? null),
+                    'record_type' => $recordType,
+                    'created_at' => $now,
+                    'updated_at' => $now,
                 ];
             } else {
                 // ── Partial CSV path (H–AF only, no A-G columns) ────────────
                 // Offset is 0: col H is at index 0
                 $document = $this->cleanString($row[1] ?? null);  // I
-                $names    = $this->cleanString($row[4] ?? null);  // L
+                $names = $this->cleanString($row[4] ?? null);  // L
 
                 if (empty($document) && empty($names)) {
                     $this->skippedCount++;
+
                     continue;
                 }
 
-                $cycle      = $this->cleanString($row[21] ?? null);
-                $recordType = !empty($cycle) ? 'MATRICULA' : $this->recordType;
+                $cycle = $this->cleanString($row[21] ?? null);
+                $recordType = ! empty($cycle) ? 'MATRICULA' : $this->recordType;
 
                 $batch[] = [
-                    'academic_period'     => null,
-                    'document_type_id'    => $this->resolveDocumentTypeId($this->cleanString($row[0] ?? null)),
-                    'document'            => $document,
-                    'last_name_father'    => $this->cleanString($row[2]  ?? null),
-                    'last_name_mother'    => $this->cleanString($row[3]  ?? null),
-                    'names'               => $names,
-                    'birthdate'           => $this->parseDate($row[5]    ?? null),
-                    'gender'              => $this->normalizeGender($row[6] ?? null),
-                    'email'               => $this->cleanString($row[7]  ?? null),
-                    'phone'               => $this->cleanString($row[8]  ?? null),
-                    'mother_tongue'       => $this->cleanString($row[9]  ?? null),
-                    'pais_procedencia'    => $this->cleanString($row[10] ?? null),
-                    'ubigeo_ie'           => $this->cleanString($row[11] ?? null),
-                    'region_ie'           => $this->cleanString($row[12] ?? null),
-                    'province_ie'         => $this->cleanString($row[13] ?? null),
-                    'district_ie'         => $this->cleanString($row[14] ?? null),
+                    'academic_period' => null,
+                    'document_type_id' => $this->resolveDocumentTypeId($this->cleanString($row[0] ?? null)),
+                    'document' => $document,
+                    'last_name_father' => $this->cleanString($row[2] ?? null),
+                    'last_name_mother' => $this->cleanString($row[3] ?? null),
+                    'names' => $names,
+                    'birthdate' => $this->parseDate($row[5] ?? null),
+                    'gender' => $this->normalizeGender($row[6] ?? null),
+                    'email' => $this->cleanString($row[7] ?? null),
+                    'phone' => $this->cleanString($row[8] ?? null),
+                    'mother_tongue' => $this->cleanString($row[9] ?? null),
+                    'pais_procedencia' => $this->cleanString($row[10] ?? null),
+                    'ubigeo_ie' => $this->cleanString($row[11] ?? null),
+                    'region_ie' => $this->cleanString($row[12] ?? null),
+                    'province_ie' => $this->cleanString($row[13] ?? null),
+                    'district_ie' => $this->cleanString($row[14] ?? null),
                     'institution_type_ie' => $this->cleanString($row[15] ?? null),
-                    'modular_code_ie'     => $this->cleanString($row[16] ?? null),
+                    'modular_code_ie' => $this->cleanString($row[16] ?? null),
                     'institution_name_ie' => $this->cleanString($row[17] ?? null),
-                    'management_type_ie'  => $this->cleanString($row[18] ?? null),
-                    'year_graduation'     => $this->cleanInt($row[19] ?? null),
-                    'study_program'       => $this->cleanString($row[20] ?? null),
-                    'cycle'               => $cycle,
-                    'enrollment_status'   => $this->cleanString($row[22] ?? null),
-                    'period_status'       => $this->cleanString($row[23] ?? null),
-                    'registration_date'   => $this->parseDate($row[24]   ?? null),
-                    'record_type'         => $recordType,
-                    'created_at'          => $now,
-                    'updated_at'          => $now,
+                    'management_type_ie' => $this->cleanString($row[18] ?? null),
+                    'year_graduation' => $this->cleanInt($row[19] ?? null),
+                    'study_program' => $this->cleanString($row[20] ?? null),
+                    'cycle' => $cycle,
+                    'enrollment_status' => $this->cleanString($row[22] ?? null),
+                    'period_status' => $this->cleanString($row[23] ?? null),
+                    'registration_date' => $this->parseDate($row[24] ?? null),
+                    'record_type' => $recordType,
+                    'created_at' => $now,
+                    'updated_at' => $now,
                 ];
             }
         }
 
         // ── Bulk insert the whole chunk in one query ──────────────────────────
-        if (!empty($batch)) {
+        if (! empty($batch)) {
             DB::table('student_records')->insert($batch);
             $this->importedCount += count($batch);
         }
@@ -245,6 +247,7 @@ class StudentRecordImport implements ToCollection, WithStartRow, WithChunkReadin
             return null;
         }
         $str = trim((string) $value);
+
         return $str !== '' ? $str : null;
     }
 
@@ -254,16 +257,18 @@ class StudentRecordImport implements ToCollection, WithStartRow, WithChunkReadin
             return null;
         }
         $int = intval($value);
+
         return $int > 0 ? $int : null;
     }
 
     private function normalizeGender(mixed $value): ?string
     {
         $v = strtoupper(trim((string) ($value ?? '')));
+
         return match (true) {
             in_array($v, ['M', 'H', 'MASCULINO', 'MALE', 'HOMBRE'], true) => 'MASCULINO',
-            in_array($v, ['F', 'FEMENINO', 'FEMALE', 'MUJER'],       true) => 'FEMENINO',
-            default                                                         => null,
+            in_array($v, ['F', 'FEMENINO', 'FEMALE', 'MUJER'], true) => 'FEMENINO',
+            default => null,
         };
     }
 

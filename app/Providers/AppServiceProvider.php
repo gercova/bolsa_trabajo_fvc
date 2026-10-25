@@ -33,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
             )) {
                 return true;
             }
+
             return null;
         });
 
@@ -47,11 +48,12 @@ class AppServiceProvider extends ServiceProvider
         // Configuración de limitador de tasa (Rate Limiter) para login
         RateLimiter::for('login', function (Request $request) {
             $email = (string) $request->input('email');
-            $throttleKey = Str::transliterate(Str::lower($email) . '|' . $request->ip());
+            $throttleKey = Str::transliterate(Str::lower($email).'|'.$request->ip());
 
             return [
                 Limit::perMinute(5)->by($throttleKey)->response(function (Request $request, array $headers) {
                     $retryAfter = $headers['Retry-After'] ?? 60;
+
                     return back()->withErrors([
                         'email' => __('auth.throttle', [
                             'seconds' => $retryAfter,

@@ -19,15 +19,18 @@ class Module extends Model
         'is_active' => 'boolean',
     ];
 
-    public function course(): BelongsTo {
+    public function course(): BelongsTo
+    {
         return $this->belongsTo(Course::class, 'course_id', 'id');
     }
 
-    public function itineraries(): HasMany {
+    public function itineraries(): HasMany
+    {
         return $this->hasMany(Itinerary::class, 'module_id', 'id');
     }
 
-    public function certificateDetails(): HasMany {
+    public function certificateDetails(): HasMany
+    {
         return $this->hasMany(CertificateDetail::class, 'module_id', 'id');
     }
 }

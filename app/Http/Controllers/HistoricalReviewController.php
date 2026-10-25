@@ -24,9 +24,9 @@ class HistoricalReviewController extends Controller
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('title', 'LIKE', "%{$search}%")
-                      ->orWhere('description', 'LIKE', "%{$search}%")
-                      ->orWhere('start_year', 'LIKE', "%{$search}%")
-                      ->orWhere('end_year', 'LIKE', "%{$search}%");
+                        ->orWhere('description', 'LIKE', "%{$search}%")
+                        ->orWhere('start_year', 'LIKE', "%{$search}%")
+                        ->orWhere('end_year', 'LIKE', "%{$search}%");
                 });
             })
             ->when($status !== null && $status !== '', function ($query) use ($status) {
@@ -46,6 +46,7 @@ class HistoricalReviewController extends Controller
     public function create(): View
     {
         $nextOrder = (HistoricalReview::max('order') ?? 0) + 1;
+
         return view('admin.history.create', compact('nextOrder'));
     }
 
@@ -69,7 +70,7 @@ class HistoricalReviewController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Hito histórico registrado con éxito.',
-                'data'    => $history,
+                'data' => $history,
             ], 201);
         }
 
@@ -83,7 +84,7 @@ class HistoricalReviewController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data'    => $history,
+            'data' => $history,
         ]);
     }
 
@@ -127,7 +128,7 @@ class HistoricalReviewController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Hito histórico actualizado correctamente.',
-                'data'    => $history->fresh(),
+                'data' => $history->fresh(),
             ]);
         }
 
@@ -140,13 +141,13 @@ class HistoricalReviewController extends Controller
     public function toggleStatus(HistoricalReview $history): RedirectResponse|JsonResponse
     {
         $history->update([
-            'is_active' => !$history->is_active,
+            'is_active' => ! $history->is_active,
         ]);
 
         if (request()->wantsJson()) {
             return response()->json([
-                'success'   => true,
-                'message'   => 'Estado del hito histórico actualizado.',
+                'success' => true,
+                'message' => 'Estado del hito histórico actualizado.',
                 'is_active' => $history->is_active,
             ]);
         }

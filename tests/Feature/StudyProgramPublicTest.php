@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Enterprise;
-use App\Models\StudyProgram;
 use App\Models\ModularCertification;
+use App\Models\StudyProgram;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -53,7 +53,7 @@ class StudyProgramPublicTest extends TestCase
             'name' => 'Enfermería Técnica Oculta',
             'slug' => 'enfermeria-tecnica-oculta',
             'description' => 'Especialidad oculta',
-            'details' => "Duración: 3 años",
+            'details' => 'Duración: 3 años',
             'is_active' => false,
         ]);
 
@@ -99,7 +99,7 @@ class StudyProgramPublicTest extends TestCase
         $response->assertSee('Producción Agropecuaria');
         $response->assertSee('Especialidad agrícola importante');
         $response->assertSee('Módulo Agropecuaria I');
-        
+
         // Assert SEO tags are present
         $response->assertSee('<meta name="description"', false);
         $response->assertSee('<meta name="keywords"', false);

@@ -1,4 +1,5 @@
 <?php
+
 // database/migrations/2026_08_04_000002_create_program_competencies_table.php
 
 use Illuminate\Database\Migrations\Migration;

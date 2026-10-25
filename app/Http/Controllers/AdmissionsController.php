@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AdmissionRequest;
 use App\Models\Admission;
+use App\Models\Area;
 use App\Models\Image;
 use App\Models\StudyProgram;
-use App\Http\Requests\AdmissionRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -14,53 +15,55 @@ use Illuminate\Support\Facades\Storage;
 
 class AdmissionsController extends Controller
 {
-    public function index(Request $request): View {
+    public function index(Request $request): View
+    {
         $validated = $request->validate([
-            'search'     => 'nullable|string|max:255',
-            'process'    => 'nullable|string|in:admisión,cepre,matrícula',
-            'type'       => 'nullable|string|in:ordinario,extraordinario',
-            'status'     => 'nullable|string|in:active,inactive',
-            'date'       => 'nullable|string',
-            'sort_by'    => 'nullable|string|in:id,period,total_vacancies,exam_date,price,type,process,is_active,created_at',
+            'search' => 'nullable|string|max:255',
+            'process' => 'nullable|string|in:admisión,cepre,matrícula',
+            'type' => 'nullable|string|in:ordinario,extraordinario',
+            'status' => 'nullable|string|in:active,inactive',
+            'date' => 'nullable|string',
+            'sort_by' => 'nullable|string|in:id,period,total_vacancies,exam_date,price,type,process,is_active,created_at',
             'sort_order' => 'nullable|string|in:asc,desc',
-            'per_page'   => 'nullable|integer|min:1|max:100',
+            'per_page' => 'nullable|integer|min:1|max:100',
         ]);
 
-        $perPage  = $validated['per_page'] ?? 10;
-        $sortBy   = $validated['sort_by']    ?? 'created_at';
+        $perPage = $validated['per_page'] ?? 10;
+        $sortBy = $validated['sort_by'] ?? 'created_at';
         $sortOrder = $validated['sort_order'] ?? 'desc';
 
         // Base query builder closure
         $buildQuery = function (string $process) use ($validated, $sortBy, $sortOrder) {
             $q = Admission::where('process', $process);
 
-            if (!empty($validated['search'])) {
+            if (! empty($validated['search'])) {
                 $search = $validated['search'];
                 $q->where(function ($sub) use ($search) {
                     $sub->where('period', 'LIKE', "%{$search}%")
                         ->orWhere('activity', 'LIKE', "%{$search}%");
                 });
             }
-            if (!empty($validated['type'])) {
+            if (! empty($validated['type'])) {
                 $q->where('type', $validated['type']);
             }
-            if (!empty($validated['status'])) {
+            if (! empty($validated['status'])) {
                 $q->where('is_active', $validated['status'] === 'active');
             }
-            if (!empty($validated['date'])) {
+            if (! empty($validated['date'])) {
                 $dates = explode(' - ', $validated['date']);
                 if (count($dates) === 2) {
                     $q->whereBetween('exam_date', [$dates[0], $dates[1]]);
                 }
             }
+
             return $q->orderBy($sortBy, $sortOrder);
         };
 
-        $cepreAdmissions    = $buildQuery('cepre')->paginate($perPage, ['*'], 'cepre_page');
+        $cepreAdmissions = $buildQuery('cepre')->paginate($perPage, ['*'], 'cepre_page');
         $admisionAdmissions = $buildQuery('admisión')->paginate($perPage, ['*'], 'admision_page');
 
         // Banner images for the public pages
-        $cepreImage    = Image::where('imageable_type', 'cepre')   ->where('imageable_id', 1)->first();
+        $cepreImage = Image::where('imageable_type', 'cepre')->where('imageable_id', 1)->first();
         $admisionImage = Image::where('imageable_type', 'admision')->where('imageable_id', 1)->first();
 
         return view('admin.admission.index', compact(
@@ -74,7 +77,8 @@ class AdmissionsController extends Controller
     /**
      * Update the hero banner image for the CEPRE public page.
      */
-    public function updateCepreImage(Request $request): RedirectResponse {
+    public function updateCepreImage(Request $request): RedirectResponse
+    {
         $request->validate(['image' => 'required|image|mimes:jpg,jpeg,png,webp|max:4096']);
 
         $record = Image::firstOrNew(
@@ -82,7 +86,7 @@ class AdmissionsController extends Controller
         );
 
         // Delete old file if it exists and is not the default static asset
-        if ($record->exists && $record->path && !str_starts_with($record->path, 'images/')) {
+        if ($record->exists && $record->path && ! str_starts_with($record->path, 'images/')) {
             Storage::disk('public')->delete($record->path);
         }
 
@@ -96,14 +100,15 @@ class AdmissionsController extends Controller
     /**
      * Update the hero banner image for the Examen de Admisión public page.
      */
-    public function updateAdmissionImage(Request $request): RedirectResponse {
+    public function updateAdmissionImage(Request $request): RedirectResponse
+    {
         $request->validate(['image' => 'required|image|mimes:jpg,jpeg,png,webp|max:4096']);
 
         $record = Image::firstOrNew(
             ['imageable_type' => 'admision', 'imageable_id' => 1]
         );
 
-        if ($record->exists && $record->path && !str_starts_with($record->path, 'images/')) {
+        if ($record->exists && $record->path && ! str_starts_with($record->path, 'images/')) {
             Storage::disk('public')->delete($record->path);
         }
 
@@ -114,18 +119,22 @@ class AdmissionsController extends Controller
         return back()->with('success', 'Imagen del banner Examen de Admisión actualizada correctamente.');
     }
 
-    public function create(): View {
+    public function create(): View
+    {
         $programs = StudyProgram::where('is_active', true)->get();
-        $areas = \App\Models\Area::all();
+        $areas = Area::all();
+
         return view('admin.admission.create', compact('programs', 'areas'));
     }
 
-    public function edit(Admission $admission): View {
+    public function edit(Admission $admission): View
+    {
         $allPrograms = StudyProgram::where('is_active', true)->get();
         $existingDetails = $admission->admissionDetail->keyBy('program_id');
 
         $programs = $allPrograms->map(function ($program) use ($existingDetails) {
             $detail = $existingDetails->get($program->id);
+
             return (object) [
                 'id' => $program->id,
                 'name' => $program->name,
@@ -133,12 +142,13 @@ class AdmissionsController extends Controller
             ];
         });
 
-        $areas = \App\Models\Area::all();
+        $areas = Area::all();
 
         return view('admin.admission.edit', compact('admission', 'programs', 'areas'));
     }
 
-    public function store(AdmissionRequest $request): RedirectResponse {
+    public function store(AdmissionRequest $request): RedirectResponse
+    {
         $validated = $request->validated();
 
         if ($request->hasFile('url_pdf')) {
@@ -157,10 +167,10 @@ class AdmissionsController extends Controller
 
         if ($request->has('programs')) {
             foreach ($request->input('programs') as $programData) {
-                if (!empty($programData['program_id'])) {
+                if (! empty($programData['program_id'])) {
                     $admission->admissionDetail()->create([
                         'program_id' => $programData['program_id'],
-                        'vacancies'  => $programData['vacancies'] ?? 0,
+                        'vacancies' => $programData['vacancies'] ?? 0,
                     ]);
                 }
             }
@@ -169,7 +179,8 @@ class AdmissionsController extends Controller
         return redirect()->route('admin.exams.index')->with('success', 'Examen de admisión / CEPRE creado correctamente');
     }
 
-    public function update(AdmissionRequest $request, Admission $admission): RedirectResponse {
+    public function update(AdmissionRequest $request, Admission $admission): RedirectResponse
+    {
         $validated = $request->validated();
 
         if ($request->hasFile('url_pdf')) {
@@ -199,10 +210,10 @@ class AdmissionsController extends Controller
         if ($request->has('programs')) {
             $admission->admissionDetail()->delete();
             foreach ($request->input('programs') as $programData) {
-                if (!empty($programData['program_id'])) {
+                if (! empty($programData['program_id'])) {
                     $admission->admissionDetail()->create([
                         'program_id' => $programData['program_id'],
-                        'vacancies'  => $programData['vacancies'] ?? 0,
+                        'vacancies' => $programData['vacancies'] ?? 0,
                     ]);
                 }
             }
@@ -211,11 +222,13 @@ class AdmissionsController extends Controller
         return redirect()->route('admin.exams.index')->with('success', 'Examen de admisión / CEPRE actualizado correctamente');
     }
 
-    public function show(Admission $admission): JsonResponse{
+    public function show(Admission $admission): JsonResponse
+    {
         return response()->json($admission);
     }
 
-    public function destroy(Admission $admission): RedirectResponse {
+    public function destroy(Admission $admission): RedirectResponse
+    {
         if ($admission->url_pdf && Storage::disk('public')->exists($admission->url_pdf)) {
             Storage::disk('public')->delete($admission->url_pdf);
         }
@@ -224,13 +237,16 @@ class AdmissionsController extends Controller
         }
 
         $admission->delete();
+
         return redirect()->route('admin.exams.index')->with('success', 'Examen de admisión eliminado correctamente');
     }
 
-    public function toggleStatus(Admission $admission): RedirectResponse {
+    public function toggleStatus(Admission $admission): RedirectResponse
+    {
         $admission->update([
-            'is_active' => !$admission->is_active
+            'is_active' => ! $admission->is_active,
         ]);
+
         return redirect()->back()->with('success', 'Estado del examen de admisión actualizado correctamente');
     }
 }

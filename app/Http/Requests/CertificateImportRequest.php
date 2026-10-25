@@ -22,9 +22,9 @@ class CertificateImportRequest extends FormRequest
     {
         return [
             'file.required' => 'Debe seleccionar un archivo para importar.',
-            'file.file'     => 'El campo debe ser un archivo válido.',
-            'file.mimes'    => 'Solo se permiten archivos Excel (.xlsx, .xls) o CSV (.csv).',
-            'file.max'      => 'El archivo no debe superar los 10 MB.',
+            'file.file' => 'El campo debe ser un archivo válido.',
+            'file.mimes' => 'Solo se permiten archivos Excel (.xlsx, .xls) o CSV (.csv).',
+            'file.max' => 'El archivo no debe superar los 10 MB.',
         ];
     }
 

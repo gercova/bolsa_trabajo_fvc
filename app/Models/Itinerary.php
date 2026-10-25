@@ -18,11 +18,13 @@ class Itinerary extends Model
         'is_active' => 'boolean',
     ];
 
-    public function course(): BelongsTo {
+    public function course(): BelongsTo
+    {
         return $this->belongsTo(Course::class, 'course_id', 'id');
     }
 
-    public function module(): BelongsTo {
+    public function module(): BelongsTo
+    {
         return $this->belongsTo(Module::class, 'module_id', 'id');
     }
 }

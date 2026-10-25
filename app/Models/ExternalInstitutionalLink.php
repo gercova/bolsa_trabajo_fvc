@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class ExternalInstitutionalLink extends Model
 {
-    protected $table        = 'external_institutional_links';
-    protected $primaryKey   = 'id';
-    protected $fillable     = [
+    protected $table = 'external_institutional_links';
+
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
         'name',
         'link',
         'icon',
@@ -19,7 +21,8 @@ class ExternalInstitutionalLink extends Model
         'is_active' => 'boolean',
     ];
 
-    public function scopeActive($query): void {
+    public function scopeActive($query): void
+    {
         $query->where('is_active', true);
     }
 }

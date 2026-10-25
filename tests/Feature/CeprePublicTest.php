@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Admission;
 use App\Models\AdmissionRequirement;
+use App\Models\Area;
 use App\Models\Enterprise;
 use App\Models\StudyProgram;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -207,7 +208,7 @@ class CeprePublicTest extends TestCase
         ]);
 
         // 1. Create area
-        $area = \App\Models\Area::create([
+        $area = Area::create([
             'name' => 'Secretaría Académica',
         ]);
 

@@ -21,13 +21,13 @@ class TupaController extends Controller
     public function index(Request $request): View
     {
         $validated = $request->validate([
-            'search'           => 'nullable|string|max:255',
-            'status'           => 'nullable|string|in:active,inactive',
-            'year'             => 'nullable|integer',
-            'category_id'      => 'nullable|integer',
-            'tupa_id'          => 'nullable|integer',
-            'tab'              => 'nullable|string|in:documents,categories,procedures',
-            'per_page'         => 'nullable|integer|min:1|max:100',
+            'search' => 'nullable|string|max:255',
+            'status' => 'nullable|string|in:active,inactive',
+            'year' => 'nullable|integer',
+            'category_id' => 'nullable|integer',
+            'tupa_id' => 'nullable|integer',
+            'tab' => 'nullable|string|in:documents,categories,procedures',
+            'per_page' => 'nullable|integer|min:1|max:100',
         ]);
 
         $activeTab = $validated['tab'] ?? 'documents';
@@ -35,19 +35,19 @@ class TupaController extends Controller
         // 1. Documentos TUPA
         $tupaQuery = Tupa::query();
 
-        if (!empty($validated['search']) && $activeTab === 'documents') {
+        if (! empty($validated['search']) && $activeTab === 'documents') {
             $search = $validated['search'];
             $tupaQuery->where(function ($q) use ($search) {
                 $q->where('title', 'LIKE', "%{$search}%")
-                  ->orWhere('description', 'LIKE', "%{$search}%");
+                    ->orWhere('description', 'LIKE', "%{$search}%");
             });
         }
 
-        if (!empty($validated['status']) && $activeTab === 'documents') {
+        if (! empty($validated['status']) && $activeTab === 'documents') {
             $tupaQuery->where('is_active', $validated['status'] === 'active');
         }
 
-        if (!empty($validated['year']) && $activeTab === 'documents') {
+        if (! empty($validated['year']) && $activeTab === 'documents') {
             $tupaQuery->whereYear('effective_start_date', $validated['year']);
         }
 
@@ -58,12 +58,12 @@ class TupaController extends Controller
         // 2. Categorías TUPA (tupa_categories)
         $catQuery = TupaCategory::withCount('procedures');
 
-        if (!empty($validated['search']) && $activeTab === 'categories') {
+        if (! empty($validated['search']) && $activeTab === 'categories') {
             $search = $validated['search'];
             $catQuery->where('name', 'LIKE', "%{$search}%");
         }
 
-        if (!empty($validated['status']) && $activeTab === 'categories') {
+        if (! empty($validated['status']) && $activeTab === 'categories') {
             $catQuery->where('is_active', $validated['status'] === 'active');
         }
 
@@ -74,7 +74,7 @@ class TupaController extends Controller
         // 3. Procedimientos TUPA (tupa_procedures)
         $procQuery = TupaProcedure::with(['category', 'tupa']);
 
-        if (!empty($validated['search']) && $activeTab === 'procedures') {
+        if (! empty($validated['search']) && $activeTab === 'procedures') {
             $search = $validated['search'];
             $procQuery->where(function ($q) use ($search) {
                 $q->where('code', 'LIKE', "%{$search}%")
@@ -84,15 +84,15 @@ class TupaController extends Controller
             });
         }
 
-        if (!empty($validated['status']) && $activeTab === 'procedures') {
+        if (! empty($validated['status']) && $activeTab === 'procedures') {
             $procQuery->where('is_active', $validated['status'] === 'active');
         }
 
-        if (!empty($validated['category_id']) && $activeTab === 'procedures') {
+        if (! empty($validated['category_id']) && $activeTab === 'procedures') {
             $procQuery->where('category_id', $validated['category_id']);
         }
 
-        if (!empty($validated['tupa_id']) && $activeTab === 'procedures') {
+        if (! empty($validated['tupa_id']) && $activeTab === 'procedures') {
             $procQuery->where('tupa_id', $validated['tupa_id']);
         }
 
@@ -101,7 +101,7 @@ class TupaController extends Controller
             ->withQueryString();
 
         $allCategoriesList = TupaCategory::where('is_active', true)->orderBy('name')->get();
-        $allTupasList      = Tupa::where('is_active', true)->orderBy('title')->get();
+        $allTupasList = Tupa::where('is_active', true)->orderBy('title')->get();
 
         return view('admin.tupa.index', compact(
             'tupas',
@@ -192,7 +192,7 @@ class TupaController extends Controller
     public function toggleStatus(Tupa $tupa): RedirectResponse
     {
         $tupa->update([
-            'is_active' => !$tupa->is_active,
+            'is_active' => ! $tupa->is_active,
         ]);
 
         return redirect()->back()->with('success', 'Estado del registro TUPA actualizado correctamente.');
@@ -243,13 +243,12 @@ class TupaController extends Controller
     public function toggleCategoryStatus(TupaCategory $category): RedirectResponse
     {
         $category->update([
-            'is_active' => !$category->is_active,
+            'is_active' => ! $category->is_active,
         ]);
 
         return redirect()->back()->with('success', 'Estado de la categoría actualizado correctamente.');
     }
 
-    
     // PROCEDIMIENTOS TUPA (tupa_procedures)
     public function createProcedure(): View
     {
@@ -311,7 +310,7 @@ class TupaController extends Controller
     public function toggleProcedureStatus(TupaProcedure $procedure): RedirectResponse
     {
         $procedure->update([
-            'is_active' => !$procedure->is_active,
+            'is_active' => ! $procedure->is_active,
         ]);
 
         return redirect()->back()->with('success', 'Estado del procedimiento actualizado correctamente.');

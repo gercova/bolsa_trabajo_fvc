@@ -15,74 +15,74 @@ class UserRoleDetailsSeeder extends Seeder
     {
         $data = [
             [
-                'id'                => 1,
-                'user_id'           => 25,
-                'program_id'        => 2,
-                'is_coordinator'    => 1,
-                'specialty'         => 'Prof. Tec. en Enfermería',
-                'is_active'         => 1,
-                'created_at'        => '2026-07-29T17:05:54.000Z',
-                'updated_at'        => '2026-07-30T00:26:04.000Z'
+                'id' => 1,
+                'user_id' => 25,
+                'program_id' => 2,
+                'is_coordinator' => 1,
+                'specialty' => 'Prof. Tec. en Enfermería',
+                'is_active' => 1,
+                'created_at' => '2026-07-29T17:05:54.000Z',
+                'updated_at' => '2026-07-30T00:26:04.000Z',
             ],
             [
-                'id'                => 2,
-                'user_id'           => 35,
-                'program_id'        => 3,
-                'is_coordinator'    => 0,
-                'specialty'         => null,
-                'is_active'         => 1,
-                'created_at'        => '2026-07-29T17:06:11.000Z',
-                'updated_at'        => '2026-07-29T17:06:11.000Z'
+                'id' => 2,
+                'user_id' => 35,
+                'program_id' => 3,
+                'is_coordinator' => 0,
+                'specialty' => null,
+                'is_active' => 1,
+                'created_at' => '2026-07-29T17:06:11.000Z',
+                'updated_at' => '2026-07-29T17:06:11.000Z',
             ],
             [
-                'id'                => 3,
-                'user_id'           => 3,
-                'program_id'        => 5,
-                'is_coordinator'    => 0,
-                'specialty'         => null,
-                'is_active'         => 1,
-                'created_at'        => '2026-07-29T17:06:38.000Z',
-                'updated_at'        => '2026-07-29T17:06:38.000Z'
+                'id' => 3,
+                'user_id' => 3,
+                'program_id' => 5,
+                'is_coordinator' => 0,
+                'specialty' => null,
+                'is_active' => 1,
+                'created_at' => '2026-07-29T17:06:38.000Z',
+                'updated_at' => '2026-07-29T17:06:38.000Z',
             ],
             [
-                'id'                => 4,
-                'user_id'           => 12,
-                'program_id'        => 3,
-                'is_coordinator'    => 0,
-                'specialty'         => null,
-                'is_active'         => 1,
-                'created_at'        => '2026-07-29T17:06:55.000Z',
-                'updated_at'        => '2026-07-29T17:06:55.000Z'
+                'id' => 4,
+                'user_id' => 12,
+                'program_id' => 3,
+                'is_coordinator' => 0,
+                'specialty' => null,
+                'is_active' => 1,
+                'created_at' => '2026-07-29T17:06:55.000Z',
+                'updated_at' => '2026-07-29T17:06:55.000Z',
             ],
             [
-                'id'                => 5,
-                'user_id'           => 5,
-                'program_id'        => 1,
-                'is_coordinator'    => 1,
-                'specialty'         => null,
-                'is_active'         => 1,
-                'created_at'        => '2026-07-29T17:07:11.000Z',
-                'updated_at'        => '2026-07-29T17:07:11.000Z'
+                'id' => 5,
+                'user_id' => 5,
+                'program_id' => 1,
+                'is_coordinator' => 1,
+                'specialty' => null,
+                'is_active' => 1,
+                'created_at' => '2026-07-29T17:07:11.000Z',
+                'updated_at' => '2026-07-29T17:07:11.000Z',
             ],
             [
-                'id'                => 6,
-                'user_id'           => 30,
-                'program_id'        => 3,
-                'is_coordinator'    => 0,
-                'specialty'         => null,
-                'is_active'         => 1,
-                'created_at'        => '2026-07-29T17:07:43.000Z',
-                'updated_at'        => '2026-07-29T17:09:12.000Z'
+                'id' => 6,
+                'user_id' => 30,
+                'program_id' => 3,
+                'is_coordinator' => 0,
+                'specialty' => null,
+                'is_active' => 1,
+                'created_at' => '2026-07-29T17:07:43.000Z',
+                'updated_at' => '2026-07-29T17:09:12.000Z',
             ],
             [
-                'id'                => 7,
-                'user_id'           => 7,
+                'id' => 7,
+                'user_id' => 7,
                 'program_id' => 4,
                 'is_coordinator' => 0,
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:09:40.000Z',
-                'updated_at' => '2026-07-29T17:09:40.000Z'
+                'updated_at' => '2026-07-29T17:09:40.000Z',
             ],
             [
                 'id' => 8,
@@ -92,7 +92,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:09:57.000Z',
-                'updated_at' => '2026-07-29T17:09:57.000Z'
+                'updated_at' => '2026-07-29T17:09:57.000Z',
             ],
             [
                 'id' => 9,
@@ -102,7 +102,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:10:19.000Z',
-                'updated_at' => '2026-07-29T17:10:19.000Z'
+                'updated_at' => '2026-07-29T17:10:19.000Z',
             ],
             [
                 'id' => 10,
@@ -112,7 +112,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:10:36.000Z',
-                'updated_at' => '2026-07-29T17:10:36.000Z'
+                'updated_at' => '2026-07-29T17:10:36.000Z',
             ],
             [
                 'id' => 11,
@@ -122,7 +122,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:11:48.000Z',
-                'updated_at' => '2026-07-29T17:11:48.000Z'
+                'updated_at' => '2026-07-29T17:11:48.000Z',
             ],
             [
                 'id' => 12,
@@ -132,7 +132,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:12:10.000Z',
-                'updated_at' => '2026-07-29T17:12:10.000Z'
+                'updated_at' => '2026-07-29T17:12:10.000Z',
             ],
             [
                 'id' => 13,
@@ -142,7 +142,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:12:19.000Z',
-                'updated_at' => '2026-07-29T17:12:19.000Z'
+                'updated_at' => '2026-07-29T17:12:19.000Z',
             ],
             [
                 'id' => 14,
@@ -152,7 +152,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:12:36.000Z',
-                'updated_at' => '2026-07-29T17:12:36.000Z'
+                'updated_at' => '2026-07-29T17:12:36.000Z',
             ],
             [
                 'id' => 15,
@@ -162,7 +162,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => 'Mg. en Tecnologías de Información y Comunicación',
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:12:49.000Z',
-                'updated_at' => '2026-07-30T00:25:13.000Z'
+                'updated_at' => '2026-07-30T00:25:13.000Z',
             ],
             [
                 'id' => 16,
@@ -172,7 +172,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:13:03.000Z',
-                'updated_at' => '2026-07-29T17:13:03.000Z'
+                'updated_at' => '2026-07-29T17:13:03.000Z',
             ],
             [
                 'id' => 17,
@@ -182,7 +182,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:13:22.000Z',
-                'updated_at' => '2026-07-29T17:13:22.000Z'
+                'updated_at' => '2026-07-29T17:13:22.000Z',
             ],
             [
                 'id' => 18,
@@ -192,7 +192,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:13:38.000Z',
-                'updated_at' => '2026-07-29T17:13:38.000Z'
+                'updated_at' => '2026-07-29T17:13:38.000Z',
             ],
             [
                 'id' => 19,
@@ -202,7 +202,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:14:13.000Z',
-                'updated_at' => '2026-07-29T17:14:13.000Z'
+                'updated_at' => '2026-07-29T17:14:13.000Z',
             ],
             [
                 'id' => 20,
@@ -212,7 +212,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:14:38.000Z',
-                'updated_at' => '2026-07-29T17:14:38.000Z'
+                'updated_at' => '2026-07-29T17:14:38.000Z',
             ],
             [
                 'id' => 21,
@@ -222,7 +222,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:14:56.000Z',
-                'updated_at' => '2026-07-29T17:14:56.000Z'
+                'updated_at' => '2026-07-29T17:14:56.000Z',
             ],
             [
                 'id' => 22,
@@ -232,7 +232,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:15:24.000Z',
-                'updated_at' => '2026-07-29T17:15:24.000Z'
+                'updated_at' => '2026-07-29T17:15:24.000Z',
             ],
             [
                 'id' => 23,
@@ -242,7 +242,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:15:45.000Z',
-                'updated_at' => '2026-07-29T17:15:45.000Z'
+                'updated_at' => '2026-07-29T17:15:45.000Z',
             ],
             [
                 'id' => 24,
@@ -252,7 +252,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:16:14.000Z',
-                'updated_at' => '2026-07-29T17:16:14.000Z'
+                'updated_at' => '2026-07-29T17:16:14.000Z',
             ],
             [
                 'id' => 25,
@@ -262,7 +262,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:17:18.000Z',
-                'updated_at' => '2026-07-29T17:20:10.000Z'
+                'updated_at' => '2026-07-29T17:20:10.000Z',
             ],
             [
                 'id' => 26,
@@ -272,7 +272,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:48:09.000Z',
-                'updated_at' => '2026-07-29T17:48:09.000Z'
+                'updated_at' => '2026-07-29T17:48:09.000Z',
             ],
             [
                 'id' => 27,
@@ -282,7 +282,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:48:33.000Z',
-                'updated_at' => '2026-07-29T17:48:33.000Z'
+                'updated_at' => '2026-07-29T17:48:33.000Z',
             ],
             [
                 'id' => 28,
@@ -292,7 +292,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:50:28.000Z',
-                'updated_at' => '2026-07-29T17:50:28.000Z'
+                'updated_at' => '2026-07-29T17:50:28.000Z',
             ],
             [
                 'id' => 29,
@@ -302,7 +302,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-07-29T17:50:43.000Z',
-                'updated_at' => '2026-07-29T17:50:43.000Z'
+                'updated_at' => '2026-07-29T17:50:43.000Z',
             ],
             [
                 'id' => 30,
@@ -312,7 +312,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-08-01T15:23:25.000Z',
-                'updated_at' => '2026-08-01T15:23:25.000Z'
+                'updated_at' => '2026-08-01T15:23:25.000Z',
             ],
             [
                 'id' => 31,
@@ -322,7 +322,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-08-01T15:25:07.000Z',
-                'updated_at' => '2026-08-01T15:25:07.000Z'
+                'updated_at' => '2026-08-01T15:25:07.000Z',
             ],
             [
                 'id' => 32,
@@ -332,7 +332,7 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-08-01T15:25:28.000Z',
-                'updated_at' => '2026-08-01T15:25:28.000Z'
+                'updated_at' => '2026-08-01T15:25:28.000Z',
             ],
             [
                 'id' => 33,
@@ -342,8 +342,8 @@ class UserRoleDetailsSeeder extends Seeder
                 'specialty' => null,
                 'is_active' => 1,
                 'created_at' => '2026-08-01T15:26:38.000Z',
-                'updated_at' => '2026-08-01T15:26:38.000Z'
-            ]
+                'updated_at' => '2026-08-01T15:26:38.000Z',
+            ],
         ];
 
         // Opción 1: Usando el modelo (respetará los casts y eventos)

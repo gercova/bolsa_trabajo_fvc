@@ -23,7 +23,7 @@ class AdminStudyProgramTest extends TestCase
     {
         $user = User::factory()->create();
         $response = $this->actingAs($user)->get('/admin-programas');
-        
+
         $response->assertOk();
         $response->assertViewHas('programs');
     }
@@ -32,7 +32,7 @@ class AdminStudyProgramTest extends TestCase
     {
         $user = User::factory()->create();
         $response = $this->actingAs($user)->get('/admin-programas/crear-programa');
-        
+
         $response->assertOk();
         $response->assertSee('Nuevo Programa de Estudio');
     }
@@ -94,7 +94,7 @@ class AdminStudyProgramTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get("/admin-programas/editar-programa/{$program->id}");
-        
+
         $response->assertOk();
         $response->assertSee('Editar Programa de Estudio');
         $response->assertSee('Agropecuaria');
@@ -104,7 +104,7 @@ class AdminStudyProgramTest extends TestCase
     {
         Storage::fake('public');
         $user = User::factory()->create();
-        
+
         $program = StudyProgram::create([
             'name' => 'Agropecuaria',
             'slug' => 'agropecuaria',
@@ -132,7 +132,7 @@ class AdminStudyProgramTest extends TestCase
         $this->assertEquals('Nueva descripción', $program->description);
         $this->assertEquals('Nuevo detalle', $program->details);
         $this->assertFalse($program->is_active);
-        
+
         Storage::disk('public')->assertExists($program->logo_path);
     }
 
@@ -160,7 +160,7 @@ class AdminStudyProgramTest extends TestCase
     {
         Storage::fake('public');
         $user = User::factory()->create();
-        
+
         $logo = UploadedFile::fake()->image('logo.png');
         $logoPath = $logo->store('programs', 'public');
 

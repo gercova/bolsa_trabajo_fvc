@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class EnrollmentSchedule extends Model
 {
-    protected $table      = 'enrollment_schedules';
+    protected $table = 'enrollment_schedules';
+
     protected $primaryKey = 'id';
 
     protected $fillable = [
@@ -22,11 +23,11 @@ class EnrollmentSchedule extends Model
 
     protected $casts = [
         'enrollment_fee' => 'decimal:2',
-        'start_date'     => 'date',
-        'end_date'       => 'date',
-        'is_active'      => 'boolean',
-        'created_at'     => 'datetime',
-        'updated_at'     => 'datetime',
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'is_active' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function details(): HasMany
@@ -57,10 +58,10 @@ class EnrollmentSchedule extends Model
      */
     public function getTypeLabelAttribute(): string
     {
-        return match($this->enrollment_type) {
-            'ordinaria'     => 'Matrícula Ordinaria',
-            'extraordinaria'=> 'Matrícula Extraordinaria',
-            default         => ucfirst($this->enrollment_type),
+        return match ($this->enrollment_type) {
+            'ordinaria' => 'Matrícula Ordinaria',
+            'extraordinaria' => 'Matrícula Extraordinaria',
+            default => ucfirst($this->enrollment_type),
         };
     }
 
@@ -70,6 +71,7 @@ class EnrollmentSchedule extends Model
     public function getIsOpenAttribute(): bool
     {
         $today = now()->startOfDay();
+
         return $this->is_active
             && $today->greaterThanOrEqualTo($this->start_date)
             && $today->lessThanOrEqualTo($this->end_date);

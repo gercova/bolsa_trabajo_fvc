@@ -21,7 +21,7 @@ class AdminClaimTest extends TestCase
     {
         $user = User::factory()->create();
         $response = $this->actingAs($user)->get('/admin-reclamos');
-        
+
         $response->assertOk();
         $response->assertViewHas('claims');
     }
@@ -29,7 +29,7 @@ class AdminClaimTest extends TestCase
     public function test_admin_can_search_claims(): void
     {
         $user = User::factory()->create();
-        
+
         Claim::create([
             'dni' => '11111111',
             'names' => 'Carlos Perez',
@@ -37,7 +37,7 @@ class AdminClaimTest extends TestCase
             'subject' => 'Reclamo',
             'message' => 'Disconformidad 1',
         ]);
-        
+
         Claim::create([
             'dni' => '22222222',
             'names' => 'Maria Gomez',
@@ -62,7 +62,7 @@ class AdminClaimTest extends TestCase
     public function test_admin_can_filter_claims_by_status(): void
     {
         $user = User::factory()->create();
-        
+
         Claim::create([
             'dni' => '11111111',
             'names' => 'Carlos Perez',
@@ -71,7 +71,7 @@ class AdminClaimTest extends TestCase
             'message' => 'Disconformidad 1',
             'status' => 'leido',
         ]);
-        
+
         Claim::create([
             'dni' => '22222222',
             'names' => 'Maria Gomez',

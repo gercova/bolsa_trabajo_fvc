@@ -23,7 +23,7 @@ return new class extends Migration
             $table->char('sex', 1)->nullable()->default('F');
             $table->string('ubigeo', 6)->nullable()->collation('utf8mb4_general_ci');
             $table->foreign('ubigeo')->references('id')->on('ubigeo_district');
-            
+
             $table->string('email')->unique()->nullable();
             $table->string('photo_profile')->nullable();
             $table->string('cv_file')->nullable();

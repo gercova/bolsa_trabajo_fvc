@@ -10,8 +10,10 @@ class LibraryAccessLog extends Model
 {
     use HasFactory;
 
-    protected $table    = 'library_access_logs';
-    public $timestamps  = false;
+    protected $table = 'library_access_logs';
+
+    public $timestamps = false;
+
     protected $fillable = [
         'user_id',
         'book_id',
@@ -25,15 +27,18 @@ class LibraryAccessLog extends Model
         'created_at' => 'datetime',
     ];
 
-    public function user(): BelongsTo {
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function book(): BelongsTo {
+    public function book(): BelongsTo
+    {
         return $this->belongsTo(Book::class, 'book_id');
     }
 
-    public function scopeRecent($query) {
+    public function scopeRecent($query)
+    {
         return $query->orderByDesc('created_at');
     }
 }

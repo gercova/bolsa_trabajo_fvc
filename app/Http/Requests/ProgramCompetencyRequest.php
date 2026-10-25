@@ -15,11 +15,11 @@ class ProgramCompetencyRequest extends FormRequest
     {
         return [
             'study_program_id' => 'required|exists:study_programs,id',
-            'title'            => 'required|string|max:255',
-            'description'      => 'required|string',
-            'icon'             => 'nullable|string|max:100',
-            'order'            => 'nullable|integer|min:0',
-            'is_active'        => 'nullable|boolean',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'icon' => 'nullable|string|max:100',
+            'order' => 'nullable|integer|min:0',
+            'is_active' => 'nullable|boolean',
         ];
     }
 
@@ -27,12 +27,12 @@ class ProgramCompetencyRequest extends FormRequest
     {
         return [
             'study_program_id.required' => 'Debe seleccionar un programa de estudio.',
-            'study_program_id.exists'   => 'El programa de estudio seleccionado no es válido.',
-            'title.required'            => 'El título de la competencia es obligatorio.',
-            'title.string'              => 'El título debe ser un texto válido.',
-            'title.max'                 => 'El título no puede exceder los 255 caracteres.',
-            'description.required'      => 'La descripción de la competencia es obligatoria.',
-            'description.string'        => 'La descripción debe ser un texto válido.',
+            'study_program_id.exists' => 'El programa de estudio seleccionado no es válido.',
+            'title.required' => 'El título de la competencia es obligatorio.',
+            'title.string' => 'El título debe ser un texto válido.',
+            'title.max' => 'El título no puede exceder los 255 caracteres.',
+            'description.required' => 'La descripción de la competencia es obligatoria.',
+            'description.string' => 'La descripción debe ser un texto válido.',
         ];
     }
 }

@@ -97,7 +97,6 @@ class CertificateImport implements ToCollection, WithChunkReading, WithStartRow
                     $userId = $newUser->id;
                     $users->put($dni, $userId);   // cache for subsequent rows
                     $this->createdUsers++;
-
                 } catch (\Exception $e) {
                     $this->errors[] = "Fila {$rowNum}: No se pudo crear el usuario con DNI '{$dni}' — ".$e->getMessage();
                     $this->skippedCount++;
@@ -202,16 +201,13 @@ class CertificateImport implements ToCollection, WithChunkReading, WithStartRow
                         continue;
                     }
 
-                    CertificateDetail::updateOrCreate(
-                        [
-                            'certificate_id' => $certificate->id,
-                            'module_id' => $module->id,
-                        ],
-                        [
-                            'score' => $score,
-                            'is_active' => true,
-                        ]
-                    );
+                    CertificateDetail::updateOrCreate([
+                        'certificate_id' => $certificate->id,
+                        'module_id' => $module->id,
+                    ], [
+                        'score' => $score,
+                        'is_active' => true,
+                    ]);
 
                     $this->detailCount++;
                 }

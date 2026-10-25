@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Charge;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ChargesSeeder extends Seeder
@@ -35,7 +34,7 @@ class ChargesSeeder extends Seeder
         // 1. Insertar todos los cargos sin relación (higher_position_id = null)
         foreach (array_keys($chargesData) as $name) {
             Charge::create([
-                'name'               => $name,
+                'name' => $name,
                 'higher_position_id' => null,
             ]);
         }

@@ -4,12 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Partner extends Model {
-    
-    protected $table        = 'partners';
-    protected $primaryKey   = 'id';
-    protected $keyType      = 'int';
-    protected $fillable     = [
+class Partner extends Model
+{
+    protected $table = 'partners';
+
+    protected $primaryKey = 'id';
+
+    protected $keyType = 'int';
+
+    protected $fillable = [
         'company',
         'link',
         'image_url',
@@ -17,8 +20,8 @@ class Partner extends Model {
     ];
 
     protected $casts = [
-        'is_active'     => 'boolean',
-        'created_at'    => 'datetime',
-        'updated_at'    => 'datetime',
+        'is_active' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 }

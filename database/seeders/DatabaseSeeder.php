@@ -37,4 +37,3 @@ class DatabaseSeeder extends Seeder
         $this->call(AccountBalanceSeeder::class);
     }
 }
-

@@ -17,8 +17,8 @@ class ClaimsController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('id', $search)
-                  ->orWhere('names', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('names', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -42,6 +42,7 @@ class ClaimsController extends Controller
             'status' => 'required|in:pendiente,leido,respondido,cerrado',
         ]);
         $claim->update($validated);
+
         return redirect()->back()->with('success', 'Estado actualizado correctamente');
     }
 }

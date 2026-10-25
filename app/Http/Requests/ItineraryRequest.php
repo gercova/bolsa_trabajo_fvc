@@ -38,11 +38,11 @@ class ItineraryRequest extends FormRequest
     {
         return [
             'course_id.required' => 'Debe seleccionar un curso.',
-            'course_id.exists'   => 'El curso seleccionado no existe.',
+            'course_id.exists' => 'El curso seleccionado no existe.',
             'module_id.required' => 'Debe seleccionar un módulo.',
-            'module_id.exists'   => 'El módulo seleccionado no existe.',
-            'name.required'      => 'El nombre del itinerario es obligatorio.',
-            'name.max'           => 'El nombre no debe superar los 255 caracteres.',
+            'module_id.exists' => 'El módulo seleccionado no existe.',
+            'name.required' => 'El nombre del itinerario es obligatorio.',
+            'name.max' => 'El nombre no debe superar los 255 caracteres.',
         ];
     }
 
@@ -51,7 +51,7 @@ class ItineraryRequest extends FormRequest
         return [
             'course_id' => 'curso',
             'module_id' => 'módulo',
-            'name'      => 'nombre del itinerario / contenido',
+            'name' => 'nombre del itinerario / contenido',
             'is_active' => 'estado activo',
         ];
     }

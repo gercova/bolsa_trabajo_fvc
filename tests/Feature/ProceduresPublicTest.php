@@ -37,7 +37,7 @@ class ProceduresPublicTest extends TestCase
         $response->assertSee('Mesa de Partes Virtual');
         $response->assertSee('Formulario de Envío Digital');
         $response->assertSee('Datos del Solicitante');
-        
+
         // Assert SEO tags are present in the response
         $response->assertSee('<meta name="description"', false);
         $response->assertSee('<meta name="keywords"', false);

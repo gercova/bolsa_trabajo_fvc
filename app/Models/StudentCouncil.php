@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class StudentCouncil extends Model
 {
     protected $fillable = [
-        'user_id', 
+        'user_id',
         'study_program_id',
         'name',
         'position',
@@ -16,11 +16,13 @@ class StudentCouncil extends Model
         'is_active',
     ];
 
-    public function user(): BelongsTo {
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    public function studyProgram(): BelongsTo{
+    public function studyProgram(): BelongsTo
+    {
         return $this->belongsTo(StudyProgram::class, 'study_program_id', 'id');
     }
 }

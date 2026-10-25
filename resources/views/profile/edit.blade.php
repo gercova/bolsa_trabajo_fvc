@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('title', 'Perfil de Usuario - ' . ($user->names ?? 'Usuario') . ' | Panel Administrativo')
-
 @section('content')
 <div id="dashboard-container" class="flex w-full bg-slate-50 font-sans text-slate-900 min-h-[calc(100vh-64px)]" x-data="profileApp()">
     @include('admin.components.aside')
@@ -359,10 +358,10 @@
                                         @enderror
                                     </div>
 
-                                    {{-- Correo Electrónico --}}
+                                    {{-- Correo Electrónico Institucional --}}
                                     <div>
                                         <label for="email" class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
-                                            Correo Electrónico <span class="text-red-500">*</span>
+                                            Correo Institucional <span class="text-red-500">*</span>
                                         </label>
                                         <div class="relative">
                                             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -378,6 +377,29 @@
                                                 class="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-slate-50/50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition @error('email') border-red-500 ring-2 ring-red-200 @enderror">
                                         </div>
                                         @error('email')
+                                            <p class="text-xs text-red-600 mt-1 font-semibold">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    {{-- Correo Electrónico Personal --}}
+                                    <div>
+                                        <label for="personal_email" class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center justify-between">
+                                            <span>Correo Personal</span>
+                                            <span class="text-[10px] text-purple-600 font-bold lowercase">contacto</span>
+                                        </label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                                <i class="bi bi-envelope-at-fill text-base text-purple-600"></i>
+                                            </div>
+                                            <input 
+                                                type="email" 
+                                                name="personal_email" 
+                                                id="personal_email" 
+                                                value="{{ old('personal_email', $user->personal_email) }}" 
+                                                placeholder="correo_personal@gmail.com"
+                                                class="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-slate-50/50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition @error('personal_email') border-red-500 ring-2 ring-red-200 @enderror">
+                                        </div>
+                                        @error('personal_email')
                                             <p class="text-xs text-red-600 mt-1 font-semibold">{{ $message }}</p>
                                         @enderror
                                     </div>

@@ -55,7 +55,6 @@ class UserImport implements ToCollection, WithChunkReading, WithStartRow
 
         foreach ($rows as $rowIndex => $row) {
             $rowNum = $rowIndex + 2; // 1-based index (header = 1)
-
             // Extract row values safely
             $colA = $this->cleanString($row[0] ?? null);
             $colB = $this->cleanString($row[1] ?? null);
@@ -172,12 +171,10 @@ class UserImport implements ToCollection, WithChunkReading, WithStartRow
                 $email = $this->generateInstitutionalEmail($firstName ?: 'Usuario', $paternalSurname ?: 'Fvc', $maternalSurname);
             }
 
-            // 5. Password: Set to 'P4$$w0rd*'
-            $passwordHash = Hash::make('P4$$w0rd*');
-
+            // 5. Password: Set to 'password'
+            $passwordHash = Hash::make('password');
             // 6. Role: Resolve role
             $role = $this->resolveRole($rawRole, $jobPosition, $availableRoles);
-
             // 7. Persist or Update User
             try {
                 $existing = $existingUsers->get($dni) ?? User::where('dni', $dni)->first();
@@ -190,7 +187,7 @@ class UserImport implements ToCollection, WithChunkReading, WithStartRow
                         'job_position' => $jobPosition,
                         'role' => $role ?: $existing->role,
                         'phone' => $phone ?: $existing->phone,
-                        'password' => $passwordHash, // Set to P4$$w0rd*
+                        'password' => $passwordHash, // Set to password
                         'is_active' => true,
                     ]);
 
@@ -214,7 +211,7 @@ class UserImport implements ToCollection, WithChunkReading, WithStartRow
                         'job_position' => $jobPosition,
                         'role' => $role,
                         'phone' => $phone ?: null,
-                        'password' => $passwordHash, // Set to P4$$w0rd*
+                        'password' => $passwordHash, // Set to password
                         'is_active' => true,
                     ]);
 
@@ -283,14 +280,12 @@ class UserImport implements ToCollection, WithChunkReading, WithStartRow
         $letterName = mb_substr($firstGivenName, 0, 1);
         $letterName = Str::lower(Str::ascii($letterName));
         $letterName = preg_replace('/[^a-z0-9]/', '', $letterName) ?: 'u';
-
         // Paternal surname: clean full last name (no accents, no spaces)
         $paternalClean = Str::lower(Str::ascii(trim($paternalSurname)));
         $paternalClean = preg_replace('/[^a-z0-9]/', '', $paternalClean);
         if (empty($paternalClean)) {
             $paternalClean = 'usuario';
         }
-
         // Maternal surname: extract first letter (if available)
         $letterMaternal = '';
         if (! empty($maternalSurname)) {
@@ -348,7 +343,6 @@ class UserImport implements ToCollection, WithChunkReading, WithStartRow
             $parts = explode(',', $raw, 2);
             $surnames = trim($parts[0] ?? '');
             $names = trim($parts[1] ?? '');
-
             $surParts = explode(' ', $surnames);
             $paternal = $surParts[0] ?? '';
             $maternal = isset($surParts[1]) ? implode(' ', array_slice($surParts, 1)) : '';

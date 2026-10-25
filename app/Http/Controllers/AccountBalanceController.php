@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class AccountBalanceController extends Controller
 {
@@ -21,10 +22,10 @@ class AccountBalanceController extends Controller
      */
     public function index(Request $request): View
     {
-        $year     = $request->integer('year')     ?: null;
-        $month    = $request->string('month')->toString()    ?: null;
+        $year = $request->integer('year') ?: null;
+        $month = $request->string('month')->toString() ?: null;
         $category = $request->string('category')->toString() ?: null;
-        $search   = $request->string('search')->toString()   ?: null;
+        $search = $request->string('search')->toString() ?: null;
 
         $records = AccountBalance::query()
             ->filterByYear($year)
@@ -44,14 +45,14 @@ class AccountBalanceController extends Controller
             ->search($search);
 
         $totalRecords = $baseQuery->count();
-        $totalAmount  = (float) $baseQuery->sum('amount');
+        $totalAmount = (float) $baseQuery->sum('amount');
 
         // Unfiltered total records in entire table
         $totalTableRecords = AccountBalance::count();
 
         // Available filter options
-        $availableYears      = AccountBalance::availableYears();
-        $availableMonths     = AccountBalance::availableMonths();
+        $availableYears = AccountBalance::availableYears();
+        $availableMonths = AccountBalance::availableMonths();
         $availableCategories = AccountBalance::availableCategories();
 
         // Record counts grouped by year for modal and direct clear buttons
@@ -127,8 +128,8 @@ class AccountBalanceController extends Controller
                     return response()->json([
                         'success' => true,
                         'message' => $message,
-                        'count'   => $count,
-                        'year'    => $yearInt,
+                        'count' => $count,
+                        'year' => $yearInt,
                     ], 200);
                 }
 
@@ -144,9 +145,10 @@ class AccountBalanceController extends Controller
                     return response()->json([
                         'success' => true,
                         'message' => $message,
-                        'count'   => 0,
+                        'count' => 0,
                     ], 200);
                 }
+
                 return redirect()->route('admin.account-balances.index')->with('info', $message);
             }
 
@@ -164,7 +166,7 @@ class AccountBalanceController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => $message,
-                    'count'   => $totalCount,
+                    'count' => $totalCount,
                 ], 200);
             }
 
@@ -173,7 +175,7 @@ class AccountBalanceController extends Controller
                 ->with('success', $message);
 
         } catch (\Exception $e) {
-            $errorMsg = 'Error al procesar la eliminación: ' . $e->getMessage();
+            $errorMsg = 'Error al procesar la eliminación: '.$e->getMessage();
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -194,7 +196,7 @@ class AccountBalanceController extends Controller
     public function import(AccountBalanceImportRequest $request): RedirectResponse
     {
         try {
-            $importer = new AccountBalanceImport();
+            $importer = new AccountBalanceImport;
             Excel::import($importer, $request->file('file'));
 
             $msg = "Importación completada: {$importer->importedCount} registros importados";
@@ -208,9 +210,9 @@ class AccountBalanceController extends Controller
                 ->route('admin.account-balances.index')
                 ->with('success', $msg);
 
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        } catch (ValidationException $e) {
             $failures = collect($e->failures())
-                ->map(fn ($f) => "Fila {$f->row()}: " . implode(', ', $f->errors()))
+                ->map(fn ($f) => "Fila {$f->row()}: ".implode(', ', $f->errors()))
                 ->take(10)
                 ->implode(' | ');
 
@@ -221,7 +223,7 @@ class AccountBalanceController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->route('admin.account-balances.index')
-                ->with('error', 'Error al procesar el archivo: ' . $e->getMessage());
+                ->with('error', 'Error al procesar el archivo: '.$e->getMessage());
         }
     }
 
@@ -236,9 +238,9 @@ class AccountBalanceController extends Controller
         $selectedYear = $request->integer('year') ?: null;
 
         // KPI aggregates
-        $baseQuery    = AccountBalance::query()->filterByYear($selectedYear);
+        $baseQuery = AccountBalance::query()->filterByYear($selectedYear);
         $totalRecords = $baseQuery->count();
-        $totalAmount  = (float) $baseQuery->sum('amount');
+        $totalAmount = (float) $baseQuery->sum('amount');
 
         // Grouped by Category (Column F) with summary metrics
         $categoryGroups = AccountBalance::query()
@@ -257,7 +259,7 @@ class AccountBalanceController extends Controller
             ->orderByDesc('id')
             ->get()
             ->groupBy(function ($item) {
-                return !empty($item->category) ? trim($item->category) : 'OTROS / SIN CATEGORÍA';
+                return ! empty($item->category) ? trim($item->category) : 'OTROS / SIN CATEGORÍA';
             });
 
         // Flat paginated table data

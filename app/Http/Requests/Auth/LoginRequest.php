@@ -99,9 +99,10 @@ class LoginRequest extends FormRequest
         $primaryField = $isEmail ? 'email' : 'dni';
         $secondaryField = $isEmail ? 'dni' : 'email';
 
-        // Verificar si el usuario existe para validar su estado activo
-        $user = User::where($primaryField, $loginInput)
-            ->orWhere($secondaryField, $loginInput)
+        // Verificar si el usuario existe para validar su estado activo (soporta email institucional, personal_email y DNI)
+        $user = User::where('email', $loginInput)
+            ->orWhere('dni', $loginInput)
+            ->orWhere('personal_email', $loginInput)
             ->first();
 
         if ($user && ! $user->is_active) {
@@ -126,6 +127,11 @@ class LoginRequest extends FormRequest
         // Si falló, intentar con campo secundario (por ejemplo DNI si escribió email o viceversa)
         if (! $authenticated) {
             $authenticated = Auth::attempt([$secondaryField => $loginInput, 'password' => $password], $remember);
+        }
+
+        // Si es correo y aún no autenticó, intentar con personal_email
+        if (! $authenticated && $isEmail) {
+            $authenticated = Auth::attempt(['personal_email' => $loginInput, 'password' => $password], $remember);
         }
 
         if (! $authenticated) {

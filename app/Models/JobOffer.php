@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class JobOffer extends Model
 {
     protected $table = 'job_offers';
+
     protected $fillable = [
         'title',
         'company',
@@ -14,6 +15,6 @@ class JobOffer extends Model
         'description',
         'url',
         'source',
-        'is_active'
+        'is_active',
     ];
 }

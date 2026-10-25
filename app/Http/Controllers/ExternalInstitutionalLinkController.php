@@ -22,7 +22,7 @@ class ExternalInstitutionalLinkController extends Controller
 
         $query = ExternalInstitutionalLink::query();
 
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('link', 'like', "%{$search}%");
@@ -38,8 +38,8 @@ class ExternalInstitutionalLinkController extends Controller
         }
 
         // Summary Statistics
-        $totalLinks    = ExternalInstitutionalLink::count();
-        $activeLinks   = ExternalInstitutionalLink::where('is_active', true)->count();
+        $totalLinks = ExternalInstitutionalLink::count();
+        $activeLinks = ExternalInstitutionalLink::where('is_active', true)->count();
         $inactiveLinks = ExternalInstitutionalLink::where('is_active', false)->count();
 
         // Paginated results sorted by newest first
@@ -73,28 +73,28 @@ class ExternalInstitutionalLinkController extends Controller
         try {
             $validated = $request->validated();
             $validated['is_active'] = $request->has('is_active') ? (bool) $request->input('is_active') : true;
-            $validated['icon']      = !empty($validated['icon']) ? $validated['icon'] : 'bi-box-arrow-up-right';
+            $validated['icon'] = ! empty($validated['icon']) ? $validated['icon'] : 'bi-box-arrow-up-right';
 
             $link = ExternalInstitutionalLink::create($validated);
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
-                    'success'  => true,
-                    'message'  => 'Enlace institucional creado con éxito.',
+                    'success' => true,
+                    'message' => 'Enlace institucional creado con éxito.',
                     'redirect' => route('admin.links.index'),
-                    'data'     => $link,
+                    'data' => $link,
                 ], 201);
             }
 
             return redirect()->route('admin.links.index')
                 ->with('success', 'Enlace institucional creado con éxito.');
         } catch (\Exception $e) {
-            Log::error('Error creando enlace institucional: ' . $e->getMessage());
+            Log::error('Error creando enlace institucional: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al guardar el enlace: ' . $e->getMessage(),
+                    'message' => 'Error al guardar el enlace: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -118,28 +118,28 @@ class ExternalInstitutionalLinkController extends Controller
         try {
             $validated = $request->validated();
             $validated['is_active'] = $request->has('is_active') ? (bool) $request->input('is_active') : false;
-            $validated['icon']      = !empty($validated['icon']) ? $validated['icon'] : 'bi-box-arrow-up-right';
+            $validated['icon'] = ! empty($validated['icon']) ? $validated['icon'] : 'bi-box-arrow-up-right';
 
             $link->update($validated);
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
-                    'success'  => true,
-                    'message'  => 'Enlace institucional actualizado correctamente.',
+                    'success' => true,
+                    'message' => 'Enlace institucional actualizado correctamente.',
                     'redirect' => route('admin.links.index'),
-                    'data'     => $link->fresh(),
+                    'data' => $link->fresh(),
                 ], 200);
             }
 
             return redirect()->route('admin.links.index')
                 ->with('success', 'Enlace institucional actualizado correctamente.');
         } catch (\Exception $e) {
-            Log::error('Error actualizando enlace institucional: ' . $e->getMessage());
+            Log::error('Error actualizando enlace institucional: '.$e->getMessage());
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al actualizar el enlace: ' . $e->getMessage(),
+                    'message' => 'Error al actualizar el enlace: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -153,19 +153,19 @@ class ExternalInstitutionalLinkController extends Controller
     public function toggleStatus(ExternalInstitutionalLink $link): JsonResponse|RedirectResponse
     {
         try {
-            $link->update(['is_active' => !$link->is_active]);
+            $link->update(['is_active' => ! $link->is_active]);
 
             if (request()->expectsJson() || request()->ajax() || request()->wantsJson()) {
                 return response()->json([
-                    'success'   => true,
+                    'success' => true,
                     'is_active' => $link->is_active,
-                    'message'   => 'Estado del enlace actualizado correctamente.',
+                    'message' => 'Estado del enlace actualizado correctamente.',
                 ]);
             }
 
             return back()->with('success', 'Estado del enlace actualizado correctamente.');
         } catch (\Exception $e) {
-            Log::error('Error alternando estado de enlace institucional: ' . $e->getMessage());
+            Log::error('Error alternando estado de enlace institucional: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax() || request()->wantsJson()) {
                 return response()->json([
@@ -196,7 +196,7 @@ class ExternalInstitutionalLinkController extends Controller
             return redirect()->route('admin.links.index')
                 ->with('success', 'El enlace institucional ha sido eliminado correctamente.');
         } catch (\Exception $e) {
-            Log::error('Error eliminando enlace institucional: ' . $e->getMessage());
+            Log::error('Error eliminando enlace institucional: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax() || request()->wantsJson()) {
                 return response()->json([

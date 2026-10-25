@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('visitor_counters')) {
+        if (! Schema::hasTable('visitor_counters')) {
             Schema::create('visitor_counters', function (Blueprint $table) {
                 $table->id();
                 $table->string('key')->unique();
@@ -23,7 +23,7 @@ return new class extends Migration
         }
 
         // Ensure default row exists
-        if (!DB::table('visitor_counters')->where('key', 'total_website_visits')->exists()) {
+        if (! DB::table('visitor_counters')->where('key', 'total_website_visits')->exists()) {
             DB::table('visitor_counters')->insert([
                 'key' => 'total_website_visits',
                 'views_count' => 1,

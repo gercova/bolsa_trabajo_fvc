@@ -20,18 +20,18 @@ class AdmissionImageSeeder extends Seeder
 
         // CEPRE hero banner
         Image::create([
-            'path'           => 'images/cepre_hero_banner.png',
-            'is_main'        => true,
+            'path' => 'images/cepre_hero_banner.png',
+            'is_main' => true,
             'imageable_type' => 'cepre',
-            'imageable_id'   => 1,
+            'imageable_id' => 1,
         ]);
 
         // Examen de Admisión hero banner
         Image::create([
-            'path'           => 'images/admission_hero_banner.png',
-            'is_main'        => true,
+            'path' => 'images/admission_hero_banner.png',
+            'is_main' => true,
             'imageable_type' => 'admision',
-            'imageable_id'   => 1,
+            'imageable_id' => 1,
         ]);
     }
 }

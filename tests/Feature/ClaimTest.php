@@ -15,7 +15,7 @@ class ClaimTest extends TestCase
 
     private function createEnterprise(): Enterprise
     {
-        $enterprise = new Enterprise();
+        $enterprise = new Enterprise;
         $enterprise->ruc = '20123456789';
         $enterprise->company_name = 'Test Enterprise';
         $enterprise->trade_name = 'Test Trade';
@@ -23,6 +23,7 @@ class ClaimTest extends TestCase
         $enterprise->legal_representative = 'John Doe';
         $enterprise->email = 'test@example.com';
         $enterprise->save();
+
         return $enterprise;
     }
 

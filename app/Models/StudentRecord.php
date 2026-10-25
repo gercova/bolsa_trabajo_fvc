@@ -12,10 +12,10 @@ class StudentRecord extends Model
 
     protected $fillable = [
         'document_type_id',
-        'document',       
+        'document',
         'last_name_father',
         'last_name_mother',
-        'names',       
+        'names',
         'birthdate',
         'gender',
         'mother_tongue',
@@ -39,10 +39,10 @@ class StudentRecord extends Model
         'tipo_gestion',
         'academic_period',
         'study_program',
-        'modality',       
-        'modality_type',  
-        'headquarters',         
-        'route_type',  
+        'modality',
+        'modality_type',
+        'headquarters',
+        'route_type',
         'shift',
         'score',
         'situation',
@@ -54,17 +54,19 @@ class StudentRecord extends Model
     ];
 
     protected $casts = [
-        'birthdate'             => 'date',
-        'registration_date'     => 'datetime',
-        'score'                 => 'decimal:2',
-        'year_graduation'       => 'integer',
+        'birthdate' => 'date',
+        'registration_date' => 'datetime',
+        'score' => 'decimal:2',
+        'year_graduation' => 'integer',
     ];
 
-    public function documentType(): BelongsTo {
+    public function documentType(): BelongsTo
+    {
         return $this->belongsTo(DocumentType::class, 'document_type_id', 'id');
     }
 
-    public function getFullNameAttribute(): string {
+    public function getFullNameAttribute(): string
+    {
         return trim("{$this->names} {$this->last_name_father} {$this->last_name_mother}");
     }
 }

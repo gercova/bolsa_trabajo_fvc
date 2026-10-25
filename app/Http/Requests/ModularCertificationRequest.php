@@ -15,8 +15,8 @@ class ModularCertificationRequest extends FormRequest
     {
         return [
             'program_id' => 'required|exists:study_programs,id',
-            'module'     => 'required|string|max:255',
-            'is_active'  => 'nullable|boolean',
+            'module' => 'required|string|max:255',
+            'is_active' => 'nullable|boolean',
         ];
     }
 
@@ -24,10 +24,10 @@ class ModularCertificationRequest extends FormRequest
     {
         return [
             'program_id.required' => 'Debe seleccionar un programa de estudio.',
-            'program_id.exists'   => 'El programa de estudio seleccionado no es válido.',
-            'module.required'     => 'El nombre del módulo de certificación es obligatorio.',
-            'module.string'       => 'El nombre del módulo debe ser un texto válido.',
-            'module.max'          => 'El nombre del módulo no puede exceder los 255 caracteres.',
+            'program_id.exists' => 'El programa de estudio seleccionado no es válido.',
+            'module.required' => 'El nombre del módulo de certificación es obligatorio.',
+            'module.string' => 'El nombre del módulo debe ser un texto válido.',
+            'module.max' => 'El nombre del módulo no puede exceder los 255 caracteres.',
         ];
     }
 }

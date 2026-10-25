@@ -11,8 +11,8 @@ class HistoricalReviewSeeder extends Seeder
     {
         $stages = [
             [
-                'title'       => 'Etapa 1: Creación y funcionamiento (1991 - 2000)',
-                'description' => <<<TEXT
+                'title' => 'Etapa 1: Creación y funcionamiento (1991 - 2000)',
+                'description' => <<<'TEXT'
 Con fecha de 01 de julio de 1990, se llevó a cabo una reunión de directores de todos los Centros Educativos del radio urbano del Distrito de Uchiza, para coordinar sobre la Creación del Instituto de Educación Superior Tecnológico Público "Francisco Vigo Caballero", de Uchiza, según Acta de Asamblea, esta reunión fue convocada por el Licenciado Luís Viviano Hilario Vega, Jefe del Comité de Coordinación Educativa de Uchiza, en las Oficinas de dicha institución, que hoy en día se llama ADE - Uchiza, También acompañaron a esta reunión los especialistas del Comité de Coordinación Educativa (Actualmente Oficina de Coordinación Pedagógica - Uchiza), Prof. Heberto Angulo, especialista de alfabetización, Prof. Lily Hidalgo Reátegui, especialista en Educación Inicial, Prof. Liborio Ponce Saavedra, especialista en Educación Secundaria, tomando acuerdos en dicha reunión sobre la Creación del Instituto Superior Tecnológico "Francisco Vigo Caballero", así mismo, organizaron una Comisión para dirigirse a la Municipalidad Distrital de Uchiza, y coordinar esta gestión con el señor Alcalde, el Econ. Demetrio Díaz Guevara, el cual aceptó gustosamente iniciar esta gestión a su vez organiza otra Comisión para elaborar el Proyecto de Creación y organizar documentos para complementar el expediente; dicha Comisión estaba integrada por el Eco. Demetrio Díaz Guevara, Alcalde del Distrito de Uchiza, Lolo Soto Araujo, Gobernador del Distrito de Uchiza, Lic. Luís Viviano Hilario Vega, Jefe de la Oficina de Coordinación Educativa de Uchiza y el Prof. Juan Pablo Vela del Águila, Regidor de la Municipalidad de Uchiza.
 
 Una vez elaborado el Proyecto de Creación del Instituto de Educación Superior Tecnológico Público "Francisco Vigo Caballero" de Uchiza, se hizo ingreso a la CORDESAM, en el mes de septiembre de 1990 y, luego se procedió a hacer el seguimiento correspondiente, hasta que el 08 de enero de 1991, con Decreto Ejecutivo Nº 05-91 –CR-SMLL, y el 21 de marzo de 1991, se crea el Instituto de Educación Superior Tecnológico Público "Francisco Vigo Caballero", mediante el Decreto Ejecutivo Regional Nº 03-91-CR-GR-SMLL, refrendado por Resolución Presidencial Nº 19-91 – CORDESAM/T, con las Carreras Profesionales de Producción Agropecuaria y Enfermería Técnica, mientras las autoridades de la alta dirección del Ministerio de Educación autoricen oficialmente su funcionamiento acorde con el Decreto Supremo Nº 006-93-ED.
@@ -27,24 +27,24 @@ La Dirección Regional de Educación por intermedio de la Unidad de Planeamiento
 
 De agosto 1996 a febrero de 1998, se encarga la dirección a la Blga. Delia Esperanza Portella Melgarejo, durante su período se crea la Especialidad de Secretariado Ejecutivo con Resolución Directoral Nº 0091-97-ED, de fecha 10 de marzo de 1997. De marzo 1998 a abril 1998 se encarga la dirección al Med. Vet. José Luis Escalante Mosquera. De mayo 1998 a Julio del 2001 se le encarga la dirección al Lic. Luis Viviano Hilario Vega. En su periodo se apertura la Especialidad de Laboratorio Clínico, lo cual se dio mediante Resolución Directoral Nº 483-2000-ED, de fecha 22 de mayo del 2000, a cambio de la especialidad de Secretariado Ejecutivo.
 TEXT,
-                'start_year'  => 1991,
-                'end_year'    => 2000,
-                'order'       => 1,
+                'start_year' => 1991,
+                'end_year' => 2000,
+                'order' => 1,
             ],
             [
-                'title'       => 'Etapa 2: Consolidación y crecimiento (2001 - 2015)',
-                'description' => <<<TEXT
+                'title' => 'Etapa 2: Consolidación y crecimiento (2001 - 2015)',
+                'description' => <<<'TEXT'
 De agosto 2001 a Julio 2002 se le encarga la dirección a la Lic. Enf. Georgina Antonia Bueno Huayanay, continuando con los trabajos académicos y administrativos. De agosto 2002 a setiembre 2002 se le encarga la dirección al Lic. Wilmer W. Justiniano Sebastián. De octubre 2002 a abril 2003 se le encarga la dirección a la Obst. Danni Castillo Santillán, quien ha continuado con la labor administrativa y académica. De mayo 2003 a marzo 2004 retoma nuevamente la dirección el Lic. Wilmer W. Justiniano Sebastián, quien promovió el traslado definitivo de todos los estamentos a su local central. De abril 2004 a agosto 2004 se hace cargo de la dirección el Ing. José Santos Baldera Suyón, quien desarrolla actividades administrativas y académicas, así mismo, durante este tiempo se ha realizado el vaciado del techo aligerado de la primera planta del pabellón de tres aulas. De setiembre 2004 a diciembre 2004 se le encarga al Ing. Hernrick Ramírez Ramírez, desarrollando actividades administrativas y académicas.
 
 De enero 2005 a diciembre 2010 se encarga la dirección al Ing. Manuel Adolfo Guerra Meléndez quien promueve el trabajo en equipo, así mismo, el Instituto de Educación Superior Tecnológico Público "Francisco Vigo Caballero" de Uchiza, fue Revalidado con Resolución Directoral N° 0298-2006-ED, de fecha 19 de abril del 2006, las carreras de Agropecuaria, Enfermería Técnica y Laboratorio Clínico y en ese mismo año se crea la carrera de Computación e Informática, con Resolución Ministerial Nº 0359-2006-ED y con Resolución Directoral Nº 0166-2007-ED del 17 de abril del 2007, se reapertura la carrera de Secretariado Ejecutivo. En el año 2008 se elabora el perfil del proyecto de infraestructura titulado "Mejoramiento de la Oferta Educativa en el Instituto Superior Tecnológico Francisco Vigo Caballero – Uchiza - Tocache – San Martin", con código SNIP Nº 85718 y en el 2009 se elabora el expediente técnico del mencionado proyecto, iniciando las gestiones para su financiamiento a partir de esa fecha, en este mismo año se inicia con el nuevo Diseño Curricular Básico del sistema modular todas las especialidades (Enfermería Técnica, Producción Agropecuaria, Secretariado Ejecutivo y Computación e Informática), así mismo, con Resolución Directoral N° 0341-2010-ED del 06 de abril del 2010, se crea la carrera de Medio Ambiente y Recursos Naturales, bajo el sistema lineal (por asignatura). Por otro lado, durante el período 2005 al 2010 actuando como director el Ing, Manuel Adolfo Guerra Meléndez, se adquiere 12.0 Hás de terreno agrícola en el sector de Gavilán – Paraíso y se instala el cultivo de palma aceitera y se cuenta con el Centro de Prácticas de San Pedro de Chonta que viene funcionando con dos promociones de la especialidad de Producción Agropecuaria. Además, se adquiere una unidad móvil (auto) en calidad de sesión de uso.
 TEXT,
-                'start_year'  => 2001,
-                'end_year'    => 2015,
-                'order'       => 2,
+                'start_year' => 2001,
+                'end_year' => 2015,
+                'order' => 2,
             ],
             [
-                'title'       => 'Etapa 3: Modernización y Licenciamiento (2016 - actualidad)',
-                'description' => <<<TEXT
+                'title' => 'Etapa 3: Modernización y Licenciamiento (2016 - actualidad)',
+                'description' => <<<'TEXT'
 Del 2016 al 2019, el Mg. Esmirio Erotides Castillo Gonzales asume la dirección general, durante este periodo se logra la adecuación de los programas de estudio de Producción Agropecuaria, Enfermería Técnica y Computación e Informática (que fue adecuado a Administración de Redes y Comunicaciones) y se inician los trámites para el licenciamiento institucional.
 
 Del 2020 – 2021, ocupa el cargo de Director General el Mg. Esmirio Erotides Castillo Gonzales, cuya gestión fue limitado debido a la emergencia sanitaria del COVID-19 y las cuarentenas dispuestas por el gobierno nacional; sin embargo, se logró la adecuación de los programas de estudio de Producción Agropecuaria, Enfermería Técnica y Computación e Informática que fue adecuado a Administración de Redes y Comunicaciones.
@@ -59,22 +59,22 @@ En resumen, en la actualidad el Instituto de Educación Superior Tecnológico P�
 
 Finalmente, cabe mencionar que, a pesar de ser una Institución Educativa joven con 35 años de actividad académica, la comunidad de Uchiza y demás distritos cercanos, son fieles testigos de cómo ha ido creciendo, tanto cuantitativamente como cualitativamente el servicio que presta y su constante participación con miras al desarrollo integral de la comunidad del distrito de Uchiza, provincia de Tocache y región de San Martin.
 TEXT,
-                'start_year'  => 2016,
-                'end_year'    => null,
-                'order'       => 3,
+                'start_year' => 2016,
+                'end_year' => null,
+                'order' => 3,
             ],
         ];
 
         foreach ($stages as $stage) {
             DB::table('historical_reviews')->insert([
-                'title'       => $stage['title'],
+                'title' => $stage['title'],
                 'description' => $stage['description'],
-                'start_year'  => $stage['start_year'],
-                'end_year'    => $stage['end_year'],
-                'order'       => $stage['order'],
-                'is_active'   => true,
-                'created_at'  => now(),
-                'updated_at'  => now(),
+                'start_year' => $stage['start_year'],
+                'end_year' => $stage['end_year'],
+                'order' => $stage['order'],
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
     }

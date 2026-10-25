@@ -33,11 +33,29 @@
 
                 {{-- Breadcrumbs & Quick info --}}
                 <div class="hidden sm:flex items-center text-xs font-medium text-slate-500 gap-2">
-                    <a href="{{ route('admin.dashboard.index') }}" class="hover:text-purple-600 transition flex items-center gap-1">
-                        <i class="bi bi-house-door"></i> Dashboard
-                    </a>
-                    <i class="bi bi-chevron-right text-[10px] text-slate-400"></i>
-                    <a href="{{ route('admin.partners.index') }}" class="hover:text-purple-600 transition">Usuarios</a>
+                    @php
+                        $authUser = Auth::user();
+                        $isStudentUser = $authUser && (
+                            (method_exists($authUser, 'isStudentOrApplicant') && $authUser->isStudentOrApplicant()) ||
+                            in_array(strtolower((string) $authUser->role), ['estudiante', 'student', 'postulante', 'applicant', 'lector', 'solicitante']) ||
+                            (method_exists($authUser, 'hasAnyRole') && $authUser->hasAnyRole(['Estudiante', 'Student', 'Postulante', 'Applicant', 'estudiante', 'student'])) ||
+                            ($authUser->can('actualizar-informacion-personal') && ! $authUser->can('ver-dashboard') && ! $authUser->can('gestionar-usuarios'))
+                        );
+                    @endphp
+
+                    @if ($isStudentUser)
+                        <a href="{{ route('biblioteca.index') }}" class="hover:text-purple-600 transition flex items-center gap-1">
+                            <i class="bi bi-mortarboard"></i> Portal Estudiante
+                        </a>
+                        <i class="bi bi-chevron-right text-[10px] text-slate-400"></i>
+                        <span class="text-slate-600">Mi Perfil</span>
+                    @else
+                        <a href="{{ route('admin.dashboard.index') }}" class="hover:text-purple-600 transition flex items-center gap-1">
+                            <i class="bi bi-house-door"></i> Dashboard
+                        </a>
+                        <i class="bi bi-chevron-right text-[10px] text-slate-400"></i>
+                        <a href="{{ route('admin.partners.index') }}" class="hover:text-purple-600 transition">Usuarios</a>
+                    @endif
                     <i class="bi bi-chevron-right text-[10px] text-slate-400"></i>
                     <span class="text-purple-700 font-bold bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-100">
                         {{ Str::limit($user->names, 22) }}

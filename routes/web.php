@@ -237,6 +237,12 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/estado/{managementDocument}', [ManagementDocumentController::class, 'toggleStatus'])->name('toggle-status');
     });
 
+    // Reglamento Interno Institucional (Portal Estudiante y Comunidad)
+    Route::prefix('admin-reglamento-interno')->name('admin.regulations.')->group(function () {
+        Route::get('/', [ManagementDocumentController::class, 'internalRegulations'])->name('index');
+        Route::get('/descargar', [ManagementDocumentController::class, 'downloadInternalRegulations'])->name('download');
+    });
+
     // Áreas Institucionales
     Route::prefix('admin-areas')->name('admin.areas.')->group(function () {
         Route::get('/', [AreaController::class, 'index'])->name('index');

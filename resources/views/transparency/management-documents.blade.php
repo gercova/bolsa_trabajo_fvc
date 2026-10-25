@@ -350,7 +350,7 @@
             document.addEventListener('alpine:init', () => {
                 Alpine.data('managementDocumentsApp', () => ({
                     searchQuery: '',
-                    selectedCategory: 'all',
+                    selectedCategory: (new URLSearchParams(window.location.search)).get('category') || '{{ request('category', 'all') }}',
                     showPdfModal: false,
                     pdfModalUrl: '',
                     pdfModalTitle: '',

@@ -97,4 +97,33 @@ class User extends Authenticatable
     {
         return $this->hasMany(Certificate::class, 'user_id', 'id');
     }
+
+    /**
+     * Check if user has the Student or Applicant role / profile.
+     */
+    public function isStudent(): bool
+    {
+        $role = strtolower((string) $this->role);
+        if (in_array($role, ['estudiante', 'student', 'postulante', 'applicant', 'lector', 'solicitante'])) {
+            return true;
+        }
+
+        if (method_exists($this, 'hasAnyRole') && $this->hasAnyRole(['Estudiante', 'Student', 'Postulante', 'Applicant', 'estudiante', 'student'])) {
+            return true;
+        }
+
+        return ! $this->can('ver-dashboard') && ! $this->can('gestionar-usuarios') && (
+            $this->can('actualizar-informacion-personal') ||
+            $this->can('acceder-biblioteca-virtual') ||
+            $this->can('ver-certificados')
+        );
+    }
+
+    /**
+     * Alias for isStudent.
+     */
+    public function isStudentOrApplicant(): bool
+    {
+        return $this->isStudent();
+    }
 }

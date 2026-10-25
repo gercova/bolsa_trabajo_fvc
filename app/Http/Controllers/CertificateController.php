@@ -30,9 +30,17 @@ class CertificateController extends Controller
      */
     public function index(Request $request): View
     {
+        $authUser = auth()->user();
+        $isStudentUser = $authUser && (
+            (method_exists($authUser, 'isStudentOrApplicant') && $authUser->isStudentOrApplicant()) ||
+            in_array(strtolower((string) $authUser->role), ['estudiante', 'student', 'postulante', 'applicant', 'lector', 'solicitante']) ||
+            (method_exists($authUser, 'hasAnyRole') && $authUser->hasAnyRole(['Estudiante', 'Student', 'Postulante', 'Applicant', 'estudiante', 'student'])) ||
+            ($authUser->can('ver-certificados') && ! $authUser->can('ver-dashboard') && ! $authUser->can('gestionar-programas'))
+        );
+
         $search = $request->input('search');
         $courseId = $request->input('course_id');
-        $userId = $request->input('user_id');
+        $userId = $isStudentUser ? $authUser->id : $request->input('user_id');
         $modality = $request->input('modality');
         $status = $request->input('status');
 
@@ -40,6 +48,8 @@ class CertificateController extends Controller
             'user' => fn ($q) => $q->withCount('certificates'),
             'course.modules' => fn ($q) => $q->where('is_active', true)->orderBy('name'),
             'details.module',
+            'studyProgram',
+            'course.studyProgram',
         ])
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sq) use ($search) {
@@ -68,6 +78,40 @@ class CertificateController extends Controller
             ->orderByDesc('id');
 
         $certificates = $query->paginate(10)->appends($request->only(['search', 'course_id', 'user_id', 'modality', 'status']));
+
+        if ($isStudentUser) {
+            $courses = Course::where('is_active', true)
+                ->whereHas('certificates', fn ($q) => $q->where('user_id', $authUser->id))
+                ->with('modules')
+                ->orderBy('name')
+                ->get();
+            $users = collect([]);
+
+            $totalCertificates = Certificate::where('user_id', $authUser->id)->count();
+            $activeCertificates = Certificate::where('user_id', $authUser->id)->where('is_active', true)->count();
+            $presencialCount = Certificate::where('user_id', $authUser->id)->where('modality', 'Presencial')->count();
+            $virtualSemipresCount = Certificate::where('user_id', $authUser->id)->whereIn('modality', ['Virtual', 'Semipresencial'])->count();
+            $totalDownloads = (int) Certificate::where('user_id', $authUser->id)->sum('download_count');
+            $issuedCoursesCount = Certificate::where('user_id', $authUser->id)->distinct('course_id')->count('course_id');
+
+            return view('admin.certificates.student-index', compact(
+                'certificates',
+                'courses',
+                'users',
+                'totalCertificates',
+                'activeCertificates',
+                'presencialCount',
+                'virtualSemipresCount',
+                'totalDownloads',
+                'issuedCoursesCount',
+                'search',
+                'courseId',
+                'userId',
+                'modality',
+                'status'
+            ));
+        }
+
         $courses = Course::where('is_active', true)->with('modules')->withCount('certificates')->orderBy('name')->get();
         $users = collect([]);
 

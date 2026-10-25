@@ -391,11 +391,11 @@
                     receptionEmail: '{{ $receptionEmail }}',
                     receptionPhone: '{{ $rawPhone }}',
                     formData: {
-                        names: '',
+                        names: '{{ addslashes(Auth::user()?->names ?? '') }}',
                         docType: 'DNI',
-                        docNum: '',
-                        email: '',
-                        phone: '',
+                        docNum: '{{ addslashes(Auth::user()?->dni ?? '') }}',
+                        email: '{{ addslashes(Auth::user()?->email ?? '') }}',
+                        phone: '{{ addslashes(Auth::user()?->phone ?? '') }}',
                         type: 'Solicitud General (FUT)',
                         subject: '',
                         message: ''

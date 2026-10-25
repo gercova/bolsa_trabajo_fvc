@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ManagementDocumentRequest;
+use App\Models\Enterprise;
 use App\Models\ManagementDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -20,8 +21,8 @@ class ManagementDocumentController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('details', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('details', 'like', "%{$search}%");
             });
         }
 
@@ -147,10 +148,52 @@ class ManagementDocumentController extends Controller
     public function toggleStatus(ManagementDocument $managementDocument)
     {
         $managementDocument->update([
-            'is_active' => !$managementDocument->is_active
+            'is_active' => ! $managementDocument->is_active,
         ]);
 
         return redirect()->back()
             ->with('success', 'El estado del documento ha sido cambiado exitosamente.');
+    }
+
+    /**
+     * Display the official internal regulations (RI) view for students and staff.
+     */
+    public function internalRegulations()
+    {
+        $regulation = ManagementDocument::where('is_active', true)
+            ->where(function ($q) {
+                $q->where('title', 'like', '%REGLAMENTO%')
+                    ->orWhere('title', 'like', '%RI%');
+            })
+            ->first();
+
+        $allDocuments = ManagementDocument::where('is_active', true)->orderBy('title')->get();
+        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
+
+        return view('admin.documents.student-regulations', compact('regulation', 'allDocuments', 'enterprise'));
+    }
+
+    /**
+     * Download the official internal regulations document.
+     */
+    public function downloadInternalRegulations()
+    {
+        $regulation = ManagementDocument::where('is_active', true)
+            ->where(function ($q) {
+                $q->where('title', 'like', '%REGLAMENTO%')
+                    ->orWhere('title', 'like', '%RI%');
+            })
+            ->whereNotNull('file_path')
+            ->first();
+
+        if ($regulation && $regulation->file_path && Storage::disk('public')->exists($regulation->file_path)) {
+            return Storage::disk('public')->download(
+                $regulation->file_path,
+                'Reglamento-Interno-IESTP-FVC.pdf'
+            );
+        }
+
+        return redirect()->route('admin.regulations.index')
+            ->with('info', 'El archivo digital del Reglamento Interno se encuentra disponible para consulta en Secretaría Académica.');
     }
 }

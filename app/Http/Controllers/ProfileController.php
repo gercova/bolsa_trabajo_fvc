@@ -16,9 +16,17 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request, ?User $user = null): View
+    public function edit(Request $request, ?User $user = null): View|RedirectResponse
     {
-        $targetUser = ($user && $user->exists) ? $user : $request->user();
+        $authUser = $request->user();
+        $targetUser = ($user && $user->exists) ? $user : $authUser;
+
+        // Si el usuario objetivo es otro y el usuario autenticado no gestiona usuarios, restringir a su propio perfil
+        if ($targetUser->id !== $authUser->id && ! $authUser->can('gestionar-usuarios')) {
+            return redirect()->route('admin.profile.edit', $authUser)
+                ->with('warning', 'Solo tiene acceso a la edición de su propio perfil de usuario.')
+                ->with('error', 'Solo tiene acceso a la edición de su propio perfil de usuario.');
+        }
 
         return view('profile.edit', [
             'user' => $targetUser,
@@ -30,7 +38,12 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request, ?User $user = null): RedirectResponse
     {
-        $targetUser = ($user && $user->exists) ? $user : $request->user();
+        $authUser = $request->user();
+        $targetUser = ($user && $user->exists) ? $user : $authUser;
+
+        if ($targetUser->id !== $authUser->id && ! $authUser->can('gestionar-usuarios')) {
+            abort(403, 'No tiene permiso para modificar los datos de otro usuario.');
+        }
 
         $validated = $request->validated();
 
@@ -72,8 +85,14 @@ class ProfileController extends Controller
             'password' => ['required', 'current_password'],
         ]);
 
-        $targetUser = ($user && $user->exists) ? $user : $request->user();
-        $isSelf = $targetUser->id === $request->user()->id;
+        $authUser = $request->user();
+        $targetUser = ($user && $user->exists) ? $user : $authUser;
+
+        if ($targetUser->id !== $authUser->id && ! $authUser->can('gestionar-usuarios')) {
+            abort(403, 'No tiene permiso para eliminar la cuenta de otro usuario.');
+        }
+
+        $isSelf = $targetUser->id === $authUser->id;
 
         if ($targetUser->photo_profile && Storage::disk('public')->exists($targetUser->photo_profile)) {
             Storage::disk('public')->delete($targetUser->photo_profile);
@@ -88,10 +107,12 @@ class ProfileController extends Controller
             $targetUser->delete();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+
             return Redirect::to('/');
         }
 
         $targetUser->delete();
+
         return Redirect::route('admin.partners.index')->with('success', 'El usuario ha sido eliminado correctamente.');
     }
 }

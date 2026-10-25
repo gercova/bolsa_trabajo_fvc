@@ -37,6 +37,16 @@
     }
 </style>
 
+@php
+    $currentUser = Auth::user();
+    $isStudent = $currentUser && (
+        (method_exists($currentUser, 'isStudentOrApplicant') && $currentUser->isStudentOrApplicant()) ||
+        in_array(strtolower((string) $currentUser->role), ['estudiante', 'student', 'postulante', 'applicant', 'lector', 'solicitante']) ||
+        (method_exists($currentUser, 'hasAnyRole') && $currentUser->hasAnyRole(['Estudiante', 'Student', 'Postulante', 'Applicant', 'estudiante', 'student'])) ||
+        ($currentUser->can('actualizar-informacion-personal') && ! $currentUser->can('ver-dashboard') && ! $currentUser->can('gestionar-usuarios'))
+    );
+@endphp
+
 <!-- Sidebar -->
 <aside
     class="bg-slate-900 shadow-2xl transition-all duration-300 ease-in-out flex-shrink-0 fixed lg:relative inset-y-0 left-0 z-[45] lg:z-[40] top-[64px] lg:top-0"
@@ -47,17 +57,130 @@
                 x-transition.opacity.duration.300ms>
                 <div
                     class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg">
-                    <i class="bi bi-grid-1x2-fill text-sm text-white"></i>
+                    <i class="bi {{ $isStudent ? 'bi-mortarboard-fill' : 'bi-grid-1x2-fill' }} text-sm text-white"></i>
                 </div>
-                <span class="text-white font-bold text-lg tracking-wide">Panel de Control</span>
+                <div class="flex flex-col">
+                    <span class="text-white font-bold text-base tracking-wide leading-tight">Panel de Control</span>
+                    @if ($isStudent)
+                        <span class="text-[10px] font-bold text-purple-400 uppercase tracking-wider leading-none mt-0.5">Estudiante / Postulante</span>
+                    @endif
+                </div>
             </div>
             <button @click="toggleSidebar()"
-                class="text-slate-400 hover:text-white transition-colors p-1 rounded-md hover:bg-slate-800">
+                class="text-slate-400 hover:text-white transition-colors p-1 rounded-md hover:bg-slate-800"
+                aria-label="Alternar menú lateral">
                 <i class="bi text-xl" :class="sidebarOpen ? 'bi-chevron-left' : 'bi-list'"></i>
             </button>
         </div>
 
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto sidebar-scrollbar custom-scrollbar">
+            @if ($isStudent)
+                {{-- ═════════════════════════════════════════════════════════════════
+                     SECCIÓN DEDICADA: ESTUDIANTE / POSTULANTE (ROL ESTUDIANTE)
+                     Opciones exclusivas para el estudiante:
+                     1. Actualizar información personal (específica del usuario)
+                     2. Biblioteca virtual (como lector)
+                     3. Solicitar servicios/trámites por mesa de partes
+                     4. Listar/ver sus certificados
+                     5. Ver el reglamento interno
+                ═════════════════════════════════════════════════════════════════ --}}
+                <div class="px-3 pb-2 pt-1" x-show="sidebarOpen" x-transition.opacity>
+                    <p class="text-[11px] font-extrabold uppercase tracking-widest text-purple-400/90 flex items-center gap-1.5">
+                        <i class="bi bi-person-badge-fill text-xs text-purple-400"></i>
+                        <span>Estudiante / Postulante</span>
+                    </p>
+                </div>
+
+                {{-- 1. Actualizar Información Personal (Específica del usuario) --}}
+                @php $isProfileActive = request()->routeIs('admin.profile.*'); @endphp
+                <a href="{{ route('admin.profile.edit', $currentUser) }}"
+                    class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ $isProfileActive ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}"
+                    title="Actualizar información personal">
+                    <div
+                        class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200 {{ $isProfileActive ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
+                    </div>
+                    <i
+                        class="bi bi-person-gear text-xl transition-transform duration-200 group-hover:scale-110 {{ $isProfileActive ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
+                    <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Actualizar Datos</span>
+                    @if ($isProfileActive)
+                        <div
+                            class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                        </div>
+                    @endif
+                </a>
+
+                {{-- 2. Biblioteca Virtual (Como Lector) --}}
+                @php $isLibraryActive = request()->routeIs('biblioteca.*'); @endphp
+                <a href="{{ route('biblioteca.index') }}"
+                    class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ $isLibraryActive ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}"
+                    title="Biblioteca Virtual (Lector)">
+                    <div
+                        class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200 {{ $isLibraryActive ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
+                    </div>
+                    <i
+                        class="bi bi-book-half text-xl transition-transform duration-200 group-hover:scale-110 {{ $isLibraryActive ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
+                    <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Biblioteca Virtual</span>
+                    @if ($isLibraryActive)
+                        <div
+                            class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                        </div>
+                    @endif
+                </a>
+
+                {{-- 3. Solicitar Servicios / Trámites por Mesa de Partes (Formulario de Solicitudes) --}}
+                @php $isPartsActive = request()->routeIs('mesa-de-partes*'); @endphp
+                <a href="{{ route('mesa-de-partes') }}"
+                    class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ $isPartsActive ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}"
+                    title="Solicitar trámites y servicios por Mesa de Partes">
+                    <div
+                        class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200 {{ $isPartsActive ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
+                    </div>
+                    <i
+                        class="bi bi-inbox-fill text-xl transition-transform duration-200 group-hover:scale-110 {{ $isPartsActive ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
+                    <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Mesa de Partes</span>
+                    @if ($isPartsActive)
+                        <div
+                            class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                        </div>
+                    @endif
+                </a>
+
+                {{-- 4. Listar / Ver sus Certificados --}}
+                @php $isCertsActive = request()->routeIs('admin.certificates.*'); @endphp
+                <a href="{{ route('admin.certificates.index') }}"
+                    class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ $isCertsActive ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}"
+                    title="Listar y ver mis certificados oficiales">
+                    <div
+                        class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200 {{ $isCertsActive ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
+                    </div>
+                    <i
+                        class="bi bi-patch-check-fill text-xl transition-transform duration-200 group-hover:scale-110 {{ $isCertsActive ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
+                    <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Mis Certificados</span>
+                    @if ($isCertsActive)
+                        <div
+                            class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                        </div>
+                    @endif
+                </a>
+
+                {{-- 5. Ver el Reglamento Interno --}}
+                @php $isRegActive = request()->routeIs('admin.regulations.*') || (request()->routeIs('documentos-de-gestion*') && (request('category') === 'RI' || request()->query('category') === 'RI')); @endphp
+                <a href="{{ route('admin.regulations.index') }}"
+                    class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ $isRegActive ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}"
+                    title="Consultar Reglamento Interno">
+                    <div
+                        class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200 {{ $isRegActive ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75' }}">
+                    </div>
+                    <i
+                        class="bi bi-shield-check text-xl transition-transform duration-200 group-hover:scale-110 {{ $isRegActive ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400' }}"></i>
+                    <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Reglamento Interno</span>
+                    @if ($isRegActive)
+                        <div
+                            class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50">
+                        </div>
+                    @endif
+                </a>
+            @else
             <!-- Dashboard -->
             <a href="{{ route('admin.dashboard.index') }}"
                 class="flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100' }}">
@@ -685,19 +808,22 @@
                     </a>
                 </div>
             </div>
+            @endif
         </nav>
 
         <div class="p-4 border-t border-slate-700/50" x-show="sidebarOpen" x-transition.opacity>
             <div class="bg-slate-800 rounded-xl p-4 flex items-center space-x-3">
                 <div
-                    class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
-                    <i class="bi bi-person-circle text-2xl text-white"></i>
+                    class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
+                    {{ strtoupper(substr($currentUser->names ?? ($currentUser->name ?? 'U'), 0, 1)) }}
                 </div>
-                <div class="overflow-hidden">
+                <div class="overflow-hidden min-w-0 flex-1">
                     <p class="text-sm font-medium text-white truncate">
-                        {{ Auth::user()->name ?? Auth::user()->names }}
+                        {{ $currentUser->names ?? ($currentUser->name ?? 'Usuario') }}
                     </p>
-                    <p class="text-xs text-slate-400 truncate">Administrador</p>
+                    <p class="text-xs {{ $isStudent ? 'text-purple-400 font-semibold' : 'text-slate-400' }} truncate">
+                        {{ $currentUser->role ?? ($currentUser->roles->first()?->name ?? ($isStudent ? 'Estudiante' : 'Administrador')) }}
+                    </p>
                 </div>
             </div>
         </div>

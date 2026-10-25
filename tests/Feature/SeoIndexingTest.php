@@ -76,4 +76,50 @@ class SeoIndexingTest extends TestCase
 
         $this->assertFileExists(public_path('sitemap.xml'));
     }
+
+    /**
+     * Test homepage structured data contains 100% syntactically valid JSON-LD.
+     */
+    public function test_homepage_renders_valid_json_ld_structured_data(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertSee('<script type="application/ld+json">', false);
+
+        $html = $response->getContent();
+        preg_match_all('/<script type=["\']application\/ld\+json["\']>(.*?)<\/script>/s', $html, $matches);
+
+        $this->assertNotEmpty($matches[1], 'At least one JSON-LD block must exist on the homepage.');
+
+        foreach ($matches[1] as $idx => $scriptContent) {
+            $decoded = json_decode(trim($scriptContent), true);
+            $this->assertSame(
+                JSON_ERROR_NONE,
+                json_last_error(),
+                "JSON-LD script #{$idx} contains syntax errors: ".json_last_error_msg()."\nPayload: ".$scriptContent
+            );
+            $this->assertIsArray($decoded);
+            $this->assertArrayHasKey('@context', $decoded);
+            $this->assertSame('https://schema.org', $decoded['@context']);
+        }
+    }
+
+    /**
+     * Test Alpine Collapse plugin is loaded before Alpine core script.
+     */
+    public function test_homepage_loads_alpine_collapse_plugin_before_alpine(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $html = $response->getContent();
+
+        $collapsePos = strpos($html, 'cdn.alpine-collapse.min.js');
+        $alpinePos = strpos($html, 'cdn.alpine.min.js');
+
+        $this->assertNotFalse($collapsePos, 'Alpine Collapse script must be included in the HTML.');
+        $this->assertNotFalse($alpinePos, 'Alpine core script must be included in the HTML.');
+        $this->assertLessThan($alpinePos, $collapsePos, 'Alpine Collapse must be loaded before Alpine core.');
+    }
 }

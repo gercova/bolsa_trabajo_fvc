@@ -910,37 +910,32 @@
     </section>
 @endsection
 @push('scripts')
+    {{-- JSON-LD WebPage for Homepage --}}
+    @php
+        $homeWebPageSchema = [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => 'WebPage',
+                    '@id' => url('/') . '#webpage',
+                    'url' => url('/'),
+                    'name' => 'IESTP Francisco Vigo Caballero — Formación Técnica Superior en Uchiza',
+                    'description' => 'Portal oficial del IESTP Francisco Vigo Caballero en Uchiza, San Martín, Perú.',
+                    'inLanguage' => 'es-PE',
+                    'isPartOf' => [
+                        '@id' => url('/') . '#website',
+                    ],
+                    'about' => [
+                        '@id' => url('/') . '#organization',
+                    ],
+                ]
+            ],
+        ];
+    @endphp
+    <script type="application/ld+json">
+    {!! json_encode($homeWebPageSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+    </script>
     <script>
-        /* JSON-LD WebPage + BreadcrumbList */
-        (function() {
-            const ld = {
-                "@context": "https://schema.org",
-                "@graph": [{
-                    "@type": "WebPage",
-                    "@id": "{{ url('/') }}",
-                    "url": "{{ url('/') }}",
-                    "name": "IESTP Francisco Vigo Caballero — Formación Técnica Superior en Uchiza",
-                    "description": "Portal oficial del IESTP Francisco Vigo Caballero en Uchiza, San Martín, Perú.",
-                    "inLanguage": "es-PE",
-                    "isPartOf": {
-                        "@id": "{{ url('/') }}#website"
-                    }
-                }, {
-                    "@type": "BreadcrumbList",
-                    "itemListElement": [{
-                        "@type": "ListItem",
-                        "position": 1,
-                        "name": "Inicio",
-                        "item": "{{ url('/') }}"
-                    }]
-                }]
-            };
-            const s = document.createElement('script');
-            s.type = 'application/ld+json';
-            s.text = JSON.stringify(ld);
-            document.head.appendChild(s);
-        })();
-
         /* ── Reveal on scroll (IntersectionObserver) ─────────────────── */
         const revealEls = document.querySelectorAll('.reveal');
         if ('IntersectionObserver' in window) {

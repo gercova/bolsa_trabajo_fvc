@@ -42,30 +42,76 @@
     <meta name="twitter:image" content="@yield('og_image', url($enterprise->logo_path ?? ''))">
 
     {{-- ═══ JSON-LD STRUCTURED DATA ══════════════════════════════ --}}
-    <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "EducationalOrganization",
-            "name":  "{{ $enterprise->company_name ?? 'IESTP Francisco Vigo Caballero' }}",
-            "alternateName": "{{ $enterprise->trade_name ?? 'IESTP FVC' }}",
-            "url":   "{{ url('/') }}",
-            "logo":  "{{ url($enterprise->logo_path ?? '') }}",
-            "description": "{{ $enterprise->description ?? 'Instituto de Educación Superior Tecnológico Público Francisco Vigo Caballero.' }}",
-            "address": {
-                "@type": "PostalAddress",
-                "streetAddress":   "{{ $enterprise->address    ?? 'Av. Ricardo Palma N° 1401' }}",
-                "addressLocality": "{{ $enterprise->city       ?? 'Uchiza' }}",
-                "addressRegion":   "San Martín",
-                "addressCountry":  "PE"
-            },
-            "telephone": "{{ $enterprise->phone_number_1 ?? '' }}",
-            "email":     "{{ $enterprise->email          ?? '' }}",
-            "sameAs": [
-                @if($enterprise->facebook_link)  "{{ $enterprise->facebook_link  }}", @endif
-                @if($enterprise->instagram_link) "{{ $enterprise->instagram_link }}", @endif
-                @if($enterprise->linkedin_link)  "{{ $enterprise->linkedin_link  }}" @endif
-            ]
+    @php
+        $socialLinks = array_values(array_filter([
+            $enterprise->facebook_link ?? null,
+            $enterprise->instagram_link ?? null,
+            $enterprise->linkedin_link ?? null,
+            $enterprise->twitter_link ?? null,
+            $enterprise->whatsapp_link ?? null,
+        ], fn ($link) => !empty($link) && filter_var($link, FILTER_VALIDATE_URL)));
+
+        $logoPath = $enterprise->logo_path ?? 'enterprise/favicons/logo-iestpfvc.png';
+        $logoUrl = Str::startsWith($logoPath, ['http://', 'https://']) ? $logoPath : asset($logoPath);
+
+        $orgSchema = [
+            '@type' => 'EducationalOrganization',
+            '@id' => url('/') . '#organization',
+            'name' => $enterprise->company_name ?? 'IESTP Francisco Vigo Caballero',
+            'alternateName' => $enterprise->trade_name ?? 'IESTP FVC',
+            'url' => url('/'),
+            'logo' => [
+                '@type' => 'ImageObject',
+                '@id' => url('/') . '#logo',
+                'url' => $logoUrl,
+                'contentUrl' => $logoUrl,
+                'caption' => $enterprise->company_name ?? 'IESTP Francisco Vigo Caballero',
+            ],
+            'image' => $logoUrl,
+            'description' => $enterprise->description ?? 'Instituto de Educación Superior Tecnológico Público Francisco Vigo Caballero.',
+            'address' => [
+                '@type' => 'PostalAddress',
+                'streetAddress' => $enterprise->address ?: 'Av. Ricardo Palma N° 1401',
+                'addressLocality' => $enterprise->city ?: 'Uchiza',
+                'addressRegion' => 'San Martín',
+                'addressCountry' => 'PE',
+            ],
+        ];
+
+        if (!empty($enterprise->phone_number_1)) {
+            $orgSchema['telephone'] = $enterprise->phone_number_1;
         }
+
+        if (!empty($enterprise->email)) {
+            $orgSchema['email'] = $enterprise->email;
+        }
+
+        if (!empty($socialLinks)) {
+            $orgSchema['sameAs'] = $socialLinks;
+        }
+
+        $siteSchema = [
+            '@type' => 'WebSite',
+            '@id' => url('/') . '#website',
+            'url' => url('/'),
+            'name' => $enterprise->company_name ?? 'IESTP Francisco Vigo Caballero',
+            'description' => $enterprise->phrase ?? 'Educación Superior Tecnológica de Calidad en Uchiza',
+            'publisher' => [
+                '@id' => url('/') . '#organization',
+            ],
+            'inLanguage' => 'es-PE',
+        ];
+
+        $globalStructuredData = [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                $orgSchema,
+                $siteSchema,
+            ],
+        ];
+    @endphp
+    <script type="application/ld+json">
+    {!! json_encode($globalStructuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
     </script>
 
     {{-- ═══ FONTS (preconnect first, then actual load) ════════════ --}}
@@ -94,6 +140,7 @@
     @stack('styles')
 
     {{-- ═══ ALPINE.JS ══════════════════════════════════════════════ --}}
+    <script defer src="{{ asset('js/cdn.alpine-collapse.min.js') }}"></script>
     <script defer src="{{ asset('js/cdn.alpine.min.js') }}"></script>
 </head>
 

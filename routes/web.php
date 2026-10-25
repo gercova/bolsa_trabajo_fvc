@@ -53,6 +53,7 @@ Route::redirect('/becas-y-creditos', '/admision-y-matriculas/becas-y-creditos');
 // programas de estudio
 Route::get('/programas-de-estudios', [AppController::class, 'studyPrograms'])->name('programas-de-estudio');
 Route::get('/programas-de-estudios/{program:slug}', [AppController::class, 'program'])->name('programas-de-estudio.detalle');
+Route::redirect('/study-programs', '/programas-de-estudios');
 
 // Transparencia
 Route::get('/transparencia/documentos-de-gestion', [AppController::class, 'documentsManagement'])->name('documentos-de-gestion');

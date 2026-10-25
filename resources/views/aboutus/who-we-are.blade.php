@@ -17,20 +17,24 @@
     <meta property="og:image" content="{{ asset('enterprise/favicons/logo-iestpfvc.png') }}">
 
     {{-- JSON-LD Structured Data --}}
+    @php
+        $whoWeAreDesc = is_iterable($enterprise) ? $enterprise->first()->description ?? '' : $enterprise->description ?? '';
+        $whoWeAreSchema = [
+            '@context'      => 'https://schema.org',
+            '@type'         => 'CollegeOrUniversity',
+            'name'          => 'IESTP Francisco Vigo Caballero',
+            'description'   => trim(preg_replace('/\s+/', ' ', strip_tags($whoWeAreDesc))),
+            'url'           => url('/'),
+            'address' => [
+                '@type'         => 'PostalAddress',
+                'streetAddress' => 'Av. Ricardo Palma N° 1401',
+                'addressLocality' => 'Uchiza',
+                'addressCountry' => 'PE',
+            ],
+        ];
+    @endphp
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "CollegeOrUniversity",
-      "name": "IESTP Francisco Vigo Caballero",
-      "description": "{{ is_iterable($enterprise) ? $enterprise->first()->description ?? '' : $enterprise->description ?? '' }}",
-      "url": "{{ url('/') }}",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "Av. Ricardo Palma N° 1401",
-        "addressLocality": "Uchiza",
-        "addressCountry": "PE"
-      }
-    }
+    {!! json_encode($whoWeAreSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
     </script>
 
     <style>

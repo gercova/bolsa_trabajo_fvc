@@ -47,19 +47,22 @@
     @endif
 
     {{-- JSON-LD Structured Data --}}
+    @php
+        $courseSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Course',
+            'name' => $program->name,
+            'description' => trim(preg_replace('/\s+/', ' ', strip_tags($program->description ?? ''))),
+            'provider' => [
+                '@type' => 'EducationalOrganization',
+                'name' => 'IESTP Francisco Vigo Caballero',
+                'sameAs' => url('/'),
+            ],
+            'educationalCredentialAwarded' => 'Profesional Técnico en ' . $program->name,
+        ];
+    @endphp
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Course",
-      "name": "{{ $program->name }}",
-      "description": "{{ strip_tags($program->description) }}",
-      "provider": {
-        "@type": "EducationalOrganization",
-        "name": "IESTP Francisco Vigo Caballero",
-        "sameAs": "{{ url('/') }}"
-      },
-      "educationalCredentialAwarded": "Profesional Técnico en {{ $program->name }}"
-    }
+    {!! json_encode($courseSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
     </script>
 
     <style>

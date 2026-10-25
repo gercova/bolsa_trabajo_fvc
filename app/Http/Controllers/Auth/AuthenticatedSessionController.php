@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -30,10 +31,10 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
         $request->session()->regenerate();
         Log::info('Inicio de sesión exitoso', [
-            'user_id' => Auth::id(),
-            'email' => Auth::user()?->email,
-            'ip' => $request->ip(),
-            'user_agent' => $request->userAgent(),
+            'user_id'       => Auth::id(),
+            'email'         => Auth::user()?->email,
+            'ip'            => $request->ip(),
+            'user_agent'    => $request->userAgent(),
         ]);
 
         $user = Auth::user();
@@ -48,11 +49,6 @@ class AuthenticatedSessionController extends Controller
             $studentRoleName = ($user->role === 'Student' || (method_exists($user, 'hasRole') && $user->hasRole('Student')))
                 ? 'Student'
                 : 'Estudiante';
-
-            $studentRole = Role::findOrCreate($studentRoleName, 'web');
-            if (method_exists($user, 'hasRole') && ! $user->hasRole($studentRoleName)) {
-                $user->assignRole($studentRole);
-            }
 
             // Permisos iniciales exclusivos para estudiantes:
             // 1. Actualizar información personal
@@ -83,20 +79,55 @@ class AuthenticatedSessionController extends Controller
                 'consult-internal-regulations',
             ];
 
-            foreach ($allowedPermissions as $permissionName) {
-                Permission::findOrCreate($permissionName, 'web');
+            // 1. Asegurar existencia de permisos sin colisiones de clave única
+            $existingPermissions = Permission::whereIn('name', $allowedPermissions)
+                ->where('guard_name', 'web')
+                ->pluck('name')
+                ->toArray();
+
+            $missingPermissions = array_diff($allowedPermissions, $existingPermissions);
+            foreach ($missingPermissions as $permissionName) {
+                try {
+                    Permission::firstOrCreate(['name' => $permissionName, 'guard_name' => 'web']);
+                } catch (\Throwable) {
+                    // Ignorar si ya fue insertado por otra petición concurrente
+                }
             }
 
-            // Sincronizar permisos en los roles de estudiante y en el usuario garantizando acceso exclusivo únicamente a estas funciones
+            // Refrescar caché de permisos de Spatie
+            app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+            // 2. Asegurar existencia y sincronización de roles de estudiante
             $rolesToSync = array_unique(array_filter([
                 $studentRoleName,
                 'Estudiante',
                 'Student',
             ]));
 
+            $existingRoles = Role::whereIn('name', $rolesToSync)
+                ->where('guard_name', 'web')
+                ->get()
+                ->keyBy('name');
+
             foreach ($rolesToSync as $roleName) {
-                $role = Role::findOrCreate($roleName, 'web');
-                $role->syncPermissions($allowedPermissions);
+                $role = $existingRoles->get($roleName);
+                if (! $role) {
+                    try {
+                        $role = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
+                    } catch (\Throwable) {
+                        $role = Role::where('name', $roleName)->where('guard_name', 'web')->first();
+                    }
+                }
+                if ($role) {
+                    $role->syncPermissions($allowedPermissions);
+                }
+            }
+
+            $studentRole = $existingRoles->get($studentRoleName)
+                ?? Role::where('name', $studentRoleName)->where('guard_name', 'web')->first();
+
+            if ($studentRole && method_exists($user, 'hasRole') && ! $user->hasRole($studentRoleName)) {
+                $user->assignRole($studentRole);
             }
 
             // Remover posibles roles administrativos residuales para mantener permisos estrictos de estudiante

@@ -32,6 +32,11 @@ class RoleSeeder extends Seeder
             'gestionar-investigacion' => 'Gestionar Unidad de Investigación',
             'gestionar-educacion-continua' => 'Gestionar Educación Continua',
             'gestionar-inversiones' => 'Gestionar Inversión y Gastos (incluye vaciado de tabla)',
+            'actualizar-informacion-personal' => 'Actualizar Información Personal',
+            'acceder-biblioteca-virtual' => 'Acceder a la Biblioteca Virtual',
+            'presentar-solicitudes-administrativas' => 'Presentar Solicitudes Administrativas',
+            'ver-certificados' => 'Ver Certificados',
+            'consultar-reglamento-interno' => 'Consultar Reglamento Interno',
         ];
 
         foreach ($permissions as $name => $displayName) {
@@ -79,7 +84,20 @@ class RoleSeeder extends Seeder
             'Administrativo' => [
                 'ver-dashboard', 'gestionar-tupa', 'gestionar-reclamos',
             ],
-            'Estudiante' => [],
+            'Estudiante' => [
+                'actualizar-informacion-personal',
+                'acceder-biblioteca-virtual',
+                'presentar-solicitudes-administrativas',
+                'ver-certificados',
+                'consultar-reglamento-interno',
+            ],
+            'Student' => [
+                'actualizar-informacion-personal',
+                'acceder-biblioteca-virtual',
+                'presentar-solicitudes-administrativas',
+                'ver-certificados',
+                'consultar-reglamento-interno',
+            ],
         ];
 
         foreach ($rolesData as $roleName => $assignedPermissions) {

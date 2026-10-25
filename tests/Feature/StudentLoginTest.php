@@ -320,4 +320,40 @@ class StudentLoginTest extends TestCase
         $this->assertTrue($this->testStudent->can('ver-certificados'));
         $this->assertTrue($this->testStudent->can('consultar-reglamento-interno'));
     }
+
+    /**
+     * Prueba que múltiples inicios de sesión consecutivos de estudiantes no arrojan error de clave duplicada (Integrity constraint violation).
+     */
+    public function test_multiple_consecutive_student_logins_do_not_throw_duplicate_entry_exception(): void
+    {
+        $this->testStudent = User::create([
+            'document_type_id' => 1,
+            'dni' => '88776611',
+            'names' => 'Estudiante Inicios Consecutivos',
+            'email' => 'student_consecutive@iestp.edu.pe',
+            'role' => 'Estudiante',
+            'password' => Hash::make('password123'),
+            'is_active' => true,
+        ]);
+        $this->testStudent->assignRole('Estudiante');
+
+        // Primer login
+        $response1 = $this->post('/login', [
+            'email' => 'student_consecutive@iestp.edu.pe',
+            'password' => 'password123',
+        ]);
+        $response1->assertRedirect(route('biblioteca.index', absolute: false));
+
+        $this->post('/logout');
+
+        // Segundo login consecutivo (comprueba que no falla en la inserción de permisos existentes)
+        $response2 = $this->post('/login', [
+            'email' => 'student_consecutive@iestp.edu.pe',
+            'password' => 'password123',
+        ]);
+        $response2->assertRedirect(route('biblioteca.index', absolute: false));
+        $this->assertAuthenticatedAs($this->testStudent);
+
+        $this->testStudent->delete();
+    }
 }

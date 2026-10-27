@@ -264,6 +264,8 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/editar-programa/{program}', [StudyProgramsController::class, 'update'])->name('update');
         Route::delete('/{program}', [StudyProgramsController::class, 'destroy'])->name('destroy');
         Route::patch('/estado/{program}', [StudyProgramsController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{program}/imagenes/{image}', [StudyProgramsController::class, 'destroyImage'])->name('images.destroy');
+        Route::patch('/{program}/imagenes/{image}/principal', [StudyProgramsController::class, 'setMainImage'])->name('images.set-main');
 
         // Certificaciones Modulares (modular_certification)
         Route::prefix('modulos')->name('modules.')->group(function () {

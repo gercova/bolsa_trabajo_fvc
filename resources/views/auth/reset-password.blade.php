@@ -1,7 +1,5 @@
 @extends('layouts.app')
-
 @section('title', 'Restablecer Contraseña')
-
 @section('content')
 <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
@@ -15,12 +13,9 @@
                 Restablecer Contraseña
             </h2>
         </div>
-        
         <form class="mt-8 space-y-6" method="POST" action="{{ route('password.update') }}">
             @csrf
-            
             <input type="hidden" name="token" value="{{ $request->route('token') }}">
-            
             <div class="space-y-4">
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
@@ -38,7 +33,6 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
-                
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
                         Nueva Contraseña
@@ -70,7 +64,6 @@
                     </div>
                 </div>
             </div>
-            
             <div>
                 <button type="submit"
                         class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition">

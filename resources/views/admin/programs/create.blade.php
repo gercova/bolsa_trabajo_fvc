@@ -3,7 +3,6 @@
 @section('content')
 <div id="dashboard-container" class="flex w-full bg-gray-50 font-sans text-gray-900 min-h-[calc(100vh-64px)]" x-data="dashboardApp()">
     @include('admin.components.aside')
-
     <div class="flex-1 flex flex-col min-w-0 bg-gray-50/50 relative">  
         <header class="bg-white border-b border-gray-200 sticky top-[64px] lg:top-0 z-[30] shadow-sm backdrop-blur-md bg-white/90">
             <div class="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
@@ -23,20 +22,16 @@
                 </div>
             </div>
         </header>
-
         <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
             <div class="max-w-4xl mx-auto space-y-6">
-
                 <div class="flex items-center justify-between">
                     <a href="{{ route('admin.programs.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-purple-600 transition-colors">
                         <i class="bi bi-arrow-left text-lg"></i>
                         <span>Volver al listado</span>
                     </a>
                 </div>
-
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 space-y-8" 
                     x-data="studyProgramCreateForm('{{ old('icon', 'bi-mortarboard-fill') }}')">
-                    
                     {{-- Banner --}}
                     <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-blue-500/10 border border-purple-100">
                         <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center flex-shrink-0">
@@ -181,6 +176,108 @@
                                 @enderror
                             </div>
 
+                            {{-- FOTOGRAFÍAS / GALERÍA DEL PROGRAMA --}}
+                            <div class="md:col-span-2 space-y-3 pt-2">
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                    <div>
+                                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700">
+                                            Galería de Fotos del Programa <span class="text-gray-400 font-normal">(Múltiples Formatos)</span>
+                                        </label>
+                                        <p class="text-xs text-gray-500 mt-0.5">
+                                            Sube fotos de talleres, laboratorios, aulas o actividades prácticas. Formatos soportados: PNG, JPG, JPEG, WEBP, GIF, SVG, AVIF (Máx. 10MB c/u).
+                                        </p>
+                                    </div>
+                                    <template x-if="galleryFiles.length > 0">
+                                        <button type="button" @click="clearAllGalleryFiles()" class="text-xs font-semibold text-red-600 hover:text-red-700 hover:underline flex items-center gap-1 self-start sm:self-auto">
+                                            <i class="bi bi-trash"></i>
+                                            <span>Quitar todas (<span x-text="galleryFiles.length"></span>)</span>
+                                        </button>
+                                    </template>
+                                </div>
+
+                                {{-- Drag & Drop Upload Area --}}
+                                <div class="relative border-2 border-dashed rounded-2xl p-6 text-center transition-all duration-200 group"
+                                     :class="isDraggingGallery ? 'border-purple-500 bg-purple-50/50' : 'border-gray-200 hover:border-purple-400 bg-gray-50/50 hover:bg-purple-50/20'"
+                                     @dragover.prevent="isDraggingGallery = true"
+                                     @dragleave.prevent="isDraggingGallery = false"
+                                     @drop.prevent="handleGalleryDrop($event)">
+                                    
+                                    <input type="file" id="gallery_images" name="images[]" multiple accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml,image/avif"
+                                        @change="handleGalleryChange($event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                    
+                                    <input type="hidden" name="main_image_index" :value="mainImageIndex">
+
+                                    <div class="space-y-2 pointer-events-none">
+                                        <div class="w-12 h-12 mx-auto rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                                            <i class="bi bi-images"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-gray-700">
+                                                Haz clic o arrastra fotos para la galería aquí
+                                            </p>
+                                            <p class="text-xs text-gray-500 mt-1">
+                                                Puedes seleccionar varias imágenes a la vez (PNG, JPG, WEBP, GIF, SVG, AVIF - Máx. 10MB)
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @error('images')
+                                    <p class="text-xs text-red-500 font-medium mt-1">{{ $message }}</p>
+                                @enderror
+                                @error('images.*')
+                                    <p class="text-xs text-red-500 font-medium mt-1">{{ $message }}</p>
+                                @enderror
+
+                                {{-- Live Preview of Selected Images --}}
+                                <template x-if="galleryFiles.length > 0">
+                                    <div class="space-y-3 pt-2">
+                                        <div class="flex items-center justify-between text-xs font-semibold text-gray-600">
+                                            <span>Fotos seleccionadas (<span x-text="galleryFiles.length"></span>)</span>
+                                            <span class="text-purple-600 font-medium text-[11px] flex items-center gap-1">
+                                                <i class="bi bi-star-fill text-amber-400"></i> Haz clic en "Principal" para elegir la foto destacada
+                                            </span>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                            <template x-for="(item, idx) in galleryFiles" :key="idx">
+                                                <div class="relative group rounded-2xl border bg-white overflow-hidden shadow-sm transition-all duration-200"
+                                                     :class="mainImageIndex === idx ? 'border-purple-500 ring-2 ring-purple-200' : 'border-gray-200 hover:border-gray-300'">
+                                                    
+                                                    {{-- Thumbnail --}}
+                                                    <div class="aspect-video w-full bg-gray-100 relative overflow-hidden flex items-center justify-center">
+                                                        <img :src="item.preview" :alt="item.name" class="w-full h-full object-cover">
+                                                        
+                                                        {{-- Main Badge / Action --}}
+                                                        <div class="absolute top-2 left-2 z-20">
+                                                            <button type="button" @click="setMainGalleryIndex(idx)"
+                                                                class="px-2 py-1 rounded-lg text-[10px] font-bold shadow-md transition-all flex items-center gap-1 backdrop-blur-md"
+                                                                :class="mainImageIndex === idx ? 'bg-amber-500 text-white' : 'bg-black/60 text-white hover:bg-black/80'">
+                                                                <i class="bi" :class="mainImageIndex === idx ? 'bi-star-fill text-yellow-200' : 'bi-star'"></i>
+                                                                <span x-text="mainImageIndex === idx ? 'Principal' : 'Elegir'"></span>
+                                                            </button>
+                                                        </div>
+
+                                                        {{-- Delete Button --}}
+                                                        <button type="button" @click="removeGalleryFile(idx)"
+                                                            class="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-xs shadow-md backdrop-blur-sm transition-transform hover:scale-110 z-20"
+                                                            title="Quitar foto">
+                                                            <i class="bi bi-x-lg"></i>
+                                                        </button>
+                                                    </div>
+
+                                                    {{-- Info --}}
+                                                    <div class="p-2.5 bg-white">
+                                                        <p class="text-xs font-semibold text-gray-800 truncate" :title="item.name" x-text="item.name"></p>
+                                                        <p class="text-[11px] text-gray-500" x-text="item.size"></p>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
                             {{-- Descripción --}}
                             <div class="md:col-span-2 space-y-1.5">
                                 <label for="description" class="block text-xs font-bold uppercase tracking-wider text-gray-700">
@@ -303,6 +400,10 @@
             fileName: '',
             pdfFileName: '',
 
+            galleryFiles: [],
+            mainImageIndex: 0,
+            isDraggingGallery: false,
+
             handleLogoChange(event) {
                 const file = event.target.files[0];
                 if (file) {
@@ -333,6 +434,87 @@
                 this.pdfFileName = '';
                 const input = document.getElementById('training_itinerary_path');
                 if (input) input.value = '';
+            },
+
+            handleGalleryChange(event) {
+                const files = Array.from(event.target.files);
+                files.forEach((file) => {
+                    const exists = this.galleryFiles.some(f => f.name === file.name && f.sizeRaw === file.size);
+                    if (!exists) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.galleryFiles.push({
+                                file: file,
+                                name: file.name,
+                                size: this.formatBytes(file.size),
+                                sizeRaw: file.size,
+                                preview: e.target.result,
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+                this.syncGalleryInput();
+            },
+
+            handleGalleryDrop(event) {
+                this.isDraggingGallery = false;
+                const files = Array.from(event.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+                files.forEach((file) => {
+                    const exists = this.galleryFiles.some(f => f.name === file.name && f.sizeRaw === file.size);
+                    if (!exists) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.galleryFiles.push({
+                                file: file,
+                                name: file.name,
+                                size: this.formatBytes(file.size),
+                                sizeRaw: file.size,
+                                preview: e.target.result,
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+                this.syncGalleryInput();
+            },
+
+            removeGalleryFile(index) {
+                this.galleryFiles.splice(index, 1);
+                if (this.mainImageIndex >= this.galleryFiles.length) {
+                    this.mainImageIndex = 0;
+                }
+                this.syncGalleryInput();
+            },
+
+            clearAllGalleryFiles() {
+                this.galleryFiles = [];
+                this.mainImageIndex = 0;
+                const input = document.getElementById('gallery_images');
+                if (input) input.value = '';
+            },
+
+            syncGalleryInput() {
+                setTimeout(() => {
+                    const dt = new DataTransfer();
+                    this.galleryFiles.forEach(item => dt.items.add(item.file));
+                    const input = document.getElementById('gallery_images');
+                    if (input) {
+                        input.files = dt.files;
+                    }
+                }, 50);
+            },
+
+            setMainGalleryIndex(index) {
+                this.mainImageIndex = index;
+            },
+
+            formatBytes(bytes) {
+                if (!bytes || bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
             }
         }
     }

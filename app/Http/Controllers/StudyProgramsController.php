@@ -8,6 +8,7 @@ use App\Http\Requests\ProgramJobFieldRequest;
 use App\Http\Requests\ProgramMetaRequest;
 use App\Http\Requests\ProgramRequirementRequest;
 use App\Http\Requests\StudyProgramValidate;
+use App\Models\Image;
 use App\Models\ModularCertification;
 use App\Models\ProgramCompetency;
 use App\Models\ProgramJobField;
@@ -15,6 +16,7 @@ use App\Models\ProgramMeta;
 use App\Models\ProgramRequirement;
 use App\Models\StudyProgram;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -174,13 +176,32 @@ class StudyProgramsController extends Controller
             $validated['training_itinerary_path'] = $itineraryPath;
         }
 
-        StudyProgram::create($validated);
+        $program = StudyProgram::create($validated);
+
+        if ($request->hasFile('images')) {
+            $mainIndex = $request->input('main_image_index');
+            $files = $request->file('images');
+            foreach ($files as $index => $imageFile) {
+                if ($imageFile->isValid()) {
+                    $imagePath = $imageFile->store('programs/gallery', 'public');
+                    $isMain = ($mainIndex !== null && $mainIndex !== '') ? ((int) $mainIndex === (int) $index) : ($index === 0);
+                    $program->images()->create([
+                        'path' => $imagePath,
+                        'is_main' => $isMain,
+                        'imageable_type' => StudyProgram::class,
+                        'imageable_id' => $program->id,
+                    ]);
+                }
+            }
+        }
 
         return redirect()->route('admin.programs.index', ['tab' => 'programs'])->with('success', 'Programa de estudio creado correctamente.');
     }
 
     public function edit(StudyProgram $program): View
     {
+        $program->load('images');
+
         return view('admin.programs.edit', compact('program'));
     }
 
@@ -209,6 +230,53 @@ class StudyProgramsController extends Controller
 
         $program->update($validated);
 
+        // 1. Eliminar imágenes marcadas
+        if ($request->filled('delete_images')) {
+            $deleteIds = (array) $request->input('delete_images');
+            $imagesToDelete = $program->images()->whereIn('id', $deleteIds)->get();
+            foreach ($imagesToDelete as $image) {
+                if ($image->path && Storage::disk('public')->exists($image->path)) {
+                    Storage::disk('public')->delete($image->path);
+                }
+                $image->delete();
+            }
+        }
+
+        // 2. Subir nuevas imágenes de galería
+        $newImages = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $imageFile) {
+                if ($imageFile->isValid()) {
+                    $imagePath = $imageFile->store('programs/gallery', 'public');
+                    $newImg = $program->images()->create([
+                        'path' => $imagePath,
+                        'is_main' => false,
+                        'imageable_type' => StudyProgram::class,
+                        'imageable_id' => $program->id,
+                    ]);
+                    $newImages[] = $newImg;
+                }
+            }
+        }
+
+        // 3. Gestionar imagen principal
+        if ($request->filled('main_image_id')) {
+            $mainId = (int) $request->input('main_image_id');
+            $program->images()->update(['is_main' => false]);
+            $program->images()->where('id', $mainId)->update(['is_main' => true]);
+        } elseif ($request->filled('main_image_index') && ! empty($newImages)) {
+            $mainIdx = (int) $request->input('main_image_index');
+            if (isset($newImages[$mainIdx])) {
+                $program->images()->update(['is_main' => false]);
+                $newImages[$mainIdx]->update(['is_main' => true]);
+            }
+        }
+
+        // Si existen imágenes y ninguna está marcada como principal, marcar la primera
+        if ($program->images()->exists() && ! $program->images()->where('is_main', true)->exists()) {
+            $program->images()->first()->update(['is_main' => true]);
+        }
+
         return redirect()->route('admin.programs.index', ['tab' => 'programs'])->with('success', 'Programa de estudio actualizado correctamente.');
     }
 
@@ -229,9 +297,71 @@ class StudyProgramsController extends Controller
         if ($program->training_itinerary_path && Storage::disk('public')->exists($program->training_itinerary_path)) {
             Storage::disk('public')->delete($program->training_itinerary_path);
         }
+        foreach ($program->images as $image) {
+            if ($image->path && Storage::disk('public')->exists($image->path)) {
+                Storage::disk('public')->delete($image->path);
+            }
+            $image->delete();
+        }
         $program->delete();
 
         return redirect()->route('admin.programs.index', ['tab' => 'programs'])->with('success', 'Programa de estudio eliminado correctamente.');
+    }
+
+    public function destroyImage(StudyProgram $program, Image $image): JsonResponse|RedirectResponse
+    {
+        if ((int) $image->imageable_id !== (int) $program->id || $image->imageable_type !== StudyProgram::class) {
+            if (request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'La imagen no pertenece a este programa.'], 403);
+            }
+
+            return back()->with('error', 'La imagen no pertenece a este programa.');
+        }
+
+        if ($image->path && Storage::disk('public')->exists($image->path)) {
+            Storage::disk('public')->delete($image->path);
+        }
+        $wasMain = $image->is_main;
+        $image->delete();
+
+        if ($wasMain) {
+            $nextMain = $program->images()->first();
+            if ($nextMain) {
+                $nextMain->update(['is_main' => true]);
+            }
+        }
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Imagen eliminada correctamente.',
+            ]);
+        }
+
+        return back()->with('success', 'Imagen eliminada correctamente.');
+    }
+
+    public function setMainImage(StudyProgram $program, Image $image): JsonResponse|RedirectResponse
+    {
+        if ((int) $image->imageable_id !== (int) $program->id || $image->imageable_type !== StudyProgram::class) {
+            if (request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'La imagen no pertenece a este programa.'], 403);
+            }
+
+            return back()->with('error', 'La imagen no pertenece a este programa.');
+        }
+
+        $program->images()->update(['is_main' => false]);
+        $image->update(['is_main' => true]);
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Imagen principal actualizada correctamente.',
+            ]);
+        }
+
+        return back()->with('success', 'Imagen principal actualizada correctamente.');
     }
 
     // =========================================================================

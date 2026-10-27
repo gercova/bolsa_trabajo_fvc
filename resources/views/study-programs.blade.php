@@ -98,6 +98,13 @@
                                     <div
                                         class="absolute inset-0 bg-slate-950/40">
                                     </div>
+                                @elseif ($mainImage)
+                                    <img src="{{ $mainImage->url }}"
+                                        alt="{{ $program->name }}"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90">
+                                    <div
+                                        class="absolute inset-0 bg-slate-950/40">
+                                    </div>
                                 @else
                                     <i class="bi {{ $icon }} text-7xl text-white/50 drop-shadow z-10"></i>
                                 @endif

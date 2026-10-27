@@ -35,7 +35,14 @@
                 </div>
 
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 space-y-8" 
-                    x-data="studyProgramEditForm('{{ old('icon', $program->icon ?? 'bi-mortarboard-fill') }}', '{{ $program->logo_path ? asset('storage/' . $program->logo_path) : '' }}', '{{ $program->logo_path ? basename($program->logo_path) : '' }}', '{{ $program->training_itinerary_path ? $program->training_itinerary_url : '' }}', '{{ $program->training_itinerary_path ? basename($program->training_itinerary_path) : '' }}')">
+                    x-data="studyProgramEditForm('{{ old('icon', $program->icon ?? 'bi-mortarboard-fill') }}', '{{ $program->logo_path ? asset('storage/' . $program->logo_path) : '' }}', '{{ $program->logo_path ? basename($program->logo_path) : '' }}', '{{ $program->training_itinerary_path ? $program->training_itinerary_url : '' }}', '{{ $program->training_itinerary_path ? basename($program->training_itinerary_path) : '' }}', @js($program->images->map(fn($img) => [
+                        'id' => $img->id,
+                        'url' => $img->url,
+                        'filename' => basename($img->path),
+                        'is_main' => (bool)$img->is_main,
+                        'destroy_url' => route('admin.programs.images.destroy', [$program, $img]),
+                        'set_main_url' => route('admin.programs.images.set-main', [$program, $img]),
+                    ])))">
                     
                     {{-- Banner --}}
                     <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-blue-500/10 border border-purple-100">
@@ -194,6 +201,210 @@
                                 @enderror
                             </div>
 
+                            {{-- FOTOGRAFÍAS / GALERÍA DEL PROGRAMA --}}
+                            <div class="md:col-span-2 space-y-5 pt-2">
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                    <div>
+                                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700">
+                                            Galería de Fotos del Programa <span class="text-gray-400 font-normal">(Múltiples Formatos)</span>
+                                        </label>
+                                        <p class="text-xs text-gray-500 mt-0.5">
+                                            Administra las fotos registradas y agrega nuevas imágenes representativas del programa. Formatos: PNG, JPG, JPEG, WEBP, GIF, SVG, AVIF (Máx. 10MB c/u).
+                                        </p>
+                                    </div>
+                                    <div class="text-xs font-semibold text-gray-500">
+                                        Total activo: <span x-text="existingImages.filter(img => !deletedImageIds.includes(img.id)).length + galleryFiles.length"></span> fotos
+                                    </div>
+                                </div>
+
+                                {{-- Hidden Inputs for Deleted Images & Main Image --}}
+                                <template x-for="delId in deletedImageIds" :key="delId">
+                                    <input type="hidden" name="delete_images[]" :value="delId">
+                                </template>
+                                <input type="hidden" name="main_image_id" :value="mainImageId">
+                                <input type="hidden" name="main_image_index" :value="mainImageIndex">
+
+                                {{-- 1. FOTOS ACTUALES REGISTRADAS --}}
+                                <div class="space-y-3">
+                                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-600 flex items-center gap-1.5">
+                                        <i class="bi bi-images text-purple-600"></i>
+                                        <span>Fotos Registradas Actualmente (<span x-text="existingImages.length"></span>)</span>
+                                    </h4>
+
+                                    <template x-if="existingImages.length === 0">
+                                        <div class="p-6 bg-gray-50 border border-dashed border-gray-200 rounded-2xl text-center text-gray-400">
+                                            <i class="bi bi-image text-3xl opacity-50 block mb-1"></i>
+                                            <p class="text-xs font-medium">Este programa aún no tiene fotos en su galería.</p>
+                                        </div>
+                                    </template>
+
+                                    <template x-if="existingImages.length > 0">
+                                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                            <template x-for="(img, idx) in existingImages" :key="img.id">
+                                                <div class="relative group rounded-2xl border overflow-hidden shadow-sm transition-all duration-200"
+                                                     :class="{
+                                                         'border-red-400 bg-red-50/50 opacity-60': deletedImageIds.includes(img.id),
+                                                         'border-purple-500 ring-2 ring-purple-200 bg-white': !deletedImageIds.includes(img.id) && mainImageId === img.id,
+                                                         'border-gray-200 bg-white hover:border-gray-300': !deletedImageIds.includes(img.id) && mainImageId !== img.id
+                                                     }">
+                                                    
+                                                    {{-- Thumbnail --}}
+                                                    <div class="aspect-video w-full bg-gray-100 relative overflow-hidden flex items-center justify-center">
+                                                        <img :src="img.url" :alt="img.filename" class="w-full h-full object-cover">
+                                                        
+                                                        {{-- Strikethrough overlay when marked for deletion --}}
+                                                        <template x-if="deletedImageIds.includes(img.id)">
+                                                            <div class="absolute inset-0 bg-red-900/60 backdrop-blur-[1px] flex flex-col items-center justify-center text-white p-2 text-center z-10">
+                                                                <i class="bi bi-trash-fill text-xl text-red-200 mb-1"></i>
+                                                                <span class="text-[10px] font-bold uppercase tracking-wider">Marcada para eliminar</span>
+                                                                <button type="button" @click="toggleDeleteImage(img.id)" class="mt-1.5 px-2 py-0.5 bg-white text-red-700 text-[10px] font-extrabold rounded-md hover:bg-gray-100 transition-colors">
+                                                                    Deshacer
+                                                                </button>
+                                                            </div>
+                                                        </template>
+
+                                                        {{-- Main Badge / Action --}}
+                                                        <template x-if="!deletedImageIds.includes(img.id)">
+                                                            <div class="absolute top-2 left-2 z-20">
+                                                                <button type="button" @click="setMainExistingImage(img)"
+                                                                    class="px-2 py-1 rounded-lg text-[10px] font-bold shadow-md transition-all flex items-center gap-1 backdrop-blur-md"
+                                                                    :class="mainImageId === img.id ? 'bg-amber-500 text-white' : 'bg-black/60 text-white hover:bg-black/80'">
+                                                                    <i class="bi" :class="mainImageId === img.id ? 'bi-star-fill text-yellow-200' : 'bi-star'"></i>
+                                                                    <span x-text="mainImageId === img.id ? 'Principal' : 'Elegir'"></span>
+                                                                </button>
+                                                            </div>
+                                                        </template>
+
+                                                        {{-- Delete Action --}}
+                                                        <template x-if="!deletedImageIds.includes(img.id)">
+                                                            <div class="absolute top-2 right-2 flex items-center gap-1 z-20">
+                                                                <button type="button" @click="toggleDeleteImage(img.id)"
+                                                                    class="w-6 h-6 rounded-full bg-red-600/90 hover:bg-red-700 text-white flex items-center justify-center text-xs shadow-md backdrop-blur-sm transition-transform hover:scale-110"
+                                                                    title="Marcar para eliminar al guardar">
+                                                                    <i class="bi bi-trash-fill"></i>
+                                                                </button>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+
+                                                    {{-- Info --}}
+                                                    <div class="p-2.5 bg-white">
+                                                        <p class="text-xs font-semibold text-gray-800 truncate" :title="img.filename" x-text="img.filename"></p>
+                                                        <div class="flex items-center justify-between mt-1">
+                                                            <span class="text-[10px] font-semibold"
+                                                                  :class="deletedImageIds.includes(img.id) ? 'text-red-500' : (mainImageId === img.id ? 'text-amber-600' : 'text-gray-400')">
+                                                                <span x-text="deletedImageIds.includes(img.id) ? 'Se eliminará' : (mainImageId === img.id ? 'Foto destacada' : 'Foto de galería')"></span>
+                                                            </span>
+                                                            <template x-if="!deletedImageIds.includes(img.id)">
+                                                                <button type="button" @click="deleteImageImmediately(img, idx)" class="text-[10px] text-red-500 hover:text-red-700 hover:underline font-medium" title="Eliminar inmediatamente de la base de datos">
+                                                                    Eliminar ya
+                                                                </button>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                {{-- 2. AGREGAR NUEVAS FOTOS A LA GALERÍA --}}
+                                <div class="space-y-3 pt-3 border-t border-gray-100">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-600 flex items-center gap-1.5">
+                                            <i class="bi bi-cloud-arrow-up text-purple-600"></i>
+                                            <span>Subir Nuevas Fotos a la Galería</span>
+                                        </h4>
+                                        <template x-if="galleryFiles.length > 0">
+                                            <button type="button" @click="clearAllNewGalleryFiles()" class="text-xs font-semibold text-red-600 hover:text-red-700 hover:underline flex items-center gap-1">
+                                                <i class="bi bi-trash"></i>
+                                                <span>Quitar nuevas (<span x-text="galleryFiles.length"></span>)</span>
+                                            </button>
+                                        </template>
+                                    </div>
+
+                                    {{-- Drag & Drop Upload Area --}}
+                                    <div class="relative border-2 border-dashed rounded-2xl p-6 text-center transition-all duration-200 group"
+                                         :class="isDraggingGallery ? 'border-purple-500 bg-purple-50/50' : 'border-gray-200 hover:border-purple-400 bg-gray-50/50 hover:bg-purple-50/20'"
+                                         @dragover.prevent="isDraggingGallery = true"
+                                         @dragleave.prevent="isDraggingGallery = false"
+                                         @drop.prevent="handleGalleryDrop($event)">
+                                        
+                                        <input type="file" id="gallery_images_edit" name="images[]" multiple accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml,image/avif"
+                                            @change="handleGalleryChange($event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+
+                                        <div class="space-y-2 pointer-events-none">
+                                            <div class="w-12 h-12 mx-auto rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                                                <i class="bi bi-images"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-bold text-gray-700">
+                                                    Haz clic o arrastra fotos nuevas aquí para agregarlas
+                                                </p>
+                                                <p class="text-xs text-gray-500 mt-1">
+                                                    Formatos: PNG, JPG, WEBP, GIF, SVG, AVIF (Máx. 10MB c/u)
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @error('images')
+                                        <p class="text-xs text-red-500 font-medium mt-1">{{ $message }}</p>
+                                    @enderror
+                                    @error('images.*')
+                                        <p class="text-xs text-red-500 font-medium mt-1">{{ $message }}</p>
+                                    @enderror
+
+                                    {{-- Live Preview of Newly Selected Images --}}
+                                    <template x-if="galleryFiles.length > 0">
+                                        <div class="space-y-3 pt-1">
+                                            <div class="flex items-center justify-between text-xs font-semibold text-gray-600">
+                                                <span>Nuevas fotos por subir (<span x-text="galleryFiles.length"></span>)</span>
+                                                <span class="text-purple-600 font-medium text-[11px] flex items-center gap-1">
+                                                    <i class="bi bi-star-fill text-amber-400"></i> También puedes marcar una foto nueva como Principal
+                                                </span>
+                                            </div>
+
+                                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                                <template x-for="(item, idx) in galleryFiles" :key="idx">
+                                                    <div class="relative group rounded-2xl border bg-white overflow-hidden shadow-sm transition-all duration-200"
+                                                         :class="mainImageIndex === idx ? 'border-purple-500 ring-2 ring-purple-200' : 'border-gray-200 hover:border-gray-300'">
+                                                        
+                                                        {{-- Thumbnail --}}
+                                                        <div class="aspect-video w-full bg-gray-100 relative overflow-hidden flex items-center justify-center">
+                                                            <img :src="item.preview" :alt="item.name" class="w-full h-full object-cover">
+                                                            
+                                                            {{-- Main Badge / Action --}}
+                                                            <div class="absolute top-2 left-2 z-20">
+                                                                <button type="button" @click="setMainNewGalleryIndex(idx)"
+                                                                    class="px-2 py-1 rounded-lg text-[10px] font-bold shadow-md transition-all flex items-center gap-1 backdrop-blur-md"
+                                                                    :class="mainImageIndex === idx ? 'bg-amber-500 text-white' : 'bg-black/60 text-white hover:bg-black/80'">
+                                                                    <i class="bi" :class="mainImageIndex === idx ? 'bi-star-fill text-yellow-200' : 'bi-star'"></i>
+                                                                    <span x-text="mainImageIndex === idx ? 'Principal' : 'Elegir'"></span>
+                                                                </button>
+                                                            </div>
+
+                                                            {{-- Delete Button --}}
+                                                            <button type="button" @click="removeGalleryFile(idx)"
+                                                                class="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-xs shadow-md backdrop-blur-sm transition-transform hover:scale-110 z-20"
+                                                                title="Quitar foto nueva">
+                                                                <i class="bi bi-x-lg"></i>
+                                                            </button>
+                                                        </div>
+
+                                                        {{-- Info --}}
+                                                        <div class="p-2.5 bg-white">
+                                                            <p class="text-xs font-semibold text-gray-800 truncate" :title="item.name" x-text="item.name"></p>
+                                                            <p class="text-[11px] text-gray-500" x-text="item.size"></p>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
                             {{-- Descripción / Perfil --}}
                             <div class="md:col-span-2 space-y-1.5">
                                 <label for="description" class="block text-xs font-bold uppercase tracking-wider text-gray-700">
@@ -309,7 +520,7 @@
 
 @push('scripts')
 <script>
-    function studyProgramEditForm(defaultIcon, existingLogoUrl, originalFileName, existingPdfUrl, originalPdfName) {
+    function studyProgramEditForm(defaultIcon, existingLogoUrl, originalFileName, existingPdfUrl, originalPdfName, initialImages) {
         return {
             selectedIcon: defaultIcon || 'bi-mortarboard-fill',
             logoPreview: existingLogoUrl || null,
@@ -322,6 +533,14 @@
             originalPdfName: originalPdfName || '',
             pdfFileName: originalPdfName || '',
             isNewPdf: false,
+
+            // Gallery state
+            existingImages: initialImages || [],
+            deletedImageIds: [],
+            mainImageId: (initialImages && initialImages.find(i => i.is_main)) ? initialImages.find(i => i.is_main).id : ((initialImages && initialImages.length > 0) ? initialImages[0].id : null),
+            galleryFiles: [],
+            mainImageIndex: null,
+            isDraggingGallery: false,
 
             handleLogoChange(event) {
                 const file = event.target.files[0];
@@ -357,9 +576,145 @@
                 this.isNewPdf = false;
                 const input = document.getElementById('training_itinerary_path');
                 if (input) input.value = '';
+            },
+
+            toggleDeleteImage(id) {
+                const idx = this.deletedImageIds.indexOf(id);
+                if (idx > -1) {
+                    this.deletedImageIds.splice(idx, 1);
+                } else {
+                    this.deletedImageIds.push(id);
+                    if (this.mainImageId === id) {
+                        const remaining = this.existingImages.filter(img => !this.deletedImageIds.includes(img.id));
+                        this.mainImageId = remaining.length > 0 ? remaining[0].id : null;
+                    }
+                }
+            },
+
+            setMainExistingImage(img) {
+                this.mainImageId = img.id;
+                this.mainImageIndex = null;
+            },
+
+            async deleteImageImmediately(img, index) {
+                if (!confirm('¿Estás seguro de que deseas eliminar permanentemente esta imagen de la base de datos?')) {
+                    return;
+                }
+
+                try {
+                    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    const response = await fetch(img.destroy_url, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': token || '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+                    if (response.ok && data.success) {
+                        this.existingImages.splice(index, 1);
+                        const delIdx = this.deletedImageIds.indexOf(img.id);
+                        if (delIdx > -1) this.deletedImageIds.splice(delIdx, 1);
+                        if (this.mainImageId === img.id) {
+                            this.mainImageId = this.existingImages.length > 0 ? this.existingImages[0].id : null;
+                        }
+                    } else {
+                        alert(data.message || 'Error al eliminar la imagen.');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('No se pudo conectar con el servidor para eliminar la imagen.');
+                }
+            },
+
+            handleGalleryChange(event) {
+                const files = Array.from(event.target.files);
+                files.forEach((file) => {
+                    const exists = this.galleryFiles.some(f => f.name === file.name && f.sizeRaw === file.size);
+                    if (!exists) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.galleryFiles.push({
+                                file: file,
+                                name: file.name,
+                                size: this.formatBytes(file.size),
+                                sizeRaw: file.size,
+                                preview: e.target.result,
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+                this.syncGalleryInput();
+            },
+
+            handleGalleryDrop(event) {
+                this.isDraggingGallery = false;
+                const files = Array.from(event.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+                files.forEach((file) => {
+                    const exists = this.galleryFiles.some(f => f.name === file.name && f.sizeRaw === file.size);
+                    if (!exists) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.galleryFiles.push({
+                                file: file,
+                                name: file.name,
+                                size: this.formatBytes(file.size),
+                                sizeRaw: file.size,
+                                preview: e.target.result,
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+                this.syncGalleryInput();
+            },
+
+            removeGalleryFile(index) {
+                this.galleryFiles.splice(index, 1);
+                if (this.mainImageIndex === index) {
+                    this.mainImageIndex = null;
+                } else if (this.mainImageIndex > index) {
+                    this.mainImageIndex--;
+                }
+                this.syncGalleryInput();
+            },
+
+            clearAllNewGalleryFiles() {
+                this.galleryFiles = [];
+                this.mainImageIndex = null;
+                const input = document.getElementById('gallery_images_edit');
+                if (input) input.value = '';
+            },
+
+            syncGalleryInput() {
+                setTimeout(() => {
+                    const dt = new DataTransfer();
+                    this.galleryFiles.forEach(item => dt.items.add(item.file));
+                    const input = document.getElementById('gallery_images_edit');
+                    if (input) {
+                        input.files = dt.files;
+                    }
+                }, 50);
+            },
+
+            setMainNewGalleryIndex(index) {
+                this.mainImageIndex = index;
+                this.mainImageId = null;
+            },
+
+            formatBytes(bytes) {
+                if (!bytes || bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
             }
         }
     }
 </script>
+
 @endpush
 @endsection

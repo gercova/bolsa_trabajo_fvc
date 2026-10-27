@@ -20,7 +20,6 @@ class CarouselController extends Controller
     {
         $search = $request->input('search');
         $status = $request->input('status');
-
         $carousels = InstitutionalCarousel::with('image')
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
@@ -59,7 +58,6 @@ class CarouselController extends Controller
         $validated = $request->validated();
         $validated['is_active'] = $request->has('is_active');
         $validated['order'] = $validated['order'] ?? ((InstitutionalCarousel::max('order') ?? 0) + 1);
-
         unset($validated['image']);
 
         $carousel = InstitutionalCarousel::create($validated);
@@ -84,8 +82,7 @@ class CarouselController extends Controller
             ], 201);
         }
 
-        return redirect()->route('admin.carousel.index')
-            ->with('success', 'Diapositiva del carrusel registrada exitosamente.');
+        return redirect()->route('admin.carousel.index')->with('success', 'Diapositiva del carrusel registrada exitosamente.');
     }
 
     /**
@@ -106,7 +103,6 @@ class CarouselController extends Controller
         $validated = $request->validated();
         $validated['is_active'] = $request->has('is_active');
         $validated['order'] = $validated['order'] ?? $carousel->order;
-
         unset($validated['image']);
 
         // Gestión de la imagen asociada en el modelo Image.php
@@ -143,8 +139,7 @@ class CarouselController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.carousel.index')
-            ->with('success', 'Diapositiva del carrusel actualizada exitosamente.');
+        return redirect()->route('admin.carousel.index')->with('success', 'Diapositiva del carrusel actualizada exitosamente.');
     }
 
     /**
@@ -188,7 +183,6 @@ class CarouselController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.carousel.index')
-            ->with('success', 'Diapositiva del carrusel eliminada exitosamente.');
+        return redirect()->route('admin.carousel.index')->with('success', 'Diapositiva del carrusel eliminada exitosamente.');
     }
 }

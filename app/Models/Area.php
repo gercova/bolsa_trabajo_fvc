@@ -7,11 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Area extends Model
 {
-    protected $table = 'area';
-
-    protected $primaryKey = 'id';
-
-    protected $fillable = [
+    protected $table        = 'area';
+    protected $primaryKey   = 'id';
+    protected $fillable     = [
         'name',
         'program_id',
         'description',
@@ -24,13 +22,11 @@ class Area extends Model
         'updated_at' => 'datetime',
     ];
 
-    public function program(): BelongsTo
-    {
+    public function program(): BelongsTo {
         return $this->belongsTo(StudyProgram::class, 'program_id', 'id');
     }
 
-    public function user(): BelongsTo
-    {
+    public function user(): BelongsTo {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }

@@ -30,46 +30,40 @@ class EnrollmentSchedule extends Model
         'updated_at' => 'datetime',
     ];
 
-    public function details(): HasMany
-    {
+    public function details(): HasMany {
         return $this->hasMany(EnrollmentScheduleDetail::class, 'enrollment_schedule_id', 'id');
     }
 
     /**
      * Scopes
      */
-    public function scopeActive($query)
-    {
+    public function scopeActive($query) {
         return $query->where('is_active', true);
     }
 
-    public function scopeOrdinaria($query)
-    {
+    public function scopeOrdinaria($query) {
         return $query->where('enrollment_type', 'ordinaria');
     }
 
-    public function scopeExtraordinaria($query)
-    {
+    public function scopeExtraordinaria($query) {
         return $query->where('enrollment_type', 'extraordinaria');
     }
 
     /**
      * Human-readable label for enrollment type.
      */
-    public function getTypeLabelAttribute(): string
-    {
+    public function getTypeLabelAttribute(): string {
         return match ($this->enrollment_type) {
-            'ordinaria' => 'Matrícula Ordinaria',
-            'extraordinaria' => 'Matrícula Extraordinaria',
-            default => ucfirst($this->enrollment_type),
+            'ordinaria'         => 'Matrícula Ordinaria',
+            'extraordinaria'    => 'Matrícula Extraordinaria',
+            default             => ucfirst($this->enrollment_type),
         };
     }
 
     /**
      * Returns true if today is within the enrollment window.
      */
-    public function getIsOpenAttribute(): bool
-    {
+    public function getIsOpenAttribute(): bool {
         $today = now()->startOfDay();
 
         return $this->is_active

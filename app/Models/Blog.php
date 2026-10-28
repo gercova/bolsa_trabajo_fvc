@@ -8,11 +8,9 @@ use Illuminate\Support\Str;
 
 class Blog extends Model
 {
-    protected $table = 'blogs';
-
-    protected $primaryKey = 'id';
-
-    protected $fillable = [
+    protected $table        = 'blogs';
+    protected $primaryKey   = 'id';
+    protected $fillable     = [
         'title',
         'slug',
         'content',
@@ -25,21 +23,17 @@ class Blog extends Model
     ];
 
     /** Returns a plain-text excerpt of the content. */
-    public function excerpt(int $limit = 150): string
-    {
+    public function excerpt(int $limit = 150): string {
         return Str::limit(strip_tags($this->content), $limit);
     }
 
     /** Cover image (first attached image). */
-    public function coverImage(): ?string
-    {
+    public function coverImage(): ?string {
         $img = $this->images()->first();
-
         return $img ? asset('storage/'.$img->path) : null;
     }
 
-    public function images(): MorphMany
-    {
+    public function images(): MorphMany {
         return $this->morphMany(Image::class, 'imageable');
     }
 }

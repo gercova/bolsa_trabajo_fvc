@@ -17,12 +17,11 @@ class StudentCouncilController extends Controller
     /**
      * Display the student council management list in admin dashboard.
      */
-    public function index(Request $request): View
-    {
-        $search = $request->input('search');
-        $period = $request->input('period');
-        $programId = $request->input('program_id');
-        $query = StudentCouncil::with(['user', 'studyProgram'])
+    public function index(Request $request): View {
+        $search     = $request->input('search');
+        $period     = $request->input('period');
+        $programId  = $request->input('program_id');
+        $query      = StudentCouncil::with(['user', 'studyProgram'])
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sub) use ($search) {
                     $sub->where('position', 'LIKE', "%{$search}%")
@@ -40,10 +39,10 @@ class StudentCouncilController extends Controller
             ->orderBy('academic_period', 'desc')
             ->orderBy('id', 'asc');
 
-        $councils = $query->paginate(12)->appends($request->only(['search', 'period', 'program_id']));
-        $users = User::where('is_active', true)->orderBy('names')->get();
-        $programs = StudyProgram::where('is_active', true)->orderBy('name')->get();
-        $periods = StudentCouncil::select('academic_period')
+        $councils   = $query->paginate(12)->appends($request->only(['search', 'period', 'program_id']));
+        $users      = User::where('is_active', true)->orderBy('names')->get();
+        $programs   = StudyProgram::where('is_active', true)->orderBy('name')->get();
+        $periods    = StudentCouncil::select('academic_period')
             ->distinct()
             ->orderBy('academic_period', 'desc')
             ->pluck('academic_period');
@@ -62,8 +61,7 @@ class StudentCouncilController extends Controller
     /**
      * Store a new student council member.
      */
-    public function store(StudentCouncilRequest $request): RedirectResponse|JsonResponse
-    {
+    public function store(StudentCouncilRequest $request): RedirectResponse|JsonResponse {
         $validated = $request->validated();
 
         try {
@@ -97,8 +95,7 @@ class StudentCouncilController extends Controller
     /**
      * Update an existing student council member.
      */
-    public function update(StudentCouncilRequest $request, StudentCouncil $studentCouncil): RedirectResponse|JsonResponse
-    {
+    public function update(StudentCouncilRequest $request, StudentCouncil $studentCouncil): RedirectResponse|JsonResponse {
         $validated = $request->validated();
 
         try {
@@ -132,16 +129,15 @@ class StudentCouncilController extends Controller
     /**
      * Toggle the active status of a council record.
      */
-    public function toggleStatus(Request $request, StudentCouncil $studentCouncil): JsonResponse|RedirectResponse
-    {
+    public function toggleStatus(Request $request, StudentCouncil $studentCouncil): JsonResponse|RedirectResponse {
         try {
             $studentCouncil->update(['is_active' => ! $studentCouncil->is_active]);
 
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Estado del miembro actualizado.',
-                    'status' => $studentCouncil->is_active,
+                    'success'   => true,
+                    'message'   => 'Estado del miembro actualizado.',
+                    'status'    => $studentCouncil->is_active,
                 ]);
             }
 
@@ -165,8 +161,7 @@ class StudentCouncilController extends Controller
     /**
      * Delete a student council member record.
      */
-    public function destroy(StudentCouncil $studentCouncil): JsonResponse|RedirectResponse
-    {
+    public function destroy(StudentCouncil $studentCouncil): JsonResponse|RedirectResponse {
         try {
             $studentCouncil->delete();
 

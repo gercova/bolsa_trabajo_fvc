@@ -356,4 +356,50 @@ class StudentLoginTest extends TestCase
 
         $this->testStudent->delete();
     }
+
+    /**
+     * Prueba que el inicio de sesión es exitoso cuando se marca la casilla "Recordarme" (enviando "on" o "1").
+     */
+    public function test_user_can_login_with_remember_me_checked(): void
+    {
+        $this->testStudent = User::create([
+            'document_type_id' => 1,
+            'dni' => '88776622',
+            'names' => 'Estudiante Recordarme',
+            'email' => 'student_remember@iestp.edu.pe',
+            'role' => 'Estudiante',
+            'password' => Hash::make('password123'),
+            'is_active' => true,
+        ]);
+        $this->testStudent->assignRole('Estudiante');
+
+        // Prueba con el valor por defecto de checkbox HTML sin atributo value: "on"
+        $response = $this->post('/login', [
+            'email' => 'student_remember@iestp.edu.pe',
+            'password' => 'password123',
+            'remember' => 'on',
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect(route('biblioteca.index', absolute: false));
+        $this->assertAuthenticatedAs($this->testStudent);
+
+        $this->testStudent->refresh();
+        $this->assertNotNull($this->testStudent->remember_token);
+
+        $this->post('/logout');
+
+        // Prueba con valor numérico: "1"
+        $response2 = $this->post('/login', [
+            'email' => 'student_remember@iestp.edu.pe',
+            'password' => 'password123',
+            'remember' => '1',
+        ]);
+
+        $response2->assertSessionHasNoErrors();
+        $response2->assertRedirect(route('biblioteca.index', absolute: false));
+        $this->assertAuthenticatedAs($this->testStudent);
+
+        $this->testStudent->delete();
+    }
 }

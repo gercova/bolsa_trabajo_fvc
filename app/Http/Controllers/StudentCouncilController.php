@@ -22,7 +22,6 @@ class StudentCouncilController extends Controller
         $search = $request->input('search');
         $period = $request->input('period');
         $programId = $request->input('program_id');
-
         $query = StudentCouncil::with(['user', 'studyProgram'])
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sub) use ($search) {
@@ -42,7 +41,6 @@ class StudentCouncilController extends Controller
             ->orderBy('id', 'asc');
 
         $councils = $query->paginate(12)->appends($request->only(['search', 'period', 'program_id']));
-
         $users = User::where('is_active', true)->orderBy('names')->get();
         $programs = StudyProgram::where('is_active', true)->orderBy('name')->get();
         $periods = StudentCouncil::select('academic_period')

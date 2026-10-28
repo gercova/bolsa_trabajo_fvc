@@ -34,6 +34,7 @@ class LoginRequest extends FormRequest
 
         $this->merge([
             'email' => $input,
+            'remember' => $this->boolean('remember'),
         ]);
     }
 

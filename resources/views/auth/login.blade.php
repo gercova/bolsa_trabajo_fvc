@@ -101,7 +101,7 @@
                     {{-- Recordarme + Olvidé contraseña --}}
                     <div class="flex items-center justify-between">
                         <label class="flex items-center gap-2 cursor-pointer select-none">
-                            <input type="checkbox" name="remember" id="remember_me"
+                            <input type="checkbox" name="remember" id="remember_me" value="1" {{ old('remember') ? 'checked' : '' }}
                                 class="w-4 h-4 rounded border-gray-300 text-[#B45309] focus:ring-[#FEF3C7] focus:ring-offset-0">
                             <span class="text-sm" style="color: var(--ink-muted);">Recordarme</span>
                         </label>

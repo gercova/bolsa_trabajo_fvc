@@ -17,22 +17,24 @@ class LoginRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
-    public function authorize(): bool {
+    public function authorize(): bool
+    {
         return true;
     }
 
     /**
      * Prepare the data for validation.
      */
-    protected function prepareForValidation(): void {
+    protected function prepareForValidation(): void
+    {
         $input = trim((string) $this->input('email'));
         if (str_contains($input, '@')) {
             $input = Str::lower($input);
         }
 
         $this->merge([
-            'email'     => $input,
-            'remember'  => $this->boolean('remember'),
+            'email' => $input,
+            'remember' => $this->boolean('remember'),
         ]);
     }
 
@@ -41,12 +43,13 @@ class LoginRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    public function rules(): array {
+    public function rules(): array
+    {
         return [
-            'email'                 => ['required', 'string', 'max:255'],
-            'password'              => ['required', 'string', 'max:255'],
-            'remember'              => ['nullable', 'boolean'],
-            '_hp_security_check'    => ['nullable', 'string', 'max:255'],
+            'email' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'string', 'max:255'],
+            'remember' => ['nullable', 'boolean'],
+            '_hp_security_check' => ['nullable', 'string', 'max:255'],
         ];
     }
 
@@ -55,12 +58,13 @@ class LoginRequest extends FormRequest
      *
      * @return array<string, string>
      */
-    public function messages(): array {
+    public function messages(): array
+    {
         return [
-            'email.required'    => 'El correo electrónico o N° de DNI es obligatorio.',
-            'email.max'         => 'El identificador de acceso no debe exceder 255 caracteres.',
+            'email.required' => 'El correo electrónico o N° de DNI es obligatorio.',
+            'email.max' => 'El identificador de acceso no debe exceder 255 caracteres.',
             'password.required' => 'La contraseña es obligatoria.',
-            'password.max'      => 'La contraseña ingresada es demasiado extensa.',
+            'password.max' => 'La contraseña ingresada es demasiado extensa.',
         ];
     }
 
@@ -69,21 +73,22 @@ class LoginRequest extends FormRequest
      *
      * @throws ValidationException
      */
-    public function authenticate(): void {
+    public function authenticate(): void
+    {
         $this->ensureIsNotRateLimited();
 
         $loginInput = (string) $this->input('email');
-        $password   = (string) $this->input('password');
-        $remember   = $this->boolean('remember');
-        $hp         = $this->input('_hp_security_check');
+        $password = (string) $this->input('password');
+        $remember = $this->boolean('remember');
+        $hp = $this->input('_hp_security_check');
 
         // Trampa honeypot para scripts o bots automatizados (ignorar si es autofill del navegador idéntico al usuario)
         if (! empty($hp) && $hp !== $loginInput) {
             RateLimiter::hit($this->throttleKey(), 300);
             Log::warning('Alerta de seguridad: Trampa honeypot activada en login', [
-                'ip'            => $this->ip(),
-                'user_agent'    => $this->userAgent(),
-                'email_intent'  => $loginInput,
+                'ip' => $this->ip(),
+                'user_agent' => $this->userAgent(),
+                'email_intent' => $loginInput,
             ]);
 
             throw ValidationException::withMessages([
@@ -91,8 +96,8 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        $isEmail        = str_contains($loginInput, '@');
-        $primaryField   = $isEmail ? 'email' : 'dni';
+        $isEmail = str_contains($loginInput, '@');
+        $primaryField = $isEmail ? 'email' : 'dni';
         $secondaryField = $isEmail ? 'dni' : 'email';
 
         // Verificar si el usuario existe para validar su estado activo (soporta email institucional, personal_email y DNI)
@@ -106,10 +111,10 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->ipThrottleKey(), 60);
 
             Log::warning('Intento de inicio de sesión de usuario inactivo', [
-                'user_id'       => $user->id,
-                'login_input'   => $loginInput,
-                'role'          => $user->role,
-                'ip'            => $this->ip(),
+                'user_id' => $user->id,
+                'login_input' => $loginInput,
+                'role' => $user->role,
+                'ip' => $this->ip(),
             ]);
 
             throw ValidationException::withMessages([
@@ -136,10 +141,10 @@ class LoginRequest extends FormRequest
 
             $currentAttempts = RateLimiter::attempts($this->throttleKey());
             Log::warning('Intento de inicio de sesión fallido', [
-                'login_input'   => $loginInput,
-                'ip'            => $this->ip(),
-                'intentos'      => $currentAttempts,
-                'user_agent'    => $this->userAgent(),
+                'login_input' => $loginInput,
+                'ip' => $this->ip(),
+                'intentos' => $currentAttempts,
+                'user_agent' => $this->userAgent(),
             ]);
 
             throw ValidationException::withMessages([
@@ -157,9 +162,10 @@ class LoginRequest extends FormRequest
      *
      * @throws ValidationException
      */
-    public function ensureIsNotRateLimited(): void {
-        $accountLocked  = RateLimiter::tooManyAttempts($this->throttleKey(), 5);
-        $ipLocked       = RateLimiter::tooManyAttempts($this->ipThrottleKey(), 10);
+    public function ensureIsNotRateLimited(): void
+    {
+        $accountLocked = RateLimiter::tooManyAttempts($this->throttleKey(), 5);
+        $ipLocked = RateLimiter::tooManyAttempts($this->ipThrottleKey(), 10);
 
         if (! $accountLocked && ! $ipLocked) {
             return;
@@ -172,16 +178,16 @@ class LoginRequest extends FormRequest
             : RateLimiter::availableIn($this->ipThrottleKey());
 
         Log::alert('Bloqueo temporal por exceso de intentos de inicio de sesión', [
-            'email'             => $this->input('email'),
-            'ip'                => $this->ip(),
-            'segundos_espera'   => $seconds,
-            'motivo'            => $accountLocked ? 'Límite por cuenta' : 'Límite por IP',
+            'email' => $this->input('email'),
+            'ip' => $this->ip(),
+            'segundos_espera' => $seconds,
+            'motivo' => $accountLocked ? 'Límite por cuenta' : 'Límite por IP',
         ]);
 
         throw ValidationException::withMessages([
-            'email'         => __('auth.throttle', [
-                'seconds'   => $seconds,
-                'minutes'   => (int) ceil($seconds / 60),
+            'email' => __('auth.throttle', [
+                'seconds' => $seconds,
+                'minutes' => (int) ceil($seconds / 60),
             ]),
         ]);
     }
@@ -189,14 +195,16 @@ class LoginRequest extends FormRequest
     /**
      * Get the rate limiting throttle key for the request.
      */
-    public function throttleKey(): string {
+    public function throttleKey(): string
+    {
         return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
     }
 
     /**
      * Get the IP rate limiting throttle key.
      */
-    public function ipThrottleKey(): string {
+    public function ipThrottleKey(): string
+    {
         return 'login_ip|'.$this->ip();
     }
 }

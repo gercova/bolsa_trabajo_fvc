@@ -25,7 +25,6 @@ class EnrollmentScheduleController extends Controller
         $perPage = $validated['per_page'] ?? 15;
         $sortBy = $validated['sort_by'] ?? 'created_at';
         $sortOrder = $validated['sort_order'] ?? 'desc';
-
         $query = EnrollmentSchedule::with('details.program');
 
         if (! empty($validated['search'])) {
@@ -58,10 +57,8 @@ class EnrollmentScheduleController extends Controller
     {
         $validated = $request->validated();
         $validated['is_active'] = $request->has('is_active');
-
         $details = $validated['details'] ?? [];
         unset($validated['details']);
-
         $schedule = EnrollmentSchedule::create($validated);
 
         foreach ($details as $detail) {
@@ -91,7 +88,6 @@ class EnrollmentScheduleController extends Controller
     {
         $validated = $request->validated();
         $validated['is_active'] = $request->has('is_active');
-
         $details = $validated['details'] ?? [];
         unset($validated['details']);
 
@@ -126,7 +122,6 @@ class EnrollmentScheduleController extends Controller
     {
         $schedule->update(['is_active' => ! $schedule->is_active]);
 
-        return redirect()->back()
-            ->with('success', 'Estado del cronograma actualizado correctamente.');
+        return redirect()->back()->with('success', 'Estado del cronograma actualizado correctamente.');
     }
 }

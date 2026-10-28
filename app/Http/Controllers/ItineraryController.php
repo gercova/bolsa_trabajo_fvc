@@ -77,7 +77,6 @@ class ItineraryController extends Controller
         try {
             $data = $request->validated();
             $data['is_active'] = $request->boolean('is_active', true);
-
             $itinerary = Itinerary::create($data);
 
             if ($request->expectsJson() || $request->ajax()) {
@@ -113,7 +112,6 @@ class ItineraryController extends Controller
         try {
             $data = $request->validated();
             $data['is_active'] = $request->boolean('is_active');
-
             $itinerary->update($data);
 
             if ($request->expectsJson() || $request->ajax()) {
@@ -129,7 +127,6 @@ class ItineraryController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error actualizando itinerario: '.$e->getMessage());
-
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,

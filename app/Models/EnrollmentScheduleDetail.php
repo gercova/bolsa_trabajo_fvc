@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class EnrollmentScheduleDetail extends Model
 {
-    protected $table        = 'enrollment_schedule_details';
-    protected $primaryKey   = 'id';
-    protected $fillable     = [
+    protected $table = 'enrollment_schedule_details';
+
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
         'enrollment_schedule_id',
         'program_id',
         'available_slots',
@@ -17,16 +19,18 @@ class EnrollmentScheduleDetail extends Model
     ];
 
     protected $casts = [
-        'available_slots'   => 'integer',
-        'created_at'        => 'datetime',
-        'updated_at'        => 'datetime',
+        'available_slots' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
-    public function schedule(): BelongsTo {
+    public function schedule(): BelongsTo
+    {
         return $this->belongsTo(EnrollmentSchedule::class, 'enrollment_schedule_id', 'id');
     }
 
-    public function program(): BelongsTo {
+    public function program(): BelongsTo
+    {
         return $this->belongsTo(StudyProgram::class, 'program_id', 'id');
     }
 }

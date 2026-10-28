@@ -195,11 +195,35 @@ class Certificate extends Model
      */
     public function isTraining(): bool
     {
-        if ($this->isBasicEnglish()) {
+        if ($this->isBasicEnglish() || $this->isSmartOffice()) {
             return false;
         }
 
         return ($this->certificate_type ?? $this->course?->certificate_type ?? 'capacitacion') === 'capacitacion';
+    }
+
+    /**
+     * Check if this certificate corresponds to the "Smart Administrative Office 4.0" template format.
+     */
+    public function isSmartOffice(): bool
+    {
+        $searchTerms = ['oficina administrativa', 'inteligente 4.0', 'smart administrative office', 'oficina inteligente'];
+        $courseName = mb_strtolower($this->course?->name ?? '', 'UTF-8');
+        $eventName = mb_strtolower($this->event_name ?? '', 'UTF-8');
+        $desc = mb_strtolower($this->description ?? '', 'UTF-8');
+        $certType = mb_strtolower($this->certificate_type ?? '', 'UTF-8');
+
+        if ($certType === 'oficina_4_0' || $certType === 'asistencia_administrativa') {
+            return true;
+        }
+
+        foreach ($searchTerms as $term) {
+            if (str_contains($courseName, $term) || str_contains($eventName, $term) || str_contains($desc, $term)) {
+                return true;
+            }
+        }
+
+        return (bool) $this->course?->isSmartOffice();
     }
 
     /**
@@ -288,7 +312,7 @@ class Certificate extends Model
             if ($start->month === $end->month && $start->year === $end->year) {
                 $monthName = $meses[$start->month] ?? $start->format('F');
 
-                return "del {$start->day} al {$end->day} de {$monthName} del presente año";
+                return "del {$start->day} al {$end->day} de {$monthName} del {$end->year}";
             }
             $startMonth = $meses[$start->month] ?? $start->format('F');
             $endMonth = $meses[$end->month] ?? $end->format('F');
@@ -326,6 +350,24 @@ class Certificate extends Model
     }
 
     /**
+     * Formatted issue date for Smart Office 4.0 template matching the reference layout: "Uchiza, 28, de setiembre del 2026".
+     */
+    public function getSmartOfficeIssueDateAttribute(): string
+    {
+        $meses = [
+            1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril',
+            5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto',
+            9 => 'setiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre',
+        ];
+
+        $date = $this->issue_date ? Carbon::parse($this->issue_date) : now();
+        $city = $this->city ?: 'Uchiza';
+        $monthName = $meses[$date->month] ?? $date->format('F');
+
+        return "{$city}, {$date->day}, de {$monthName} del {$date->year}";
+    }
+
+    /**
      * Resolved list of syllabus topics (TEMARIO) for training certificates.
      */
     public function getTopicsListAttribute(): array
@@ -357,6 +399,40 @@ class Certificate extends Model
         }
 
         return [];
+    }
+
+    /**
+     * Resolved syllabus topics specifically for the Smart Office 4.0 certificate template.
+     */
+    public function getSmartOfficeTopicsAttribute(): array
+    {
+        $topics = $this->topics_list;
+        if (! empty($topics)) {
+            return $topics;
+        }
+
+        return [
+            'Capacitación: Inteligencia Artificial aplicada a la Asistencia Administrativa.',
+            'Taller: Mi primera oficina administrativa inteligente.',
+            'Capacitación: Herramientas digitales para una gestión administrativa eficiente.',
+            'Taller: Construyendo nuestra Oficina Administrativa 4.0',
+        ];
+    }
+
+    /**
+     * Resolves the official logo URL for the Administrative Assistance / Study Program.
+     */
+    public function getProgramLogoSrcAttribute(): string
+    {
+        if ($this->studyProgram?->logo_path) {
+            return asset(ltrim($this->studyProgram->logo_path, '/'));
+        }
+
+        if ($this->course?->studyProgram?->logo_path) {
+            return asset(ltrim($this->course->studyProgram->logo_path, '/'));
+        }
+
+        return asset('storage/programs/HaEozlK69owkeap9fEBuESvfWWQCGdSDMNI0ozon.png');
     }
 
     /**

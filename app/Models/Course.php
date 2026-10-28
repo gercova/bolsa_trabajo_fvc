@@ -43,11 +43,31 @@ class Course extends Model
 
     public function isTraining(): bool
     {
-        if ($this->isBasicEnglish()) {
+        if ($this->isBasicEnglish() || $this->isSmartOffice()) {
             return false;
         }
 
         return $this->certificate_type === 'capacitacion';
+    }
+
+    public function isSmartOffice(): bool
+    {
+        $searchTerms = ['oficina administrativa', 'inteligente 4.0', 'smart administrative office', 'oficina inteligente'];
+        $courseName = mb_strtolower($this->name ?? '', 'UTF-8');
+        $desc = mb_strtolower($this->description ?? '', 'UTF-8');
+        $certType = mb_strtolower($this->certificate_type ?? '', 'UTF-8');
+
+        if ($certType === 'oficina_4_0' || $certType === 'asistencia_administrativa') {
+            return true;
+        }
+
+        foreach ($searchTerms as $term) {
+            if (str_contains($courseName, $term) || str_contains($desc, $term)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function isBasicEnglish(): bool

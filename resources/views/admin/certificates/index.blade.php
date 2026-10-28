@@ -368,7 +368,18 @@
                                                 <div class="text-xs text-gray-500 font-mono">DNI: {{ $cert->user?->dni ?? 'N/A' }}</div>
                                             </td>
                                             <td class="px-4 py-3">
-                                                <div class="font-semibold text-gray-800 text-xs">{{ $cert->course?->name ?? '—' }}</div>
+                                                <div class="flex items-center gap-1.5 flex-wrap">
+                                                    <span class="font-semibold text-gray-800 text-xs">{{ $cert->course?->name ?? '—' }}</span>
+                                                    @if ($cert->isSmartOffice())
+                                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200" title="Plantilla Oficial Oficina Administrativa 4.0">
+                                                            <i class="bi bi-award text-[10px]"></i> Oficina 4.0
+                                                        </span>
+                                                    @elseif ($cert->isBasicEnglish())
+                                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200" title="Plantilla Inglés Básico">
+                                                            <i class="bi bi-translate text-[10px]"></i> Inglés
+                                                        </span>
+                                                    @endif
+                                                </div>
                                                 <div class="mt-1">
                                                     @if ($cert->modality === 'Virtual')
                                                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
@@ -672,7 +683,7 @@
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
                                 Curso <span class="text-red-500">*</span>
                             </label>
-                            <select name="course_id" x-model="form.course_id" required
+                            <select name="course_id" x-model="form.course_id" @change="onCourseSelected($event.target.value)" required
                                 class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-medium">
                                 <option value="">-- Seleccione curso --</option>
                                 @foreach ($courses as $c)
@@ -690,8 +701,10 @@
                             </label>
                             <select name="certificate_type" x-model="form.certificate_type"
                                 class="w-full text-sm border border-gray-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white font-medium">
-                                <option value="capacitacion">Capacitación (Con Temario y QR)</option>
+                                <option value="capacitacion">Capacitación Estándar (Con Temario y QR)</option>
+                                <option value="oficina_4_0">Oficina Administrativa Inteligente 4.0 (Plantilla Oficial)</option>
                                 <option value="modular">Modular (Con Notas y Créditos)</option>
+                                <option value="ingles">Inglés Básico (Doble Cara)</option>
                             </select>
                         </div>
 
@@ -2076,6 +2089,22 @@
                     is_active: true,
                 };
                 this.modalOpen = true;
+            },
+
+            onCourseSelected(courseId) {
+                if (!courseId) return;
+                const course = this.coursesData.find(c => c.id == courseId);
+                if (!course) return;
+                const name = (course.name || '').toLowerCase();
+                if (name.includes('oficina administrativa') || name.includes('inteligente 4.0') || course.certificate_type === 'oficina_4_0') {
+                    this.form.certificate_type = 'oficina_4_0';
+                    this.form.duration = '90 horas';
+                    this.form.event_name = course.event_name || 'Semana Técnica';
+                } else if (name.includes('inglés') || name.includes('ingles') || course.certificate_type === 'ingles') {
+                    this.form.certificate_type = 'ingles';
+                } else if (course.certificate_type) {
+                    this.form.certificate_type = course.certificate_type;
+                }
             },
 
             openEditModal(cert) {

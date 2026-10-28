@@ -1211,7 +1211,6 @@ class CertificateFormatAndValidationTest extends TestCase
 
         $response->assertSessionHasNoErrors();
         $response->assertRedirect();
-
         $this->assertDatabaseHas('certificate_details', [
             'certificate_id' => $this->certificate->id,
             'module_id' => $module->id,
@@ -1222,12 +1221,137 @@ class CertificateFormatAndValidationTest extends TestCase
     public function test_admin_certificates_view_renders_select2_component_and_modules_structure(): void
     {
         $response = $this->actingAs($this->adminUser)->get('/admin-certificados');
-
         $response->assertStatus(200);
         $response->assertSee('toggleStudentDropdown');
         $response->assertSee('studentSearchInput');
         $response->assertSee('onStudentSearchInput');
         $response->assertSee('availableModules');
         $response->assertSee('Módulo asociado al curso');
+    }
+
+    protected function createSmartOfficeCertificate(): Certificate
+    {
+        $program = StudyProgram::where('name', 'Asistencia Administrativa')->first()
+            ?? StudyProgram::create([
+                'name' => 'Asistencia Administrativa',
+                'slug' => 'asistencia-administrativa',
+                'is_active' => true,
+            ]);
+
+        $course = Course::where('name', 'Oficina Administrativa Inteligente 4.0')->first()
+            ?? Course::create([
+                'name' => 'Oficina Administrativa Inteligente 4.0',
+                'certificate_type' => 'oficina_4_0',
+                'study_program_id' => $program->id,
+                'event_name' => 'Semana Técnica',
+                'is_active' => true,
+            ]);
+
+        $topics = [
+            'Capacitación: Inteligencia Artificial aplicada a la Asistencia Administrativa.',
+            'Taller: Mi primera oficina administrativa inteligente.',
+            'Capacitación: Herramientas digitales para una gestión administrativa eficiente.',
+            'Taller: Construyendo nuestra Oficina Administrativa 4.0',
+        ];
+
+        foreach ($topics as $topic) {
+            $course->modules()->firstOrCreate(
+                ['name' => $topic, 'course_id' => $course->id],
+                ['credits' => null, 'is_active' => true]
+            );
+        }
+
+        $student = User::where('names', 'Mary Panduro Vasquez')->first()
+            ?? User::create([
+                'document_type_id' => 1,
+                'names' => 'Mary Panduro Vasquez',
+                'dni' => '23018349',
+                'email' => 'mary.panduro@example.com',
+                'password' => bcrypt('password123'),
+                'role' => 'Estudiante',
+                'is_active' => true,
+            ]);
+
+        return Certificate::firstOrCreate(
+            ['certificate_code' => 'CERT-23018349-1'],
+            [
+                'user_id' => $student->id,
+                'course_id' => $course->id,
+                'certificate_type' => 'oficina_4_0',
+                'participation_type' => 'PONENTE',
+                'event_name' => 'Semana Técnica',
+                'study_program_id' => $program->id,
+                'institution_name' => 'Instituto de Educación Superior Tecnológico Público “Francisco Vigo Caballero”',
+                'city' => 'Uchiza',
+                'description' => 'OFICINA ADMINISTRATIVA INTELIGENTE 4.0',
+                'start_date' => '2026-09-21',
+                'end_date' => '2026-09-24',
+                'duration' => '90 horas',
+                'modality' => 'Presencial',
+                'issue_date' => '2026-09-28',
+                'is_active' => true,
+            ]
+        );
+    }
+
+    public function test_smart_administrative_office_certificate_template_renders_successfully(): void
+    {
+        $cert = $this->createSmartOfficeCertificate();
+
+        $this->assertNotNull($cert, 'Certificate for Smart Office 4.0 must exist');
+        $this->assertTrue($cert->isSmartOffice());
+        $this->assertFalse($cert->isTraining());
+        $this->assertFalse($cert->isBasicEnglish());
+
+        $response = $this->actingAs($this->adminUser)
+            ->get("/admin-certificados/{$cert->id}/imprimir");
+
+        $response->assertStatus(200);
+        // Verify Institutional & Program logos
+        $response->assertSee('smart-logo-left');
+        $response->assertSee('smart-logo-right');
+        $response->assertSee('HaEozlK69owkeap9fEBuESvfWWQCGdSDMNI0ozon.png');
+
+        // Verify Header Typography
+        $response->assertSee('INSTITUTO DE EDUCACIÓN SUPERIOR TECNOLÓGICO PÚBLICO');
+        $response->assertSee('“FRANCISCO VIGO CABALLERO”');
+        $response->assertSee('CERTIFICADO');
+        $response->assertSee('Otorgado a:');
+
+        // Verify Recipient & Course & Narrative details
+        $response->assertSee('Mary Panduro Vasquez');
+        $response->assertSee('PONENTE');
+        $response->assertSee('OFICINA ADMINISTRATIVA INTELIGENTE 4.0');
+        $response->assertSee('90 horas');
+
+        // Verify Temario Topics
+        $response->assertSee('TEMARIO');
+        $response->assertSee('Capacitación: Inteligencia Artificial aplicada a la Asistencia Administrativa.');
+        $response->assertSee('Taller: Mi primera oficina administrativa inteligente.');
+        $response->assertSee('Capacitación: Herramientas digitales para una gestión administrativa eficiente.');
+        $response->assertSee('Taller: Construyendo nuestra Oficina Administrativa 4.0');
+
+        // Verify Date & QR Verification
+        $response->assertSee('Uchiza, 28, de setiembre del 2026');
+        $response->assertSee('smart-qr-link');
+        $response->assertSee($cert->certificate_code);
+    }
+
+    public function test_smart_administrative_office_bulk_export_renders_template(): void
+    {
+        $cert = $this->createSmartOfficeCertificate();
+
+        $this->assertNotNull($cert);
+
+        $response = $this->actingAs($this->adminUser)
+            ->get("/admin-certificados/exportar-pdf?ids={$cert->id}");
+
+        $response->assertStatus(200);
+        $response->assertSee('smart-sheet');
+        $response->assertSee('smart-logo-left');
+        $response->assertSee('smart-logo-right');
+        $response->assertSee('HaEozlK69owkeap9fEBuESvfWWQCGdSDMNI0ozon.png');
+        $response->assertSee('TEMARIO');
+        $response->assertSee('Mary Panduro Vasquez');
     }
 }

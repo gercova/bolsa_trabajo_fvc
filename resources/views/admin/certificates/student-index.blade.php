@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('title', 'Mis Certificados Oficiales — Portal del Estudiante | IESTP Francisco Vigo Caballero')
-
 @push('styles')
 <style>
     [x-cloak] { display: none !important; }
@@ -13,14 +12,11 @@
     }
 </style>
 @endpush
-
 @section('content')
 <div id="dashboard-container" class="flex w-full bg-slate-50 font-sans text-slate-900 min-h-[calc(100vh-64px)]"
     x-data="studentCertificatesApp()">
     @include('admin.components.aside')
-
     <div class="flex-1 flex flex-col min-w-0 bg-slate-50/50 relative">
-
         {{-- ── Encabezado Sticky ── --}}
         <header class="bg-white/95 border-b border-slate-200 sticky top-[64px] lg:top-0 z-[30] shadow-xs backdrop-blur-md">
             <div class="px-4 sm:px-6 py-3.5 sm:py-4 flex flex-wrap items-center justify-between gap-4">
@@ -45,7 +41,6 @@
                         </p>
                     </div>
                 </div>
-
                 {{-- Breadcrumb --}}
                 <div class="hidden sm:flex items-center text-xs font-medium text-slate-500 gap-2">
                     <a href="{{ route('biblioteca.index') }}" class="hover:text-purple-600 transition flex items-center gap-1">
@@ -58,7 +53,6 @@
                 </div>
             </div>
         </header>
-
         {{-- ── Main Body ── --}}
         <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden space-y-6 max-w-7xl mx-auto w-full">
 

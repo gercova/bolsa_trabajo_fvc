@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@600;700;800;900&family=Cormorant+Garamond:ital,wght@1,600;1,700&family=Great+Vibes&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&family=Playfair+Display:ital,wght@1,600;1,700;1,800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Great+Vibes&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,600;1,700;1,800&display=swap"
         rel="stylesheet">
 
     <style>
@@ -929,6 +929,319 @@
                 break-after: page !important;
             }
         }
+
+        /* ── Smart Administrative Office 4.0 Certificate Styles ── */
+        .smart-sheet {
+            width: 297mm;
+            height: 210mm;
+            position: relative;
+            background: #ffffff;
+            border: 6px solid #11284b;
+            box-sizing: border-box;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 8mm 12mm 8mm 12mm;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        .smart-inner-border {
+            position: absolute;
+            top: 2.5mm;
+            left: 2.5mm;
+            right: 2.5mm;
+            bottom: 2.5mm;
+            border: 2px solid #cda043;
+            pointer-events: none;
+            z-index: 12;
+        }
+
+        .smart-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140mm;
+            height: 140mm;
+            opacity: 0.11;
+            pointer-events: none;
+            z-index: 1;
+            object-fit: contain;
+            filter: grayscale(15%);
+        }
+
+        .smart-ribbon {
+            position: absolute;
+            pointer-events: none;
+            z-index: 6;
+        }
+
+        .smart-ribbon-tl {
+            top: 0;
+            left: 0;
+            width: 60mm;
+            height: 48mm;
+        }
+
+        .smart-ribbon-br {
+            bottom: 0;
+            right: 0;
+            width: 65mm;
+            height: 52mm;
+        }
+
+        .smart-header {
+            position: relative;
+            z-index: 15;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 2mm;
+        }
+
+        .smart-logo-left {
+            width: 25mm;
+            height: auto;
+            max-height: 27mm;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .smart-logo-right {
+            width: 26mm;
+            height: auto;
+            max-height: 28mm;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .smart-header-center {
+            flex: 1;
+            text-align: center;
+            padding: 0 4mm;
+        }
+
+        .smart-inst-name {
+            font-family: 'Montserrat', Arial, sans-serif;
+            font-size: 11pt;
+            font-weight: 800;
+            color: #000000;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            line-height: 1.2;
+            margin: 0;
+        }
+
+        .smart-inst-quote {
+            font-family: 'Cinzel', 'Times New Roman', serif;
+            font-size: 21pt;
+            font-weight: 900;
+            color: #114f6b;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            line-height: 1.15;
+            margin: 1.5mm 0 2mm 0;
+        }
+
+        .smart-cert-word {
+            font-family: 'Cinzel', 'Times New Roman', serif;
+            font-size: 32pt;
+            font-weight: 900;
+            color: #000000;
+            letter-spacing: 6.5px;
+            text-transform: uppercase;
+            line-height: 1;
+            margin: 0;
+        }
+
+        .smart-granted-to {
+            font-family: 'Times New Roman', Georgia, serif;
+            font-size: 14pt;
+            font-weight: 700;
+            font-style: normal;
+            color: #000000;
+            margin: 2mm 0 1mm 0;
+            line-height: 1;
+            text-align: center;
+        }
+
+        .smart-recipient-wrap {
+            position: relative;
+            z-index: 15;
+            text-align: center;
+            margin: 0.5mm 0 2mm 0;
+        }
+
+        .smart-recipient-name {
+            font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+            font-size: 28pt;
+            font-weight: 800;
+            font-style: normal;
+            color: #162e51;
+            line-height: 1.15;
+            letter-spacing: 0.5px;
+            margin: 0 auto;
+        }
+
+        .smart-flourish-wrap {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1.5mm;
+        }
+
+        .smart-flourish {
+            width: 125mm;
+            height: 7.5mm;
+            display: block;
+        }
+
+        .smart-narrative {
+            position: relative;
+            z-index: 15;
+            font-family: 'Times New Roman', Georgia, serif;
+            font-size: 13pt;
+            font-style: normal;
+            line-height: 1.65;
+            color: #111827;
+            text-align: justify;
+            text-justify: inter-word;
+            padding: 0 10mm;
+            margin-bottom: 2mm;
+        }
+
+        .smart-narrative strong {
+            font-weight: 900;
+            color: #000000;
+        }
+
+        .smart-bottom-grid {
+            position: relative;
+            z-index: 15;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8mm;
+            padding: 0 8mm;
+            margin-bottom: 1.5mm;
+        }
+
+        .smart-temario-box {
+            position: relative;
+            width: 138mm;
+            border: 2px solid #cda043;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 6mm 5mm 4mm 5mm;
+            box-sizing: border-box;
+        }
+
+        .smart-temario-badge {
+            position: absolute;
+            top: -3.8mm;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(180deg, #f7cb68 0%, #e6a73c 50%, #d89628 100%);
+            border: 1.5px solid #a37318;
+            border-radius: 9999px;
+            padding: 1.5px 22px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 9.5pt;
+            font-weight: 900;
+            color: #000000;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .smart-temario-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2.2mm;
+        }
+
+        .smart-temario-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 8.5pt;
+            line-height: 1.35;
+            color: #000000;
+            font-weight: 600;
+        }
+
+        .smart-bullet {
+            font-size: 11pt;
+            line-height: 1;
+            color: #000000;
+            flex-shrink: 0;
+            margin-top: -1px;
+        }
+
+        .smart-meta-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: flex-start;
+            gap: 3mm;
+            padding-top: 1mm;
+        }
+
+        .smart-date-place {
+            font-family: 'Times New Roman', Georgia, serif;
+            font-size: 13pt;
+            font-weight: 700;
+            font-style: normal;
+            color: #111827;
+            text-align: right;
+            white-space: nowrap;
+            letter-spacing: 0.2px;
+            margin-bottom: 2mm;
+            margin-right: 6mm;
+        }
+
+        .smart-qr-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2px;
+            border-radius: 4px;
+            margin-right: 20mm;
+        }
+
+        .smart-qr-link {
+            width: 22mm;
+            height: 22mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .smart-qr-link svg {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+        }
+
+        .smart-serial-code {
+            font-family: 'Montserrat', monospace, sans-serif;
+            font-size: 7pt;
+            font-weight: 800;
+            color: #111827;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 
@@ -1255,6 +1568,112 @@
                         </div>
                     </div>
                 </article>
+            @elseif ($certificate->isSmartOffice())
+                {{-- CERTIFICADO OFICINA ADMINISTRATIVA INTELIGENTE 4.0 --}}
+                <article class="certificate-sheet smart-sheet page-break sheet-anverso" id="sheet-smart-{{ $certificate->id }}"
+                    style="{{ $faces === 'back' ? 'display: none;' : '' }}">
+                    <!-- ── Inner Gold Border ── -->
+                    <div class="smart-inner-border"></div>
+
+                    <!-- ── Corner Geometric Ribbons ── -->
+                    <svg class="smart-ribbon smart-ribbon-tl" viewBox="0 0 280 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="0,0 155,0 0,155" fill="#11284b" />
+                        <polygon points="155,0 195,0 0,195 0,155" fill="#2b7da8" />
+                        <polygon points="195,0 220,0 0,220 0,195" fill="#cda043" />
+                    </svg>
+
+                    <svg class="smart-ribbon smart-ribbon-br" viewBox="0 0 280 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="60,220 85,220 280,25 280,0" fill="#cda043" />
+                        <polygon points="85,220 125,220 280,65 280,25" fill="#2b7da8" />
+                        <polygon points="125,220 280,220 280,65" fill="#11284b" />
+                    </svg>
+
+                    <!-- ── Centered Watermark Shield ── -->
+                    <img src="{{ $logoSrc }}" alt="Marca de agua institucional" class="smart-watermark">
+
+                    <!-- ── Header Section ── -->
+                    <header class="smart-header">
+                        <!-- Left: Institutional Coat-of-Arms Logo -->
+                        <img src="{{ $logoSrc }}" alt="IESTP Francisco Vigo Caballero" class="smart-logo-left">
+
+                        <!-- Center: Institutional Titles and Heading -->
+                        <div class="smart-header-center">
+                            <h3 class="smart-inst-name">INSTITUTO DE EDUCACIÓN SUPERIOR TECNOLÓGICO PÚBLICO</h3>
+                            <h1 class="smart-inst-quote">“FRANCISCO VIGO CABALLERO”</h1>
+                            <h2 class="smart-cert-word">CERTIFICADO</h2>
+                            <p class="smart-granted-to">Otorgado a:</p>
+                        </div>
+
+                        <!-- Right: Asistencia Administrativa Program Crest Logo -->
+                        <img src="{{ $certificate->program_logo_src }}" alt="Asistencia Administrativa" class="smart-logo-right">
+                    </header>
+
+                    <!-- ── Recipient Name & Gold Ornate Flourish ── -->
+                    <div class="smart-recipient-wrap">
+                        <div class="smart-recipient-name">
+                            {{ mb_convert_case($certificate->user->names ?? 'Estudiante Registrado', MB_CASE_TITLE, 'UTF-8') }}
+                        </div>
+                        <div class="smart-flourish-wrap">
+                            <svg class="smart-flourish" viewBox="0 0 500 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M250 18 L254 13 L258 18 L254 23 Z" fill="#cda043" />
+                                <circle cx="245" cy="18" r="2" fill="#cda043" />
+                                <circle cx="263" cy="18" r="2" fill="#cda043" />
+                                <path d="M240 18 C200 18 175 14 140 22 C110 29 80 16 55 20 C42 22 32 16 34 11 C36 6 44 6 48 11 C51 15 48 20 42 20 C35 20 28 13 32 7" stroke="#cda043" stroke-width="2" stroke-linecap="round" fill="none" />
+                                <path d="M225 18 C195 19 160 25 130 18 C105 12 75 22 55 18" stroke="#cda043" stroke-width="1.2" stroke-linecap="round" fill="none" />
+                                <circle cx="28" cy="18" r="2.5" fill="#cda043" />
+                                <path d="M65 19 C68 15 75 14 78 18" stroke="#cda043" stroke-width="1.5" stroke-linecap="round" fill="none" />
+                                <path d="M115 24 C118 20 125 19 128 23" stroke="#cda043" stroke-width="1.5" stroke-linecap="round" fill="none" />
+                                <path d="M268 18 C308 18 333 14 368 22 C398 29 428 16 453 20 C466 22 476 16 474 11 C472 6 464 6 460 11 C457 15 460 20 466 20 C473 20 480 13 476 7" stroke="#cda043" stroke-width="2" stroke-linecap="round" fill="none" />
+                                <path d="M283 18 C313 19 348 25 378 18 C403 12 433 22 453 18" stroke="#cda043" stroke-width="1.2" stroke-linecap="round" fill="none" />
+                                <circle cx="480" cy="18" r="2.5" fill="#cda043" />
+                                <path d="M443 19 C440 15 433 14 430 18" stroke="#cda043" stroke-width="1.5" stroke-linecap="round" fill="none" />
+                                <path d="M393 24 C390 20 383 19 380 23" stroke="#cda043" stroke-width="1.5" stroke-linecap="round" fill="none" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- ── Narrative Paragraph ── -->
+                    <div class="smart-narrative">
+                        Por haber participado en la calidad de
+                        <strong>{{ mb_strtoupper($certificate->participation_type ?: 'PONENTE', 'UTF-8') }}</strong>
+                        exitosamente en la capacitación
+                        <strong>{{ mb_strtoupper($certificate->description ?: ($certificate->course?->name ?? 'OFICINA ADMINISTRATIVA INTELIGENTE 4.0'), 'UTF-8') }}</strong>
+                        por {{ $certificate->event_name ?: 'Semana Técnica' }} del IESTP “Francisco Vigo Caballero”,
+                        desarrollado {{ $certificate->formatted_date_range }}, con una duración de
+                        <strong>{{ $certificate->duration ?: '90 horas' }}</strong>.
+                    </div>
+
+                    <!-- ── Bottom Grid: Temario Card & Date / Verification QR ── -->
+                    <div class="smart-bottom-grid">
+                        <!-- Left: Golden Framed Temario Card -->
+                        <div class="smart-temario-box">
+                            <div class="smart-temario-badge">TEMARIO</div>
+                            <ul class="smart-temario-list">
+                                @foreach ($certificate->smart_office_topics as $topic)
+                                    <li>
+                                        <span class="smart-bullet">•</span>
+                                        <span>{{ $topic }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+
+                        <!-- Right: Date and Verification QR Code Block -->
+                        <div class="smart-meta-col">
+                            <div class="smart-date-place">
+                                {{ $certificate->smart_office_issue_date }}
+                            </div>
+                            <div class="smart-qr-block">
+                                <a href="{{ $certificate->validation_url }}" target="_blank"
+                                    class="smart-qr-link"
+                                    title="Escanear o hacer clic para verificar certificado">
+                                    {!! $certificate->qr_code_svg !!}
+                                </a>
+                                <span class="smart-serial-code">{{ $certificate->certificate_code }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
             @else
                 {{-- FORMATO ESTÁNDAR: CAPACITACIÓN / SEMANA TÉCNICA / MODULAR --}}
                 <article class="certificate-sheet page-break sheet-anverso" id="sheet-anverso-{{ $certificate->id }}"
@@ -1445,7 +1864,7 @@
             }
         }
 
-        @if($autoPrint)
+        @if(!empty($autoPrint))
         window.addEventListener('load', () => {
             setTimeout(() => {
                 window.print();

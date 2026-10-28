@@ -134,15 +134,34 @@ class StudentCouncilController extends Controller
     /**
      * Toggle the active status of a council record.
      */
-    public function toggleStatus(StudentCouncil $studentCouncil): JsonResponse
+    public function toggleStatus(Request $request, StudentCouncil $studentCouncil): JsonResponse|RedirectResponse
     {
-        $studentCouncil->update(['is_active' => ! $studentCouncil->is_active]);
+        try {
+            $studentCouncil->update(['is_active' => ! $studentCouncil->is_active]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Estado del miembro actualizado.',
-            'status' => $studentCouncil->is_active,
-        ]);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Estado del miembro actualizado.',
+                    'status' => $studentCouncil->is_active,
+                ]);
+            }
+
+            $statusText = $studentCouncil->is_active ? 'activado' : 'desactivado';
+
+            return redirect()->back()->with('success', "Estado del miembro {$statusText} correctamente.");
+        } catch (\Exception $e) {
+            Log::error('Error alternando estado del miembro del consejo estudiantil: '.$e->getMessage());
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al actualizar el estado.',
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Ocurrió un error al actualizar el estado.');
+        }
     }
 
     /**

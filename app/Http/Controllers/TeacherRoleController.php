@@ -22,7 +22,6 @@ class TeacherRoleController extends Controller
         $search = $request->input('search');
         $programId = $request->input('program_id');
         $onlyCoord = $request->boolean('only_coordinators');
-
         $query = UserRoleDetail::with(['user', 'program'])
             ->when($search, function ($q) use ($search) {
                 $q->whereHas('user', function ($u) use ($search) {
@@ -172,15 +171,38 @@ class TeacherRoleController extends Controller
     /**
      * Toggle the is_active status of a teacher-role detail.
      */
-    public function toggleStatus(UserRoleDetail $teacherRole): JsonResponse
+    public function toggleStatus(Request $request, UserRoleDetail $teacherRole): JsonResponse|RedirectResponse
     {
-        $teacherRole->update(['is_active' => ! $teacherRole->is_active]);
+        try {
+            $teacherRole->update(['is_active' => ! $teacherRole->is_active]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Estado actualizado.',
-            'status' => $teacherRole->is_active,
-        ]);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Estado actualizado.',
+                    'status' => $teacherRole->is_active,
+                ]);
+            }
+
+            $teacherName = $teacherRole->user?->names;
+            $statusText = $teacherRole->is_active ? 'activada' : 'desactivada';
+            $message = $teacherName
+                ? "Asignación de {$teacherName} {$statusText} correctamente."
+                : "Asignación {$statusText} correctamente.";
+
+            return redirect()->back()->with('success', $message);
+        } catch (\Exception $e) {
+            Log::error('Error alternando estado de asignación de docente: '.$e->getMessage());
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al actualizar el estado.',
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Ocurrió un error al actualizar el estado.');
+        }
     }
 
     /**

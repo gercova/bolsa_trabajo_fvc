@@ -241,4 +241,99 @@ class StudyProgramImagesTest extends TestCase
         $response->assertSee($img1->path);
         $response->assertSee($img2->path);
     }
+
+    public function test_can_create_study_program_with_carousel_configuration_and_alt_text(): void
+    {
+        Storage::fake('public');
+
+        $response = $this->actingAs($this->admin)->post(route('admin.programs.store'), [
+            'name' => 'Producción Agroforestal',
+            'description' => 'Carrera técnica especializada en agroforestería sostenible.',
+            'details' => 'Duración: 3 años.',
+            'enable_carousel' => 1,
+            'carousel_alt_text' => 'Liderazgo en el agro y la conservación de los bosques en Uchiza',
+            'is_active' => 1,
+        ]);
+
+        $response->assertRedirect(route('admin.programs.index', ['tab' => 'programs']));
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('study_programs', [
+            'name' => 'Producción Agroforestal',
+            'enable_carousel' => true,
+            'carousel_alt_text' => 'Liderazgo en el agro y la conservación de los bosques en Uchiza',
+        ]);
+    }
+
+    public function test_can_update_study_program_carousel_settings(): void
+    {
+        Storage::fake('public');
+
+        $program = StudyProgram::create([
+            'name' => 'Construcción Civil',
+            'slug' => 'construccion-civil',
+            'description' => 'Edificaciones y obras civiles.',
+            'details' => 'Duración: 3 años',
+            'enable_carousel' => true,
+            'carousel_alt_text' => 'Texto anterior',
+            'is_active' => true,
+        ]);
+
+        // Actualizar desmarcando el carrusel y cambiando el texto alternativo
+        $response = $this->actingAs($this->admin)->put(route('admin.programs.update', $program), [
+            'name' => 'Construcción Civil',
+            'description' => 'Edificaciones y obras civiles actualizadas.',
+            'details' => 'Duración: 3 años',
+            'enable_carousel' => 0,
+            'carousel_alt_text' => 'Texto alternativo renovado para obras civiles',
+            'is_active' => 1,
+        ]);
+
+        $response->assertRedirect(route('admin.programs.index', ['tab' => 'programs']));
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('study_programs', [
+            'id' => $program->id,
+            'enable_carousel' => false,
+            'carousel_alt_text' => 'Texto alternativo renovado para obras civiles',
+        ]);
+    }
+
+    public function test_public_detail_view_renders_hero_carousel_with_alt_text_and_logo(): void
+    {
+        Storage::fake('public');
+
+        $program = StudyProgram::create([
+            'name' => 'Desarrollo de Software',
+            'slug' => 'desarrollo-de-software',
+            'description' => 'Programación y soluciones digitales.',
+            'details' => 'Duración: 3 años',
+            'enable_carousel' => true,
+            'carousel_alt_text' => 'Formación de clase mundial en desarrollo web y móvil',
+            'logo_path' => 'programs/logo-software.png',
+            'is_active' => true,
+        ]);
+
+        $img1 = $program->images()->create([
+            'path' => 'programs/gallery/code1.jpg',
+            'is_main' => true,
+        ]);
+        $img2 = $program->images()->create([
+            'path' => 'programs/gallery/code2.jpg',
+            'is_main' => false,
+        ]);
+
+        $response = $this->get(route('programas-de-estudio.detalle', $program->slug));
+
+        $response->assertOk();
+        // Verificar que el carrusel hero esté activo
+        $response->assertSee('programHeroCarousel(2)', false);
+        // Verificar texto alternativo
+        $response->assertSee('Formación de clase mundial en desarrollo web y móvil', false);
+        // Verificar que el logo y su posicionamiento permanezcan
+        $response->assertSee('programs/logo-software.png', false);
+        // Verificar imágenes del carrusel de fondo
+        $response->assertSee('programs/gallery/code1.jpg', false);
+        $response->assertSee('programs/gallery/code2.jpg', false);
+    }
 }

@@ -74,6 +74,7 @@ class StudyProgramValidate extends FormRequest
             'images.*.max' => 'Ninguna imagen de la galería debe pesar más de 10MB.',
             'description.required' => 'La descripción es obligatoria.',
             'description.string' => 'La descripción debe ser una cadena de texto.',
+            'carousel_alt_text.max' => 'El texto alternativo del carrusel no debe superar los 500 caracteres.',
             'details.required' => 'Los detalles del programa son obligatorios.',
             'details.string' => 'Los detalles deben ser una cadena de texto.',
             'order.integer' => 'El orden debe ser un número entero.',

@@ -85,202 +85,126 @@
     {{-- ===== HERO HEADER SECTION WITH CAROUSEL ===== --}}
     @php 
         $color = $program->color_config; 
-        $carouselImages = $program->images->where('is_active', true);
+        $carouselImages = $program->images->filter(fn($img) => !empty($img->path));
+        if ($carouselImages->isEmpty() && $mainImage) {
+            $carouselImages = collect([$mainImage]);
+        }
         $carouselCount = $carouselImages->count();
-        $useCarousel = $program->enable_carousel && $carouselCount > 0;
+        $useCarousel = (bool) $program->enable_carousel && $carouselCount > 0;
     @endphp
     
-    @if($useCarousel)
-        {{-- CAROUSEL VERSION --}}
-        <section class="relative bg-slate-950 text-white overflow-hidden select-none"
-            aria-label="Carrusel del Programa {{ $program->name }}"
-            x-data="programCarousel({{ $carouselCount }})"
+    <section class="relative bg-slate-950 text-white overflow-hidden select-none border-b border-slate-800"
+        aria-label="Portada del Programa {{ $program->name }}"
+        @if($useCarousel)
+            x-data="programHeroCarousel({{ $carouselCount }})"
             x-init="init()"
-            @mouseenter="pauseTimer()"
-            @mouseleave="resumeTimer()"
-            @keydown.right.window="nextSlide()"
-            @keydown.left.window="prevSlide()">
+            @mouseenter="pauseTimer()" @mouseleave="resumeTimer()"
+            @touchstart="touchStart($event)" @touchend="touchEnd($event)"
+            @keydown.right.window="nextSlide()" @keydown.left.window="prevSlide()"
+        @endif>
 
-            <div class="relative w-full h-[580px] sm:h-[620px] lg:h-[660px] overflow-hidden">
+        @if($useCarousel)
+            {{-- Background Photo Carousel with Ken Burns effect and High-Contrast Scrim --}}
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 @foreach($carouselImages as $index => $image)
                     <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
-                        :class="currentSlide === {{ $loop->index }} ? 'opacity-100 z-20' : 'opacity-0 z-10'">
+                        :class="currentSlide === {{ $loop->index }} ? 'opacity-100 z-10' : 'opacity-0 z-0'">
                         
-                        {{-- Background Image --}}
+                        {{-- Background Photo with slow Ken Burns zoom --}}
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-[8000ms] ease-out"
                             :class="currentSlide === {{ $loop->index }} ? 'scale-105' : 'scale-100'"
-                            style="background-image: url('{{ $image->url }}');"></div>
-
-                        {{-- Overlay --}}
-                        <div class="absolute inset-0 bg-slate-950/85"></div>
-
-                        {{-- Content --}}
-                        <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
-                            <div class="max-w-4xl space-y-4 sm:space-y-6 flex items-center gap-8">
-                                {{-- Logo --}}
-                                @if($program->logo_path)
-                                    <div class="hidden lg:block flex-shrink-0">
-                                        <img src="{{ $program->logo_url }}"
-                                            alt="Logo {{ $program->name }}"
-                                            class="w-48 h-48 object-contain drop-shadow-2xl">
-                                    </div>
-                                @endif
-
-                                {{-- Text Content --}}
-                                <div class="flex-1">
-                                    <div class="w-16 h-1 {{ $color['bar'] }} rounded-full mb-4"></div>
-                                    
-                                    <span class="inline-flex items-center gap-1.5 {{ $color['badge'] }} text-sm font-bold px-4 py-2 rounded-full uppercase tracking-widest mb-6 border">
-                                        <i class="bi {{ $icon }} text-sm"></i>
-                                        {{ $badge }}
-                                    </span>
-
-                                    <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight leading-tight mb-4">
-                                        {{ $program->name }}
-                                    </h1>
-
-                                    @if($program->carousel_alt_text)
-                                        <p class="text-base sm:text-lg text-slate-200 leading-relaxed max-w-2xl">
-                                            {{ $program->carousel_alt_text }}
-                                        </p>
-                                    @else
-                                        <p class="text-base sm:text-lg text-slate-200 leading-relaxed max-w-2xl">
-                                            Formación técnica superior de calidad con certificación oficial del Ministerio de Educación.
-                                        </p>
-                                    @endif
-                                </div>
-                            </div>
+                            style="background-image: url('{{ $image->url }}');">
                         </div>
+
+                        {{-- Solid High-Contrast Overlay Scrim (replacing gradients, exact match to homepage) --}}
+                        <div class="absolute inset-0 bg-slate-950/85"></div>
                     </div>
                 @endforeach
             </div>
-
-            @if($carouselCount > 1)
-                {{-- Navigation Arrows --}}
-                <button type="button" @click="prevSlide()"
-                    class="hidden sm:flex absolute left-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white items-center justify-center transition-all shadow-xl hover:scale-105"
-                    aria-label="Imagen anterior">
-                    <i class="bi bi-chevron-left text-2xl"></i>
-                </button>
-
-                <button type="button" @click="nextSlide()"
-                    class="hidden sm:flex absolute right-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white items-center justify-center transition-all shadow-xl hover:scale-105"
-                    aria-label="Siguiente imagen">
-                    <i class="bi bi-chevron-right text-2xl"></i>
-                </button>
-
-                {{-- Indicators --}}
-                <div class="absolute bottom-6 left-0 right-0 z-30">
-                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
-                        <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-800 px-3 py-2 rounded-full">
-                            <template x-for="(slide, index) in Array.from({length: {{ $carouselCount }}})" :key="index">
-                                <button type="button" @click="goToSlide(index)"
-                                    class="w-2 h-2 rounded-full transition-all"
-                                    :class="currentSlide === index ? '{{ $color['solid_bg'] }} w-6' : 'bg-slate-600 hover:bg-slate-500'">
-                                </button>
-                            </template>
-                        </div>
-                    </div>
-                </div>
+        @else
+            {{-- Static Background with subtle dark overlay --}}
+            @if($mainImage)
+                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('{{ $mainImage->url }}');"></div>
+                <div class="absolute inset-0 bg-slate-950/90"></div>
+            @else
+                <div class="absolute inset-0 bg-slate-900"></div>
             @endif
-        </section>
+        @endif
 
-        @push('scripts')
-        <script>
-            function programCarousel(totalSlides) {
-                return {
-                    currentSlide: 0,
-                    totalSlides: totalSlides,
-                    isPaused: false,
-                    interval: null,
-                    
-                    init() {
-                        this.startTimer();
-                    },
-                    
-                    startTimer() {
-                        if (this.totalSlides > 1) {
-                            this.interval = setInterval(() => {
-                                if (!this.isPaused) {
-                                    this.nextSlide();
-                                }
-                            }, 5000);
-                        }
-                    },
-                    
-                    pauseTimer() {
-                        this.isPaused = true;
-                    },
-                    
-                    resumeTimer() {
-                        this.isPaused = false;
-                    },
-                    
-                    nextSlide() {
-                        this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
-                    },
-                    
-                    prevSlide() {
-                        this.currentSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
-                    },
-                    
-                    goToSlide(index) {
-                        this.currentSlide = index;
-                    }
-                };
-            }
-        </script>
-        @endpush
-    @else
-        {{-- STATIC VERSION (Original) --}}
-        <section class="bg-slate-900 text-white py-20 relative overflow-hidden border-b border-slate-800">
-            <div class="container mx-auto px-6 relative z-10">
-                <div class="flex flex-col lg:flex-row items-center gap-12">
-                    {{-- Text column --}}
-                    <div class="lg:w-7/12 text-left">
-                        <div class="w-16 h-1 {{ $color['bar'] }} rounded-full mb-4"></div>
-                        <span
-                            class="inline-flex items-center gap-1.5 {{ $color['badge'] }} text-sm font-bold px-4 py-2 rounded-full uppercase tracking-widest mb-6 border">
-                            <i class="bi {{ $icon }} text-sm"></i>
-                            {{ $badge }}
-                        </span>
-                        <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight leading-tight">
-                            {{ $program->name }}
-                        </h1>
-                    <p class="text-base md:text-lg text-slate-300 mb-8 leading-relaxed max-w-2xl">
-                        Prepárate para destacar en el campo laboral de manera rápida y efectiva con nuestro programa
-                        formativo integral, gratuito y con certificación oficial.
-                    </p>
+        {{-- Content Container (Z-20 Foreground) --}}
+        <div class="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+            <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-12">
+                
+                {{-- Text column (7 spans) --}}
+                <div class="lg:w-7/12 text-left space-y-5">
+                    {{-- Solid Program Color Accent Bar --}}
+                    <div class="w-16 h-1 {{ $color['bar'] }} rounded-full"></div>
 
-                    {{-- Quick Metadata Grid --}}
+                    {{-- Badge --}}
+                    <span class="inline-flex items-center gap-1.5 {{ $color['badge'] }} text-xs sm:text-sm font-bold px-4 py-2 rounded-full uppercase tracking-widest border">
+                        <i class="bi {{ $icon }} text-sm"></i>
+                        {{ $badge }}
+                    </span>
+
+                    {{-- Title --}}
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-white font-sans">
+                        {{ $program->name }}
+                    </h1>
+
+                    {{-- Alternative Text or Default Description --}}
+                    @if($program->carousel_alt_text)
+                        <p class="text-base sm:text-lg text-slate-200 leading-relaxed font-sans max-w-2xl">
+                            {{ $program->carousel_alt_text }}
+                        </p>
+                    @else
+                        <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-sans max-w-2xl">
+                            Prepárate para destacar en el campo laboral de manera rápida y efectiva con nuestro programa formativo integral, gratuito y con certificación oficial.
+                        </p>
+                    @endif
+
+                    {{-- Quick Action CTA Buttons (Inspired by Homepage Hero) --}}
+                    <div class="flex flex-wrap items-center gap-3 pt-2">
+                        <a href="{{ route('examen-de-admision') }}"
+                            class="inline-flex items-center justify-center gap-2 px-6 py-3.5 {{ $color['btn_primary'] }} font-bold rounded-xl shadow-lg transition-transform hover:scale-105 text-xs sm:text-sm group">
+                            <i class="bi bi-pencil-square text-base group-hover:scale-110 transition-transform"></i>
+                            <span>Postular a Admisión</span>
+                        </a>
+
+                        <a href="#plan-estudios"
+                            class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white font-bold rounded-xl transition-colors text-xs sm:text-sm">
+                            <i class="bi bi-journal-bookmark-fill text-{{ $color['key'] }}-400 text-base"></i>
+                            <span>Plan de Estudios</span>
+                        </a>
+                    </div>
+
+                    {{-- Quick Metadata Grid (Duración, Certificaciones, Inversión) --}}
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-6 border-t border-white/10 max-w-xl">
                         <div>
-                            <p class="text-sm text-gray-400 uppercase font-semibold tracking-wider">Duración</p>
-                            <p class="text-xl font-bold {{ $color['text'] }} mt-1">3 Años</p>
-                            <p class="text-sm text-gray-400">6 Ciclos Académicos</p>
+                            <p class="text-xs sm:text-sm text-gray-400 uppercase font-semibold tracking-wider">Duración</p>
+                            <p class="text-lg sm:text-xl font-bold {{ $color['text'] }} mt-1">3 Años</p>
+                            <p class="text-xs sm:text-sm text-gray-400">6 Ciclos Académicos</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-400 uppercase font-semibold tracking-wider">Certificaciones</p>
-                            <p class="text-xl font-bold {{ $color['text'] }} mt-1">Modulares</p>
-                            <p class="text-sm text-gray-400">Anuales de Minedu</p>
+                            <p class="text-xs sm:text-sm text-gray-400 uppercase font-semibold tracking-wider">Certificaciones</p>
+                            <p class="text-lg sm:text-xl font-bold {{ $color['text'] }} mt-1">Modulares</p>
+                            <p class="text-xs sm:text-sm text-gray-400">Anuales de Minedu</p>
                         </div>
                         <div class="col-span-2 sm:col-span-1">
-                            <p class="text-sm text-gray-400 uppercase font-semibold tracking-wider">Inversión</p>
-                            <p class="text-xl font-bold {{ $color['text'] }} mt-1">Gratuito</p>
-                            <p class="text-sm text-gray-400">Educación Pública</p>
+                            <p class="text-xs sm:text-sm text-gray-400 uppercase font-semibold tracking-wider">Inversión</p>
+                            <p class="text-lg sm:text-xl font-bold {{ $color['text'] }} mt-1">Gratuito</p>
+                            <p class="text-xs sm:text-sm text-gray-400">Educación Pública</p>
                         </div>
                     </div>
                 </div>
 
-                {{-- Visual column (Cover Image) --}}
-                <div class="lg:w-5/12 w-full">
-                    <div class="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl aspect-[16/10] w-full {{ $color['solid_bg'] }} flex items-center justify-center group"
+                {{-- Visual column (The Logo - POSITIONING UNCHANGED!) --}}
+                <div class="lg:w-5/12 w-full flex justify-center lg:justify-end">
+                    <div class="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl aspect-[16/10] w-full max-w-lg {{ $color['solid_bg'] }} flex items-center justify-center group"
                         style="aspect-ratio: 16/10;">
                         @if ($program->logo_path)
-                            <img src="{{ Str::startsWith($program->logo_path, ['http://', 'https://']) ? $program->logo_path : asset('storage/' . $program->logo_path) }}"
-                                alt="{{ $program->name }}"
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90">
-                            <div class="absolute inset-0 bg-slate-950/40"></div>
+                            <img src="{{ $program->logo_url ?? (Str::startsWith($program->logo_path, ['http://', 'https://']) ? $program->logo_path : asset('storage/' . $program->logo_path)) }}"
+                                alt="Logo {{ $program->name }}"
+                                class="max-h-[85%] max-w-[85%] object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500">
                         @elseif ($mainImage)
                             <img src="{{ $mainImage->url }}"
                                 alt="{{ $program->name }}"
@@ -291,10 +215,52 @@
                         @endif
                     </div>
                 </div>
+
             </div>
         </div>
+
+        @if($useCarousel && $carouselCount > 1)
+            {{-- Carousel Navigation Controls (Left / Right Floating Arrows) --}}
+            <button type="button" @click="prevSlide()"
+                class="hidden sm:flex absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white items-center justify-center transition-all duration-200 shadow-xl hover:scale-105 focus:outline-none cursor-pointer"
+                aria-label="Imagen anterior">
+                <i class="bi bi-chevron-left text-xl sm:text-2xl"></i>
+            </button>
+
+            <button type="button" @click="nextSlide()"
+                class="hidden sm:flex absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white items-center justify-center transition-all duration-200 shadow-xl hover:scale-105 focus:outline-none cursor-pointer"
+                aria-label="Siguiente imagen">
+                <i class="bi bi-chevron-right text-xl sm:text-2xl"></i>
+            </button>
+
+            {{-- Bottom Slide Indicator Bar (Solid Program Themed) --}}
+            <div class="absolute bottom-4 sm:bottom-6 left-0 right-0 z-30 pointer-events-none">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+                    {{-- Slide Indicators with Program Solid Color --}}
+                    <div class="flex items-center gap-1.5 sm:gap-2 bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded-full pointer-events-auto shadow-lg">
+                        <template x-for="(slide, index) in Array.from({length: {{ $carouselCount }}})" :key="index">
+                            <button type="button" @click="goToSlide(index)"
+                                class="h-2 rounded-full transition-all duration-300 cursor-pointer"
+                                :class="currentSlide === index ? '{{ $color['solid_bg'] }} w-7 shadow-md' : 'bg-slate-600 hover:bg-slate-500 w-2'"
+                                :aria-label="'Ir a imagen ' + (index + 1)">
+                            </button>
+                        </template>
+                    </div>
+
+                    {{-- Play/Pause & Counter Indicator (Exact match to Homepage Carousel) --}}
+                    <div class="hidden md:flex items-center gap-3 bg-slate-900/90 border border-slate-800 px-4 py-1.5 rounded-full text-xs font-semibold text-slate-300 pointer-events-auto shadow-lg">
+                        <button type="button" @click="isPaused = !isPaused"
+                            class="hover:text-white transition-colors cursor-pointer"
+                            :title="isPaused ? 'Reanudar carrusel' : 'Pausar carrusel'">
+                            <i class="bi"
+                                :class="isPaused ? 'bi-play-fill text-amber-400 text-sm' : 'bi-pause-fill text-sm'"></i>
+                        </button>
+                        <span class="text-white font-bold" x-text="(currentSlide + 1) + ' / ' + totalSlides"></span>
+                    </div>
+                </div>
+            </div>
+        @endif
     </section>
-    @endif
 
     {{-- ===== MAIN LAYOUT GRID ===== --}}
     <section class="py-16 bg-gray-50/50">
@@ -349,7 +315,7 @@
 
                     {{-- Curriculum & Modular certifications / Itinerario Formativo --}}
                     @if ($program->modules->isNotEmpty() || $program->training_itinerary_path)
-                        <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm space-y-8">
+                        <div id="plan-estudios" class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm space-y-8 scroll-mt-24">
                             <div>
                                 <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 flex items-center gap-3">
                                     <span class="w-2 h-8 {{ $barColorClass }} rounded-full"></span>
@@ -684,3 +650,92 @@
         </div>
     </section>
 @endsection
+
+@push('scripts')
+    <script>
+        function programHeroCarousel(count = 1) {
+            return {
+                currentSlide: 0,
+                totalSlides: count || 1,
+                autoplayInterval: null,
+                intervalDuration: 5500,
+                isPaused: false,
+                touchStartX: 0,
+                touchEndX: 0,
+
+                init() {
+                    if (this.totalSlides > 1) {
+                        this.startAutoplay();
+                    }
+                },
+
+                startAutoplay() {
+                    this.clearAutoplay();
+                    if (this.totalSlides <= 1) return;
+                    this.autoplayInterval = setInterval(() => {
+                        if (!this.isPaused) {
+                            this.nextSlide();
+                        }
+                    }, this.intervalDuration);
+                },
+
+                clearAutoplay() {
+                    if (this.autoplayInterval) {
+                        clearInterval(this.autoplayInterval);
+                        this.autoplayInterval = null;
+                    }
+                },
+
+                pauseTimer() {
+                    this.isPaused = true;
+                },
+
+                resumeTimer() {
+                    this.isPaused = false;
+                },
+
+                nextSlide() {
+                    if (this.totalSlides <= 1) return;
+                    this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
+                },
+
+                prevSlide() {
+                    if (this.totalSlides <= 1) return;
+                    this.currentSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
+                },
+
+                goToSlide(index) {
+                    this.currentSlide = index;
+                    this.startAutoplay();
+                },
+
+                touchStart(e) {
+                    if (e.changedTouches && e.changedTouches.length > 0) {
+                        this.touchStartX = e.changedTouches[0].screenX;
+                    }
+                    this.pauseTimer();
+                },
+
+                touchEnd(e) {
+                    if (e.changedTouches && e.changedTouches.length > 0) {
+                        this.touchEndX = e.changedTouches[0].screenX;
+                    }
+                    this.handleSwipe();
+                    this.resumeTimer();
+                },
+
+                handleSwipe() {
+                    const diff = this.touchStartX - this.touchEndX;
+                    if (Math.abs(diff) > 40) {
+                        if (diff > 0) {
+                            this.nextSlide();
+                        } else {
+                            this.prevSlide();
+                        }
+                    }
+                }
+            };
+        }
+    </script>
+@endpush
+

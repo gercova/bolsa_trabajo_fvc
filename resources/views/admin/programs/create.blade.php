@@ -302,6 +302,9 @@
                                             </p>
                                         </div>
                                     </label>
+                                    @error('enable_carousel')
+                                        <p class="text-xs text-red-500 font-medium mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
                                 {{-- Alternative Text for Carousel --}}
@@ -316,9 +319,12 @@
                                               placeholder="Texto descriptivo personalizado que aparecerá en todas las diapositivas del carrusel..."
                                               class="w-full px-4 py-3 bg-white border border-blue-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                     >{{ old('carousel_alt_text') }}</textarea>
+                                    @error('carousel_alt_text')
+                                        <p class="text-xs text-red-500 font-medium mt-1">{{ $message }}</p>
+                                    @enderror
                                     <p class="text-xs text-gray-500">
                                         <i class="bi bi-info-circle text-blue-500"></i>
-                                        Este texto se mostrará en el carrusel. Si se deja vacío, se usará el texto predeterminado del sistema.
+                                        Este texto se mostrará en el carrusel de la portada. Si se deja vacío, se usará el texto predeterminado del sistema.
                                     </p>
                                 </div>
                             </div>

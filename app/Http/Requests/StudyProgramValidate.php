@@ -33,6 +33,8 @@ class StudyProgramValidate extends FormRequest
             'delete_images' => 'nullable|array',
             'delete_images.*' => 'integer',
             'description' => 'required|string',
+            'carousel_alt_text' => 'nullable|string|max:500',
+            'enable_carousel' => 'nullable|boolean',
             'details' => 'required|string',
             'icon' => 'nullable|string|max:100',
             'accent' => 'nullable|string|max:50',

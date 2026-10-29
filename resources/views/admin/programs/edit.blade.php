@@ -405,6 +405,51 @@
                                 </div>
                             </div>
 
+                            {{-- Configuración de Carrusel --}}
+                            <div class="md:col-span-2 space-y-4 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+                                <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                    <i class="bi bi-images text-blue-600 text-lg"></i>
+                                    Configuración de Carrusel
+                                </h3>
+                                
+                                {{-- Enable Carousel Checkbox --}}
+                                <div class="space-y-2">
+                                    <label class="flex items-start gap-3 cursor-pointer group">
+                                        <input type="checkbox" 
+                                               name="enable_carousel" 
+                                               value="1"
+                                               {{ old('enable_carousel', $program->enable_carousel) ? 'checked' : '' }}
+                                               class="mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer">
+                                        <div class="flex-1">
+                                            <span class="text-sm font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
+                                                Activar carrusel dinámico en la portada del programa
+                                            </span>
+                                            <p class="text-xs text-gray-600 mt-1">
+                                                Las imágenes de la galería se mostrarán como un carrusel giratorio automático en lugar de una imagen estática. El logo se mantiene visible.
+                                            </p>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                {{-- Alternative Text for Carousel --}}
+                                <div class="space-y-1.5">
+                                    <label for="carousel_alt_text" class="block text-xs font-bold uppercase tracking-wider text-gray-700">
+                                        Texto Alternativo para Carrusel
+                                        <span class="text-gray-400 font-normal text-[11px]">(Opcional)</span>
+                                    </label>
+                                    <textarea id="carousel_alt_text" 
+                                              name="carousel_alt_text"
+                                              rows="2"
+                                              placeholder="Texto descriptivo personalizado que aparecerá en todas las diapositivas del carrusel..."
+                                              class="w-full px-4 py-3 bg-white border border-blue-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    >{{ old('carousel_alt_text', $program->carousel_alt_text) }}</textarea>
+                                    <p class="text-xs text-gray-500">
+                                        <i class="bi bi-info-circle text-blue-500"></i>
+                                        Este texto se mostrará en el carrusel. Si se deja vacío, se usará el texto predeterminado del sistema.
+                                    </p>
+                                </div>
+                            </div>
+
                             {{-- Descripción / Perfil --}}
                             <div class="md:col-span-2 space-y-1.5">
                                 <label for="description" class="block text-xs font-bold uppercase tracking-wider text-gray-700">

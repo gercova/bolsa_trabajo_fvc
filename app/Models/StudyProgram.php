@@ -20,6 +20,8 @@ class StudyProgram extends Model
         'logo_path',
         'training_itinerary_path',
         'description',
+        'carousel_alt_text',
+        'enable_carousel',
         'details',
         'icon',
         'accent',
@@ -43,6 +45,7 @@ class StudyProgram extends Model
     protected $casts = [
         'order' => 'integer',
         'is_active' => 'boolean',
+        'enable_carousel' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

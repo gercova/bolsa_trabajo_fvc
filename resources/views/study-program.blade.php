@@ -82,22 +82,171 @@
 @endpush
 
 @section('content')
-    {{-- ===== HERO HEADER SECTION ===== --}}
-    @php $color = $program->color_config; @endphp
-    <section class="bg-slate-900 text-white py-20 relative overflow-hidden border-b border-slate-800">
-        <div class="container mx-auto px-6 relative z-10">
-            <div class="flex flex-col lg:flex-row items-center gap-12">
-                {{-- Text column --}}
-                <div class="lg:w-7/12 text-left">
-                    <div class="w-16 h-1 {{ $color['bar'] }} rounded-full mb-4"></div>
-                    <span
-                        class="inline-flex items-center gap-1.5 {{ $color['badge'] }} text-sm font-bold px-4 py-2 rounded-full uppercase tracking-widest mb-6 border">
-                        <i class="bi {{ $icon }} text-sm"></i>
-                        {{ $badge }}
-                    </span>
-                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight leading-tight">
-                        {{ $program->name }}
-                    </h1>
+    {{-- ===== HERO HEADER SECTION WITH CAROUSEL ===== --}}
+    @php 
+        $color = $program->color_config; 
+        $carouselImages = $program->images->where('is_active', true);
+        $carouselCount = $carouselImages->count();
+        $useCarousel = $program->enable_carousel && $carouselCount > 0;
+    @endphp
+    
+    @if($useCarousel)
+        {{-- CAROUSEL VERSION --}}
+        <section class="relative bg-slate-950 text-white overflow-hidden select-none"
+            aria-label="Carrusel del Programa {{ $program->name }}"
+            x-data="programCarousel({{ $carouselCount }})"
+            x-init="init()"
+            @mouseenter="pauseTimer()"
+            @mouseleave="resumeTimer()"
+            @keydown.right.window="nextSlide()"
+            @keydown.left.window="prevSlide()">
+
+            <div class="relative w-full h-[580px] sm:h-[620px] lg:h-[660px] overflow-hidden">
+                @foreach($carouselImages as $index => $image)
+                    <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+                        :class="currentSlide === {{ $loop->index }} ? 'opacity-100 z-20' : 'opacity-0 z-10'">
+                        
+                        {{-- Background Image --}}
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-[8000ms] ease-out"
+                            :class="currentSlide === {{ $loop->index }} ? 'scale-105' : 'scale-100'"
+                            style="background-image: url('{{ $image->url }}');"></div>
+
+                        {{-- Overlay --}}
+                        <div class="absolute inset-0 bg-slate-950/85"></div>
+
+                        {{-- Content --}}
+                        <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+                            <div class="max-w-4xl space-y-4 sm:space-y-6 flex items-center gap-8">
+                                {{-- Logo --}}
+                                @if($program->logo_path)
+                                    <div class="hidden lg:block flex-shrink-0">
+                                        <img src="{{ $program->logo_url }}"
+                                            alt="Logo {{ $program->name }}"
+                                            class="w-48 h-48 object-contain drop-shadow-2xl">
+                                    </div>
+                                @endif
+
+                                {{-- Text Content --}}
+                                <div class="flex-1">
+                                    <div class="w-16 h-1 {{ $color['bar'] }} rounded-full mb-4"></div>
+                                    
+                                    <span class="inline-flex items-center gap-1.5 {{ $color['badge'] }} text-sm font-bold px-4 py-2 rounded-full uppercase tracking-widest mb-6 border">
+                                        <i class="bi {{ $icon }} text-sm"></i>
+                                        {{ $badge }}
+                                    </span>
+
+                                    <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight leading-tight mb-4">
+                                        {{ $program->name }}
+                                    </h1>
+
+                                    @if($program->carousel_alt_text)
+                                        <p class="text-base sm:text-lg text-slate-200 leading-relaxed max-w-2xl">
+                                            {{ $program->carousel_alt_text }}
+                                        </p>
+                                    @else
+                                        <p class="text-base sm:text-lg text-slate-200 leading-relaxed max-w-2xl">
+                                            Formación técnica superior de calidad con certificación oficial del Ministerio de Educación.
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            @if($carouselCount > 1)
+                {{-- Navigation Arrows --}}
+                <button type="button" @click="prevSlide()"
+                    class="hidden sm:flex absolute left-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white items-center justify-center transition-all shadow-xl hover:scale-105"
+                    aria-label="Imagen anterior">
+                    <i class="bi bi-chevron-left text-2xl"></i>
+                </button>
+
+                <button type="button" @click="nextSlide()"
+                    class="hidden sm:flex absolute right-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white items-center justify-center transition-all shadow-xl hover:scale-105"
+                    aria-label="Siguiente imagen">
+                    <i class="bi bi-chevron-right text-2xl"></i>
+                </button>
+
+                {{-- Indicators --}}
+                <div class="absolute bottom-6 left-0 right-0 z-30">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
+                        <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-800 px-3 py-2 rounded-full">
+                            <template x-for="(slide, index) in Array.from({length: {{ $carouselCount }}})" :key="index">
+                                <button type="button" @click="goToSlide(index)"
+                                    class="w-2 h-2 rounded-full transition-all"
+                                    :class="currentSlide === index ? '{{ $color['solid_bg'] }} w-6' : 'bg-slate-600 hover:bg-slate-500'">
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        </section>
+
+        @push('scripts')
+        <script>
+            function programCarousel(totalSlides) {
+                return {
+                    currentSlide: 0,
+                    totalSlides: totalSlides,
+                    isPaused: false,
+                    interval: null,
+                    
+                    init() {
+                        this.startTimer();
+                    },
+                    
+                    startTimer() {
+                        if (this.totalSlides > 1) {
+                            this.interval = setInterval(() => {
+                                if (!this.isPaused) {
+                                    this.nextSlide();
+                                }
+                            }, 5000);
+                        }
+                    },
+                    
+                    pauseTimer() {
+                        this.isPaused = true;
+                    },
+                    
+                    resumeTimer() {
+                        this.isPaused = false;
+                    },
+                    
+                    nextSlide() {
+                        this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
+                    },
+                    
+                    prevSlide() {
+                        this.currentSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
+                    },
+                    
+                    goToSlide(index) {
+                        this.currentSlide = index;
+                    }
+                };
+            }
+        </script>
+        @endpush
+    @else
+        {{-- STATIC VERSION (Original) --}}
+        <section class="bg-slate-900 text-white py-20 relative overflow-hidden border-b border-slate-800">
+            <div class="container mx-auto px-6 relative z-10">
+                <div class="flex flex-col lg:flex-row items-center gap-12">
+                    {{-- Text column --}}
+                    <div class="lg:w-7/12 text-left">
+                        <div class="w-16 h-1 {{ $color['bar'] }} rounded-full mb-4"></div>
+                        <span
+                            class="inline-flex items-center gap-1.5 {{ $color['badge'] }} text-sm font-bold px-4 py-2 rounded-full uppercase tracking-widest mb-6 border">
+                            <i class="bi {{ $icon }} text-sm"></i>
+                            {{ $badge }}
+                        </span>
+                        <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight leading-tight">
+                            {{ $program->name }}
+                        </h1>
                     <p class="text-base md:text-lg text-slate-300 mb-8 leading-relaxed max-w-2xl">
                         Prepárate para destacar en el campo laboral de manera rápida y efectiva con nuestro programa
                         formativo integral, gratuito y con certificación oficial.
@@ -145,6 +294,7 @@
             </div>
         </div>
     </section>
+    @endif
 
     {{-- ===== MAIN LAYOUT GRID ===== --}}
     <section class="py-16 bg-gray-50/50">

@@ -177,6 +177,7 @@
          }
      });
  ">
+
 {{-- ═══ HERO ════════════════════════════════════════════════════════════ --}}
 <section aria-label="Portada Bolsa de Trabajo" class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24">
     <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
@@ -1058,10 +1059,6 @@
 
 </div>
 {{-- END TAB CONTENT: PERFILES ESTUDIANTILES --}}
-
-    </div>
-</section>
-{{-- END Alpine.js parent container --}}
 
 
 {{-- ═══ EMPLEABILIDAD ═══════════════════════════════════════════════════ --}}

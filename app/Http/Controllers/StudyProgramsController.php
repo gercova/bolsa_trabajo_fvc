@@ -27,21 +27,20 @@ class StudyProgramsController extends Controller
     /**
      * Display a listing of the resources across tabs.
      */
-    public function index(Request $request): View
-    {
+    public function index(Request $request): View {
         $validated = $request->validate([
-            'search' => 'nullable|string|max:255',
-            'status' => 'nullable|string|in:active,inactive',
-            'study_program_id' => 'nullable|integer',
-            'tab' => 'nullable|string|in:programs,modules,competencies,job_fields,meta,requirements',
-            'per_page' => 'nullable|integer|min:1|max:100',
+            'search'            => 'nullable|string|max:255',
+            'status'            => 'nullable|string|in:active,inactive',
+            'study_program_id'  => 'nullable|integer',
+            'tab'               => 'nullable|string|in:programs,modules,competencies,job_fields,meta,requirements',
+            'per_page'          => 'nullable|integer|min:1|max:100',
         ]);
 
-        $activeTab = $validated['tab'] ?? 'programs';
-        $perPage = $validated['per_page'] ?? 10;
-        $search = $validated['search'] ?? null;
-        $statusFilter = $validated['status'] ?? null;
-        $programFilter = $validated['study_program_id'] ?? null;
+        $activeTab      = $validated['tab'] ?? 'programs';
+        $perPage        = $validated['per_page'] ?? 10;
+        $search         = $validated['search'] ?? null;
+        $statusFilter   = $validated['status'] ?? null;
+        $programFilter  = $validated['study_program_id'] ?? null;
 
         // 1. Study Programs
         $progQuery = StudyProgram::query();
@@ -152,19 +151,16 @@ class StudyProgramsController extends Controller
     // STUDY PROGRAMS
     // =========================================================================
 
-    public function create(): View
-    {
+    public function create(): View {
         $nextOrder = (StudyProgram::max('order') ?? 0) + 1;
-
         return view('admin.programs.create', compact('nextOrder'));
     }
 
-    public function store(StudyProgramValidate $request): RedirectResponse
-    {
-        $validated = $request->validated();
-        $validated['slug'] = Str::slug($validated['name']);
+    public function store(StudyProgramValidate $request): RedirectResponse {
+        $validated              = $request->validated();
+        $validated['slug']      = Str::slug($validated['name']);
         $validated['is_active'] = $request->boolean('is_active');
-        $validated['order'] = $validated['order'] ?? ((StudyProgram::max('order') ?? 0) + 1);
+        $validated['order']     = $validated['order'] ?? ((StudyProgram::max('order') ?? 0) + 1);
 
         if ($request->hasFile('logo_path')) {
             $path = $request->file('logo_path')->store('programs', 'public');
@@ -183,13 +179,13 @@ class StudyProgramsController extends Controller
             $files = $request->file('images');
             foreach ($files as $index => $imageFile) {
                 if ($imageFile->isValid()) {
-                    $imagePath = $imageFile->store('programs/gallery', 'public');
-                    $isMain = ($mainIndex !== null && $mainIndex !== '') ? ((int) $mainIndex === (int) $index) : ($index === 0);
+                    $imagePath  = $imageFile->store('programs/gallery', 'public');
+                    $isMain     = ($mainIndex !== null && $mainIndex !== '') ? ((int) $mainIndex === (int) $index) : ($index === 0);
                     $program->images()->create([
-                        'path' => $imagePath,
-                        'is_main' => $isMain,
-                        'imageable_type' => StudyProgram::class,
-                        'imageable_id' => $program->id,
+                        'path'              => $imagePath,
+                        'is_main'           => $isMain,
+                        'imageable_type'    => StudyProgram::class,
+                        'imageable_id'      => $program->id,
                     ]);
                 }
             }
@@ -198,19 +194,16 @@ class StudyProgramsController extends Controller
         return redirect()->route('admin.programs.index', ['tab' => 'programs'])->with('success', 'Programa de estudio creado correctamente.');
     }
 
-    public function edit(StudyProgram $program): View
-    {
+    public function edit(StudyProgram $program): View {
         $program->load('images');
-
         return view('admin.programs.edit', compact('program'));
     }
 
-    public function update(StudyProgramValidate $request, StudyProgram $program): RedirectResponse
-    {
-        $validated = $request->validated();
-        $validated['slug'] = Str::slug($validated['name']);
+    public function update(StudyProgramValidate $request, StudyProgram $program): RedirectResponse {
+        $validated              = $request->validated();
+        $validated['slug']      = Str::slug($validated['name']);
         $validated['is_active'] = $request->boolean('is_active');
-        $validated['order'] = $validated['order'] ?? $program->order;
+        $validated['order']     = $validated['order'] ?? $program->order;
 
         if ($request->hasFile('logo_path')) {
             if ($program->logo_path && Storage::disk('public')->exists($program->logo_path)) {
@@ -249,10 +242,10 @@ class StudyProgramsController extends Controller
                 if ($imageFile->isValid()) {
                     $imagePath = $imageFile->store('programs/gallery', 'public');
                     $newImg = $program->images()->create([
-                        'path' => $imagePath,
-                        'is_main' => false,
-                        'imageable_type' => StudyProgram::class,
-                        'imageable_id' => $program->id,
+                        'path'              => $imagePath,
+                        'is_main'           => false,
+                        'imageable_type'    => StudyProgram::class,
+                        'imageable_id'      => $program->id,
                     ]);
                     $newImages[] = $newImg;
                 }
@@ -280,17 +273,12 @@ class StudyProgramsController extends Controller
         return redirect()->route('admin.programs.index', ['tab' => 'programs'])->with('success', 'Programa de estudio actualizado correctamente.');
     }
 
-    public function toggleStatus(StudyProgram $program): RedirectResponse
-    {
-        $program->update([
-            'is_active' => ! $program->is_active,
-        ]);
-
+    public function toggleStatus(StudyProgram $program): RedirectResponse {
+        $program->update(['is_active' => ! $program->is_active]);
         return redirect()->back()->with('success', 'Estado del programa de estudio actualizado correctamente.');
     }
 
-    public function destroy(StudyProgram $program): RedirectResponse
-    {
+    public function destroy(StudyProgram $program): RedirectResponse {
         if ($program->logo_path && Storage::disk('public')->exists($program->logo_path)) {
             Storage::disk('public')->delete($program->logo_path);
         }
@@ -308,8 +296,7 @@ class StudyProgramsController extends Controller
         return redirect()->route('admin.programs.index', ['tab' => 'programs'])->with('success', 'Programa de estudio eliminado correctamente.');
     }
 
-    public function destroyImage(StudyProgram $program, Image $image): JsonResponse|RedirectResponse
-    {
+    public function destroyImage(StudyProgram $program, Image $image): JsonResponse|RedirectResponse {
         if ((int) $image->imageable_id !== (int) $program->id || $image->imageable_type !== StudyProgram::class) {
             if (request()->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'La imagen no pertenece a este programa.'], 403);
@@ -341,8 +328,7 @@ class StudyProgramsController extends Controller
         return back()->with('success', 'Imagen eliminada correctamente.');
     }
 
-    public function setMainImage(StudyProgram $program, Image $image): JsonResponse|RedirectResponse
-    {
+    public function setMainImage(StudyProgram $program, Image $image): JsonResponse|RedirectResponse {
         if ((int) $image->imageable_id !== (int) $program->id || $image->imageable_type !== StudyProgram::class) {
             if (request()->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'La imagen no pertenece a este programa.'], 403);
@@ -368,55 +354,39 @@ class StudyProgramsController extends Controller
     // MODULAR CERTIFICATION (modular_certification)
     // =========================================================================
 
-    public function createModule(): View
-    {
+    public function createModule(): View {
         $programs = StudyProgram::orderBy('name')->get();
-
         return view('admin.programs.modules.create', compact('programs'));
     }
 
-    public function storeModule(ModularCertificationRequest $request): RedirectResponse
-    {
-        $validated = $request->validated();
-        $validated['model_type'] = StudyProgram::class;
-        $validated['is_active'] = $request->has('is_active');
-
+    public function storeModule(ModularCertificationRequest $request): RedirectResponse {
+        $validated                  = $request->validated();
+        $validated['model_type']    = StudyProgram::class;
+        $validated['is_active']     = $request->has('is_active');
         ModularCertification::create($validated);
-
         return redirect()->route('admin.programs.index', ['tab' => 'modules'])->with('success', 'Módulo de certificación creado correctamente.');
     }
 
-    public function editModule(ModularCertification $module): View
-    {
+    public function editModule(ModularCertification $module): View {
         $programs = StudyProgram::orderBy('name')->get();
-
         return view('admin.programs.modules.edit', compact('module', 'programs'));
     }
 
-    public function updateModule(ModularCertificationRequest $request, ModularCertification $module): RedirectResponse
-    {
-        $validated = $request->validated();
-        $validated['model_type'] = StudyProgram::class;
-        $validated['is_active'] = $request->has('is_active');
-
+    public function updateModule(ModularCertificationRequest $request, ModularCertification $module): RedirectResponse {
+        $validated                  = $request->validated();
+        $validated['model_type']    = StudyProgram::class;
+        $validated['is_active']     = $request->has('is_active');
         $module->update($validated);
-
         return redirect()->route('admin.programs.index', ['tab' => 'modules'])->with('success', 'Módulo de certificación actualizado correctamente.');
     }
 
-    public function toggleModuleStatus(ModularCertification $module): RedirectResponse
-    {
-        $module->update([
-            'is_active' => ! $module->is_active,
-        ]);
-
+    public function toggleModuleStatus(ModularCertification $module): RedirectResponse {
+        $module->update(['is_active' => !$module->is_active]);
         return redirect()->back()->with('success', 'Estado del módulo actualizado correctamente.');
     }
 
-    public function destroyModule(ModularCertification $module): RedirectResponse
-    {
+    public function destroyModule(ModularCertification $module): RedirectResponse {
         $module->delete();
-
         return redirect()->route('admin.programs.index', ['tab' => 'modules'])->with('success', 'Módulo de certificación eliminado correctamente.');
     }
 
@@ -424,53 +394,37 @@ class StudyProgramsController extends Controller
     // PROGRAM COMPETENCIES (program_competencies)
     // =========================================================================
 
-    public function createCompetency(): View
-    {
+    public function createCompetency(): View {
         $programs = StudyProgram::orderBy('name')->get();
-
         return view('admin.programs.competencies.create', compact('programs'));
     }
 
-    public function storeCompetency(ProgramCompetencyRequest $request): RedirectResponse
-    {
-        $validated = $request->validated();
+    public function storeCompetency(ProgramCompetencyRequest $request): RedirectResponse {
+        $validated              = $request->validated();
         $validated['is_active'] = $request->has('is_active');
-
         ProgramCompetency::create($validated);
-
         return redirect()->route('admin.programs.index', ['tab' => 'competencies'])->with('success', 'Competencia creada correctamente.');
     }
 
-    public function editCompetency(ProgramCompetency $competency): View
-    {
+    public function editCompetency(ProgramCompetency $competency): View {
         $programs = StudyProgram::orderBy('name')->get();
-
         return view('admin.programs.competencies.edit', compact('competency', 'programs'));
     }
 
-    public function updateCompetency(ProgramCompetencyRequest $request, ProgramCompetency $competency): RedirectResponse
-    {
+    public function updateCompetency(ProgramCompetencyRequest $request, ProgramCompetency $competency): RedirectResponse {
         $validated = $request->validated();
         $validated['is_active'] = $request->has('is_active');
-
         $competency->update($validated);
-
         return redirect()->route('admin.programs.index', ['tab' => 'competencies'])->with('success', 'Competencia actualizada correctamente.');
     }
 
-    public function toggleCompetencyStatus(ProgramCompetency $competency): RedirectResponse
-    {
-        $competency->update([
-            'is_active' => ! $competency->is_active,
-        ]);
-
+    public function toggleCompetencyStatus(ProgramCompetency $competency): RedirectResponse {
+        $competency->update(['is_active' => !$competency->is_active]);
         return redirect()->back()->with('success', 'Estado de la competencia actualizado correctamente.');
     }
 
-    public function destroyCompetency(ProgramCompetency $competency): RedirectResponse
-    {
+    public function destroyCompetency(ProgramCompetency $competency): RedirectResponse {
         $competency->delete();
-
         return redirect()->route('admin.programs.index', ['tab' => 'competencies'])->with('success', 'Competencia eliminada correctamente.');
     }
 
@@ -478,53 +432,37 @@ class StudyProgramsController extends Controller
     // PROGRAM JOB FIELDS (program_job_fields)
     // =========================================================================
 
-    public function createJobField(): View
-    {
+    public function createJobField(): View {
         $programs = StudyProgram::orderBy('name')->get();
-
         return view('admin.programs.job_fields.create', compact('programs'));
     }
 
-    public function storeJobField(ProgramJobFieldRequest $request): RedirectResponse
-    {
-        $validated = $request->validated();
+    public function storeJobField(ProgramJobFieldRequest $request): RedirectResponse {
+        $validated              = $request->validated();
         $validated['is_active'] = $request->has('is_active');
-
         ProgramJobField::create($validated);
-
         return redirect()->route('admin.programs.index', ['tab' => 'job_fields'])->with('success', 'Campo laboral registrado correctamente.');
     }
 
-    public function editJobField(ProgramJobField $jobField): View
-    {
+    public function editJobField(ProgramJobField $jobField): View {
         $programs = StudyProgram::orderBy('name')->get();
-
         return view('admin.programs.job_fields.edit', compact('jobField', 'programs'));
     }
 
-    public function updateJobField(ProgramJobFieldRequest $request, ProgramJobField $jobField): RedirectResponse
-    {
-        $validated = $request->validated();
+    public function updateJobField(ProgramJobFieldRequest $request, ProgramJobField $jobField): RedirectResponse {
+        $validated              = $request->validated();
         $validated['is_active'] = $request->has('is_active');
-
         $jobField->update($validated);
-
         return redirect()->route('admin.programs.index', ['tab' => 'job_fields'])->with('success', 'Campo laboral actualizado correctamente.');
     }
 
-    public function toggleJobFieldStatus(ProgramJobField $jobField): RedirectResponse
-    {
-        $jobField->update([
-            'is_active' => ! $jobField->is_active,
-        ]);
-
+    public function toggleJobFieldStatus(ProgramJobField $jobField): RedirectResponse {
+        $jobField->update(['is_active' => !$jobField->is_active]);
         return redirect()->back()->with('success', 'Estado del campo laboral actualizado correctamente.');
     }
 
-    public function destroyJobField(ProgramJobField $jobField): RedirectResponse
-    {
+    public function destroyJobField(ProgramJobField $jobField): RedirectResponse {
         $jobField->delete();
-
         return redirect()->route('admin.programs.index', ['tab' => 'job_fields'])->with('success', 'Campo laboral eliminado correctamente.');
     }
 
@@ -532,42 +470,30 @@ class StudyProgramsController extends Controller
     // PROGRAM METAS (program_metas)
     // =========================================================================
 
-    public function createMeta(): View
-    {
+    public function createMeta(): View {
         $programs = StudyProgram::orderBy('name')->get();
-
         return view('admin.programs.meta.create', compact('programs'));
     }
 
-    public function storeMeta(ProgramMetaRequest $request): RedirectResponse
-    {
+    public function storeMeta(ProgramMetaRequest $request): RedirectResponse {
         $validated = $request->validated();
-
         ProgramMeta::create($validated);
-
         return redirect()->route('admin.programs.index', ['tab' => 'meta'])->with('success', 'Metadatos de presentación guardados correctamente.');
     }
 
-    public function editMeta(ProgramMeta $meta): View
-    {
+    public function editMeta(ProgramMeta $meta): View {
         $programs = StudyProgram::orderBy('name')->get();
-
         return view('admin.programs.meta.edit', compact('meta', 'programs'));
     }
 
-    public function updateMeta(ProgramMetaRequest $request, ProgramMeta $meta): RedirectResponse
-    {
+    public function updateMeta(ProgramMetaRequest $request, ProgramMeta $meta): RedirectResponse {
         $validated = $request->validated();
-
         $meta->update($validated);
-
         return redirect()->route('admin.programs.index', ['tab' => 'meta'])->with('success', 'Metadatos de presentación actualizados correctamente.');
     }
 
-    public function destroyMeta(ProgramMeta $meta): RedirectResponse
-    {
+    public function destroyMeta(ProgramMeta $meta): RedirectResponse {
         $meta->delete();
-
         return redirect()->route('admin.programs.index', ['tab' => 'meta'])->with('success', 'Metadatos eliminados correctamente.');
     }
 
@@ -575,53 +501,37 @@ class StudyProgramsController extends Controller
     // PROGRAM REQUIREMENTS (program_requirements)
     // =========================================================================
 
-    public function createRequirement(): View
-    {
+    public function createRequirement(): View {
         $programs = StudyProgram::orderBy('name')->get();
-
         return view('admin.programs.requirements.create', compact('programs'));
     }
 
-    public function storeRequirement(ProgramRequirementRequest $request): RedirectResponse
-    {
-        $validated = $request->validated();
+    public function storeRequirement(ProgramRequirementRequest $request): RedirectResponse {
+        $validated              = $request->validated();
         $validated['is_active'] = $request->has('is_active');
-
         ProgramRequirement::create($validated);
-
         return redirect()->route('admin.programs.index', ['tab' => 'requirements'])->with('success', 'Requisito registrado correctamente.');
     }
 
-    public function editRequirement(ProgramRequirement $requirement): View
-    {
+    public function editRequirement(ProgramRequirement $requirement): View {
         $programs = StudyProgram::orderBy('name')->get();
-
         return view('admin.programs.requirements.edit', compact('requirement', 'programs'));
     }
 
-    public function updateRequirement(ProgramRequirementRequest $request, ProgramRequirement $requirement): RedirectResponse
-    {
-        $validated = $request->validated();
+    public function updateRequirement(ProgramRequirementRequest $request, ProgramRequirement $requirement): RedirectResponse {
+        $validated              = $request->validated();
         $validated['is_active'] = $request->has('is_active');
-
         $requirement->update($validated);
-
         return redirect()->route('admin.programs.index', ['tab' => 'requirements'])->with('success', 'Requisito actualizado correctamente.');
     }
 
-    public function toggleRequirementStatus(ProgramRequirement $requirement): RedirectResponse
-    {
-        $requirement->update([
-            'is_active' => ! $requirement->is_active,
-        ]);
-
+    public function toggleRequirementStatus(ProgramRequirement $requirement): RedirectResponse {
+        $requirement->update(['is_active' => !$requirement->is_active]);
         return redirect()->back()->with('success', 'Estado del requisito actualizado correctamente.');
     }
 
-    public function destroyRequirement(ProgramRequirement $requirement): RedirectResponse
-    {
+    public function destroyRequirement(ProgramRequirement $requirement): RedirectResponse {
         $requirement->delete();
-
         return redirect()->route('admin.programs.index', ['tab' => 'requirements'])->with('success', 'Requisito eliminado correctamente.');
     }
 }

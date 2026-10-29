@@ -205,13 +205,12 @@ class Certificate extends Model
     /**
      * Check if this certificate corresponds to the "Smart Administrative Office 4.0" template format.
      */
-    public function isSmartOffice(): bool
-    {
-        $searchTerms = ['oficina administrativa', 'inteligente 4.0', 'smart administrative office', 'oficina inteligente'];
-        $courseName = mb_strtolower($this->course?->name ?? '', 'UTF-8');
-        $eventName = mb_strtolower($this->event_name ?? '', 'UTF-8');
-        $desc = mb_strtolower($this->description ?? '', 'UTF-8');
-        $certType = mb_strtolower($this->certificate_type ?? '', 'UTF-8');
+    public function isSmartOffice(): bool {
+        $searchTerms    = ['oficina administrativa', 'inteligente 4.0', 'smart administrative office', 'oficina inteligente'];
+        $courseName     = mb_strtolower($this->course?->name ?? '', 'UTF-8');
+        $eventName      = mb_strtolower($this->event_name ?? '', 'UTF-8');
+        $desc           = mb_strtolower($this->description ?? '', 'UTF-8');
+        $certType       = mb_strtolower($this->certificate_type ?? '', 'UTF-8');
 
         if ($certType === 'oficina_4_0' || $certType === 'asistencia_administrativa') {
             return true;
@@ -267,11 +266,42 @@ class Certificate extends Model
     }
 
     /**
+     * Direct path verification URL: /validar-certificado/{certificate_code?}
+     * Used for QR code scanning on mobile devices to navigate directly to the verification route.
+     */
+    public function getDirectValidationUrlAttribute(): string
+    {
+        $code = trim((string) ($this->code ?: $this->certificate_code ?: ''));
+
+        return $code !== ''
+            ? url('/validar-certificado/'.rawurlencode($code))
+            : url('/validar-certificado');
+    }
+
+    /**
+     * Clean duration string without duplicate words like "Horas Horas".
+     */
+    public function getCleanDurationAttribute(): string
+    {
+        $d = trim((string) ($this->duration ?: '90 horas'));
+
+        return preg_replace('/\b(horas?)\s+\1\b/iu', '$1', $d);
+    }
+
+    /**
      * Generate vector SVG QR Code for verification.
      */
     public function getQrCodeSvgAttribute(): string
     {
         return QrCodeService::svg($this->validation_url, 130);
+    }
+
+    /**
+     * Generate vector SVG QR Code for Smart Office certificate pointing to the direct validation route.
+     */
+    public function getSmartQrCodeSvgAttribute(): string
+    {
+        return QrCodeService::svg($this->direct_validation_url, 110);
     }
 
     /**

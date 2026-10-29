@@ -971,25 +971,46 @@
             height: 210mm;
             position: relative;
             background: #ffffff;
-            border: 6px solid #11284b;
+            border: none;
             box-sizing: border-box;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            padding: 8mm 12mm 8mm 12mm;
+            justify-content: flex-start;
+            padding: 0;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        @media print {
+            .smart-sheet {
+                box-shadow: none !important;
+                border: none !important;
+            }
+        }
+
+        .smart-outer-frame {
+            position: absolute;
+            top: 4mm;
+            left: 4mm;
+            right: 4mm;
+            bottom: 4mm;
+            border: 3.5mm solid #16395b;
+            pointer-events: none;
+            z-index: 4;
+            box-sizing: border-box;
         }
 
         .smart-inner-border {
             position: absolute;
-            top: 2.5mm;
-            left: 2.5mm;
-            right: 2.5mm;
-            bottom: 2.5mm;
+            top: 9.5mm;
+            left: 9.5mm;
+            right: 9.5mm;
+            bottom: 9.5mm;
             border: 2px solid #cda043;
+            border-radius: 0;
             pointer-events: none;
-            z-index: 12;
+            z-index: 10;
+            box-sizing: border-box;
         }
 
         .smart-watermark {
@@ -997,13 +1018,13 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 140mm;
-            height: 140mm;
-            opacity: 0.11;
+            width: 145mm;
+            height: 145mm;
+            opacity: 0.10;
             pointer-events: none;
             z-index: 1;
             object-fit: contain;
-            filter: grayscale(15%);
+            filter: grayscale(10%);
         }
 
         .smart-ribbon {
@@ -1013,54 +1034,53 @@
         }
 
         .smart-ribbon-tl {
-            top: 0;
-            left: 0;
-            width: 60mm;
-            height: 48mm;
+            top: 4mm;
+            left: 4mm;
+            width: 70mm;
+            height: 70mm;
         }
 
         .smart-ribbon-br {
-            bottom: 0;
-            right: 0;
-            width: 65mm;
-            height: 52mm;
-        }
-
-        .smart-header {
-            position: relative;
-            z-index: 15;
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            width: 100%;
-            margin-bottom: 2mm;
+            bottom: 4mm;
+            right: 4mm;
+            width: 60mm;
+            height: 60mm;
         }
 
         .smart-logo-left {
-            width: 25mm;
-            height: auto;
-            max-height: 27mm;
+            position: absolute;
+            top: 11mm;
+            left: 12.5mm;
+            width: 42mm;
+            max-height: 38mm;
             object-fit: contain;
-            flex-shrink: 0;
+            z-index: 15;
         }
 
         .smart-logo-right {
-            width: 26mm;
-            height: auto;
-            max-height: 28mm;
+            position: absolute;
+            top: 11mm;
+            right: 12.5mm;
+            width: 44mm;
+            max-height: 38mm;
             object-fit: contain;
-            flex-shrink: 0;
+            z-index: 15;
         }
 
         .smart-header-center {
-            flex: 1;
+            position: relative;
+            z-index: 12;
+            width: 100%;
             text-align: center;
-            padding: 0 4mm;
+            margin-top: 11mm;
+            margin-bottom: 2mm;
+            padding: 0 46mm;
+            box-sizing: border-box;
         }
 
         .smart-inst-name {
             font-family: 'Montserrat', Arial, sans-serif;
-            font-size: 11pt;
+            font-size: 11.5pt;
             font-weight: 800;
             color: #000000;
             letter-spacing: 0.6px;
@@ -1071,10 +1091,10 @@
 
         .smart-inst-quote {
             font-family: 'Cinzel', 'Times New Roman', serif;
-            font-size: 21pt;
+            font-size: 23pt;
             font-weight: 900;
-            color: #114f6b;
-            letter-spacing: 1px;
+            color: #0e4660;
+            letter-spacing: 1.2px;
             text-transform: uppercase;
             line-height: 1.15;
             margin: 1.5mm 0 2mm 0;
@@ -1082,10 +1102,10 @@
 
         .smart-cert-word {
             font-family: 'Cinzel', 'Times New Roman', serif;
-            font-size: 32pt;
+            font-size: 33pt;
             font-weight: 900;
             color: #000000;
-            letter-spacing: 6.5px;
+            letter-spacing: 7px;
             text-transform: uppercase;
             line-height: 1;
             margin: 0;
@@ -1093,7 +1113,7 @@
 
         .smart-granted-to {
             font-family: 'Times New Roman', Georgia, serif;
-            font-size: 14pt;
+            font-size: 13.5pt;
             font-weight: 700;
             font-style: normal;
             color: #000000;
@@ -1104,17 +1124,18 @@
 
         .smart-recipient-wrap {
             position: relative;
-            z-index: 15;
+            z-index: 12;
             text-align: center;
-            margin: 0.5mm 0 2mm 0;
+            margin: 1mm auto 2.5mm auto;
+            width: 100%;
         }
 
         .smart-recipient-name {
             font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
-            font-size: 28pt;
+            font-size: 31pt;
             font-weight: 800;
             font-style: normal;
-            color: #162e51;
+            color: #091d2f;
             line-height: 1.15;
             letter-spacing: 0.5px;
             margin: 0 auto;
@@ -1125,26 +1146,29 @@
             justify-content: center;
             align-items: center;
             margin-top: 1.5mm;
+            width: 100%;
         }
 
         .smart-flourish {
-            width: 125mm;
-            height: 7.5mm;
+            width: 246mm;
+            height: 9mm;
             display: block;
         }
 
         .smart-narrative {
             position: relative;
-            z-index: 15;
+            z-index: 12;
+            width: 236mm;
+            margin: 0 auto 4mm auto;
             font-family: 'Times New Roman', Georgia, serif;
-            font-size: 13pt;
+            font-size: 15pt;
             font-style: normal;
-            line-height: 1.65;
-            color: #111827;
+            line-height: 1.7;
+            word-spacing: 1.5px;
+            color: #000000;
             text-align: justify;
             text-justify: inter-word;
-            padding: 0 10mm;
-            margin-bottom: 2mm;
+            box-sizing: border-box;
         }
 
         .smart-narrative strong {
@@ -1153,23 +1177,24 @@
         }
 
         .smart-bottom-grid {
+            top: 3mm;
             position: relative;
-            z-index: 15;
+            z-index: 50;
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            gap: 8mm;
-            padding: 0 8mm;
-            margin-bottom: 1.5mm;
+            width: 240mm;
+            margin: 0 auto;
+            box-sizing: border-box;
         }
 
         .smart-temario-box {
+            top: 10mm;
             position: relative;
-            width: 138mm;
+            width: 150mm;
             border: 2px solid #cda043;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 6mm 5mm 4mm 5mm;
+            border-radius: 6px;
+            padding: 5mm 6mm 4mm 6mm;
             box-sizing: border-box;
         }
 
@@ -1181,9 +1206,9 @@
             background: linear-gradient(180deg, #f7cb68 0%, #e6a73c 50%, #d89628 100%);
             border: 1.5px solid #a37318;
             border-radius: 9999px;
-            padding: 1.5px 22px;
+            padding: 1.5px 24px;
             font-family: 'Montserrat', sans-serif;
-            font-size: 9.5pt;
+            font-size: 15pt;
             font-weight: 900;
             color: #000000;
             letter-spacing: 1px;
@@ -1197,7 +1222,7 @@
             padding: 0;
             display: flex;
             flex-direction: column;
-            gap: 2.2mm;
+            gap: 3mm;
         }
 
         .smart-temario-list li {
@@ -1205,7 +1230,7 @@
             align-items: flex-start;
             gap: 6px;
             font-family: 'Inter', Arial, sans-serif;
-            font-size: 8.5pt;
+            font-size: 12pt;
             line-height: 1.35;
             color: #000000;
             font-weight: 600;
@@ -1226,62 +1251,57 @@
             align-items: flex-end;
             justify-content: flex-start;
             gap: 3mm;
-            padding-top: 1mm;
+            margin-right: 1mm;
+            padding-top: 0.5mm;
         }
 
         .smart-date-place {
             font-family: 'Times New Roman', Georgia, serif;
-            font-size: 13pt;
+            font-size: 13.5pt;
             font-weight: 700;
             font-style: normal;
-            color: #111827;
+            color: #000000;
             text-align: right;
             white-space: nowrap;
             letter-spacing: 0.2px;
-            margin-bottom: 2mm;
-            margin-right: 6mm;
         }
 
         .smart-qr-block {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 2px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 2px;
+            background: #ffffff;
+            padding: 1.5mm;
+            border: 1.2px solid #cda043;
             border-radius: 4px;
-            margin-right: 20mm;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
         }
 
         .smart-qr-link {
-            width: 22mm;
-            height: 22mm;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: block;
+            line-height: 0;
             text-decoration: none;
-            color: inherit;
         }
 
         .smart-qr-link svg {
-            width: 100% !important;
-            height: 100% !important;
+            width: 50mm;
+            height: 50mm;
             display: block;
         }
 
         .smart-serial-code {
+            margin-top: 1mm;
             font-family: 'Montserrat', monospace, sans-serif;
-            font-size: 7pt;
+            font-size: 10pt;
             font-weight: 800;
             color: #111827;
             letter-spacing: 0.5px;
+            text-align: center;
         }
     </style>
 </head>
 
 <body>
-
     <!-- Floating Toolbar for Screen View -->
     <header class="toolbar no-print">
         <div class="toolbar-info">
@@ -1293,13 +1313,13 @@
         <div class="toolbar-actions">
             @if ($certificate->isBasicEnglish())
                 <div class="view-switch-group no-print">
-                    <button type="button" class="btn btn-tab active" onclick="switchCertView('all', this)">Ambas Caras</button>
+                    <button type="button" class="btn btn-tab active" onclick="switchCertView('all', this)">Ambas
+                        Caras</button>
                     <button type="button" class="btn btn-tab" onclick="switchCertView('front', this)">Frente</button>
                     <button type="button" class="btn btn-tab" onclick="switchCertView('back', this)">Reverso</button>
                 </div>
             @endif
-            <a href="{{ $certificate->validation_url }}" target="_blank"
-                class="btn btn-secondary">
+            <a href="{{ $certificate->validation_url }}" target="_blank" class="btn btn-secondary">
                 <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -1319,10 +1339,8 @@
             </a>
         </div>
     </header>
-
     <main class="stage"
         style="{{ $certificate->isBasicEnglish() ? 'display: flex; flex-direction: column; align-items: center; gap: 32px; padding: 80px 20px 40px;' : '' }}">
-
         @if ($certificate->isBasicEnglish())
             {{-- CERTIFICADO DE INGLÉS A NIVEL BÁSICO: ANVERSO (FRENTE)      --}}
             <article class="certificate-sheet english-sheet page-break" id="sheet-anverso">
@@ -1558,8 +1576,7 @@
                     <div class="english-qr-column">
                         <div class="english-qr-card">
                             <a href="{{ $certificate->validation_url }}" target="_blank"
-                                class="english-qr-svg-wrapper block"
-                                style="text-decoration: none; color: inherit;"
+                                class="english-qr-svg-wrapper block" style="text-decoration: none; color: inherit;"
                                 title="Escanear o hacer clic para verificar certificado">
                                 {!! $certificate->qr_code_svg !!}
                             </a>
@@ -1616,62 +1633,64 @@
         @elseif ($certificate->isSmartOffice())
             {{-- CERTIFICADO OFICINA ADMINISTRATIVA INTELIGENTE 4.0 --}}
             <article class="certificate-sheet smart-sheet page-break" id="sheet-smart">
+                <!-- ── Outer Navy Frame ── -->
+                <div class="smart-outer-frame"></div>
                 <!-- ── Inner Gold Border ── -->
                 <div class="smart-inner-border"></div>
-
-                <!-- ── Corner Geometric Ribbons ── -->
-                <svg class="smart-ribbon smart-ribbon-tl" viewBox="0 0 280 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <polygon points="0,0 155,0 0,155" fill="#11284b" />
-                    <polygon points="155,0 195,0 0,195 0,155" fill="#2b7da8" />
-                    <polygon points="195,0 220,0 0,220 0,195" fill="#cda043" />
-                </svg>
-
-                <svg class="smart-ribbon smart-ribbon-br" viewBox="0 0 280 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <polygon points="60,220 85,220 280,25 280,0" fill="#cda043" />
-                    <polygon points="85,220 125,220 280,65 280,25" fill="#2b7da8" />
-                    <polygon points="125,220 280,220 280,65" fill="#11284b" />
-                </svg>
-
                 <!-- ── Centered Watermark Shield ── -->
                 <img src="{{ $logoSrc }}" alt="Marca de agua institucional" class="smart-watermark">
-
+                <!-- ── Institutional & Program Logos ── -->
+                <img src="{{ $logoSrc }}" alt="IESTP Francisco Vigo Caballero" class="smart-logo-left">
+                <img src="{{ $certificate->program_logo_src }}" alt="Asistencia Administrativa"
+                    class="smart-logo-right">
                 <!-- ── Header Section ── -->
-                <header class="smart-header">
-                    <!-- Left: Institutional Coat-of-Arms Logo -->
-                    <img src="{{ $logoSrc }}" alt="IESTP Francisco Vigo Caballero" class="smart-logo-left">
-
-                    <!-- Center: Institutional Titles and Heading -->
-                    <div class="smart-header-center">
-                        <h3 class="smart-inst-name">INSTITUTO DE EDUCACIÓN SUPERIOR TECNOLÓGICO PÚBLICO</h3>
-                        <h1 class="smart-inst-quote">“FRANCISCO VIGO CABALLERO”</h1>
-                        <h2 class="smart-cert-word">CERTIFICADO</h2>
-                        <p class="smart-granted-to">Otorgado a:</p>
-                    </div>
-
-                    <!-- Right: Asistencia Administrativa Program Crest Logo -->
-                    <img src="{{ $certificate->program_logo_src }}" alt="Asistencia Administrativa" class="smart-logo-right">
+                <header class="smart-header-center">
+                    <h3 class="smart-inst-name">INSTITUTO DE EDUCACIÓN SUPERIOR TECNOLÓGICO PÚBLICO</h3>
+                    <h1 class="smart-inst-quote">“FRANCISCO VIGO CABALLERO”</h1>
+                    <h2 class="smart-cert-word">CERTIFICADO</h2>
+                    <p class="smart-granted-to">Otorgado a:</p>
                 </header>
-
                 <!-- ── Recipient Name & Gold Ornate Flourish ── -->
                 <div class="smart-recipient-wrap">
                     <div class="smart-recipient-name">
                         {{ mb_convert_case($certificate->user->names ?? 'Estudiante Registrado', MB_CASE_TITLE, 'UTF-8') }}
                     </div>
                     <div class="smart-flourish-wrap">
-                        <svg class="smart-flourish" viewBox="0 0 500 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M250 18 L254 13 L258 18 L254 23 Z" fill="#cda043" />
-                            <circle cx="245" cy="18" r="2" fill="#cda043" />
-                            <circle cx="263" cy="18" r="2" fill="#cda043" />
-                            <path d="M240 18 C200 18 175 14 140 22 C110 29 80 16 55 20 C42 22 32 16 34 11 C36 6 44 6 48 11 C51 15 48 20 42 20 C35 20 28 13 32 7" stroke="#cda043" stroke-width="2" stroke-linecap="round" fill="none" />
-                            <path d="M225 18 C195 19 160 25 130 18 C105 12 75 22 55 18" stroke="#cda043" stroke-width="1.2" stroke-linecap="round" fill="none" />
-                            <circle cx="28" cy="18" r="2.5" fill="#cda043" />
-                            <path d="M65 19 C68 15 75 14 78 18" stroke="#cda043" stroke-width="1.5" stroke-linecap="round" fill="none" />
-                            <path d="M115 24 C118 20 125 19 128 23" stroke="#cda043" stroke-width="1.5" stroke-linecap="round" fill="none" />
-                            <path d="M268 18 C308 18 333 14 368 22 C398 29 428 16 453 20 C466 22 476 16 474 11 C472 6 464 6 460 11 C457 15 460 20 466 20 C473 20 480 13 476 7" stroke="#cda043" stroke-width="2" stroke-linecap="round" fill="none" />
-                            <path d="M283 18 C313 19 348 25 378 18 C403 12 433 22 453 18" stroke="#cda043" stroke-width="1.2" stroke-linecap="round" fill="none" />
-                            <circle cx="480" cy="18" r="2.5" fill="#cda043" />
-                            <path d="M443 19 C440 15 433 14 430 18" stroke="#cda043" stroke-width="1.5" stroke-linecap="round" fill="none" />
-                            <path d="M393 24 C390 20 383 19 380 23" stroke="#cda043" stroke-width="1.5" stroke-linecap="round" fill="none" />
+                        <svg class="smart-flourish" viewBox="0 0 950 36" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <!-- Center diamonds -->
+                            <polygon points="475,8 485,18 475,28 465,18" fill="#cda043" />
+                            <polygon points="458,13 463,18 458,23 453,18" fill="#cda043" />
+                            <polygon points="492,13 497,18 492,23 487,18" fill="#cda043" />
+
+                            <!-- Left and right gold bars -->
+                            <path d="M 125,18 L 445,18" stroke="#cda043" stroke-width="4.5" stroke-linecap="round" />
+                            <path d="M 505,18 L 825,18" stroke="#cda043" stroke-width="4.5" stroke-linecap="round" />
+
+                            <!-- Left finial -->
+                            <g id="smart-finial">
+                                <!-- Curled scrolls -->
+                                <path d="M 112,18 C 112,8 98,3 90,9 C 83,14 89,21 95,19 C 100,17 98,12 94,12"
+                                    stroke="#cda043" stroke-width="2.5" fill="none" stroke-linecap="round" />
+                                <path d="M 112,18 C 112,28 98,33 90,27 C 83,22 89,15 95,17 C 100,19 98,24 94,24"
+                                    stroke="#cda043" stroke-width="2.5" fill="none" stroke-linecap="round" />
+                                <circle cx="102" cy="18" r="3.5" fill="#cda043" />
+
+                                <!-- Center pointed leaf with slit -->
+                                <path d="M 95,18 C 75,12 55,13 38,18 C 55,23 75,24 95,18 Z" fill="#cda043" />
+                                <path d="M 55,18 L 78,18" stroke="#ffffff" stroke-width="2" stroke-linecap="round" />
+
+                                <!-- Upper and lower leaves -->
+                                <path d="M 88,16 C 76,8 62,2 54,8 C 49,12 56,17 74,18 Z" fill="#cda043" />
+                                <path d="M 65,10 C 62,12 66,15 72,16" stroke="#ffffff" stroke-width="1.2"
+                                    fill="none" stroke-linecap="round" />
+
+                                <path d="M 88,20 C 76,28 62,34 54,28 C 49,24 56,19 74,18 Z" fill="#cda043" />
+                                <path d="M 65,26 C 62,24 66,21 72,20" stroke="#ffffff" stroke-width="1.2"
+                                    fill="none" stroke-linecap="round" />
+                            </g>
+                            <!-- Right finial (mirror) -->
+                            <use href="#smart-finial" transform="translate(950, 0) scale(-1, 1)" />
                         </svg>
                     </div>
                 </div>
@@ -1681,12 +1700,11 @@
                     Por haber participado en la calidad de
                     <strong>{{ mb_strtoupper($certificate->participation_type ?: 'PONENTE', 'UTF-8') }}</strong>
                     exitosamente en la capacitación
-                    <strong>{{ mb_strtoupper($certificate->description ?: ($certificate->course?->name ?? 'OFICINA ADMINISTRATIVA INTELIGENTE 4.0'), 'UTF-8') }}</strong>
-                    por {{ $certificate->event_name ?: 'Semana Técnica' }} del IESTP “Francisco Vigo Caballero”,
+                    <strong>{{ mb_strtoupper($certificate->description ?: $certificate->course?->name ?? 'OFICINA ADMINISTRATIVA INTELIGENTE 4.0', 'UTF-8') }}</strong>
+                    por la {{ $certificate->event_name ?: 'Semana Técnica' }} del IESTP “Francisco Vigo Caballero”,
                     desarrollado {{ $certificate->formatted_date_range }}, con una duración de
-                    <strong>{{ $certificate->duration ?: '90 horas' }}</strong>.
+                    <strong>{{ $certificate->clean_duration }}</strong>.
                 </div>
-
                 <!-- ── Bottom Grid: Temario Card & Date / Verification QR ── -->
                 <div class="smart-bottom-grid">
                     <!-- Left: Golden Framed Temario Card -->
@@ -1701,19 +1719,18 @@
                             @endforeach
                         </ul>
                     </div>
-
                     <!-- Right: Date and Verification QR Code Block -->
                     <div class="smart-meta-col">
                         <div class="smart-date-place">
                             {{ $certificate->smart_office_issue_date }}
                         </div>
                         <div class="smart-qr-block">
-                            <a href="{{ $certificate->validation_url }}" target="_blank"
-                                class="smart-qr-link"
-                                title="Escanear o hacer clic para verificar certificado">
-                                {!! $certificate->qr_code_svg !!}
+                            <a href="{{ $certificate->direct_validation_url }}" target="_blank"
+                                class="smart-qr-link" title="Escanear con cámara para validar certificado">
+                                {!! $certificate->smart_qr_code_svg !!}
                             </a>
-                            <span class="smart-serial-code">{{ $certificate->certificate_code }}</span>
+                            <span
+                                class="smart-serial-code">{{ $certificate->code ?: $certificate->certificate_code }}</span>
                         </div>
                     </div>
                 </div>
@@ -1876,8 +1893,7 @@
                 <!-- ── Bottom Area: QR in Bottom-Right Corner & Certificate Code ── -->
                 <footer class="cert-bottom-bar">
                     <div class="qr-corner-container">
-                        <a href="{{ $certificate->validation_url }}" target="_blank"
-                            class="qr-svg-wrapper block"
+                        <a href="{{ $certificate->validation_url }}" target="_blank" class="qr-svg-wrapper block"
                             style="text-decoration: none; color: inherit;"
                             title="Escanear o hacer clic para verificar certificado">
                             {!! $certificate->qr_code_svg !!}
@@ -1888,7 +1904,6 @@
             </article>
         @endif
     </main>
-
     <script>
         function switchCertView(view, btn) {
             const front = document.getElementById('sheet-anverso');
@@ -1913,7 +1928,6 @@
             }
         }
     </script>
-
 </body>
 
 </html>

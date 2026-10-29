@@ -265,8 +265,8 @@ class CertificateController extends Controller
             'details.module',
         ]);
 
-        $scope = $request->input('scope', 'courses');
-        $selectedIds = $request->input('certificate_ids', []);
+        $scope          = $request->input('scope', 'courses');
+        $selectedIds    = $request->input('certificate_ids', []);
         if (is_string($selectedIds)) {
             $selectedIds = array_filter(explode(',', $selectedIds));
         }

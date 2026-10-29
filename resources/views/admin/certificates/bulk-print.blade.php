@@ -1,5 +1,7 @@
 @php
-    $logoSrc = $enterprise?->logo_path ? asset(ltrim($enterprise->logo_path, '/')) : asset('storage/enterprise/favicons/logo-iestpfvc.png');
+    $logoSrc = $enterprise?->logo_path
+        ? asset(ltrim($enterprise->logo_path, '/'))
+        : asset('storage/enterprise/favicons/logo-iestpfvc.png');
 @endphp
 <!DOCTYPE html>
 <html lang="es">
@@ -808,13 +810,33 @@
             background: rgba(255, 255, 255, 0.30);
         }
 
-        .english-academic-table .col-modulos { width: 48%; }
-        .english-academic-table .col-creditos { width: 12%; }
-        .english-academic-table .col-calificacion { width: 22%; }
-        .english-academic-table .col-sub-numero { width: 10%; }
-        .english-academic-table .col-sub-letras { width: 12%; }
-        .english-academic-table .col-ano { width: 9%; }
-        .english-academic-table .col-observacion { width: 9%; }
+        .english-academic-table .col-modulos {
+            width: 48%;
+        }
+
+        .english-academic-table .col-creditos {
+            width: 12%;
+        }
+
+        .english-academic-table .col-calificacion {
+            width: 22%;
+        }
+
+        .english-academic-table .col-sub-numero {
+            width: 10%;
+        }
+
+        .english-academic-table .col-sub-letras {
+            width: 12%;
+        }
+
+        .english-academic-table .col-ano {
+            width: 9%;
+        }
+
+        .english-academic-table .col-observacion {
+            width: 9%;
+        }
 
         .english-academic-table .mod-heading {
             font-family: 'Montserrat', sans-serif;
@@ -1126,7 +1148,7 @@
             width: 236mm;
             margin: 0 auto 4mm auto;
             font-family: 'Times New Roman', Georgia, serif;
-            font-size: 13.8pt;
+            font-size: 15pt;
             font-style: normal;
             line-height: 1.7;
             word-spacing: 1.5px;
@@ -1142,22 +1164,23 @@
         }
 
         .smart-bottom-grid {
+            top: 3mm;
             position: relative;
-            z-index: 12;
+            z-index: 50;
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            width: 236mm;
+            width: 240mm;
             margin: 0 auto;
             box-sizing: border-box;
         }
 
         .smart-temario-box {
+            top: 10mm;
             position: relative;
-            width: 142mm;
+            width: 150mm;
             border: 2px solid #cda043;
             border-radius: 6px;
-            background: rgba(255, 255, 255, 0.95);
             padding: 5mm 6mm 4mm 6mm;
             box-sizing: border-box;
         }
@@ -1172,7 +1195,7 @@
             border-radius: 9999px;
             padding: 1.5px 24px;
             font-family: 'Montserrat', sans-serif;
-            font-size: 9.5pt;
+            font-size: 15pt;
             font-weight: 900;
             color: #000000;
             letter-spacing: 1px;
@@ -1186,7 +1209,7 @@
             padding: 0;
             display: flex;
             flex-direction: column;
-            gap: 2mm;
+            gap: 3mm;
         }
 
         .smart-temario-list li {
@@ -1194,7 +1217,7 @@
             align-items: flex-start;
             gap: 6px;
             font-family: 'Inter', Arial, sans-serif;
-            font-size: 9.2pt;
+            font-size: 12pt;
             line-height: 1.35;
             color: #000000;
             font-weight: 600;
@@ -1248,15 +1271,15 @@
         }
 
         .smart-qr-link svg {
-            width: 22mm;
-            height: 22mm;
+            width: 50mm;
+            height: 50mm;
             display: block;
         }
 
         .smart-serial-code {
             margin-top: 1mm;
             font-family: 'Montserrat', monospace, sans-serif;
-            font-size: 6.8pt;
+            font-size: 10pt;
             font-weight: 800;
             color: #111827;
             letter-spacing: 0.5px;
@@ -1277,20 +1300,25 @@
         </div>
         <div class="toolbar-actions">
             <div class="view-switch-group no-print">
-                <button type="button" class="btn btn-tab {{ $faces === 'all' ? 'active' : '' }}" onclick="switchCertView('all', this)">Ambas Caras</button>
-                <button type="button" class="btn btn-tab {{ $faces === 'front' ? 'active' : '' }}" onclick="switchCertView('front', this)">Solo Frente</button>
-                <button type="button" class="btn btn-tab {{ $faces === 'back' ? 'active' : '' }}" onclick="switchCertView('back', this)">Solo Reverso</button>
+                <button type="button" class="btn btn-tab {{ $faces === 'all' ? 'active' : '' }}"
+                    onclick="switchCertView('all', this)">Ambas Caras</button>
+                <button type="button" class="btn btn-tab {{ $faces === 'front' ? 'active' : '' }}"
+                    onclick="switchCertView('front', this)">Solo Frente</button>
+                <button type="button" class="btn btn-tab {{ $faces === 'back' ? 'active' : '' }}"
+                    onclick="switchCertView('back', this)">Solo Reverso</button>
             </div>
             <button type="button" onclick="window.print()" class="btn btn-primary" title="Imprimir o Guardar como PDF">
                 <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z" />
-                    <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z" />
+                    <path
+                        d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z" />
                 </svg>
                 Guardar como PDF / Imprimir
             </button>
             <a href="{{ route('admin.certificates.index') }}" class="btn btn-secondary">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
                 Volver
             </a>
@@ -1301,8 +1329,8 @@
         @foreach ($certificates as $index => $certificate)
             @if ($certificate->isBasicEnglish())
                 {{-- CERTIFICADO DE INGLÉS A NIVEL BÁSICO: ANVERSO (FRENTE) --}}
-                <article class="certificate-sheet english-sheet page-break sheet-anverso" id="sheet-anverso-{{ $certificate->id }}"
-                    style="{{ $faces === 'back' ? 'display: none;' : '' }}">
+                <article class="certificate-sheet english-sheet page-break sheet-anverso"
+                    id="sheet-anverso-{{ $certificate->id }}" style="{{ $faces === 'back' ? 'display: none;' : '' }}">
                     <!-- ── Top-Left Flowing Corner Wave SVG ── -->
                     <svg class="english-wave english-wave-tl" viewBox="0 0 520 280" fill="none"
                         preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -1311,31 +1339,39 @@
                                 patternUnits="userSpaceOnUse">
                                 <circle cx="2" cy="2" r="1.2" fill="#2b477d" opacity="0.35" />
                             </pattern>
-                            <linearGradient id="engNavyGradTL-{{ $certificate->id }}" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <linearGradient id="engNavyGradTL-{{ $certificate->id }}" x1="0%" y1="0%"
+                                x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#0a1832" />
                                 <stop offset="50%" stop-color="#122a56" />
                                 <stop offset="100%" stop-color="#1b3d7a" />
                             </linearGradient>
-                            <linearGradient id="engGoldGradTL-{{ $certificate->id }}" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <linearGradient id="engGoldGradTL-{{ $certificate->id }}" x1="0%" y1="100%"
+                                x2="100%" y2="0%">
                                 <stop offset="0%" stop-color="#9d741c" />
                                 <stop offset="35%" stop-color="#dfb957" />
                                 <stop offset="65%" stop-color="#fae79d" />
                                 <stop offset="100%" stop-color="#b68926" />
                             </linearGradient>
-                            <linearGradient id="engRoyalGradTL-{{ $certificate->id }}" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <linearGradient id="engRoyalGradTL-{{ $certificate->id }}" x1="0%" y1="0%"
+                                x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#1a3d78" />
                                 <stop offset="100%" stop-color="#2c5aa0" />
                             </linearGradient>
                         </defs>
                         <!-- Outer large deep navy wave -->
-                        <path d="M0,0 L340,0 C280,95 200,180 0,225 Z" fill="url(#engNavyGradTL-{{ $certificate->id }})" />
-                        <path d="M0,0 L340,0 C280,95 200,180 0,225 Z" fill="url(#dotPatternTL-{{ $certificate->id }})" />
+                        <path d="M0,0 L340,0 C280,95 200,180 0,225 Z"
+                            fill="url(#engNavyGradTL-{{ $certificate->id }})" />
+                        <path d="M0,0 L340,0 C280,95 200,180 0,225 Z"
+                            fill="url(#dotPatternTL-{{ $certificate->id }})" />
                         <!-- First gold ribbon stripe -->
-                        <path d="M0,185 C190,150 285,75 350,0 L370,0 C305,85 205,165 0,205 Z" fill="url(#engGoldGradTL-{{ $certificate->id }})" />
+                        <path d="M0,185 C190,150 285,75 350,0 L370,0 C305,85 205,165 0,205 Z"
+                            fill="url(#engGoldGradTL-{{ $certificate->id }})" />
                         <!-- Inner royal navy wave -->
-                        <path d="M0,0 L195,0 C130,75 75,120 0,155 Z" fill="url(#engRoyalGradTL-{{ $certificate->id }})" />
+                        <path d="M0,0 L195,0 C130,75 75,120 0,155 Z"
+                            fill="url(#engRoyalGradTL-{{ $certificate->id }})" />
                         <!-- Second gold contour line -->
-                        <path d="M0,155 C70,118 122,75 190,0 L200,0 C132,80 77,122 0,162 Z" fill="url(#engGoldGradTL-{{ $certificate->id }})" />
+                        <path d="M0,155 C70,118 122,75 190,0 L200,0 C132,80 77,122 0,162 Z"
+                            fill="url(#engGoldGradTL-{{ $certificate->id }})" />
                         <!-- Accent swoosh extending outward -->
                         <path d="M0,225 C170,190 300,105 445,0 L465,0 C310,115 180,205 0,245 Z"
                             fill="url(#engNavyGradTL-{{ $certificate->id }})" />
@@ -1347,34 +1383,40 @@
                     <svg class="english-wave english-wave-br" viewBox="0 0 520 280" fill="none"
                         preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
-                            <pattern id="dotPatternBR-{{ $certificate->id }}" x="0" y="0" width="8" height="8"
-                                patternUnits="userSpaceOnUse">
+                            <pattern id="dotPatternBR-{{ $certificate->id }}" x="0" y="0" width="8"
+                                height="8" patternUnits="userSpaceOnUse">
                                 <circle cx="2" cy="2" r="1.2" fill="#2b477d" opacity="0.35" />
                             </pattern>
-                            <linearGradient id="engNavyGradBR-{{ $certificate->id }}" x1="100%" y1="100%" x2="0%" y2="0%">
+                            <linearGradient id="engNavyGradBR-{{ $certificate->id }}" x1="100%" y1="100%"
+                                x2="0%" y2="0%">
                                 <stop offset="0%" stop-color="#0a1832" />
                                 <stop offset="50%" stop-color="#122a56" />
                                 <stop offset="100%" stop-color="#1b3d7a" />
                             </linearGradient>
-                            <linearGradient id="engGoldGradBR-{{ $certificate->id }}" x1="100%" y1="0%" x2="0%" y2="100%">
+                            <linearGradient id="engGoldGradBR-{{ $certificate->id }}" x1="100%" y1="0%"
+                                x2="0%" y2="100%">
                                 <stop offset="0%" stop-color="#9d741c" />
                                 <stop offset="35%" stop-color="#dfb957" />
                                 <stop offset="65%" stop-color="#fae79d" />
                                 <stop offset="100%" stop-color="#b68926" />
                             </linearGradient>
-                            <linearGradient id="engRoyalGradBR-{{ $certificate->id }}" x1="100%" y1="100%" x2="0%" y2="0%">
+                            <linearGradient id="engRoyalGradBR-{{ $certificate->id }}" x1="100%" y1="100%"
+                                x2="0%" y2="0%">
                                 <stop offset="0%" stop-color="#1a3d78" />
                                 <stop offset="100%" stop-color="#2c5aa0" />
                             </linearGradient>
                         </defs>
                         <!-- Outer deep navy wave from bottom-right -->
-                        <path d="M520,280 L180,280 C240,185 320,100 520,55 Z" fill="url(#engNavyGradBR-{{ $certificate->id }})" />
-                        <path d="M520,280 L180,280 C240,185 320,100 520,55 Z" fill="url(#dotPatternBR-{{ $certificate->id }})" />
+                        <path d="M520,280 L180,280 C240,185 320,100 520,55 Z"
+                            fill="url(#engNavyGradBR-{{ $certificate->id }})" />
+                        <path d="M520,280 L180,280 C240,185 320,100 520,55 Z"
+                            fill="url(#dotPatternBR-{{ $certificate->id }})" />
                         <!-- Gold ribbon stripe -->
                         <path d="M520,95 C330,130 235,205 170,280 L150,280 C215,195 315,115 520,75 Z"
                             fill="url(#engGoldGradBR-{{ $certificate->id }})" />
                         <!-- Inner royal navy wave -->
-                        <path d="M520,280 L325,280 C390,205 445,160 520,125 Z" fill="url(#engRoyalGradBR-{{ $certificate->id }})" />
+                        <path d="M520,280 L325,280 C390,205 445,160 520,125 Z"
+                            fill="url(#engRoyalGradBR-{{ $certificate->id }})" />
                         <!-- Gold contour ribbon -->
                         <path d="M520,125 C450,162 398,205 330,280 L320,280 C388,200 443,158 520,118 Z"
                             fill="url(#engGoldGradBR-{{ $certificate->id }})" />
@@ -1399,24 +1441,28 @@
                         <svg class="english-rosette-svg" viewBox="0 0 160 210" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
                             <defs>
-                                <linearGradient id="ribbonGoldGrad1-{{ $certificate->id }}" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <linearGradient id="ribbonGoldGrad1-{{ $certificate->id }}" x1="0%"
+                                    y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" stop-color="#dfb957" />
                                     <stop offset="50%" stop-color="#b88924" />
                                     <stop offset="100%" stop-color="#80590c" />
                                 </linearGradient>
-                                <linearGradient id="ribbonGoldGrad2-{{ $certificate->id }}" x1="100%" y1="0%" x2="0%" y2="100%">
+                                <linearGradient id="ribbonGoldGrad2-{{ $certificate->id }}" x1="100%"
+                                    y1="0%" x2="0%" y2="100%">
                                     <stop offset="0%" stop-color="#f5e197" />
                                     <stop offset="50%" stop-color="#c99e3a" />
                                     <stop offset="100%" stop-color="#8a610f" />
                                 </linearGradient>
-                                <radialGradient id="medalRadial-{{ $certificate->id }}" cx="38%" cy="32%" r="65%">
+                                <radialGradient id="medalRadial-{{ $certificate->id }}" cx="38%"
+                                    cy="32%" r="65%">
                                     <stop offset="0%" stop-color="#fffbe8" />
                                     <stop offset="25%" stop-color="#f7e4a3" />
                                     <stop offset="55%" stop-color="#d4aa3b" />
                                     <stop offset="85%" stop-color="#a47519" />
                                     <stop offset="100%" stop-color="#6e4c08" />
                                 </radialGradient>
-                                <radialGradient id="innerMedalRadial-{{ $certificate->id }}" cx="45%" cy="40%" r="55%">
+                                <radialGradient id="innerMedalRadial-{{ $certificate->id }}" cx="45%"
+                                    cy="40%" r="55%">
                                     <stop offset="0%" stop-color="#fff8db" />
                                     <stop offset="40%" stop-color="#e8c25f" />
                                     <stop offset="80%" stop-color="#b8871f" />
@@ -1424,25 +1470,30 @@
                                 </radialGradient>
                             </defs>
                             <!-- Ribbon Tails (Left) -->
-                            <polygon points="52,110 32,195 56,182 80,195 68,110" fill="url(#ribbonGoldGrad1-{{ $certificate->id }})" />
+                            <polygon points="52,110 32,195 56,182 80,195 68,110"
+                                fill="url(#ribbonGoldGrad1-{{ $certificate->id }})" />
                             <!-- Ribbon Tails (Right) -->
-                            <polygon points="92,110 80,195 104,182 128,195 108,110" fill="url(#ribbonGoldGrad2-{{ $certificate->id }})" />
+                            <polygon points="92,110 80,195 104,182 128,195 108,110"
+                                fill="url(#ribbonGoldGrad2-{{ $certificate->id }})" />
 
                             <!-- Rosette Star / Serrated Polygon (24 points) -->
                             <g transform="translate(80, 75)">
                                 <path
                                     d="M0,-65 L8,-58 L18,-63 L24,-53 L35,-56 L38,-44 L50,-44 L50,-31 L60,-28 L57,-15 L65,-10 L58,3 L63,14 L53,19 L56,31 L44,34 L44,46 L31,46 L28,56 L15,53 L10,61 L-3,54 L-14,59 L-19,49 L-31,52 L-34,40 L-46,40 L-46,27 L-56,24 L-53,11 L-61,6 L-54,-7 L-59,-18 L-49,-23 L-52,-35 L-40,-38 L-40,-50 L-27,-50 L-24,-60 L-11,-57 L-6,-65 Z"
                                     fill="url(#medalRadial-{{ $certificate->id }})" />
-                                <circle cx="0" cy="0" r="46" fill="url(#innerMedalRadial-{{ $certificate->id }})" />
-                                <circle cx="0" cy="0" r="41" fill="none" stroke="#714e08" stroke-width="1.8"
-                                    stroke-dasharray="3,2" />
+                                <circle cx="0" cy="0" r="46"
+                                    fill="url(#innerMedalRadial-{{ $certificate->id }})" />
+                                <circle cx="0" cy="0" r="41" fill="none" stroke="#714e08"
+                                    stroke-width="1.8" stroke-dasharray="3,2" />
                                 <circle cx="0" cy="0" r="37" fill="#0d254c" />
-                                <text x="0" y="-12" text-anchor="middle" font-family="'Cinzel', serif" font-weight="800"
-                                    font-size="8.5" fill="#f8e59e" letter-spacing="1.5">NIVEL</text>
+                                <text x="0" y="-12" text-anchor="middle" font-family="'Cinzel', serif"
+                                    font-weight="800" font-size="8.5" fill="#f8e59e"
+                                    letter-spacing="1.5">NIVEL</text>
                                 <text x="0" y="3" text-anchor="middle" font-family="'Montserrat', sans-serif"
                                     font-weight="900" font-size="12" fill="#ffffff" letter-spacing="2">BÁSICO</text>
-                                <text x="0" y="15" text-anchor="middle" font-family="'Cinzel', serif" font-weight="700"
-                                    font-size="6.5" fill="#f5db8b" letter-spacing="1">OFICIAL</text>
+                                <text x="0" y="15" text-anchor="middle" font-family="'Cinzel', serif"
+                                    font-weight="700" font-size="6.5" fill="#f5db8b"
+                                    letter-spacing="1">OFICIAL</text>
                                 <circle cx="0" cy="23" r="2" fill="#e9c35b" />
                             </g>
                         </svg>
@@ -1471,11 +1522,22 @@
                             </p>
                         </div>
                         @php
-                            $issueDateObj = $certificate->issue_date ? \Carbon\Carbon::parse($certificate->issue_date) : null;
+                            $issueDateObj = $certificate->issue_date
+                                ? \Carbon\Carbon::parse($certificate->issue_date)
+                                : null;
                             $mesesCap = [
-                                1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',
-                                5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto',
-                                9 => 'Setiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre',
+                                1 => 'Enero',
+                                2 => 'Febrero',
+                                3 => 'Marzo',
+                                4 => 'Abril',
+                                5 => 'Mayo',
+                                6 => 'Junio',
+                                7 => 'Julio',
+                                8 => 'Agosto',
+                                9 => 'Setiembre',
+                                10 => 'Octubre',
+                                11 => 'Noviembre',
+                                12 => 'Diciembre',
                             ];
                             $issueDay = $issueDateObj ? $issueDateObj->day : '29';
                             $issueMonth = $issueDateObj
@@ -1491,7 +1553,8 @@
                 </article>
 
                 {{-- CERTIFICADO DE INGLÉS A NIVEL BÁSICO: REVERSO (CALIFICACIONES & QR) --}}
-                <article class="certificate-sheet english-sheet english-sheet-back page-break sheet-reverso" id="sheet-reverso-{{ $certificate->id }}"
+                <article class="certificate-sheet english-sheet english-sheet-back page-break sheet-reverso"
+                    id="sheet-reverso-{{ $certificate->id }}"
                     style="{{ $faces === 'front' ? 'display: none;' : '' }}">
 
                     <!-- ── Back Grid: Left QR & Right Academic Table ── -->
@@ -1536,19 +1599,24 @@
                                     @php
                                         $allModules = $certificate->course?->modules ?? collect([]);
                                         $detailsMap = $certificate->details->keyBy('module_id');
-                                        $evalYear = $certificate->issue_date ? \Carbon\Carbon::parse($certificate->issue_date)->year : '2025';
+                                        $evalYear = $certificate->issue_date
+                                            ? \Carbon\Carbon::parse($certificate->issue_date)->year
+                                            : '2025';
                                     @endphp
                                     @forelse($allModules as $mod)
                                         @php
                                             $detail = $detailsMap->get($mod->id);
                                             $scoreNum = $detail?->score ?? 16;
-                                            $scoreLetras = $detail?->score_letters ?? ($scoreNum == 16 ? 'Dieciséis' : (string) $scoreNum);
+                                            $scoreLetras =
+                                                $detail?->score_letters ??
+                                                ($scoreNum == 16 ? 'Dieciséis' : (string) $scoreNum);
                                             $credits = $mod->credits ?? 1;
                                             $itineraries = $mod->itineraries ?? collect([]);
                                         @endphp
                                         <tr>
                                             <td class="col-modulos">
-                                                <div class="mod-heading">{{ mb_strtoupper($mod->name, 'UTF-8') }}</div>
+                                                <div class="mod-heading">{{ mb_strtoupper($mod->name, 'UTF-8') }}
+                                                </div>
                                                 @if ($itineraries->isNotEmpty())
                                                     <ul class="mod-items-list">
                                                         @foreach ($itineraries as $it)
@@ -1578,8 +1646,10 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="cell-center" style="padding: 10mm; font-style: italic;">
-                                                Detalles académicos registrados en el sistema oficial del IESTP Francisco Vigo Caballero.
+                                            <td colspan="6" class="cell-center"
+                                                style="padding: 10mm; font-style: italic;">
+                                                Detalles académicos registrados en el sistema oficial del IESTP
+                                                Francisco Vigo Caballero.
                                             </td>
                                         </tr>
                                     @endforelse
@@ -1590,47 +1660,18 @@
                 </article>
             @elseif ($certificate->isSmartOffice())
                 {{-- CERTIFICADO OFICINA ADMINISTRATIVA INTELIGENTE 4.0 --}}
-                <article class="certificate-sheet smart-sheet page-break sheet-anverso" id="sheet-smart-{{ $certificate->id }}"
-                    style="{{ $faces === 'back' ? 'display: none;' : '' }}">
+                <article class="certificate-sheet smart-sheet page-break sheet-anverso"
+                    id="sheet-smart-{{ $certificate->id }}" style="{{ $faces === 'back' ? 'display: none;' : '' }}">
                     <!-- ── Outer Navy Frame ── -->
                     <div class="smart-outer-frame"></div>
-
                     <!-- ── Inner Gold Border ── -->
                     <div class="smart-inner-border"></div>
-
-                    <!-- ── Corner Geometric Ribbons ── -->
-                    <svg class="smart-ribbon smart-ribbon-tl" viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- White channel between outer and inner L-bars -->
-                        <path d="M 14,14 L 235,14 L 221,28 L 28,28 L 28,221 L 14,235 Z" fill="#ffffff" />
-                        
-                        <!-- Outer navy L-bar -->
-                        <path d="M 0,0 L 242,0 L 228,14 L 14,14 L 14,228 L 0,242 Z" fill="#16395b" />
-                        <polygon points="242,0 254,0 242,14 228,14" fill="#cda043" />
-                        <polygon points="0,242 0,254 14,242 14,228" fill="#cda043" />
-
-                        <!-- Inner navy corner triangle & L-bar -->
-                        <polygon points="28,28 92,28 28,92" fill="#16395b" />
-                        <path d="M 28,28 L 205,28 L 191,42 L 42,42 L 42,191 L 28,205 Z" fill="#16395b" />
-                        <polygon points="205,28 217,28 205,42 191,42" fill="#cda043" />
-                        <polygon points="28,205 28,217 42,205 42,191" fill="#cda043" />
-                    </svg>
-
-                    <svg class="smart-ribbon smart-ribbon-br" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Cream/gold circular arc band -->
-                        <path d="M 240,36 A 204,204 0 0,0 36,240 L 52,240 A 188,188 0 0,1 240,52 Z" fill="#f4eee2" />
-                        <path d="M 240,36 A 204,204 0 0,0 36,240" stroke="#cda043" stroke-width="2" fill="none" />
-                        <path d="M 240,52 A 188,188 0 0,0 52,240" stroke="#cda043" stroke-width="1.5" fill="none" />
-
-                        <!-- Outer navy curved wedge filling bottom-right corner -->
-                        <path d="M 240,52 A 188,188 0 0,0 52,240 L 240,240 Z" fill="#16395b" />
-                    </svg>
-
                     <!-- ── Centered Watermark Shield ── -->
                     <img src="{{ $logoSrc }}" alt="Marca de agua institucional" class="smart-watermark">
-
                     <!-- ── Institutional & Program Logos ── -->
                     <img src="{{ $logoSrc }}" alt="IESTP Francisco Vigo Caballero" class="smart-logo-left">
-                    <img src="{{ $certificate->program_logo_src }}" alt="Asistencia Administrativa" class="smart-logo-right"
+                    <img src="{{ $certificate->program_logo_src }}" alt="Asistencia Administrativa"
+                        class="smart-logo-right"
                         onerror="if(!this.dataset.tried){this.dataset.tried=1;this.src='{{ asset('storage/programs/vgCgVP6hhWcjXnlmTeI8KOJvhaKDkrBBqmJqzEux.png') }}';}">
                     <!-- ── Header Section ── -->
                     <header class="smart-header-center">
@@ -1645,52 +1686,54 @@
                             {{ mb_convert_case($certificate->user->names ?? 'Estudiante Registrado', MB_CASE_TITLE, 'UTF-8') }}
                         </div>
                         <div class="smart-flourish-wrap">
-                            <svg class="smart-flourish" viewBox="0 0 950 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg class="smart-flourish" viewBox="0 0 950 36" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
                                 <!-- Center diamonds -->
                                 <polygon points="475,8 485,18 475,28 465,18" fill="#cda043" />
                                 <polygon points="458,13 463,18 458,23 453,18" fill="#cda043" />
                                 <polygon points="492,13 497,18 492,23 487,18" fill="#cda043" />
-
                                 <!-- Left and right gold bars -->
-                                <path d="M 125,18 L 445,18" stroke="#cda043" stroke-width="4.5" stroke-linecap="round" />
-                                <path d="M 505,18 L 825,18" stroke="#cda043" stroke-width="4.5" stroke-linecap="round" />
-
+                                <path d="M 125,18 L 445,18" stroke="#cda043" stroke-width="4.5"
+                                    stroke-linecap="round" />
+                                <path d="M 505,18 L 825,18" stroke="#cda043" stroke-width="4.5"
+                                    stroke-linecap="round" />
                                 <!-- Left finial -->
                                 <g id="smart-finial-bulk">
                                     <!-- Curled scrolls -->
-                                    <path d="M 112,18 C 112,8 98,3 90,9 C 83,14 89,21 95,19 C 100,17 98,12 94,12" stroke="#cda043" stroke-width="2.5" fill="none" stroke-linecap="round" />
-                                    <path d="M 112,18 C 112,28 98,33 90,27 C 83,22 89,15 95,17 C 100,19 98,24 94,24" stroke="#cda043" stroke-width="2.5" fill="none" stroke-linecap="round" />
+                                    <path d="M 112,18 C 112,8 98,3 90,9 C 83,14 89,21 95,19 C 100,17 98,12 94,12"
+                                        stroke="#cda043" stroke-width="2.5" fill="none" stroke-linecap="round" />
+                                    <path d="M 112,18 C 112,28 98,33 90,27 C 83,22 89,15 95,17 C 100,19 98,24 94,24"
+                                        stroke="#cda043" stroke-width="2.5" fill="none" stroke-linecap="round" />
                                     <circle cx="102" cy="18" r="3.5" fill="#cda043" />
-                                    
                                     <!-- Center pointed leaf with slit -->
                                     <path d="M 95,18 C 75,12 55,13 38,18 C 55,23 75,24 95,18 Z" fill="#cda043" />
-                                    <path d="M 55,18 L 78,18" stroke="#ffffff" stroke-width="2" stroke-linecap="round" />
-                                    
+                                    <path d="M 55,18 L 78,18" stroke="#ffffff" stroke-width="2"
+                                        stroke-linecap="round" />
+
                                     <!-- Upper and lower leaves -->
                                     <path d="M 88,16 C 76,8 62,2 54,8 C 49,12 56,17 74,18 Z" fill="#cda043" />
-                                    <path d="M 65,10 C 62,12 66,15 72,16" stroke="#ffffff" stroke-width="1.2" fill="none" stroke-linecap="round" />
-                                    
-                                    <path d="M 88,20 C 76,28 62,34 54,28 C 49,24 56,19 74,18 Z" fill="#cda043" />
-                                    <path d="M 65,26 C 62,24 66,21 72,20" stroke="#ffffff" stroke-width="1.2" fill="none" stroke-linecap="round" />
-                                </g>
+                                    <path d="M 65,10 C 62,12 66,15 72,16" stroke="#ffffff" stroke-width="1.2"
+                                        fill="none" stroke-linecap="round" />
 
+                                    <path d="M 88,20 C 76,28 62,34 54,28 C 49,24 56,19 74,18 Z" fill="#cda043" />
+                                    <path d="M 65,26 C 62,24 66,21 72,20" stroke="#ffffff" stroke-width="1.2"
+                                        fill="none" stroke-linecap="round" />
+                                </g>
                                 <!-- Right finial (mirror) -->
                                 <use href="#smart-finial-bulk" transform="translate(950, 0) scale(-1, 1)" />
                             </svg>
                         </div>
                     </div>
-
                     <!-- ── Narrative Paragraph ── -->
                     <div class="smart-narrative">
                         Por haber participado en la calidad de
                         <strong>{{ mb_strtoupper($certificate->participation_type ?: 'PONENTE', 'UTF-8') }}</strong>
                         exitosamente en la capacitación
-                        <strong>{{ mb_strtoupper($certificate->description ?: ($certificate->course?->name ?? 'OFICINA ADMINISTRATIVA INTELIGENTE 4.0'), 'UTF-8') }}</strong>
+                        <strong>{{ mb_strtoupper($certificate->description ?: $certificate->course?->name ?? 'OFICINA ADMINISTRATIVA INTELIGENTE 4.0', 'UTF-8') }}</strong>
                         por {{ $certificate->event_name ?: 'Semana Técnica' }} del IESTP “Francisco Vigo Caballero”,
                         desarrollado {{ $certificate->formatted_date_range }}, con una duración de
                         <strong>{{ $certificate->clean_duration }}</strong>.
                     </div>
-
                     <!-- ── Bottom Grid: Temario Card & Date / Verification QR ── -->
                     <div class="smart-bottom-grid">
                         <!-- Left: Golden Framed Temario Card -->
@@ -1705,7 +1748,6 @@
                                 @endforeach
                             </ul>
                         </div>
-
                         <!-- Right: Date and Verification QR Code Block -->
                         <div class="smart-meta-col">
                             <div class="smart-date-place">
@@ -1713,11 +1755,11 @@
                             </div>
                             <div class="smart-qr-block">
                                 <a href="{{ $certificate->direct_validation_url }}" target="_blank"
-                                    class="smart-qr-link"
-                                    title="Escanear con cámara para validar certificado">
+                                    class="smart-qr-link" title="Escanear con cámara para validar certificado">
                                     {!! $certificate->smart_qr_code_svg !!}
                                 </a>
-                                <span class="smart-serial-code">{{ $certificate->code ?: $certificate->certificate_code }}</span>
+                                <span
+                                    class="smart-serial-code">{{ $certificate->code ?: $certificate->certificate_code }}</span>
                             </div>
                         </div>
                     </div>
@@ -1730,35 +1772,36 @@
                     <svg class="ribbon-svg ribbon-top-right" viewBox="0 0 320 240" fill="none"
                         preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
-                            <linearGradient id="goldGradientTop-{{ $certificate->id }}" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <linearGradient id="goldGradientTop-{{ $certificate->id }}" x1="0%"
+                                y1="100%" x2="100%" y2="0%">
                                 <stop offset="0%" stop-color="#dfbc69" />
                                 <stop offset="30%" stop-color="#f5e197" />
                                 <stop offset="60%" stop-color="#c99e3a" />
                                 <stop offset="100%" stop-color="#a17a1e" />
                             </linearGradient>
                         </defs>
-                        <polygon points="120,0 320,180 320,240 60,0" fill="url(#goldGradientTop-{{ $certificate->id }})" />
+                        <polygon points="120,0 320,180 320,240 60,0"
+                            fill="url(#goldGradientTop-{{ $certificate->id }})" />
                         <polygon points="190,0 320,0 320,130" fill="#0f1115" />
                     </svg>
-
                     <!-- ── Bottom-Left Geometric Ribbon Accent ── -->
                     <svg class="ribbon-svg ribbon-bottom-left" viewBox="0 0 320 240" fill="none"
                         preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
-                            <linearGradient id="goldGradientBottom-{{ $certificate->id }}" x1="100%" y1="0%" x2="0%" y2="100%">
+                            <linearGradient id="goldGradientBottom-{{ $certificate->id }}" x1="100%"
+                                y1="0%" x2="0%" y2="100%">
                                 <stop offset="0%" stop-color="#dfbc69" />
                                 <stop offset="30%" stop-color="#f5e197" />
                                 <stop offset="60%" stop-color="#c99e3a" />
                                 <stop offset="100%" stop-color="#a17a1e" />
                             </linearGradient>
                         </defs>
-                        <polygon points="0,50 220,240 140,240 0,110" fill="url(#goldGradientBottom-{{ $certificate->id }})" />
+                        <polygon points="0,50 220,240 140,240 0,110"
+                            fill="url(#goldGradientBottom-{{ $certificate->id }})" />
                         <polygon points="0,130 0,240 120,240" fill="#0f1115" />
                     </svg>
-
                     <!-- ── Centered Watermark Shield ── -->
                     <img src="{{ $logoSrc }}" alt="Marca de agua institucional" class="watermark">
-
                     <!-- ── Header Section ── -->
                     <header class="cert-header">
                         <img src="{{ $logoSrc }}" alt="Logo IESTP FVC" class="cert-logo">
@@ -1774,12 +1817,10 @@
                             </div>
                         </div>
                     </header>
-
                     <!-- ── Title ── -->
                     <div class="cert-main-title">
                         <h1>{{ $certificate->isTraining() ? 'CERTIFICADO' : 'CERTIFICADO MODULAR' }}</h1>
                     </div>
-
                     <!-- ── Body Area: Narrative & Temario ── -->
                     <div class="cert-body-grid">
                         <!-- Left Narrative Column -->
@@ -1807,8 +1848,10 @@
                                 </p>
                             @else
                                 <p class="narrative-paragraph">
-                                    Por haber aprobado satisfactoriamente los módulos técnico-profesionales correspondientes
-                                    al plan curricular de <strong>{{ $certificate->course->name }}</strong>, en el Programa
+                                    Por haber aprobado satisfactoriamente los módulos técnico-profesionales
+                                    correspondientes
+                                    al plan curricular de <strong>{{ $certificate->course->name }}</strong>, en el
+                                    Programa
                                     de Estudios de
                                     {{ $certificate->effective_study_program?->name ?? 'Administración de Redes y Comunicaciones' }}
                                     del
@@ -1829,9 +1872,12 @@
                                         @forelse($certificate->details as $det)
                                             <tr>
                                                 <td>{{ $det->title }}</td>
-                                                <td style="text-align: center;">{{ $det->module?->credits ?? '3' }}</td>
-                                                <td style="text-align: center; font-weight: bold;">{{ $det->score ?? '16' }}</td>
-                                                <td style="text-align: center; color: #166534; font-weight: bold;">Aprobado</td>
+                                                <td style="text-align: center;">{{ $det->module?->credits ?? '3' }}
+                                                </td>
+                                                <td style="text-align: center; font-weight: bold;">
+                                                    {{ $det->score ?? '16' }}</td>
+                                                <td style="text-align: center; color: #166534; font-weight: bold;">
+                                                    Aprobado</td>
                                             </tr>
                                         @empty
                                             @foreach ($certificate->course?->modules ?? [] as $mod)
@@ -1839,7 +1885,8 @@
                                                     <td>{{ $mod->name }}</td>
                                                     <td style="text-align: center;">{{ $mod->credits ?? '3' }}</td>
                                                     <td style="text-align: center; font-weight: bold;">16</td>
-                                                    <td style="text-align: center; color: #166534; font-weight: bold;">Aprobado</td>
+                                                    <td style="text-align: center; color: #166534; font-weight: bold;">
+                                                        Aprobado</td>
                                                 </tr>
                                             @endforeach
                                         @endforelse
@@ -1850,7 +1897,6 @@
                                 {{ $certificate->formatted_issue_date }}
                             </div>
                         </div>
-
                         <!-- Right Temario Column -->
                         <div class="temario-col">
                             <div class="temario-badge">TEMARIO</div>
@@ -1870,13 +1916,11 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- ── Bottom Area: QR in Bottom-Right Corner & Certificate Code ── -->
                     <footer class="cert-bottom-bar">
                         <div class="qr-corner-container">
                             <a href="{{ $certificate->validation_url }}" target="_blank"
-                                class="qr-svg-wrapper block"
-                                style="text-decoration: none; color: inherit;"
+                                class="qr-svg-wrapper block" style="text-decoration: none; color: inherit;"
                                 title="Escanear o hacer clic para verificar certificado">
                                 {!! $certificate->qr_code_svg !!}
                             </a>
@@ -1887,7 +1931,6 @@
             @endif
         @endforeach
     </main>
-
     <script>
         function switchCertView(view, btn) {
             const frontSheets = document.querySelectorAll('.sheet-anverso');
@@ -1912,12 +1955,12 @@
             }
         }
 
-        @if(!empty($autoPrint))
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                window.print();
-            }, 500);
-        });
+        @if (!empty($autoPrint))
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    window.print();
+                }, 500);
+            });
         @endif
     </script>
 </body>

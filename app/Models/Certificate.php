@@ -32,8 +32,7 @@ class Certificate extends Model
         'download_count',
     ];
 
-    protected static function booted(): void
-    {
+    protected static function booted(): void {
         static::saving(function (Certificate $certificate) {
             $code = $certificate->attributes['code'] ?? null;
             $certCode = $certificate->attributes['certificate_code'] ?? null;
@@ -394,7 +393,7 @@ class Certificate extends Model
         $city = $this->city ?: 'Uchiza';
         $monthName = $meses[$date->month] ?? $date->format('F');
 
-        return "{$city}, {$date->day}, de {$monthName} del {$date->year}";
+        return "{$city}, {$date->day} de {$monthName} del {$date->year}";
     }
 
     /**

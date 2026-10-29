@@ -3,19 +3,15 @@
 @endphp
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Certificado — {{ $certificate->certificate_code }} — {{ $certificate->user->names ?? 'Estudiante' }}</title>
     <link rel="icon" type="image/png" href="{{ $logoSrc }}">
-
     <!-- Google Fonts for High-Fidelity Official Printing -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Great+Vibes&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,600;1,700;1,800&display=swap"
-        rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Great+Vibes&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,600;1,700;1,800&display=swap">
 
     <style>
         /* ── Reset & Page Setup ── */
@@ -1300,7 +1296,6 @@
         }
     </style>
 </head>
-
 <body>
     <!-- Floating Toolbar for Screen View -->
     <header class="toolbar no-print">

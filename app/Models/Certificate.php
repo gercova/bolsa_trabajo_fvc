@@ -32,7 +32,8 @@ class Certificate extends Model
         'download_count',
     ];
 
-    protected static function booted(): void {
+    protected static function booted(): void
+    {
         static::saving(function (Certificate $certificate) {
             $code = $certificate->attributes['code'] ?? null;
             $certCode = $certificate->attributes['certificate_code'] ?? null;
@@ -141,57 +142,36 @@ class Certificate extends Model
         return $code;
     }
 
-    /**
-     * Accessor for code attribute.
-     */
     public function getCodeAttribute(?string $value): ?string
     {
         return $value ?: ($this->attributes['certificate_code'] ?? null);
     }
 
-    /**
-     * Accessor for certificate_code attribute.
-     */
     public function getCertificateCodeAttribute(?string $value): ?string
     {
         return $value ?: ($this->attributes['code'] ?? null);
     }
 
-    /**
-     * Relationship with Course.
-     */
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class, 'course_id', 'id');
     }
 
-    /**
-     * Relationship with Study Program.
-     */
     public function studyProgram(): BelongsTo
     {
         return $this->belongsTo(StudyProgram::class, 'study_program_id', 'id');
     }
 
-    /**
-     * Relationship with User / Student.
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    /**
-     * Relationship with Certificate Details (scores per module or training topics).
-     */
     public function details(): HasMany
     {
         return $this->hasMany(CertificateDetail::class, 'certificate_id', 'id')->orderBy('order')->orderBy('id');
     }
 
-    /**
-     * Check if this certificate follows the training / completion format.
-     */
     public function isTraining(): bool
     {
         if ($this->isBasicEnglish() || $this->isSmartOffice()) {
@@ -201,15 +181,13 @@ class Certificate extends Model
         return ($this->certificate_type ?? $this->course?->certificate_type ?? 'capacitacion') === 'capacitacion';
     }
 
-    /**
-     * Check if this certificate corresponds to the "Smart Administrative Office 4.0" template format.
-     */
-    public function isSmartOffice(): bool {
-        $searchTerms    = ['oficina administrativa', 'inteligente 4.0', 'smart administrative office', 'oficina inteligente'];
-        $courseName     = mb_strtolower($this->course?->name ?? '', 'UTF-8');
-        $eventName      = mb_strtolower($this->event_name ?? '', 'UTF-8');
-        $desc           = mb_strtolower($this->description ?? '', 'UTF-8');
-        $certType       = mb_strtolower($this->certificate_type ?? '', 'UTF-8');
+    public function isSmartOffice(): bool
+    {
+        $searchTerms = ['oficina administrativa', 'inteligente 4.0', 'smart administrative office', 'oficina inteligente'];
+        $courseName = mb_strtolower($this->course?->name ?? '', 'UTF-8');
+        $eventName = mb_strtolower($this->event_name ?? '', 'UTF-8');
+        $desc = mb_strtolower($this->description ?? '', 'UTF-8');
+        $certType = mb_strtolower($this->certificate_type ?? '', 'UTF-8');
 
         if ($certType === 'oficina_4_0' || $certType === 'asistencia_administrativa') {
             return true;
@@ -277,9 +255,6 @@ class Certificate extends Model
             : url('/validar-certificado');
     }
 
-    /**
-     * Clean duration string without duplicate words like "Horas Horas".
-     */
     public function getCleanDurationAttribute(): string
     {
         $d = trim((string) ($this->duration ?: '90 horas'));
@@ -453,12 +428,22 @@ class Certificate extends Model
      */
     public function getProgramLogoSrcAttribute(): string
     {
-        if ($this->studyProgram?->logo_path) {
-            return asset(ltrim($this->studyProgram->logo_path, '/'));
+        $program = $this->studyProgram ?: $this->course?->studyProgram;
+
+        if (! $program && $this->isSmartOffice()) {
+            $program = StudyProgram::where('name', 'like', '%Asistencia Administrativa%')->first();
         }
 
-        if ($this->course?->studyProgram?->logo_path) {
-            return asset(ltrim($this->course->studyProgram->logo_path, '/'));
+        $rawPath = $program?->logo_path;
+
+        if (! empty($rawPath)) {
+            if (Str::startsWith($rawPath, ['http://', 'https://', 'data:'])) {
+                return $rawPath;
+            }
+
+            $clean = ltrim(str_replace(['/storage/', 'storage/'], '', $rawPath), '/');
+
+            return asset('storage/'.$clean);
         }
 
         return asset('storage/programs/HaEozlK69owkeap9fEBuESvfWWQCGdSDMNI0ozon.png');

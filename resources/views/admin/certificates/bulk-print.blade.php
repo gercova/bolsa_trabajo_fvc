@@ -1630,7 +1630,8 @@
 
                     <!-- ── Institutional & Program Logos ── -->
                     <img src="{{ $logoSrc }}" alt="IESTP Francisco Vigo Caballero" class="smart-logo-left">
-                    <img src="{{ $certificate->program_logo_src }}" alt="Asistencia Administrativa" class="smart-logo-right">
+                    <img src="{{ $certificate->program_logo_src }}" alt="Asistencia Administrativa" class="smart-logo-right"
+                        onerror="if(!this.dataset.tried){this.dataset.tried=1;this.src='{{ asset('storage/programs/vgCgVP6hhWcjXnlmTeI8KOJvhaKDkrBBqmJqzEux.png') }}';}">
                     <!-- ── Header Section ── -->
                     <header class="smart-header-center">
                         <h3 class="smart-inst-name">INSTITUTO DE EDUCACIÓN SUPERIOR TECNOLÓGICO PÚBLICO</h3>

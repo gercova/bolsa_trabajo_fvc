@@ -136,6 +136,55 @@ class StudyProgram extends Model
     }
 
     /**
+     * Resolves the public URL for the program logo, ensuring it is properly prefixed with storage/.
+     */
+    public function getLogoUrlAttribute(): ?string
+    {
+        if (! $this->logo_path) {
+            return null;
+        }
+
+        if (Str::startsWith($this->logo_path, ['http://', 'https://', 'data:'])) {
+            return $this->logo_path;
+        }
+
+        $clean = ltrim(str_replace(['/storage/', 'storage/'], '', $this->logo_path), '/');
+
+        return asset('storage/'.$clean);
+    }
+
+    /**
+     * Resolves the program logo as Base64 Data URI for offline and PDF printing.
+     */
+    public function getLogoBase64Attribute(): ?string
+    {
+        if (! $this->logo_path) {
+            return null;
+        }
+
+        if (Str::startsWith($this->logo_path, 'data:')) {
+            return $this->logo_path;
+        }
+
+        $clean = ltrim(str_replace(['/storage/', 'storage/'], '', $this->logo_path), '/');
+        $candidates = [
+            storage_path('app/public/'.$clean),
+            public_path('storage/'.$clean),
+            public_path($clean),
+        ];
+
+        foreach ($candidates as $filePath) {
+            if (file_exists($filePath) && is_readable($filePath) && is_file($filePath)) {
+                $mime = mime_content_type($filePath) ?: 'image/png';
+
+                return 'data:'.$mime.';base64,'.base64_encode(file_get_contents($filePath));
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Devuelve la configuración de color sólido institucional asignada a cada programa de estudio.
      */
     public function getColorConfigAttribute(): array

@@ -1308,8 +1308,7 @@
         <div class="toolbar-actions">
             @if ($certificate->isBasicEnglish())
                 <div class="view-switch-group no-print">
-                    <button type="button" class="btn btn-tab active" onclick="switchCertView('all', this)">Ambas
-                        Caras</button>
+                    <button type="button" class="btn btn-tab active" onclick="switchCertView('all', this)">Ambas Caras</button>
                     <button type="button" class="btn btn-tab" onclick="switchCertView('front', this)">Frente</button>
                     <button type="button" class="btn btn-tab" onclick="switchCertView('back', this)">Reverso</button>
                 </div>
@@ -1637,7 +1636,8 @@
                 <!-- ── Institutional & Program Logos ── -->
                 <img src="{{ $logoSrc }}" alt="IESTP Francisco Vigo Caballero" class="smart-logo-left">
                 <img src="{{ $certificate->program_logo_src }}" alt="Asistencia Administrativa"
-                    class="smart-logo-right">
+                    class="smart-logo-right"
+                    onerror="if(!this.dataset.tried){this.dataset.tried=1;this.src='{{ asset('storage/programs/vgCgVP6hhWcjXnlmTeI8KOJvhaKDkrBBqmJqzEux.png') }}';}">
                 <!-- ── Header Section ── -->
                 <header class="smart-header-center">
                     <h3 class="smart-inst-name">INSTITUTO DE EDUCACIÓN SUPERIOR TECNOLÓGICO PÚBLICO</h3>
@@ -1657,11 +1657,9 @@
                             <polygon points="475,8 485,18 475,28 465,18" fill="#cda043" />
                             <polygon points="458,13 463,18 458,23 453,18" fill="#cda043" />
                             <polygon points="492,13 497,18 492,23 487,18" fill="#cda043" />
-
                             <!-- Left and right gold bars -->
                             <path d="M 125,18 L 445,18" stroke="#cda043" stroke-width="4.5" stroke-linecap="round" />
                             <path d="M 505,18 L 825,18" stroke="#cda043" stroke-width="4.5" stroke-linecap="round" />
-
                             <!-- Left finial -->
                             <g id="smart-finial">
                                 <!-- Curled scrolls -->
@@ -1670,16 +1668,13 @@
                                 <path d="M 112,18 C 112,28 98,33 90,27 C 83,22 89,15 95,17 C 100,19 98,24 94,24"
                                     stroke="#cda043" stroke-width="2.5" fill="none" stroke-linecap="round" />
                                 <circle cx="102" cy="18" r="3.5" fill="#cda043" />
-
                                 <!-- Center pointed leaf with slit -->
                                 <path d="M 95,18 C 75,12 55,13 38,18 C 55,23 75,24 95,18 Z" fill="#cda043" />
                                 <path d="M 55,18 L 78,18" stroke="#ffffff" stroke-width="2" stroke-linecap="round" />
-
                                 <!-- Upper and lower leaves -->
                                 <path d="M 88,16 C 76,8 62,2 54,8 C 49,12 56,17 74,18 Z" fill="#cda043" />
                                 <path d="M 65,10 C 62,12 66,15 72,16" stroke="#ffffff" stroke-width="1.2"
                                     fill="none" stroke-linecap="round" />
-
                                 <path d="M 88,20 C 76,28 62,34 54,28 C 49,24 56,19 74,18 Z" fill="#cda043" />
                                 <path d="M 65,26 C 62,24 66,21 72,20" stroke="#ffffff" stroke-width="1.2"
                                     fill="none" stroke-linecap="round" />
@@ -1767,10 +1762,8 @@
                     <!-- Black outer triangle -->
                     <polygon points="0,130 0,240 120,240" fill="#0f1115" />
                 </svg>
-
                 <!-- ── Centered Watermark Shield ── -->
                 <img src="{{ $logoSrc }}" alt="Marca de agua institucional" class="watermark">
-
                 <!-- ── Header Section ── -->
                 <header class="cert-header">
                     <img src="{{ $logoSrc }}" alt="Logo IESTP FVC" class="cert-logo">
@@ -1902,8 +1895,8 @@
     <script>
         function switchCertView(view, btn) {
             const front = document.getElementById('sheet-anverso');
-            const back = document.getElementById('sheet-reverso');
-            const btns = document.querySelectorAll('.btn-tab');
+            const back  = document.getElementById('sheet-reverso');
+            const btns  = document.querySelectorAll('.btn-tab');
             btns.forEach(b => b.classList.remove('active'));
             if (btn) btn.classList.add('active');
 
@@ -1911,18 +1904,17 @@
 
             if (view === 'front') {
                 document.body.classList.add('print-front-only');
-                if (front) front.style.display = 'flex';
-                if (back) back.style.display = 'none';
+                if (front) front.style.display  = 'flex';
+                if (back) back.style.display    = 'none';
             } else if (view === 'back') {
                 document.body.classList.add('print-back-only');
-                if (front) front.style.display = 'none';
-                if (back) back.style.display = 'flex';
+                if (front) front.style.display  = 'none';
+                if (back) back.style.display    = 'flex';
             } else {
-                if (front) front.style.display = 'flex';
-                if (back) back.style.display = 'flex';
+                if (front) front.style.display  = 'flex';
+                if (back) back.style.display    = 'flex';
             }
         }
     </script>
 </body>
-
 </html>

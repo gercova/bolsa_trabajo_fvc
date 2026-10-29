@@ -1332,7 +1332,7 @@ class CertificateFormatAndValidationTest extends TestCase
         $response->assertSee('Taller: Construyendo nuestra Oficina Administrativa 4.0');
 
         // Verify Date & QR Verification
-        $response->assertSee('Uchiza, 28, de setiembre del 2026');
+        $response->assertSee('Uchiza, 28 de setiembre del 2026');
         $response->assertSee('smart-qr-link');
         $response->assertSee($cert->certificate_code);
     }

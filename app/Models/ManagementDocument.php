@@ -20,4 +20,19 @@ class ManagementDocument extends Model
         'validity_period' => 'date',
         'is_active' => 'boolean',
     ];
+
+    protected $appends = [
+        'file_url',
+        'resolution_document_url',
+    ];
+
+    public function getFileUrlAttribute(): ?string
+    {
+        return $this->file_path ? asset('storage/'.$this->file_path) : null;
+    }
+
+    public function getResolutionDocumentUrlAttribute(): ?string
+    {
+        return $this->resolution_document_path ? asset('storage/'.$this->resolution_document_path) : null;
+    }
 }

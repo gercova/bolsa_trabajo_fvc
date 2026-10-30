@@ -8,6 +8,7 @@ use App\Models\DocumentType;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
+use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -74,13 +75,13 @@ class AccountBalanceManagementTest extends TestCase
         $response = $this->get('/transparencia/inversion-y-gestion?year=2025');
 
         $response->assertOk();
-        $response->assertSee('filter-pill active', false);
-        $response->assertSee('Año 2025');
-        $response->assertSee('CERTIFICACIÓN MODULAR');
-        $response->assertSee('CONSTANCIA');
-        $response->assertSee('Detalle de Registros por Categoría');
-        $response->assertSee('245.00');
-        $response->assertSee('21.00');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Transparency/InvestmentAndManagement')
+            ->where('selectedYear', 2025)
+            ->has('records.data', 2)
+            ->where('totalRecords', 2)
+            ->where('totalAmount', 266)
+        );
     }
 
     public function test_import_correctly_parses_4_digit_years_and_peruvian_decimals(): void

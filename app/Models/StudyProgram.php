@@ -53,6 +53,7 @@ class StudyProgram extends Model
     protected $appends = [
         'color_config',
         'logo_url',
+        'training_itinerary_url',
     ];
 
     /**

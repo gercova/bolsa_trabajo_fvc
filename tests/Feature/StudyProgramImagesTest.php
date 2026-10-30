@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class StudyProgramImagesTest extends TestCase
@@ -237,9 +238,12 @@ class StudyProgramImagesTest extends TestCase
         $response = $this->get(route('programas-de-estudio.detalle', $program->slug));
 
         $response->assertOk();
-        $response->assertSee('Álbum de Fotos & Galería', false);
-        $response->assertSee($img1->path);
-        $response->assertSee($img2->path);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('StudyPrograms/Show')
+            ->has('program.images', 2)
+            ->where('program.images.0.path', $img1->path)
+            ->where('program.images.1.path', $img2->path)
+        );
     }
 
     public function test_can_create_study_program_with_carousel_configuration_and_alt_text(): void
@@ -326,14 +330,14 @@ class StudyProgramImagesTest extends TestCase
         $response = $this->get(route('programas-de-estudio.detalle', $program->slug));
 
         $response->assertOk();
-        // Verificar que el carrusel hero esté activo
-        $response->assertSee('programHeroCarousel(2)', false);
-        // Verificar texto alternativo
-        $response->assertSee('Formación de clase mundial en desarrollo web y móvil', false);
-        // Verificar que el logo y su posicionamiento permanezcan
-        $response->assertSee('programs/logo-software.png', false);
-        // Verificar imágenes del carrusel de fondo
-        $response->assertSee('programs/gallery/code1.jpg', false);
-        $response->assertSee('programs/gallery/code2.jpg', false);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('StudyPrograms/Show')
+            ->where('program.enable_carousel', true)
+            ->where('program.carousel_alt_text', 'Formación de clase mundial en desarrollo web y móvil')
+            ->where('program.logo_path', 'programs/logo-software.png')
+            ->has('program.images', 2)
+            ->where('program.images.0.path', 'programs/gallery/code1.jpg')
+            ->where('program.images.1.path', 'programs/gallery/code2.jpg')
+        );
     }
 }

@@ -7,6 +7,7 @@ use App\Models\Enterprise;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class ClaimTest extends TestCase
@@ -34,7 +35,10 @@ class ClaimTest extends TestCase
         $response = $this->get('/transparencia/libro-de-reclamaciones');
 
         $response->assertOk();
-        $response->assertViewHas('enterprise');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Transparency/ComplaintsBook')
+            ->has('enterprise')
+        );
     }
 
     public function test_can_submit_valid_claim(): void

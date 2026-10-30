@@ -23,7 +23,7 @@ return [
         'enabled' => (bool) env('INERTIA_SSR_ENABLED', false),
         'runtime' => env('INERTIA_SSR_RUNTIME', 'node'),
         'ensure_runtime_exists' => (bool) env('INERTIA_SSR_ENSURE_RUNTIME_EXISTS', false),
-        'url' => env('INERTIA_SSR_URL', 'http://127.0.0.1:13714'),
+        'url' => env('INERTIA_SSR_URL', 'http://[IP_ADDRESS]'),
         'hot_url' => env('INERTIA_SSR_HOT_URL'),
         'timeout' => env('INERTIA_SSR_TIMEOUT'),
         'ensure_bundle_exists' => (bool) env('INERTIA_SSR_ENSURE_BUNDLE_EXISTS', true),
@@ -64,6 +64,7 @@ return [
     'pages' => [
         'ensure_pages_exist' => false,
         'paths' => [
+            resource_path('js/Pages'),
             resource_path('js/pages'),
         ],
         'extensions' => [

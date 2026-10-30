@@ -5,12 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Admission extends Model
 {
     protected $table = 'admission';
 
     protected $primaryKey = 'id';
+
+    protected $appends = [
+        'pdf_url',
+        'results_pdf_url',
+    ];
 
     protected $fillable = [
         'activity',
@@ -50,5 +57,31 @@ class Admission extends Model
     public function admissionDetail(): HasMany
     {
         return $this->hasMany(AdmissionDetail::class, 'admission_id', 'id');
+    }
+
+    public function getPdfUrlAttribute(): ?string
+    {
+        if (! $this->url_pdf) {
+            return null;
+        }
+
+        if (Str::startsWith($this->url_pdf, ['http://', 'https://'])) {
+            return $this->url_pdf;
+        }
+
+        return Storage::url($this->url_pdf);
+    }
+
+    public function getResultsPdfUrlAttribute(): ?string
+    {
+        if (! $this->results_url_pdf) {
+            return null;
+        }
+
+        if (Str::startsWith($this->results_url_pdf, ['http://', 'https://'])) {
+            return $this->results_url_pdf;
+        }
+
+        return Storage::url($this->results_url_pdf);
     }
 }

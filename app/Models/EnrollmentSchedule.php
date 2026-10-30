@@ -30,6 +30,11 @@ class EnrollmentSchedule extends Model
         'updated_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'type_label',
+        'is_open',
+    ];
+
     public function details(): HasMany
     {
         return $this->hasMany(EnrollmentScheduleDetail::class, 'enrollment_schedule_id', 'id');

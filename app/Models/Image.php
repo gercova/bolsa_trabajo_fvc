@@ -25,6 +25,10 @@ class Image extends Model
         'updated_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'url',
+    ];
+
     /**
      * Get the full URL for the image.
      */

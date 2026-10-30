@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Enterprise;
 use Database\Seeders\LicensingPhaseSeeder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class LicensingPublicTest extends TestCase
@@ -36,30 +37,15 @@ class LicensingPublicTest extends TestCase
         $response = $this->get('/transparencia/licenciamiento');
 
         $response->assertOk();
-        $response->assertSee('Licenciamiento');
-        $response->assertSee('Institucional');
-
-        // Assert 5 phases are rendered
-        $response->assertSee('Condiciones Básicas de Calidad (CBC)');
-        $response->assertSee('Presentación y Registro');
-        $response->assertSee('Revisión Documentaria');
-        $response->assertSee('Levantamiento y Subsanación de Observaciones');
-        $response->assertSee('Aprobación y Otorgamiento de Licencia');
-
-        // Assert Current Stage (P) is displayed
-        $response->assertSee('(P)');
-        $response->assertSee('En Proceso');
-
-        // Assert 7 CBCs are displayed
-        $response->assertSee('CBC 1');
-        $response->assertSee('Gestión Institucional');
-        $response->assertSee('Gestión Académica');
-        $response->assertSee('Infraestructura');
-
-        // Assert SEO Tags
-        $response->assertSee('<meta name="description"', false);
-        $response->assertSee('<meta name="keywords"', false);
-        $response->assertSee('<link rel="canonical"', false);
-        $response->assertSee('<script type="application/ld+json">', false);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Transparency/Licensment')
+            ->has('enterprise')
+            ->has('phases', 5)
+            ->has('currentPhase')
+            ->has('cbcPhase')
+            ->where('totalPhases', 5)
+            ->where('completedPhases', 0)
+            ->has('globalProgress')
+        );
     }
 }

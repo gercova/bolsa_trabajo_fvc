@@ -10,6 +10,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
 
@@ -233,7 +235,7 @@ class AccountBalanceController extends Controller
      * Public transparency view: Inversión y Gestión.
      * Supports filtering by year via GET parameter.
      */
-    public function publicIndex(Request $request): View
+    public function publicIndex(Request $request): Response
     {
         $selectedYear = $request->integer('year') ?: null;
 
@@ -291,7 +293,7 @@ class AccountBalanceController extends Controller
 
         $availableYears = AccountBalance::availableYears();
 
-        return view('transparency.investment-and-management', compact(
+        return Inertia::render('Transparency/InvestmentAndManagement', compact(
             'records',
             'categoryGroups',
             'recordsByCategory',

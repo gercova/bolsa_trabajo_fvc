@@ -44,6 +44,16 @@ class LicensingPhase extends Model
         'is_active' => 'boolean',
     ];
 
+    protected $appends = [
+        'file_url',
+        'status_badge',
+    ];
+
+    public function getFileUrlAttribute(): ?string
+    {
+        return $this->file_path ? asset('storage/'.$this->file_path) : null;
+    }
+
     /**
      * Scope a query to only include active licensing phases.
      */

@@ -57,7 +57,7 @@ class AppController extends Controller
     }
 
     // admision-y-matricula/cepre-fvc
-    public function ceprefvc(): View
+    public function ceprefvc(): Response
     {
         $currentYear = now()->year;
         $projectedYear = $currentYear + 1;
@@ -91,11 +91,11 @@ class AppController extends Controller
         $enterprise = Enterprise::first();
         $cepreImage = Image::where('imageable_type', 'cepre')->where('imageable_id', 1)->first();
 
-        return view('admission.cepre-fvc', compact('exams', 'requirements', 'enterprise', 'cepreImage', 'projectedPeriod'));
+        return Inertia::render('Admission/CepreFvc', compact('exams', 'requirements', 'enterprise', 'cepreImage', 'projectedPeriod'));
     }
 
     // admision-y-matricula/examen-de-admision
-    public function admissionExam(): View
+    public function admissionExam(): Response
     {
         // Dinámica de período proyectado (ej. para el año 2026 proyecta 2027-I)
         $projectedPeriod = (now()->year + 1).'-I';
@@ -156,7 +156,7 @@ class AppController extends Controller
         $enterprise = Enterprise::first();
         $admisionImage = Image::where('imageable_type', 'admision')->where('imageable_id', 1)->first();
 
-        return view('admission.admission-exam', compact(
+        return Inertia::render('Admission/AdmissionExam', compact(
             'exams',
             'projectedPeriod',
             'cepreTotalVacancies',
@@ -171,7 +171,7 @@ class AppController extends Controller
     }
 
     // admision-y-matricula/matriculas
-    public function enrollments(): View
+    public function enrollments(): Response
     {
         // New dedicated enrollment schedules (ordinaria / extraordinaria)
         $schedules = EnrollmentSchedule::with('details.program')
@@ -190,11 +190,11 @@ class AppController extends Controller
         $requirements = AdmissionRequirement::where('is_active', true)->get();
         $enterprise = Enterprise::first();
 
-        return view('admission.enrollments', compact('enrollments', 'schedules', 'requirements', 'enterprise'));
+        return Inertia::render('Admission/Enrollments', compact('enrollments', 'schedules', 'requirements', 'enterprise'));
     }
 
     // admision-y-matriculas/becas-y-creditos
-    public function scholarshipsAndCredits(): View
+    public function scholarshipsAndCredits(): Response
     {
         $scholarships = Scholarship::active()->ordered()->get();
         $totalScholarshipVacancies = $scholarships->sum('vacancies');
@@ -207,7 +207,7 @@ class AppController extends Controller
         $beneficiariesByPeriod = $beneficiaries->groupBy('academic_period');
         $beneficiaryPeriods = $beneficiariesByPeriod->keys();
 
-        return view('admission.scholarships-and-credits', compact(
+        return Inertia::render('Admission/ScholarshipsAndCredits', compact(
             'scholarships',
             'totalScholarshipVacancies',
             'enterprise',
@@ -218,7 +218,7 @@ class AppController extends Controller
     }
 
     // programas-de-estudios
-    public function studyPrograms(): View
+    public function studyPrograms(): Response
     {
         $programs = StudyProgram::where('is_active', true)
             ->orderBy('order', 'asc')
@@ -226,11 +226,11 @@ class AppController extends Controller
             ->with(['modules', 'images', 'meta', 'competencies', 'jobFields', 'requirements'])
             ->get();
 
-        return view('study-programs', compact('programs'));
+        return Inertia::render('StudyPrograms/Index', compact('programs'));
     }
 
     // programas-de-estudios/{program:slug}
-    public function program(StudyProgram $program): View
+    public function program(StudyProgram $program): Response
     {
         $program->load([
             'images',
@@ -241,20 +241,20 @@ class AppController extends Controller
             'requirements' => fn ($q) => $q->where('is_active', true)->orderBy('order'),
         ]);
 
-        return view('study-program', compact('program'));
+        return Inertia::render('StudyPrograms/Show', compact('program'));
     }
 
     // transparencia/documentos-de-gestion
-    public function documentsManagement(): View
+    public function documentsManagement(): Response
     {
         $documents = ManagementDocument::where('is_active', true)->orderBy('id', 'asc')->get();
         $enterprise = Enterprise::first();
 
-        return view('transparency.management-documents', compact('documents', 'enterprise'));
+        return Inertia::render('Transparency/ManagementDocuments', compact('documents', 'enterprise'));
     }
 
     // transparencia/estadisticas
-    public function statistics(): View
+    public function statistics(): Response
     {
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
         // ── 1. Indicadores Generales (KPIs) ──────────────────────────
@@ -417,7 +417,7 @@ class AppController extends Controller
             ->orderBy('total', 'desc')
             ->get();
 
-        return view('transparency.statistics', compact(
+        return Inertia::render('Transparency/Statistics', compact(
             'enterprise',
             'totalMatriculas',
             'totalAdmisiones',
@@ -442,13 +442,13 @@ class AppController extends Controller
     }
 
     // transparencia/inversion-y-gestion
-    public function managementReports(Request $request): View
+    public function managementReports(Request $request): Response
     {
         return app(AccountBalanceController::class)->publicIndex($request);
     }
 
     // transparencia/licenciamiento
-    public function licensment(): View
+    public function licensment(): Response
     {
         $enterprise = Enterprise::first();
         $phases = LicensingPhase::active()->ordered()->get();
@@ -460,7 +460,7 @@ class AppController extends Controller
             ? round($phases->avg('progress_percentage'))
             : 0;
 
-        return view('transparency.licensment', compact(
+        return Inertia::render('Transparency/Licensment', compact(
             'enterprise',
             'phases',
             'currentPhase',
@@ -472,11 +472,11 @@ class AppController extends Controller
     }
 
     // transparencia/libro-de-reclamaciones
-    public function complaintsBook(): View
+    public function complaintsBook(): Response
     {
         $enterprise = Enterprise::first();
 
-        return view('transparency.complaints-book', compact('enterprise'));
+        return Inertia::render('Transparency/ComplaintsBook', compact('enterprise'));
     }
 
     public function storeClaim(ClaimValidate $request): RedirectResponse

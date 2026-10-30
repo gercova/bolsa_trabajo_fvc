@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class ScholarshipBeneficiariesFeatureTest extends TestCase
@@ -20,7 +21,16 @@ class ScholarshipBeneficiariesFeatureTest extends TestCase
     {
         parent::setUp();
 
-        $docTypeId = DB::table('document_type')->value('id') ?? 1;
+        $docTypeId = DB::table('document_type')->value('id');
+        if (! $docTypeId) {
+            $docTypeId = DB::table('document_type')->insertGetId([
+                'name' => 'DNI',
+                'abreviation' => 'DNI',
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         $this->admin = User::firstOrCreate(
             ['email' => 'admin@iestpfvc.edu.pe'],
@@ -39,10 +49,14 @@ class ScholarshipBeneficiariesFeatureTest extends TestCase
         $response = $this->get(route('becas-y-creditos'));
 
         $response->assertStatus(200);
-        $response->assertSee('Relación de Estudiantes Beneficiarios');
-        $response->assertSee('Padrón de Beneficiarios');
-        $response->assertSee('2026-I');
-        $response->assertSee('Visualizar PDF');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admission/ScholarshipsAndCredits')
+            ->has('scholarships')
+            ->has('totalScholarshipVacancies')
+            ->has('beneficiaries')
+            ->has('beneficiariesByPeriod')
+            ->has('beneficiaryPeriods')
+        );
     }
 
     public function test_admin_can_view_scholarships_dashboard_with_beneficiaries_tab(): void

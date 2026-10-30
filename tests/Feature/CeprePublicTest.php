@@ -8,6 +8,7 @@ use App\Models\Area;
 use App\Models\Enterprise;
 use App\Models\StudyProgram;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class CeprePublicTest extends TestCase
@@ -103,14 +104,14 @@ class CeprePublicTest extends TestCase
 
         // 8. Assertions
         $response->assertStatus(200);
-        $response->assertSee('2026-I-CEPRE');
-        $response->assertSee('Ciclo de Preparación Cepre');
-        $response->assertSee('Copia de DNI legalizada');
-
-        // Should NOT see inactive or non-cepre exams/requirements
-        $response->assertDontSee('2025-II-INACT');
-        $response->assertDontSee('2026-I-ADMIS');
-        $response->assertDontSee('Requisito inactivo de prueba');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admission/CepreFvc')
+            ->has('exams', 1)
+            ->where('exams.0.period', '2026-I-CEPRE')
+            ->where('exams.0.activity', 'Ciclo de Preparación Cepre')
+            ->has('requirements', 1)
+            ->where('requirements.0.requirement', 'Copia de DNI legalizada')
+        );
     }
 
     public function test_public_can_access_admission_exam_page(): void
@@ -182,13 +183,14 @@ class CeprePublicTest extends TestCase
 
         // 6. Assertions
         $response->assertStatus(200);
-        $response->assertSee('2026-I-ADMIS');
-        $response->assertSee('Examen Ordinario');
-        $response->assertSee('Certificado de estudios secundarios');
-
-        // Should NOT see CEPRE exams
-        $response->assertDontSee('2026-I-CEPRE');
-        $response->assertDontSee('Ciclo Cepre');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admission/AdmissionExam')
+            ->has('exams', 1)
+            ->where('exams.0.period', '2026-I-ADMIS')
+            ->where('exams.0.activity', 'Examen Ordinario')
+            ->has('requirements', 1)
+            ->where('requirements.0.requirement', 'Certificado de estudios secundarios')
+        );
     }
 
     public function test_public_can_access_enrollments_page(): void
@@ -252,12 +254,13 @@ class CeprePublicTest extends TestCase
 
         // 6. Assertions
         $response->assertStatus(200);
-        $response->assertSee('Matrícula Regular Alumnos Nuevos');
-        $response->assertSee('Secretaría Académica');
-        $response->assertSee('Ficha de matrícula debidamente llenada');
-
-        // Should NOT see CEPRE exams
-        $response->assertDontSee('2026-I-CEPRE');
-        $response->assertDontSee('Ciclo Cepre');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admission/Enrollments')
+            ->has('enrollments', 1)
+            ->where('enrollments.0.activity', 'Matrícula Regular Alumnos Nuevos')
+            ->where('enrollments.0.area.name', 'Secretaría Académica')
+            ->has('requirements', 1)
+            ->where('requirements.0.requirement', 'Ficha de matrícula debidamente llenada')
+        );
     }
 }

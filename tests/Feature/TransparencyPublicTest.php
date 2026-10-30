@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Enterprise;
+use App\Models\ManagementDocument;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class TransparencyPublicTest extends TestCase
@@ -34,15 +36,85 @@ class TransparencyPublicTest extends TestCase
         $response = $this->get('/transparencia/libro-de-reclamaciones');
 
         $response->assertOk();
-        $response->assertSee('Libro de Reclamaciones');
-        $response->assertSee('Formulario de Reclamos y Quejas');
-        $response->assertSee('Identificación del Consumidor Reclamante');
-        $response->assertSee('Descargar Libro de Reclamaciones');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Transparency/ComplaintsBook')
+            ->has('enterprise')
+            ->where('enterprise.complaints_book_path', '/storage/enterprise/pdf/libro-reclamaciones-test.pdf')
+        );
+    }
 
-        // Assert SEO tags are present
-        $response->assertSee('<meta name="description"', false);
-        $response->assertSee('<meta name="keywords"', false);
-        $response->assertSee('<link rel="canonical"', false);
-        $response->assertSee('<script type="application/ld+json">', false);
+    public function test_public_user_can_access_management_documents_page(): void
+    {
+        $this->createEnterprise();
+
+        ManagementDocument::create([
+            'title' => 'Plan Anual de Trabajo 2026',
+            'description' => 'Documento de gestión anual',
+            'details' => 'Aprobado mediante resolución',
+            'is_active' => true,
+        ]);
+
+        $response = $this->get('/transparencia/documentos-de-gestion');
+
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Transparency/ManagementDocuments')
+            ->has('documents', 1)
+            ->where('documents.0.title', 'Plan Anual de Trabajo 2026')
+        );
+    }
+
+    public function test_public_user_can_access_statistics_page(): void
+    {
+        $this->createEnterprise();
+
+        $response = $this->get('/transparencia/estadisticas');
+
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Transparency/Statistics')
+            ->has('enterprise')
+            ->has('totalMatriculas')
+            ->has('totalAdmisiones')
+            ->has('totalTitulos')
+            ->has('totalProgramas')
+            ->has('totalPeriodos')
+            ->has('enrollmentByPeriod')
+            ->has('degreesByYear')
+        );
+    }
+
+    public function test_public_user_can_access_investment_and_management_page(): void
+    {
+        $this->createEnterprise();
+
+        $response = $this->get('/transparencia/inversion-y-gestion');
+
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Transparency/InvestmentAndManagement')
+            ->has('availableYears')
+            ->has('selectedYear')
+            ->has('totalRecords')
+            ->has('totalAmount')
+            ->has('records')
+            ->has('categoryGroups')
+        );
+    }
+
+    public function test_public_user_can_access_licensing_page(): void
+    {
+        $this->createEnterprise();
+
+        $response = $this->get('/transparencia/licenciamiento');
+
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Transparency/Licensment')
+            ->has('phases')
+            ->has('totalPhases')
+            ->has('completedPhases')
+            ->has('globalProgress')
+        );
     }
 }

@@ -38,30 +38,41 @@ Presentación interactiva de los 5 programas de estudio aprobados:
 4. **Asistencia Administrativa**
 5. **Manejo Forestal**
 - Perfiles de egreso, competencias técnicas y transversales, campo laboral, certificaciones modulares progresivas, requisitos y galerías de imágenes.
+- Hero header interactivo con carrusel multimedia (`enable_carousel`, `carousel_alt_text`), selector de imagen principal y marcado semántico estructurado Schema.org (`Course`).
 
 ### 📝 2.2. Admisión, Matrícula y Becas
 - **CEPRE FVC:** Cronogramas de preparación, vacantes y cálculo proyectado de periodos lectivos (ej. ciclo proyectado 2027-I en vigencia 2026).
 - **Examen de Admisión:** Modalidades Ordinaria y Extraordinaria, deducción automática de vacantes cubiertas por CEPRE y publicación de resultados en PDF.
-- **Matrículas:** Cronograma de matrículas ordinarias y extraordinarias por carrera.
-- **Becas y Créditos:** Registro de beneficiarios de Beca 18, becas socioeconómicas y descargas de resoluciones en PDF.
+- **Matrículas:** Cronograma de matrículas ordinarias y extraordinarias por carrera con desglose de requisitos.
+- **Becas y Créditos:** Registro de beneficiarios de Beca 18, becas socioeconómicas y descargas de resoluciones oficiales en PDF.
 
 ### 💼 2.3. Bolsa de Trabajo y Egresados
 - **Ofertas Laborales:** Convocatorias internas y externas con filtros por ubicación, fuente y carrera técnica.
-- **Scraper Automatizado:** Comando de consola y controlador con integración de `Symfony DomCrawler` para extracción periódica de ofertas vigentes en el mercado laboral peruano.
+- **Scraper Automatizado:** Comando de consola y controlador con integración de `Symfony DomCrawler` para extracción periódica de ofertas vigentes en el mercado laboral peruano, con filtros geográficos y exclusión estricta de países extranjeros.
 - **Directorio de Talento:** Banco de perfiles de estudiantes, egresados y titulados con CV descargable para empresas reclutadoras.
 
 ### 🔏 2.4. Certificación Digital y Validación QR
-- **Generador de Certificados:** Emisión modular e institucional con notas desagregadas y códigos únicos alfanuméricos.
-- **Servicio QR Nativo (`QrCodeService`):** Generación vectorial en SVG/PNG en PHP puro sin dependencias de APIs externas, garantizando disponibilidad 100% offline y en entornos seguros.
-- **Portal de Validación Pública (`/validar-certificado`):** Verificación instantánea por lectura de código QR, código de certificado o DNI del estudiante.
-- **Impresión Oficial:** Formato membretado y legalizado listo para impresión con sello digital y código QR de verificación.
+- **Soporte Dual de Certificados:**
+  - **Certificados de Capacitación:** Orientados a talleres y seminarios con temario desagregado (`topic_name`), evento u ocasión, y calidad de participación (`ASISTENTE`, `PONENTE`, etc.).
+  - **Certificados Modulares:** Orientados a itinerarios curriculares con notas vigesimales por módulo aprobado.
+- **Identificador Único (`code`):** Código alfanumérico estandarizado y verificable en toda la plataforma.
+- **Servicio QR Nativo (`QrCodeService`):** Generación vectorial en SVG/PNG en PHP puro mediante matrices Reed-Solomon (GF-256) sin APIs de terceros, garantizando funcionamiento 100% offline.
+- **Portal de Validación Pública (`/validar-certificado` y aliases `/verificar-certificado`, `/verify-certificate`):** Verificación instantánea por lectura de código QR, código de certificado o DNI del estudiante.
+- **Impresión y Exportación:** Vista de impresión oficial membretada y exportación masiva a PDF de múltiples certificados en un solo documento.
 - **Importación/Exportación Masiva:** Carga y descarga de miles de certificados en hojas Excel estructuradas mediante `Maatwebsite/Excel`.
 
 ### 📚 2.5. Biblioteca Virtual y Repositorio Académico
-- **Catálogo de Lectura:** Libros, revistas, tesis y recursos clasificados por programa de estudios.
-- **Servicio Académico Integrado (`AcademicLibraryService`):** Búsqueda y sincronización semántica con repositorios mundiales abiertos (Crossref, OpenAlex, arXiv, DOAJ, PubMed).
-- **Streaming Seguro de PDFs (`/biblioteca/stream/{slug}`):** Proxy de transmisión en línea que solventa restricciones CORS y permite lectura protegida en el navegador.
-- **Espacio Personal:** Marcador de lecturas favoritas y registro de accesos.
+- **Catálogo de Lectura:** Libros, revistas, tesis y recursos clasificados por programa de estudios y categorías editoriales.
+- **Motor Académico Integrado (`AcademicLibraryService`):** Búsqueda y sincronización masiva con 10 índices científicos de acceso abierto:
+  - **SciELO & Redalyc:** Publicaciones científicas iberoamericanas arbitradas.
+  - **Europe PMC:** Artículos biomédicos y de salud clínica con enlaces directos a PDF.
+  - **Open Library & Internet Archive:** Libros digitalizados completos con enlace de descarga directa en PDF (`archive.org/download/...`).
+  - **DOAJ (Directory of Open Access Journals):** Revistas de acceso abierto de texto completo.
+  - **Crossref REST API & OpenAlex API:** Indexación por DOI, metadatos, citas y análisis temático.
+  - **Semantic Scholar & Google Scholar:** Búsqueda académica avanzada y extracción semántica.
+- **Resolución Inteligente de Documentos:** Fallback multi-nivel de DOIs a PDFs Open Access (Unpaywall → Crossref → OpenAlex), detector de galleys OJS y sanitización de caracteres especiales Lucene.
+- **Streaming Seguro de PDFs (`/biblioteca/stream/{slug}`):** Proxy de transmisión en línea por bloques que solventa restricciones CORS y permite lectura inmersiva protegida en el navegador.
+- **Espacio Personal:** Marcador de lecturas favoritas (`BookFavorite`) y registro de auditoría de accesos (`LibraryAccessLog`).
 
 ### 📊 2.6. Transparencia y Rendición de Cuentas
 - **Estadísticas Dinámicas:** Cuadros e indicadores históricos de matrícula y admisión por ciclo lectivo (I al VI), programa de estudios y distribución por género.
@@ -69,20 +80,21 @@ Presentación interactiva de los 5 programas de estudio aprobados:
 - **Inversión y Gastos:** Balances financieros mensuales y anuales con importación Excel y permiso especial de reseteo (`can:gestionar-inversiones`).
 - **Licenciamiento Institucional:** Monitor de cumplimiento de las Condiciones Básicas de Calidad (CBC) por etapas.
 - **Documentos de Gestión:** Repositorio digital de PEI, PAT, PCI, RI y manuales oficiales descargables.
-- **Libro de Reclamaciones:** Formulario virtual con generación de número de atención y cumplimiento de la normativa de Indecopi.
+- **Libro de Reclamaciones:** Formulario virtual con generación de número de atención y cumplimiento de la normativa de Indecopi con rate limiting (`throttle:5,1`).
 
 ### 🏛️ 2.7. Trámites y TUPA
 - **TUPA Institucional:** Procedimientos clasificados con código oficial, requisitos en formato estructurado, costos expresados en soles y % UIT, plazos de atención y oficina responsable.
 - **Mesa de Partes Virtual:** Guía de presentación de solicitudes, formularios y canales oficiales de atención.
 
 ### 🔒 2.8. Administración y Control de Acceso (RBAC)
-- Autenticación segura mediante Laravel Breeze.
+- Autenticación segura mediante Laravel Breeze con verificación de DNI (`register/verify-dni`) y rate limiting.
 - Gestión granular de roles y permisos con `spatie/laravel-permission`:
   - **Director:** Acceso total y supervisión institucional.
   - **Administrador / Admin:** Gestión operativa y mantenimiento global.
   - **Docente / Coordinador:** Asignación por carreras, carga académica y gestión curricular.
   - **Coordinadores de Calidad, Empleabilidad, Educación Continua e Investigación.**
   - **Personal Administrativo.**
+  - **Estudiante / Lector:** Acceso a biblioteca virtual, favoritos y postulación a vacantes.
 
 ### 🌐 2.9. Optimización SEO y Google Search Console
 - **`robots.txt` y `robot.txt`:** Reglas optimizadas que permiten la indexación de páginas públicas y recursos estáticos, bloqueando paneles administrativos y rutas de autenticación.
@@ -94,17 +106,18 @@ Presentación interactiva de los 5 programas de estudio aprobados:
 
 ## 🛠️ 3. Stack Tecnológico
 
-| Capa | Tecnologías |
-| :--- | :--- |
-| **Backend** | PHP 8.3, Laravel 11.31, Laravel Breeze |
-| **Base de Datos** | MySQL 8.0+ / MariaDB 10.11+ (SQLite en memoria para testing) |
-| **Frontend** | Blade Templates, Tailwind CSS 3.4 (CDN optimizado), Alpine.js, Vanilla JS |
-| **Diseño & UI** | Bootstrap Icons, FontAwesome 6, Google Fonts (Inter) |
-| **Permisos & Roles** | `spatie/laravel-permission` 6.25+ |
-| **Excel & Reportes** | `maatwebsite/excel` 3.1+ |
-| **Web Scraping** | `symfony/dom-crawler` 7.4+, `guzzlehttp/guzzle` 7.8+ |
-| **Código QR** | `QrCodeService` (Generador de SVG/PNG matricial en PHP puro) |
-| **Pruebas & Calidad** | PHPUnit 11, Laravel Pint (Agent format), Laravel Pail |
+| Capa | Tecnologías | Métricas del Sistema |
+| :--- | :--- | :--- |
+| **Backend** | PHP 8.3, Laravel 11.31, Laravel Breeze | 44 Controladores (33 root, 1 admin, 9 auth, 1 base) |
+| **Base de Datos** | MySQL 8.0+ / MariaDB 10.11+ (SQLite para testing) | 45 Modelos Eloquent, 55 Migraciones, 30 Seeders |
+| **Frontend** | Blade Templates, Tailwind CSS 3.4 (CDN optimizado), Alpine.js, Vanilla JS | 147 Vistas Blade organizadas en 36 directorios |
+| **Rutas & Endpoints** | Laravel Routing con grupos modulares y aliases | 318 Rutas registradas (web + auth + consola) |
+| **Validación** | Form Requests dedicados | 42 Form Requests de validación estricta |
+| **Excel & Reportes** | `maatwebsite/excel` 3.1+ | 5 Imports masivos, 6 Exports de datos/plantillas |
+| **Permisos & Roles** | `spatie/laravel-permission` 6.25+ | RBAC multinivel con Gate::before para Directivos |
+| **Web Scraping** | `symfony/dom-crawler` 7.4+, `guzzlehttp/guzzle` 7.8+ | Scraper heurístico con filtros geográficos peruanos |
+| **Código QR** | `QrCodeService` (Generador de SVG/PNG matricial en PHP puro) | Reed-Solomon GF(256), disponibilidad 100% offline |
+| **Pruebas & Calidad** | PHPUnit 11, Laravel Pint (Agent format), Laravel Pail | 33 Suites de pruebas (31 Feature + 2 Unit) |
 
 ---
 
@@ -114,38 +127,38 @@ Presentación interactiva de los 5 programas de estudio aprobados:
 bolsa-fvc/
 ├── app/
 │   ├── Console/Commands/        # Comandos Artisan (sitemap:generate, scrape:jobs)
-│   ├── Exports/                 # Exportadores Excel (plantillas y datos)
+│   ├── Exports/                 # 6 Exportadores Excel (plantillas y datos estructurados)
 │   ├── Http/
-│   │   ├── Controllers/         # Controladores públicos, de autenticación y admin
-│   │   │   ├── Admin/           # Controladores especializados de administración
-│   │   │   └── Auth/            # Controladores de Breeze (login, registro, password)
+│   │   ├── Controllers/         # 44 Controladores (33 root, 1 base, 1 admin, 9 auth)
+│   │   │   ├── Admin/           # Admin\LibraryController (repositorio, sync académico, lectores)
+│   │   │   └── Auth/            # 9 Controladores Breeze (login, registro DNI, password, email)
 │   │   ├── Middleware/          # Middleware institucional (CountWebsiteVisits)
-│   │   └── Requests/            # FormRequests para validaciones estrictas
-│   ├── Imports/                 # Importadores masivos Excel (usuarios, notas, registros)
-│   ├── Models/                  # 45 Modelos Eloquent con relaciones y scopes
-│   ├── Providers/               # Proveedores de servicios de la aplicación
+│   │   └── Requests/            # 42 FormRequests para validación estricta
+│   ├── Imports/                 # 5 Importadores masivos Excel (usuarios, notas, balances, etc.)
+│   ├── Models/                  # 45 Modelos Eloquent con relaciones, scopes y casts
+│   ├── Providers/               # Proveedores de servicios (AppServiceProvider con Gate::before)
 │   └── Services/                # Lógica desacoplada (AcademicLibraryService, QrCodeService)
-├── bootstrap/                   # Inicialización de Laravel 11 (app.php, providers.php)
-├── config/                      # Archivos de configuración
+├── bootstrap/                   # Inicialización declarativa Laravel 11 (app.php, providers.php)
+├── config/                      # Archivos de configuración institucional y paquetes
 ├── database/
 │   ├── factories/               # Model factories para pruebas y generación de datos
-│   ├── migrations/              # 53 migraciones de base de datos
-│   └── seeders/                 # 30 seeders con datos iniciales e institucionales
+│   ├── migrations/              # 55 migraciones de base de datos
+│   └── seeders/                 # 30 seeders con datos iniciales, ubigeo nacional e institucional
 ├── public/                      # Raíz pública del servidor web
 │   ├── build/                   # Assets compilados por Vite
-│   ├── images/                  # Imágenes del sistema y logotipos
-│   ├── robots.txt               # Directivas para motores de búsqueda
-│   └── sitemap.xml              # Mapa del sitio canónico para Google
+│   ├── images/                  # Imágenes del sistema y logotipos institucionales
+│   ├── robots.txt               # Directivas para motores de búsqueda y crawlers
+│   └── sitemap.xml              # Mapa del sitio canónico para Google Search Console
 ├── resources/
-│   ├── css/ & js/               # Fuentes frontend y scripts
-│   └── views/                   # 145 vistas Blade (aboutus, admin, admission, library, etc.)
+│   ├── css/ & js/               # Fuentes frontend y scripts de Alpine.js
+│   └── views/                   # 147 vistas Blade (aboutus, admin, admission, library, etc.)
 ├── routes/
-│   ├── auth.php                 # Rutas de autenticación
-│   ├── console.php              # Comandos de consola
-│   └── web.php                  # Rutas públicas, de lectores y panel administrativo
+│   ├── auth.php                 # Rutas de autenticación con rate limiting
+│   ├── console.php              # Comandos interactivos de consola
+│   └── web.php                  # 318 rutas públicas, de lectores y panel administrativo
 ├── tests/
-│   ├── Feature/                 # Pruebas de integración y endpoints
-│   └── Unit/                    # Pruebas unitarias
+│   ├── Feature/                 # 31 Pruebas de integración, endpoints, SEO y seguridad
+│   └── Unit/                    # 2 Pruebas unitarias de servicios (AcademicLibraryService)
 ├── PDR.md                       # Product Definition Report (Especificación Técnica Detallada)
 └── README.md                    # Documentación principal del proyecto
 ```
@@ -230,20 +243,24 @@ bolsa-fvc/
 | :--- | :--- |
 | `php artisan sitemap:generate` | Regenera `public/sitemap.xml` con todas las rutas públicas oficiales basadas en la URL de producción o el parámetro `--url`. |
 | `php artisan sitemap:generate --url=https://midominio.com` | Genera el sitemap utilizando un dominio personalizado. |
-| `php artisan scrape:jobs {source_url} {source_name}` | Ejecuta el extractor web sobre un portal de empleo externo para mapear convocatorias afines a las 5 carreras. |
+| `php artisan scrape:jobs {source_url} {source_name}` | Ejecuta el extractor web sobre un portal de empleo externo para mapear convocatorias afines a las 5 carreras técnicas con validación geográfica. |
 
 ---
 
 ## 🧪 7. Pruebas y Calidad de Código
 
 ### Ejecución de Pruebas Automatizadas
-La suite de pruebas cubre flujos de autenticación, portal público, licenciamiento, procedimientos, biblioteca y verificación SEO:
+La suite consta de **33 archivos de prueba** (31 Feature Tests y 2 Unit Tests) que cubren flujos de autenticación, portal público, licenciamiento, procedimientos, biblioteca, validación QR, importación masiva y verificación SEO:
 ```bash
 # Ejecutar todas las pruebas
 php artisan test
 
 # Ejecutar prueba específica de SEO e indexación
 php artisan test --filter=SeoIndexingTest
+
+# Ejecutar pruebas del motor académico de biblioteca
+php artisan test --filter=LibraryAcademicBulkImportTest
+php artisan test --filter=AcademicLibraryServiceTest
 ```
 
 ### Formateador de Código (Laravel Pint)

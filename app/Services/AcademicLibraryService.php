@@ -13,7 +13,8 @@ class AcademicLibraryService
 {
     /**
      * Specialized academic query groups mapped to the institution's 5 study programs.
-     * Each group targets peer-reviewed, open-access publications in SciELO, Google Scholar, Redalyc, DOAJ, etc.
+     * Each group targets peer-reviewed, open-access publications in SciELO, Google Scholar,
+     * Redalyc, DOAJ, Europe PMC, OpenAlex, Open Library, etc.
      */
     public const PROGRAM_QUERIES = [
         // 1: Producción Agropecuaria
@@ -25,6 +26,14 @@ class AcademicLibraryService
                 'sanidad animal cultivos tropicales agronomia',
                 'manejo integrado plagas suelos fertirriego',
                 'zootecnia bovinos porcinos biotecnologia agricola',
+                'agroecologia pastos forrajes nutricion animal',
+                'fitopatologia control biologico sanidad vegetal',
+            ],
+            'book_terms' => [
+                'manual produccion agropecuaria cultivos tropicales',
+                'zootecnia y sanidad animal bovinos libro',
+                'manejo de suelos fertilidad fertirriego libro',
+                'agronomia general cultivos agricolas manual',
             ],
             'default_category' => 'Revista',
         ],
@@ -37,6 +46,14 @@ class AcademicLibraryService
                 'farmacologia primeros auxilios procedimientos enfermeria',
                 'salud publica bioseguridad epidemiologia clinica',
                 'materno infantil geriatria atencion integral enfermeria',
+                'administracion medicamentos vias enfermeria clinica',
+                'urgencias medicas soporte vital basico enfermeria',
+            ],
+            'book_terms' => [
+                'manual de procedimientos de enfermeria tecnica',
+                'guia clinica primeros auxilios urgencias enfermeria',
+                'farmacologia basica y clinica para enfermeria libro',
+                'atencion primaria de salud cuidados comunitarios libro',
             ],
             'default_category' => 'Paper',
         ],
@@ -49,6 +66,14 @@ class AcademicLibraryService
                 'infraestructura ti protocolos enrutamiento computadoras',
                 'ciberseguridad redes inalambricas fibra optica servidores',
                 'computacion en la nube virtualizacion sistemas distribuidos',
+                'arquitectura redes cisco tcp ip switching routing',
+                'seguridad de la informacion hacking etico redes linux',
+            ],
+            'book_terms' => [
+                'redes de computadoras y comunicaciones cisco libro',
+                'ciberseguridad y seguridad de la informacion manual',
+                'administracion de servidores linux y redes libro',
+                'infraestructura ti computacion en la nube redes libro',
             ],
             'default_category' => 'Paper',
         ],
@@ -61,6 +86,14 @@ class AcademicLibraryService
                 'procesos administrativos archivo digital oficina',
                 'gestion publica recursos humanos contabilidad basica',
                 'comunicacion organizacional liderazgo gestion de calidad',
+                'gestion de archivos correspondencia tramite documentario',
+                'administracion estrategica control interno gestion publica',
+            ],
+            'book_terms' => [
+                'manual de asistencia administrativa y gestion documental',
+                'procesos administrativos y organizacion de oficinas libro',
+                'administracion publica y gestion del talento humano libro',
+                'contabilidad basica y gestion financiera empresarial libro',
             ],
             'default_category' => 'Revista',
         ],
@@ -73,6 +106,14 @@ class AcademicLibraryService
                 'inventario forestal dasonomia tala dirigida',
                 'agroforesteria cambio climatico biodiversidad amazonica',
                 'restauracion ecologica bosques plantaciones forestales',
+                'ecologia forestal dendrologia especies maderables',
+                'gobernanza forestal servicios ecosistemicos amazonia',
+            ],
+            'book_terms' => [
+                'manual de manejo forestal sostenible y silvicultura',
+                'inventario forestal y medicion de recursos maderables libro',
+                'agroforesteria y conservacion de bosques tropicales libro',
+                'dasonomia y restauracion de ecosistemas forestales libro',
             ],
             'default_category' => 'Paper',
         ],
@@ -85,6 +126,8 @@ class AcademicLibraryService
         'educacion tecnologica superior investigacion scielo',
         'innovacion tecnologica desarrollo sostenible redalyc',
         'metodologia de la investigacion cientifica publicaciones',
+        'manual de investigacion aplicada y desarrollo tecnologico libro',
+        'ciencias aplicadas tecnologia e innovacion productiva',
     ];
 
     /**
@@ -122,15 +165,21 @@ class AcademicLibraryService
      */
     private const EXCLUDED_PDF_PATTERNS = [
         'instrucciones',
+        'instrucciones-autores',
         'guia-de-autores',
         'guia_autores',
         'author-guidelines',
         'normas-editoriales',
         'normas_autores',
+        'normas_de_publicacion',
+        'normas-de-publicacion',
+        'directrices-para-autores',
+        'directrices_autores',
         'plantilla',
         'template',
         'copyright',
         'cesion-de-derechos',
+        'carta-de-cesion',
         'codigo-de-etica',
         'ethics',
         'declaracion-de-originalidad',
@@ -138,6 +187,10 @@ class AcademicLibraryService
         'call-for-papers',
         'manual-ojs',
         'license.txt',
+        'editorial-team',
+        'equipo-editorial',
+        'politicas-editoriales',
+        'portada-y-contraportada',
     ];
 
     /**
@@ -182,8 +235,8 @@ class AcademicLibraryService
         $categoryFilter = ! empty($options['category']) && $options['category'] !== 'all' ? (string) $options['category'] : null;
         $sources = ! empty($options['sources']) && is_array($options['sources'])
             ? $options['sources']
-            : ['scielo', 'google_scholar', 'redalyc', 'openalex', 'crossref', 'doaj'];
-        $customQuery = trim((string) ($options['custom_query'] ?? ''));
+            : ['scielo', 'google_scholar', 'redalyc', 'openalex', 'crossref', 'doaj', 'europe_pmc', 'open_library', 'semanticscholar'];
+        $customQuery = $this->sanitizeSearchTerm((string) ($options['custom_query'] ?? ''));
         $createdBy = $options['created_by'] ?? auth()->id();
         $strictPdfOnly = (bool) ($options['strict_pdf_only'] ?? true);
 
@@ -203,6 +256,7 @@ class AcademicLibraryService
             $targets[$programId] = [
                 'name' => $progModel?->name ?? 'Programa de Estudio',
                 'terms' => [$progModel?->name.' scielo', $progModel?->name.' redalyc', $progModel?->name.' google scholar'],
+                'book_terms' => ['manual '.$progModel?->name.' libro', 'guia '.$progModel?->name.' libro'],
                 'default_category' => 'Paper',
             ];
         } else {
@@ -212,6 +266,7 @@ class AcademicLibraryService
                     $targets[$p->id] = self::PROGRAM_QUERIES[$p->id] ?? [
                         'name' => $p->name,
                         'terms' => [$p->name.' scielo', $p->name.' redalyc'],
+                        'book_terms' => ['manual '.$p->name.' libro'],
                         'default_category' => 'Paper',
                     ];
                 }
@@ -219,10 +274,49 @@ class AcademicLibraryService
                 $targets[0] = [
                     'name' => 'General',
                     'terms' => self::GENERAL_QUERIES,
+                    'book_terms' => ['manual de investigacion aplicada y desarrollo tecnologico libro'],
                     'default_category' => 'Paper',
                 ];
             }
         }
+
+        // Batch processing helper closure to deduplicate and safely persist items
+        $processBatch = function (array $batchItems, string $sourceLabel, string $term, string $progName) use (
+            &$savedCount, &$updatedCount, &$skippedCount, &$importedList, &$log, $limit, $strictPdfOnly, $createdBy
+        ): void {
+            $importedInBatch = 0;
+
+            foreach ($batchItems as $item) {
+                if (($savedCount + $updatedCount) >= $limit) {
+                    break;
+                }
+
+                if ($strictPdfOnly && ! $this->isDirectDocumentOrPdfUrl((string) ($item['external_url'] ?? ''), true)) {
+                    $skippedCount++;
+
+                    continue;
+                }
+
+                $item['created_by'] = $createdBy;
+                [$action, $book] = $this->upsertAcademicResource($item);
+
+                if ($action === 'saved') {
+                    $savedCount++;
+                    $importedList[] = $this->formatItemSummary($book);
+                    $importedInBatch++;
+                } elseif ($action === 'updated') {
+                    $updatedCount++;
+                    $importedList[] = $this->formatItemSummary($book);
+                    $importedInBatch++;
+                } else {
+                    $skippedCount++;
+                }
+            }
+
+            if (! empty($batchItems)) {
+                $log[] = "{$sourceLabel} [{$progName}] «{$term}»: ".count($batchItems)." recuperados ({$importedInBatch} importados/actualizados).";
+            }
+        };
 
         // Target search terms
         foreach ($targets as $currentProgramId => $config) {
@@ -230,16 +324,110 @@ class AcademicLibraryService
                 break;
             }
 
-            $searchTerms = ! empty($customQuery)
-                ? [$customQuery.($programId ? ' '.$config['name'] : '')]
-                : $config['terms'];
+            if (! empty($customQuery)) {
+                $searchTerms = [$customQuery.($programId ? ' '.$config['name'] : '')];
+            } elseif ($categoryFilter === 'Libro' && ! empty($config['book_terms'])) {
+                $searchTerms = array_merge($config['book_terms'], $config['terms']);
+            } else {
+                $searchTerms = $config['terms'];
+            }
 
             foreach ($searchTerms as $term) {
                 if (($savedCount + $updatedCount) >= $limit) {
                     break;
                 }
 
-                // ── 1. Fetch from Google Scholar (Direct PDF / Galley & verified academic indexing) ──
+                // ── When specifically searching for Books ('Libro'), prioritize specialized book providers ──
+                if ($categoryFilter === 'Libro') {
+                    // Open Library (Millions of verified digitized books & manuals)
+                    if (in_array('open_library', $sources)) {
+                        try {
+                            $olResults = $this->queryOpenLibrary(
+                                $term,
+                                $config,
+                                $currentProgramId,
+                                $categoryFilter,
+                                $limit - ($savedCount + $updatedCount)
+                            );
+                            $processBatch($olResults, 'Open Library (Libros)', $term, $config['name']);
+                        } catch (\Throwable $e) {
+                            $errors[] = "Open Library [{$term}]: {$e->getMessage()}";
+                            Log::warning("AcademicLibraryService Open Library error [{$term}]: ".$e->getMessage());
+                        }
+                    }
+
+                    if (($savedCount + $updatedCount) >= $limit) {
+                        break;
+                    }
+
+                    // OpenAlex (DOAB, Book Chapters, Open Access Books)
+                    if (in_array('openalex', $sources) || in_array('scielo', $sources) || in_array('redalyc', $sources) || in_array('scopus', $sources)) {
+                        try {
+                            $oaResults = $this->queryOpenAlex(
+                                $term,
+                                $config,
+                                $currentProgramId,
+                                $categoryFilter,
+                                $sources,
+                                $limit - ($savedCount + $updatedCount)
+                            );
+                            $processBatch($oaResults, 'OpenAlex Books/DOAB', $term, $config['name']);
+                        } catch (\Throwable $e) {
+                            $errors[] = "OpenAlex [{$term}]: {$e->getMessage()}";
+                            Log::warning("AcademicLibraryService OpenAlex error [{$term}]: ".$e->getMessage());
+                        }
+                    }
+
+                    if (($savedCount + $updatedCount) >= $limit) {
+                        break;
+                    }
+
+                    // Google Scholar with Book modifiers
+                    if (in_array('google_scholar', $sources)) {
+                        try {
+                            $scholarResults = $this->queryGoogleScholar(
+                                $term,
+                                $config,
+                                $currentProgramId,
+                                $categoryFilter,
+                                $limit - ($savedCount + $updatedCount)
+                            );
+                            $processBatch($scholarResults, 'Google Scholar (Libros)', $term, $config['name']);
+                        } catch (\Throwable $e) {
+                            $errors[] = "Google Scholar [{$term}]: {$e->getMessage()}";
+                            Log::warning("AcademicLibraryService Google Scholar error [{$term}]: ".$e->getMessage());
+                        }
+                    }
+
+                    if (($savedCount + $updatedCount) >= $limit) {
+                        break;
+                    }
+
+                    // Crossref with book works
+                    if (in_array('crossref', $sources)) {
+                        try {
+                            $crossrefResults = $this->queryCrossref(
+                                $term,
+                                $config,
+                                $currentProgramId,
+                                $categoryFilter,
+                                $limit - ($savedCount + $updatedCount)
+                            );
+                            $processBatch($crossrefResults, 'Crossref (Libros/Capítulos)', $term, $config['name']);
+                        } catch (\Throwable $e) {
+                            $errors[] = "Crossref [{$term}]: {$e->getMessage()}";
+                            Log::warning("AcademicLibraryService Crossref error [{$term}]: ".$e->getMessage());
+                        }
+                    }
+
+                    usleep(150000);
+
+                    continue;
+                }
+
+                // ── Standard Multi-Source Strategy (Journals, Papers, Theses, Articles) ──
+
+                // 1. Google Scholar (Direct PDF badges & peer-reviewed citations)
                 if (in_array('google_scholar', $sources)) {
                     try {
                         $scholarResults = $this->queryGoogleScholar(
@@ -249,35 +437,7 @@ class AcademicLibraryService
                             $categoryFilter,
                             $limit - ($savedCount + $updatedCount)
                         );
-
-                        foreach ($scholarResults as $item) {
-                            if (($savedCount + $updatedCount) >= $limit) {
-                                break;
-                            }
-
-                            if ($strictPdfOnly && ! $this->isDirectDocumentOrPdfUrl((string) ($item['external_url'] ?? ''), true)) {
-                                $skippedCount++;
-
-                                continue;
-                            }
-
-                            $item['created_by'] = $createdBy;
-                            [$action, $book] = $this->upsertAcademicResource($item);
-
-                            if ($action === 'saved') {
-                                $savedCount++;
-                                $importedList[] = $this->formatItemSummary($book);
-                            } elseif ($action === 'updated') {
-                                $updatedCount++;
-                                $importedList[] = $this->formatItemSummary($book);
-                            } else {
-                                $skippedCount++;
-                            }
-                        }
-
-                        if (! empty($scholarResults)) {
-                            $log[] = "Google Scholar [{$config['name']}] «{$term}»: ".count($scholarResults).' registros procesados.';
-                        }
+                        $processBatch($scholarResults, 'Google Scholar', $term, $config['name']);
                     } catch (\Throwable $e) {
                         $errors[] = "Google Scholar [{$term}]: {$e->getMessage()}";
                         Log::warning("AcademicLibraryService Google Scholar error [{$term}]: ".$e->getMessage());
@@ -288,7 +448,7 @@ class AcademicLibraryService
                     break;
                 }
 
-                // ── 2. Fetch from DOAJ API (Directory of Open Access Journals with direct fulltext links) ──
+                // 2. DOAJ API (Directory of Open Access Journals)
                 if (in_array('doaj', $sources)) {
                     try {
                         $doajResults = $this->queryDoaj(
@@ -298,35 +458,7 @@ class AcademicLibraryService
                             $categoryFilter,
                             $limit - ($savedCount + $updatedCount)
                         );
-
-                        foreach ($doajResults as $item) {
-                            if (($savedCount + $updatedCount) >= $limit) {
-                                break;
-                            }
-
-                            if ($strictPdfOnly && ! $this->isDirectDocumentOrPdfUrl((string) ($item['external_url'] ?? ''), true)) {
-                                $skippedCount++;
-
-                                continue;
-                            }
-
-                            $item['created_by'] = $createdBy;
-                            [$action, $book] = $this->upsertAcademicResource($item);
-
-                            if ($action === 'saved') {
-                                $savedCount++;
-                                $importedList[] = $this->formatItemSummary($book);
-                            } elseif ($action === 'updated') {
-                                $updatedCount++;
-                                $importedList[] = $this->formatItemSummary($book);
-                            } else {
-                                $skippedCount++;
-                            }
-                        }
-
-                        if (! empty($doajResults)) {
-                            $log[] = "DOAJ [{$config['name']}] «{$term}»: ".count($doajResults).' registros procesados.';
-                        }
+                        $processBatch($doajResults, 'DOAJ', $term, $config['name']);
                     } catch (\Throwable $e) {
                         $errors[] = "DOAJ [{$term}]: {$e->getMessage()}";
                         Log::warning("AcademicLibraryService DOAJ error [{$term}]: ".$e->getMessage());
@@ -337,7 +469,28 @@ class AcademicLibraryService
                     break;
                 }
 
-                // ── 3. Fetch from OpenAlex API (Covers SciELO, Redalyc, Scopus OA, Dialnet, University Repositories & Books) ──
+                // 3. Europe PMC API (Peer-reviewed life-sciences, veterinary, health & agricultural Open Access)
+                if (in_array('europe_pmc', $sources)) {
+                    try {
+                        $pmcResults = $this->queryEuropePmc(
+                            $term,
+                            $config,
+                            $currentProgramId,
+                            $categoryFilter,
+                            $limit - ($savedCount + $updatedCount)
+                        );
+                        $processBatch($pmcResults, 'Europe PMC', $term, $config['name']);
+                    } catch (\Throwable $e) {
+                        $errors[] = "Europe PMC [{$term}]: {$e->getMessage()}";
+                        Log::warning("AcademicLibraryService Europe PMC error [{$term}]: ".$e->getMessage());
+                    }
+                }
+
+                if (($savedCount + $updatedCount) >= $limit) {
+                    break;
+                }
+
+                // 4. OpenAlex API (SciELO, Redalyc, Scopus OA, Dialnet, University Repositories & Books)
                 if (
                     in_array('scielo', $sources) ||
                     in_array('redalyc', $sources) ||
@@ -353,35 +506,7 @@ class AcademicLibraryService
                             $sources,
                             $limit - ($savedCount + $updatedCount)
                         );
-
-                        foreach ($openAlexResults as $item) {
-                            if (($savedCount + $updatedCount) >= $limit) {
-                                break;
-                            }
-
-                            if ($strictPdfOnly && ! $this->isDirectDocumentOrPdfUrl((string) ($item['external_url'] ?? ''), true)) {
-                                $skippedCount++;
-
-                                continue;
-                            }
-
-                            $item['created_by'] = $createdBy;
-                            [$action, $book] = $this->upsertAcademicResource($item);
-
-                            if ($action === 'saved') {
-                                $savedCount++;
-                                $importedList[] = $this->formatItemSummary($book);
-                            } elseif ($action === 'updated') {
-                                $updatedCount++;
-                                $importedList[] = $this->formatItemSummary($book);
-                            } else {
-                                $skippedCount++;
-                            }
-                        }
-
-                        if (! empty($openAlexResults)) {
-                            $log[] = "OpenAlex/SciELO/Redalyc [{$config['name']}] «{$term}»: ".count($openAlexResults).' registros procesados.';
-                        }
+                        $processBatch($openAlexResults, 'OpenAlex/SciELO/Redalyc', $term, $config['name']);
                     } catch (\Throwable $e) {
                         $errors[] = "OpenAlex [{$term}]: {$e->getMessage()}";
                         Log::warning("AcademicLibraryService OpenAlex error [{$term}]: ".$e->getMessage());
@@ -392,7 +517,49 @@ class AcademicLibraryService
                     break;
                 }
 
-                // ── 4. Fallback to Crossref API (Official Scholarly DOI Registry + Unpaywall OA PDF) ──
+                // 5. Open Library (Digitized textbooks, manuals and complete books)
+                if (in_array('open_library', $sources)) {
+                    try {
+                        $olResults = $this->queryOpenLibrary(
+                            $term,
+                            $config,
+                            $currentProgramId,
+                            $categoryFilter,
+                            $limit - ($savedCount + $updatedCount)
+                        );
+                        $processBatch($olResults, 'Open Library (Libros)', $term, $config['name']);
+                    } catch (\Throwable $e) {
+                        $errors[] = "Open Library [{$term}]: {$e->getMessage()}";
+                        Log::warning("AcademicLibraryService Open Library error [{$term}]: ".$e->getMessage());
+                    }
+                }
+
+                if (($savedCount + $updatedCount) >= $limit) {
+                    break;
+                }
+
+                // 6. Semantic Scholar (AI-powered scholarly graph with verified open access PDFs)
+                if (in_array('semanticscholar', $sources)) {
+                    try {
+                        $semResults = $this->querySemanticScholar(
+                            $term,
+                            $config,
+                            $currentProgramId,
+                            $categoryFilter,
+                            $limit - ($savedCount + $updatedCount)
+                        );
+                        $processBatch($semResults, 'Semantic Scholar', $term, $config['name']);
+                    } catch (\Throwable $e) {
+                        $errors[] = "Semantic Scholar [{$term}]: {$e->getMessage()}";
+                        Log::warning("AcademicLibraryService Semantic Scholar error [{$term}]: ".$e->getMessage());
+                    }
+                }
+
+                if (($savedCount + $updatedCount) >= $limit) {
+                    break;
+                }
+
+                // 7. Crossref API (Official Scholarly DOI Registry + Unpaywall OA PDF)
                 if (in_array('crossref', $sources)) {
                     try {
                         $crossrefResults = $this->queryCrossref(
@@ -402,43 +569,15 @@ class AcademicLibraryService
                             $categoryFilter,
                             $limit - ($savedCount + $updatedCount)
                         );
-
-                        foreach ($crossrefResults as $item) {
-                            if (($savedCount + $updatedCount) >= $limit) {
-                                break;
-                            }
-
-                            if ($strictPdfOnly && ! $this->isDirectDocumentOrPdfUrl((string) ($item['external_url'] ?? ''), true)) {
-                                $skippedCount++;
-
-                                continue;
-                            }
-
-                            $item['created_by'] = $createdBy;
-                            [$action, $book] = $this->upsertAcademicResource($item);
-
-                            if ($action === 'saved') {
-                                $savedCount++;
-                                $importedList[] = $this->formatItemSummary($book);
-                            } elseif ($action === 'updated') {
-                                $updatedCount++;
-                                $importedList[] = $this->formatItemSummary($book);
-                            } else {
-                                $skippedCount++;
-                            }
-                        }
-
-                        if (! empty($crossrefResults)) {
-                            $log[] = "Crossref [{$config['name']}] «{$term}»: ".count($crossrefResults).' registros procesados.';
-                        }
+                        $processBatch($crossrefResults, 'Crossref (DOI)', $term, $config['name']);
                     } catch (\Throwable $e) {
                         $errors[] = "Crossref [{$term}]: {$e->getMessage()}";
                         Log::warning("AcademicLibraryService Crossref error [{$term}]: ".$e->getMessage());
                     }
                 }
 
-                // Respectful pause between queries
-                usleep(200000); // 0.20s
+                // Respectful pause between iterations to prevent rate limits
+                usleep(150000);
             }
         }
 
@@ -473,16 +612,17 @@ class AcademicLibraryService
     public function queryGoogleScholar(string $term, array $config, int $programId, ?string $categoryFilter, int $batchLimit): array
     {
         $maxItems = max(1, min($batchLimit, 15));
+        $cleanTerm = $this->sanitizeSearchTerm($term);
 
         $categoryModifier = match ($categoryFilter) {
-            'Libro' => ' (libro OR manual OR "open access" OR pdf)',
+            'Libro' => ' (libro OR manual OR tratado OR book OR pdf)',
             'Revista' => ' (revista OR journal OR scielo OR redalyc OR pdf)',
             'Tesis' => ' (tesis OR repositorio OR dissertation OR pdf)',
             'Documento' => ' (informe OR manual OR guia OR pdf)',
             default => ' (scielo OR redalyc OR repositorio OR "open access" OR pdf)',
         };
 
-        $scholarQuery = $term.$categoryModifier;
+        $scholarQuery = $cleanTerm.$categoryModifier;
 
         try {
             $response = Http::timeout(8)
@@ -504,7 +644,7 @@ class AcademicLibraryService
         }
 
         // If Google Scholar is rate-limited (HTTP 429) or returns no results, gracefully route query with Scholar boost
-        return $this->queryOpenAlex($term.' google scholar', $config, $programId, $categoryFilter, ['scielo', 'redalyc', 'openalex'], $maxItems);
+        return $this->queryOpenAlex($cleanTerm.' google scholar', $config, $programId, $categoryFilter, ['scielo', 'redalyc', 'openalex'], $maxItems);
     }
 
     /**
@@ -762,7 +902,8 @@ class AcademicLibraryService
     public function queryDoaj(string $term, array $config, int $programId, ?string $categoryFilter, int $batchLimit): array
     {
         $pageSize = max(1, min($batchLimit, 15));
-        $cleanTerm = trim((string) preg_replace('/\b(scielo|redalyc|google\s+scholar)\b/i', '', $term));
+        $cleanTerm = $this->sanitizeSearchTerm($term);
+        $cleanTerm = trim((string) preg_replace('/\b(scielo|redalyc|google\s+scholar|open\s+access|pdf)\b/i', '', $cleanTerm));
         if ($cleanTerm === '') {
             $cleanTerm = $config['name'] ?? 'investigacion tecnologica';
         }
@@ -881,7 +1022,245 @@ class AcademicLibraryService
     }
 
     // ══════════════════════════════════════════════════════════════
-    // SOURCE 3: OPENALEX API (SCIELO, REDALYC, SCOPUS OA, BOOKS & THESES)
+    // SOURCE 3: EUROPE PMC (BIOMEDICAL, AGRICULTURAL & LIFE SCIENCES)
+    // ══════════════════════════════════════════════════════════════
+
+    /**
+     * Query Europe PMC REST API (Biomedical, Agricultural, Veterinary and Life-Sciences Open Access Repository).
+     * Directly identifies verified Open Access records with direct full-text PDF rendering.
+     *
+     * @param  array<string, mixed>  $config
+     * @return array<int, array<string, mixed>>
+     */
+    public function queryEuropePmc(string $term, array $config, int $programId, ?string $categoryFilter, int $batchLimit): array
+    {
+        $pageSize = max(1, min($batchLimit, 15));
+        $cleanTerm = $this->sanitizeSearchTerm($term);
+        $cleanTerm = trim((string) preg_replace('/\b(scielo|redalyc|google\s+scholar|open\s+access|pdf)\b/i', '', $cleanTerm));
+        if ($cleanTerm === '') {
+            $cleanTerm = $config['name'] ?? 'investigacion tecnologica';
+        }
+
+        $query = $cleanTerm.' OPEN_ACCESS:y';
+        if ($categoryFilter === 'Libro') {
+            $query .= ' HAS_BOOK:y';
+        }
+
+        try {
+            $response = Http::timeout(10)
+                ->withHeaders(self::API_HEADERS)
+                ->get('https://www.ebi.ac.uk/europepmc/webservices/rest/search', [
+                    'query' => $query,
+                    'format' => 'json',
+                    'pageSize' => $pageSize,
+                    'resultType' => 'core',
+                ]);
+
+            if (! $response->successful()) {
+                return [];
+            }
+
+            $items = $response->json('resultList.result') ?? [];
+            $results = [];
+
+            foreach ($items as $item) {
+                $title = trim((string) ($item['title'] ?? ''));
+                if ($title === '' || mb_strlen($title) < 5) {
+                    continue;
+                }
+
+                $author = ! empty($item['authorString'])
+                    ? Str::limit(trim((string) $item['authorString']), 250)
+                    : 'Varios Autores / Colectivo Académico';
+
+                $journalTitle = $item['journalTitle'] ?? ($item['bookOrReportDetails']['publisher'] ?? 'Europe PMC Open Access');
+                $publisherName = Str::limit('Europe PMC / '.$journalTitle, 145);
+
+                $pmcId = $item['pmcid'] ?? null;
+                $doi = $item['doi'] ?? null;
+
+                // Direct PDF resolution
+                $directPdf = null;
+                if ($pmcId) {
+                    $directPdf = "https://europepmc.org/backend/ptpmcrender.fcgi?accid={$pmcId}&blobtype=pdf";
+                } elseif ($doi) {
+                    $directPdf = $this->resolveDoiToOpenAccessPdf($doi);
+                }
+
+                if (! $directPdf && ! empty($item['fullTextUrlList']['fullTextUrl'])) {
+                    foreach ((array) $item['fullTextUrlList']['fullTextUrl'] as $ft) {
+                        $u = (string) ($ft['url'] ?? '');
+                        if (str_contains(strtolower((string) ($ft['documentStyle'] ?? '')), 'pdf') || preg_match('/\.pdf($|\?)/i', $u)) {
+                            $directPdf = $u;
+                            break;
+                        }
+                    }
+                }
+
+                if (! $directPdf) {
+                    continue;
+                }
+
+                $finalUrl = $this->resolveDirectDocumentLink($directPdf);
+                if ($finalUrl === '' || str_starts_with($finalUrl, 'javascript:')) {
+                    continue;
+                }
+
+                $pubYear = null;
+                if (! empty($item['pubYear'])) {
+                    $pubYear = (int) $item['pubYear'];
+                } elseif (! empty($item['firstPublicationDate']) && preg_match('/^(\d{4})/', (string) $item['firstPublicationDate'], $ym)) {
+                    $pubYear = (int) $ym[1];
+                }
+
+                $abstract = trim((string) ($item['abstractText'] ?? ''));
+                if ($abstract === '') {
+                    $abstract = "Publicación académica arbitrada por pares («{$title}»). Publicado en {$publisherName}".($pubYear ? " ({$pubYear})" : '').'. Acceso abierto verificado por Europe PMC para educación superior tecnológica.';
+                }
+
+                $pubType = strtolower((string) ($item['pubType'] ?? ''));
+                $category = $this->mapCategory($pubType, $categoryFilter ?: ($config['default_category'] ?? 'Paper'));
+
+                $results[] = [
+                    'title' => Str::limit($title, 250),
+                    'author' => $author,
+                    'study_program_id' => $programId > 0 ? $programId : null,
+                    'category' => $category,
+                    'description' => Str::limit($abstract, 950),
+                    'publisher' => $publisherName,
+                    'publication_year' => $pubYear,
+                    'edition' => '1ª Edición Digital',
+                    'pages' => ! empty($item['pageInfo']) ? (int) Str::before($item['pageInfo'], '-') : null,
+                    'isbn' => $doi ? Str::limit($doi, 45) : null,
+                    'language' => 'Español',
+                    'external_url' => Str::limit($finalUrl, 495),
+                    'rating' => 5.0,
+                    'is_active' => true,
+                ];
+            }
+
+            return $results;
+        } catch (\Throwable $e) {
+            Log::info("Europe PMC query note [{$term}]: ".$e->getMessage());
+
+            return [];
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // SOURCE 4: OPEN LIBRARY (DIGITIZED BOOKS, TEXTBOOKS & MONOGRAPHS)
+    // ══════════════════════════════════════════════════════════════
+
+    /**
+     * Query Open Library Search API (Millions of verified digitized books, textbooks, manuals & monographs).
+     * Directly resolves Internet Archive and Open Library full-text PDF documents.
+     *
+     * @param  array<string, mixed>  $config
+     * @return array<int, array<string, mixed>>
+     */
+    public function queryOpenLibrary(string $term, array $config, int $programId, ?string $categoryFilter, int $batchLimit): array
+    {
+        $limit = max(1, min($batchLimit, 15));
+        $cleanTerm = $this->sanitizeSearchTerm($term);
+        $cleanTerm = trim((string) preg_replace('/\b(scielo|redalyc|google\s+scholar|open\s+access|pdf)\b/i', '', $cleanTerm));
+        if ($cleanTerm === '') {
+            $cleanTerm = $config['name'] ?? 'libro';
+        }
+
+        try {
+            $response = Http::timeout(10)
+                ->withHeaders(self::API_HEADERS)
+                ->get('https://openlibrary.org/search.json', [
+                    'q' => $cleanTerm,
+                    'limit' => $limit,
+                    'mode' => 'everything',
+                ]);
+
+            if (! $response->successful()) {
+                return [];
+            }
+
+            $docs = $response->json('docs') ?? [];
+            $results = [];
+
+            foreach ($docs as $doc) {
+                $title = trim((string) ($doc['title'] ?? ''));
+                if ($title === '' || mb_strlen($title) < 4) {
+                    continue;
+                }
+
+                $authors = ! empty($doc['author_name']) && is_array($doc['author_name'])
+                    ? implode(', ', array_slice($doc['author_name'], 0, 3))
+                    : 'Varios Autores / Colectivo Académico';
+                $author = Str::limit($authors, 250);
+
+                $publisherRaw = ! empty($doc['publisher']) && is_array($doc['publisher'])
+                    ? $doc['publisher'][0]
+                    : 'Open Library / Fondo Editorial';
+                $publisherName = Str::limit('Open Library / '.$publisherRaw, 145);
+
+                $year = ! empty($doc['first_publish_year']) ? (int) $doc['first_publish_year'] : null;
+
+                // Direct document links from Internet Archive
+                $candidateUrl = null;
+                if (! empty($doc['ia']) && is_array($doc['ia'])) {
+                    $iaId = trim((string) $doc['ia'][0]);
+                    if ($iaId !== '') {
+                        $candidateUrl = "https://archive.org/download/{$iaId}/{$iaId}.pdf";
+                    }
+                }
+
+                if (! $candidateUrl && ! empty($doc['key'])) {
+                    $candidateUrl = 'https://openlibrary.org'.$doc['key'];
+                }
+
+                if (! $candidateUrl) {
+                    continue;
+                }
+
+                $finalUrl = $this->resolveDirectDocumentLink($candidateUrl);
+                if ($finalUrl === '' || str_starts_with($finalUrl, 'javascript:')) {
+                    continue;
+                }
+
+                $pages = ! empty($doc['number_of_pages_median'])
+                    ? (int) $doc['number_of_pages_median']
+                    : null;
+
+                $isbn = ! empty($doc['isbn']) && is_array($doc['isbn'])
+                    ? Str::limit($doc['isbn'][0], 45)
+                    : null;
+
+                $description = "Libro y tratado académico digitalizado («{$title}»). Publicado por {$publisherName}".($year ? " ({$year})" : '').'. Material bibliográfico completo indexado para lectura e investigación formativa.';
+
+                $results[] = [
+                    'title' => Str::limit($title, 250),
+                    'author' => $author,
+                    'study_program_id' => $programId > 0 ? $programId : null,
+                    'category' => 'Libro',
+                    'description' => Str::limit($description, 950),
+                    'publisher' => $publisherName,
+                    'publication_year' => $year,
+                    'edition' => '1ª Edición Digital',
+                    'pages' => $pages,
+                    'isbn' => $isbn,
+                    'language' => 'Español',
+                    'external_url' => Str::limit($finalUrl, 495),
+                    'rating' => 5.0,
+                    'is_active' => true,
+                ];
+            }
+
+            return $results;
+        } catch (\Throwable $e) {
+            Log::info("Open Library query note [{$term}]: ".$e->getMessage());
+
+            return [];
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // SOURCE 5: OPENALEX API (SCIELO, REDALYC, SCOPUS OA, DOAB & BOOKS)
     // ══════════════════════════════════════════════════════════════
 
     /**
@@ -891,12 +1270,13 @@ class AcademicLibraryService
      * @param  array<string>  $sources
      * @return array<int, array<string, mixed>>
      */
-    private function queryOpenAlex(string $term, array $config, int $programId, ?string $categoryFilter, array $sources, int $batchLimit): array
+    public function queryOpenAlex(string $term, array $config, int $programId, ?string $categoryFilter, array $sources, int $batchLimit): array
     {
         $perPage = max(1, min($batchLimit, 25));
+        $cleanTerm = $this->sanitizeSearchTerm($term);
 
         $filters = ['is_oa:true'];
-        $enhancedSearch = $term;
+        $enhancedSearch = $cleanTerm;
 
         if ($categoryFilter === 'Libro') {
             $filters[] = 'type:book';
@@ -1000,7 +1380,7 @@ class AcademicLibraryService
                 continue;
             }
 
-            // If we don't have a direct PDF yet, query Unpaywall with DOI
+            // If we don't have a direct PDF yet, query multi-tier DOI resolver
             $doiClean = ! empty($item['doi']) ? Str::after($item['doi'], 'doi.org/') : null;
             if (! $pdfUrl && $doiClean) {
                 $unpaywallPdf = $this->resolveDoiToOpenAccessPdf($doiClean);
@@ -1045,7 +1425,7 @@ class AcademicLibraryService
     }
 
     // ══════════════════════════════════════════════════════════════
-    // SOURCE 4: CROSSREF API (OFFICIAL SCHOLARLY DOI REGISTRY)
+    // SOURCE 6: CROSSREF API (OFFICIAL SCHOLARLY DOI REGISTRY)
     // ══════════════════════════════════════════════════════════════
 
     /**
@@ -1055,112 +1435,226 @@ class AcademicLibraryService
      * @param  array<string, mixed>  $config
      * @return array<int, array<string, mixed>>
      */
-    private function queryCrossref(string $term, array $config, int $programId, ?string $categoryFilter, int $batchLimit): array
+    public function queryCrossref(string $term, array $config, int $programId, ?string $categoryFilter, int $batchLimit): array
     {
         $rows = max(1, min($batchLimit, 15));
-        $response = Http::timeout(12)
-            ->withHeaders(self::API_HEADERS)
-            ->get('https://api.crossref.org/works', [
-                'query' => $term,
-                'rows' => $rows,
-                'filter' => 'has-full-text:true',
-            ]);
+        $cleanTerm = $this->sanitizeSearchTerm($term);
 
-        if (! $response->successful()) {
-            return [];
-        }
+        try {
+            $response = Http::timeout(12)
+                ->withHeaders(self::API_HEADERS)
+                ->get('https://api.crossref.org/works', [
+                    'query' => $cleanTerm,
+                    'rows' => $rows,
+                    'filter' => 'has-full-text:true',
+                ]);
 
-        $items = $response->json('message.items') ?? [];
-        $results = [];
-
-        foreach ($items as $item) {
-            $rawTitle = $item['title'][0] ?? null;
-            if (! $rawTitle || mb_strlen($rawTitle) < 5) {
-                continue;
+            if (! $response->successful()) {
+                return [];
             }
-            $title = trim(strip_tags((string) $rawTitle));
 
-            $authors = collect($item['author'] ?? [])
-                ->map(fn ($a) => trim(($a['given'] ?? '').' '.($a['family'] ?? '')))
-                ->filter()
-                ->take(3)
-                ->implode(', ');
-            $author = $authors ?: 'Varios Autores / Colectivo Académico';
+            $items = $response->json('message.items') ?? [];
+            $results = [];
 
-            $containerTitle = $item['container-title'][0] ?? null;
-            $publisherRaw = $item['publisher'] ?? 'Crossref';
-            $publisherName = $containerTitle ? "{$containerTitle} ({$publisherRaw})" : $publisherRaw;
-            $finalPublisher = Str::limit($publisherName, 145);
+            foreach ($items as $item) {
+                $rawTitle = $item['title'][0] ?? null;
+                if (! $rawTitle || mb_strlen($rawTitle) < 5) {
+                    continue;
+                }
+                $title = trim(strip_tags((string) $rawTitle));
 
-            // Extract ONLY genuine PDF / Galley links from Crossref (fixed bug that grabbed XML/HTML links)
-            $crossrefPdfUrl = null;
-            if (! empty($item['link']) && is_array($item['link'])) {
-                foreach ($item['link'] as $lnk) {
-                    $ct = strtolower((string) ($lnk['content-type'] ?? ''));
-                    $u = (string) ($lnk['URL'] ?? '');
-                    if ($u !== '' && (str_contains($ct, 'pdf') || preg_match('/\.pdf($|\?)|\/article\/(?:view|download)\/\d+\/\d+|format=pdf|script=sci_pdf/i', $u))) {
-                        $crossrefPdfUrl = $u;
-                        break;
+                $authors = collect($item['author'] ?? [])
+                    ->map(fn ($a) => trim(($a['given'] ?? '').' '.($a['family'] ?? '')))
+                    ->filter()
+                    ->take(3)
+                    ->implode(', ');
+                $author = $authors ?: 'Varios Autores / Colectivo Académico';
+
+                $containerTitle = $item['container-title'][0] ?? null;
+                $publisherRaw = $item['publisher'] ?? 'Crossref';
+                $publisherName = $containerTitle ? "{$containerTitle} ({$publisherRaw})" : $publisherRaw;
+                $finalPublisher = Str::limit($publisherName, 145);
+
+                // Extract ONLY genuine PDF / Galley links from Crossref
+                $crossrefPdfUrl = null;
+                if (! empty($item['link']) && is_array($item['link'])) {
+                    foreach ($item['link'] as $lnk) {
+                        $ct = strtolower((string) ($lnk['content-type'] ?? ''));
+                        $u = (string) ($lnk['URL'] ?? '');
+                        if ($u !== '' && (str_contains($ct, 'pdf') || preg_match('/\.pdf($|\?)|\/article\/(?:view|download)\/\d+\/\d+|format=pdf|script=sci_pdf/i', $u))) {
+                            $crossrefPdfUrl = $u;
+                            break;
+                        }
                     }
                 }
-            }
 
-            $doi = $item['DOI'] ?? null;
-            $landingUrl = $item['resource']['primary']['URL'] ?? ($item['URL'] ?? null);
-            $candidateUrl = $crossrefPdfUrl ?: $landingUrl;
+                $doi = $item['DOI'] ?? null;
+                $landingUrl = $item['resource']['primary']['URL'] ?? ($item['URL'] ?? null);
+                $candidateUrl = $crossrefPdfUrl ?: $landingUrl;
 
-            // Query Unpaywall if no direct PDF was found in Crossref links
-            if (! $crossrefPdfUrl && $doi) {
-                $unpaywallPdf = $this->resolveDoiToOpenAccessPdf($doi);
-                if ($unpaywallPdf) {
-                    $candidateUrl = $unpaywallPdf;
+                // Multi-tier DOI resolution if no direct PDF was found in Crossref links
+                if (! $crossrefPdfUrl && $doi) {
+                    $resolvedPdf = $this->resolveDoiToOpenAccessPdf($doi);
+                    if ($resolvedPdf) {
+                        $candidateUrl = $resolvedPdf;
+                    }
                 }
+
+                if (! $candidateUrl) {
+                    continue;
+                }
+
+                $externalUrl = $this->resolveDirectDocumentLink($candidateUrl);
+                if ($externalUrl === '' || str_starts_with($externalUrl, 'javascript:')) {
+                    continue;
+                }
+
+                $yearParts = $item['published-print']['date-parts'][0][0] ?? ($item['published-online']['date-parts'][0][0] ?? ($item['created']['date-parts'][0][0] ?? null));
+                $year = $yearParts ? (int) $yearParts : null;
+
+                $type = $item['type'] ?? 'journal-article';
+                $category = $this->mapCategory($type, $categoryFilter ?: ($config['default_category'] ?? 'Paper'));
+
+                $description = "Artículo / documento científico revisado por pares («{$title}»). Indexado en DOI Crossref / {$finalPublisher}".($year ? " ({$year})" : '').'. Acceso abierto verificado para la comunidad académica institucional.';
+
+                $results[] = [
+                    'title' => Str::limit($title, 250),
+                    'author' => Str::limit($author, 250),
+                    'study_program_id' => $programId > 0 ? $programId : null,
+                    'category' => $category,
+                    'description' => Str::limit($description, 950),
+                    'publisher' => $finalPublisher,
+                    'publication_year' => $year,
+                    'edition' => '1ª Edición Digital',
+                    'pages' => ! empty($item['page']) ? (int) Str::before($item['page'], '-') : null,
+                    'isbn' => $doi ? Str::limit($doi, 45) : null,
+                    'language' => 'Español',
+                    'external_url' => Str::limit($externalUrl, 495),
+                    'rating' => 5.0,
+                    'is_active' => true,
+                ];
             }
 
-            if (! $candidateUrl) {
-                continue;
-            }
+            return $results;
+        } catch (\Throwable $e) {
+            Log::info("Crossref query note [{$term}]: ".$e->getMessage());
 
-            $externalUrl = $this->resolveDirectDocumentLink($candidateUrl);
-            if ($externalUrl === '' || str_starts_with($externalUrl, 'javascript:')) {
-                continue;
-            }
-
-            $yearParts = $item['published-print']['date-parts'][0][0] ?? ($item['published-online']['date-parts'][0][0] ?? ($item['created']['date-parts'][0][0] ?? null));
-            $year = $yearParts ? (int) $yearParts : null;
-
-            $type = $item['type'] ?? 'journal-article';
-            $category = $this->mapCategory($type, $categoryFilter ?: ($config['default_category'] ?? 'Paper'));
-
-            $description = "Artículo / documento científico revisado por pares («{$title}»). Indexado en DOI Crossref / {$finalPublisher}".($year ? " ({$year})" : '').'. Acceso abierto verificado para la comunidad académica institucional.';
-
-            $results[] = [
-                'title' => Str::limit($title, 250),
-                'author' => Str::limit($author, 250),
-                'study_program_id' => $programId > 0 ? $programId : null,
-                'category' => $category,
-                'description' => Str::limit($description, 950),
-                'publisher' => $finalPublisher,
-                'publication_year' => $year,
-                'edition' => '1ª Edición Digital',
-                'pages' => ! empty($item['page']) ? (int) Str::before($item['page'], '-') : null,
-                'isbn' => $doi ? Str::limit($doi, 45) : null,
-                'language' => 'Español',
-                'external_url' => Str::limit($externalUrl, 495),
-                'rating' => 5.0,
-                'is_active' => true,
-            ];
+            return [];
         }
-
-        return $results;
     }
 
     // ══════════════════════════════════════════════════════════════
-    // DOI → OPEN-ACCESS PDF RESOLUTION (UNPAYWALL)
+    // SOURCE 7: SEMANTIC SCHOLAR GRAPH API
     // ══════════════════════════════════════════════════════════════
 
     /**
-     * Use the Unpaywall API to resolve a DOI to its best open-access PDF URL.
+     * Query Semantic Scholar Graph API for peer-reviewed Open Access papers with verified PDFs.
+     *
+     * @param  array<string, mixed>  $config
+     * @return array<int, array<string, mixed>>
+     */
+    public function querySemanticScholar(string $term, array $config, int $programId, ?string $categoryFilter, int $batchLimit): array
+    {
+        $limit = max(1, min($batchLimit, 15));
+        $cleanTerm = $this->sanitizeSearchTerm($term);
+        $cleanTerm = trim((string) preg_replace('/\b(scielo|redalyc|google\s+scholar|open\s+access|pdf)\b/i', '', $cleanTerm));
+        if ($cleanTerm === '') {
+            $cleanTerm = $config['name'] ?? 'investigacion';
+        }
+
+        try {
+            $response = Http::timeout(8)
+                ->withHeaders(self::API_HEADERS)
+                ->get('https://api.semanticscholar.org/graph/v1/paper/search', [
+                    'query' => $cleanTerm,
+                    'limit' => $limit,
+                    'fields' => 'title,authors,year,abstract,venue,publicationTypes,openAccessPdf,externalIds,url',
+                ]);
+
+            if (! $response->successful()) {
+                return [];
+            }
+
+            $papers = $response->json('data') ?? [];
+            $results = [];
+
+            foreach ($papers as $paper) {
+                $title = trim((string) ($paper['title'] ?? ''));
+                if ($title === '' || mb_strlen($title) < 5) {
+                    continue;
+                }
+
+                $authors = ! empty($paper['authors']) && is_array($paper['authors'])
+                    ? collect($paper['authors'])->pluck('name')->filter()->take(3)->implode(', ')
+                    : 'Varios Autores / Colectivo Académico';
+                $author = Str::limit($authors ?: 'Varios Autores / Colectivo Académico', 250);
+
+                $venue = ! empty($paper['venue']) ? trim((string) $paper['venue']) : 'Semantic Scholar Research';
+                $publisherName = Str::limit('Semantic Scholar / '.$venue, 145);
+
+                $pdfUrl = $paper['openAccessPdf']['url'] ?? null;
+                $doi = $paper['externalIds']['DOI'] ?? null;
+
+                if (! $pdfUrl && $doi) {
+                    $pdfUrl = $this->resolveDoiToOpenAccessPdf($doi);
+                }
+
+                $candidateUrl = $pdfUrl ?: ($paper['url'] ?? null);
+                if (! $candidateUrl) {
+                    continue;
+                }
+
+                $finalUrl = $this->resolveDirectDocumentLink($candidateUrl);
+                if ($finalUrl === '' || str_starts_with($finalUrl, 'javascript:')) {
+                    continue;
+                }
+
+                $year = ! empty($paper['year']) ? (int) $paper['year'] : null;
+                $abstract = trim((string) ($paper['abstract'] ?? ''));
+                if ($abstract === '') {
+                    $abstract = "Artículo científico indexado en Semantic Scholar («{$title}»). Publicado en {$publisherName}".($year ? " ({$year})" : '').'. Acceso abierto disponible para investigación formativa.';
+                }
+
+                $category = $this->mapCategory(
+                    implode(' ', (array) ($paper['publicationTypes'] ?? ['article'])),
+                    $categoryFilter ?: ($config['default_category'] ?? 'Paper')
+                );
+
+                $results[] = [
+                    'title' => Str::limit($title, 250),
+                    'author' => $author,
+                    'study_program_id' => $programId > 0 ? $programId : null,
+                    'category' => $category,
+                    'description' => Str::limit($abstract, 950),
+                    'publisher' => $publisherName,
+                    'publication_year' => $year,
+                    'edition' => '1ª Edición Digital',
+                    'pages' => null,
+                    'isbn' => $doi ? Str::limit($doi, 45) : null,
+                    'language' => 'Español',
+                    'external_url' => Str::limit($finalUrl, 495),
+                    'rating' => 5.0,
+                    'is_active' => true,
+                ];
+            }
+
+            return $results;
+        } catch (\Throwable $e) {
+            Log::info("Semantic Scholar note [{$term}]: ".$e->getMessage());
+
+            return [];
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // DOI → OPEN-ACCESS PDF MULTI-TIER RESOLUTION
+    // ══════════════════════════════════════════════════════════════
+
+    /**
+     * Multi-tier DOI resolver to discover verified Open-Access PDF URLs.
+     * Tier 1: Unpaywall API
+     * Tier 2: Crossref Works API
+     * Tier 3: OpenAlex Works API
      *
      * @param  string  $doi  Raw DOI e.g. "10.1234/foo" or full URL "https://doi.org/10.1234/foo"
      */
@@ -1177,6 +1671,12 @@ class AcademicLibraryService
             return null;
         }
 
+        $cacheKey = 'doi_pdf_'.md5($doi);
+        if (isset($this->resolvedUrlCache[$cacheKey])) {
+            return $this->resolvedUrlCache[$cacheKey] ?: null;
+        }
+
+        // Tier 1: Unpaywall API
         try {
             $response = Http::timeout(6)
                 ->withHeaders(self::API_HEADERS)
@@ -1184,25 +1684,72 @@ class AcademicLibraryService
                     'email' => 'contacto@iestpfvc.edu.pe',
                 ]);
 
-            if (! $response->successful()) {
-                return null;
-            }
+            if ($response->successful()) {
+                $data = $response->json();
+                $bestOa = $data['best_oa_location'] ?? null;
+                if ($bestOa && ! empty($bestOa['url_for_pdf'])) {
+                    $norm = $this->normalizeOjsUrl((string) $bestOa['url_for_pdf']);
+                    $this->resolvedUrlCache[$cacheKey] = $norm;
 
-            $data = $response->json();
+                    return $norm;
+                }
 
-            $bestOa = $data['best_oa_location'] ?? null;
-            if ($bestOa && ! empty($bestOa['url_for_pdf'])) {
-                return $this->normalizeOjsUrl((string) $bestOa['url_for_pdf']);
-            }
+                foreach (($data['oa_locations'] ?? []) as $loc) {
+                    if (! empty($loc['url_for_pdf'])) {
+                        $norm = $this->normalizeOjsUrl((string) $loc['url_for_pdf']);
+                        $this->resolvedUrlCache[$cacheKey] = $norm;
 
-            foreach (($data['oa_locations'] ?? []) as $loc) {
-                if (! empty($loc['url_for_pdf'])) {
-                    return $this->normalizeOjsUrl((string) $loc['url_for_pdf']);
+                        return $norm;
+                    }
                 }
             }
         } catch (\Throwable $e) {
             Log::info("Unpaywall DOI resolution note [{$doi}]: ".$e->getMessage());
         }
+
+        // Tier 2: Crossref API link negotiation
+        try {
+            $crResponse = Http::timeout(6)
+                ->withHeaders(self::API_HEADERS)
+                ->get('https://api.crossref.org/works/'.rawurlencode($doi));
+
+            if ($crResponse->successful()) {
+                $links = $crResponse->json('message.link') ?? [];
+                foreach ($links as $lnk) {
+                    $ct = strtolower((string) ($lnk['content-type'] ?? ''));
+                    $u = trim((string) ($lnk['URL'] ?? ''));
+                    if ($u !== '' && (str_contains($ct, 'pdf') || preg_match('/\.pdf($|\?)|\/article\/(?:view|download)\/\d+\/\d+/i', $u))) {
+                        $norm = $this->normalizeOjsUrl($u);
+                        $this->resolvedUrlCache[$cacheKey] = $norm;
+
+                        return $norm;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::info("Crossref DOI resolution note [{$doi}]: ".$e->getMessage());
+        }
+
+        // Tier 3: OpenAlex Works API
+        try {
+            $oaResponse = Http::timeout(6)
+                ->withHeaders(self::API_HEADERS)
+                ->get('https://api.openalex.org/works/https://doi.org/'.rawurlencode($doi));
+
+            if ($oaResponse->successful()) {
+                $pdfUrl = $oaResponse->json('best_oa_location.pdf_url') ?? $oaResponse->json('primary_location.pdf_url');
+                if ($pdfUrl) {
+                    $norm = $this->normalizeOjsUrl((string) $pdfUrl);
+                    $this->resolvedUrlCache[$cacheKey] = $norm;
+
+                    return $norm;
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::info("OpenAlex DOI resolution note [{$doi}]: ".$e->getMessage());
+        }
+
+        $this->resolvedUrlCache[$cacheKey] = '';
 
         return null;
     }
@@ -1220,6 +1767,10 @@ class AcademicLibraryService
 
         if (preg_match('~(/article/)download/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', $url)) {
             $url = (string) preg_replace('~(/article/)download/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', '$1view/$2', $url);
+        }
+
+        if (preg_match('~(/article/)viewFile/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', $url)) {
+            $url = (string) preg_replace('~(/article/)viewFile/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', '$1view/$2', $url);
         }
 
         return $url;
@@ -1261,12 +1812,15 @@ class AcademicLibraryService
             return $this->resolvedUrlCache[$url] = $url;
         }
 
-        // Fast check 3: Dialnet article & thesis landing pages -> direct PDF download link
+        // Fast check 3: Dialnet article, thesis & book landing pages -> direct PDF download link
         if (preg_match('/dialnet\.unirioja\.es\/servlet\/articulo\?codigo=(\d+)/i', $url, $dMatch)) {
             return $this->resolvedUrlCache[$url] = "https://dialnet.unirioja.es/descarga/articulo/{$dMatch[1]}.pdf";
         }
         if (preg_match('/dialnet\.unirioja\.es\/servlet\/tesis\?codigo=(\d+)/i', $url, $tMatch)) {
             return $this->resolvedUrlCache[$url] = "https://dialnet.unirioja.es/descarga/tesis/{$tMatch[1]}.pdf";
+        }
+        if (preg_match('/dialnet\.unirioja\.es\/servlet\/libro\?codigo=(\d+)/i', $url, $lMatch)) {
+            return $this->resolvedUrlCache[$url] = "https://dialnet.unirioja.es/descarga/libro/{$lMatch[1]}.pdf";
         }
 
         // Fast check 4: Redalyc article landing pages -> direct PDF link
@@ -1308,7 +1862,7 @@ class AcademicLibraryService
             return $this->resolvedUrlCache[$url] = 'https://arxiv.org/pdf/'.$arxivMatch[1].'.pdf';
         }
 
-        // Fast check 8: PubMed Central PMC article -> scrape or convert to direct PMC PDF
+        // Fast check 8: PubMed Central / Europe PMC article -> scrape or convert to direct PMC PDF
         if (preg_match('#(?:pubmedcentral|ncbi\.nlm\.nih\.gov/pmc/articles)/PMC(\d+)#i', $url, $pmcMatch)) {
             $pmcId = $pmcMatch[1];
             $directPmc = "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC{$pmcId}/pdf/";
@@ -1319,8 +1873,18 @@ class AcademicLibraryService
 
             return $this->resolvedUrlCache[$url] = $directPmc;
         }
+        if (preg_match('#europepmc\.org/article/PMC/(\d+)#i', $url, $epmcMatch)) {
+            return $this->resolvedUrlCache[$url] = 'https://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC'.$epmcMatch[1].'&blobtype=pdf';
+        }
 
-        // Fast check 9: DOI URL -> query Unpaywall for direct open-access PDF
+        // Fast check 9: Internet Archive Details URL -> direct PDF download
+        if (preg_match('~archive\.org/details/([^/?#]+)~i', $url, $iaMatch)) {
+            $iaId = $iaMatch[1];
+
+            return $this->resolvedUrlCache[$url] = "https://archive.org/download/{$iaId}/{$iaId}.pdf";
+        }
+
+        // Fast check 10: DOI URL -> multi-tier resolver for direct open-access PDF
         if (preg_match('#^https?://(?:dx\.)?doi\.org/(10\.\d{4,9}/.+)$#i', $url, $doiMatch)) {
             $resolvedPdf = $this->resolveDoiToOpenAccessPdf($doiMatch[1]);
             if ($resolvedPdf) {
@@ -1344,7 +1908,7 @@ class AcademicLibraryService
     }
 
     // ══════════════════════════════════════════════════════════════
-    // HTML SCRAPING & PAGE SCANNING
+    // HTML SCRAPING & DEEP PAGE SCANNING
     // ══════════════════════════════════════════════════════════════
 
     /**
@@ -1362,7 +1926,7 @@ class AcademicLibraryService
                 ->withHeaders(self::SCRAPE_HEADERS)
                 ->withOptions([
                     'allow_redirects' => [
-                        'max' => 10,
+                        'max' => 6,
                         'strict' => false,
                         'referer' => true,
                         'track_redirects' => true,
@@ -1412,7 +1976,6 @@ class AcademicLibraryService
 
     /**
      * Extract the most direct document link using Symfony DomCrawler.
-     * Fixed: removed 'citation_full_html_url' and added exclusion of author guidelines / policy PDFs.
      */
     public function extractWithDomCrawler(string $html, string $baseUrl): ?string
     {
@@ -1445,7 +2008,7 @@ class AcademicLibraryService
 
             // ── Strategy 2: Dublin Core meta tags with PDF, bitstream, or galley pattern ──
             try {
-                $dcNodes = $crawler->filterXPath("//meta[@name='DC.Identifier' or @name='dc.identifier' or @name='DC.relation' or @name='dc.relation']");
+                $dcNodes = $crawler->filterXPath("//meta[@name='DC.Identifier' or @name='dc.identifier' or @name='DC.relation' or @name='dc.relation' or @name='DC.Identifier.URI' or @name='dc.identifier.uri']");
                 foreach ($dcNodes as $node) {
                     $content = trim((string) $node->getAttribute('content'));
                     if (preg_match('/\.pdf($|\?)|\/article\/(?:view|download)\/\d+\/\d+|\/bitstream\/handle\/|\/bitstreams\/[a-f0-9\-]+\/download/i', $content)) {
@@ -1459,7 +2022,7 @@ class AcademicLibraryService
                 // skip
             }
 
-            // ── Strategy 3: JSON-LD structured data (ScholarlyArticle / DigitalDocument) ──
+            // ── Strategy 3: JSON-LD structured data (ScholarlyArticle / Book / DigitalDocument) ──
             try {
                 $jsonLdNodes = $crawler->filter('script[type="application/ld+json"]');
                 foreach ($jsonLdNodes as $node) {
@@ -1485,6 +2048,7 @@ class AcademicLibraryService
                         $distributions = array_merge(
                             (array) ($d['encoding'] ?? []),
                             (array) ($d['distribution'] ?? []),
+                            (array) ($d['associatedMedia'] ?? []),
                             (array) ($d['hasPart'] ?? [])
                         );
                         foreach ($distributions as $enc) {
@@ -1504,7 +2068,7 @@ class AcademicLibraryService
 
             // ── Strategy 4: OJS Galley links (specific classes) ──
             try {
-                $ojsPdfLinks = $crawler->filter('a.obj_galley_link.pdf, a.obj_galley_link[title*="PDF"], a.galley-link.pdf, a.obj_galley_link, a.galley_link');
+                $ojsPdfLinks = $crawler->filter('a.obj_galley_link.pdf, a.obj_galley_link[title*="PDF"], a.galley-link.pdf, a.obj_galley_link, a.galley_link, a.file.pdf');
                 foreach ($ojsPdfLinks as $linkNode) {
                     $href = trim($linkNode->getAttribute('href') ?? '');
                     if ($href !== '' && ! str_starts_with($href, 'javascript:') && $href !== '#') {
@@ -1541,9 +2105,9 @@ class AcademicLibraryService
                 // skip
             }
 
-            // ── Strategy 7: SciELO & Redalyc & Dialnet specific anchors ──
+            // ── Strategy 7: SciELO, Redalyc & Dialnet specific anchors ──
             try {
-                $repoLinks = $crawler->filter('a[href*="scielo.php"][href*="sci_pdf"], a[href*="/pdf/"][href$=".pdf"], a[href*="format=pdf"], a[href*="/descarga/articulo/"][href$=".pdf"], a[href*="/descarga/tesis/"][href$=".pdf"]');
+                $repoLinks = $crawler->filter('a[href*="scielo.php"][href*="sci_pdf"], a[href*="/pdf/"][href$=".pdf"], a[href*="format=pdf"], a[href*="/descarga/articulo/"][href$=".pdf"], a[href*="/descarga/tesis/"][href$=".pdf"], a[href*="/descarga/libro/"][href$=".pdf"]');
                 foreach ($repoLinks as $rNode) {
                     $href = trim($rNode->getAttribute('href') ?? '');
                     if ($href !== '') {
@@ -1592,7 +2156,7 @@ class AcademicLibraryService
                 $pdfKeywords = [
                     'pdf', 'texto completo', 'full text', 'full-text', 'descargar artículo',
                     'descargar libro', 'leer artículo', 'visualizar pdf', 'bajar pdf', 'documento completo',
-                    'download pdf', 'ver pdf', 'acceder al pdf', 'leer en pdf',
+                    'download pdf', 'ver pdf', 'acceder al pdf', 'leer en pdf', 'descargar documento',
                 ];
 
                 $anchors = $crawler->filter('a[href]');
@@ -1667,7 +2231,7 @@ class AcademicLibraryService
             return $this->makeAbsoluteUrl($m[1], $baseUrl);
         }
 
-        if (preg_match('/href=["\']([^"\']*\/descarga\/(?:articulo|tesis)\/\d+\.pdf)["\']/i', $html, $m)) {
+        if (preg_match('/href=["\']([^"\']*\/descarga\/(?:articulo|tesis|libro)\/\d+\.pdf)["\']/i', $html, $m)) {
             return $this->makeAbsoluteUrl($m[1], $baseUrl);
         }
 
@@ -1781,12 +2345,23 @@ class AcademicLibraryService
         if (preg_match('/\/bitstream\/handle\/|\/bitstreams\/[a-f0-9\-]+\/download|\/jspui\/bitstream\/|\/xmlui\/bitstream\//i', $url)) {
             return true;
         }
-        if (preg_match('/script=sci_pdf|[?&]format=pdf|\/descarga\/(?:articulo|tesis)\/\d+\.pdf|ncbi\.nlm\.nih\.gov\/pmc\/articles\/PMC\d+\/pdf/i', $url)) {
+        if (preg_match('/script=sci_pdf|[?&]format=pdf|\/descarga\/(?:articulo|tesis|libro)\/\d+\.pdf/i', $url)) {
+            return true;
+        }
+        if (preg_match('/ncbi\.nlm\.nih\.gov\/pmc\/articles\/PMC\d+\/pdf|europepmc\.org\/backend\/ptpmcrender\.fcgi/i', $url)) {
+            return true;
+        }
+        if (preg_match('/archive\.org\/download\/[^\/]+\/[^\/]+\.pdf/i', $url)) {
             return true;
         }
 
         // Reject known HTML landing page patterns (e.g. /article/view/350 without galley ID, /handle/123/456 without bitstream)
-        if (preg_match('~/article/view/\d+/?$~i', $url) || preg_match('~/handle/\d+/\d+/?$~i', $url) || str_contains($url, 'script=sci_arttext')) {
+        if (
+            preg_match('~/article/view/\d+/?$~i', $url) ||
+            preg_match('~/handle/\d+/\d+/?$~i', $url) ||
+            str_contains($url, 'script=sci_arttext') ||
+            preg_match('~/servlet/(?:articulo|tesis|libro)\?~i', $url)
+        ) {
             return false;
         }
 
@@ -1880,6 +2455,17 @@ class AcademicLibraryService
     // ══════════════════════════════════════════════════════════════
 
     /**
+     * Sanitize search queries for external API safety and lucene syntax compliance.
+     */
+    public function sanitizeSearchTerm(string $term): string
+    {
+        $cleaned = (string) preg_replace('/[\[\]{}^~*?:\/\\\\]+/', ' ', $term);
+        $cleaned = (string) preg_replace('/\s+/', ' ', $cleaned);
+
+        return trim($cleaned);
+    }
+
+    /**
      * Map scholarly work type to the Library categories.
      */
     private function mapCategory(string $academicType, string $fallback): string
@@ -1902,7 +2488,7 @@ class AcademicLibraryService
             return 'Paper';
         }
 
-        if (str_contains($type, 'report') || str_contains($type, 'technical') || str_contains($type, 'document')) {
+        if (str_contains($type, 'report') || str_contains($type, 'technical') || str_contains($type, 'document') || str_contains($type, 'manual')) {
             return 'Documento';
         }
 
@@ -2016,6 +2602,7 @@ class AcademicLibraryService
                 'publisher' => $existing->publisher ?: ($item['publisher'] ?? null),
                 'publication_year' => $existing->publication_year ?: ($item['publication_year'] ?? null),
                 'isbn' => $existing->isbn ?: ($item['isbn'] ?? null),
+                'pages' => $existing->pages ?: ($item['pages'] ?? null),
             ];
 
             if ($this->isMoreDirectDocumentUrl($item['external_url'], $existing->external_url)) {

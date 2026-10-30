@@ -93,7 +93,7 @@ class LibraryController extends Controller
             $options = [
                 'study_program_id' => $request->input('study_program_id'),
                 'category' => $request->input('category'),
-                'sources' => $request->input('sources', ['scielo', 'google_scholar', 'redalyc', 'scopus', 'openalex', 'crossref', 'doaj']),
+                'sources' => $request->input('sources', ['scielo', 'google_scholar', 'redalyc', 'scopus', 'openalex', 'crossref', 'doaj', 'europe_pmc', 'open_library', 'semanticscholar']),
                 'custom_query' => $request->input('custom_query'),
                 'limit' => (int) $request->input('limit', 10),
                 'created_by' => auth()->id(),

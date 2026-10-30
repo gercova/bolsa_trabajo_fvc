@@ -546,7 +546,6 @@
                                     </p>
                                 </div>
                             </div>
-
                             <div class="flex items-start gap-3.5">
                                 <div
                                     class="w-9 h-9 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center shrink-0 border border-gray-100">
@@ -557,7 +556,6 @@
                                     <p class="text-sm text-gray-700 font-semibold mt-0.5">3 Años (6 Semestres)</p>
                                 </div>
                             </div>
-
                             <div class="flex items-start gap-3.5">
                                 <div
                                     class="w-9 h-9 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center shrink-0 border border-gray-100">
@@ -568,7 +566,6 @@
                                     <p class="text-sm text-gray-700 font-semibold mt-0.5">Lunes a Viernes 7:30 am – 1:30 pm</p>
                                 </div>
                             </div>
-
                             <div class="flex items-start gap-3.5">
                                 <div
                                     class="w-9 h-9 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center shrink-0 border border-gray-100">
@@ -581,43 +578,36 @@
                             </div>
                         </div>
                     </div>
-
                     {{-- Career Prospects / Campo Laboral --}}
                     @if($program->jobFields->isNotEmpty())
                         <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm glow-effect">
-                            <h3
-                                class="text-lg font-extrabold text-gray-900 mb-5 pb-3 border-b border-gray-100 flex items-center gap-2.5">
+                            <h3 class="text-lg font-extrabold text-gray-900 mb-5 pb-3 border-b border-gray-100 flex items-center gap-2.5">
                                 <i class="bi bi-briefcase {{ $sidebarIconClass }} text-lg"></i>
                                 Campo Laboral
                             </h3>
                             <p class="text-sm text-gray-500 mb-4 leading-relaxed">
                                 Al egresar, estarás preparado para desempeñarte con éxito en:
                             </p>
-
                             <ul class="space-y-3">
                                 @foreach ($program->jobFields as $item)
                                     <li class="text-sm text-gray-700 flex items-start gap-2.5 leading-relaxed">
-                                        <i
-                                            class="bi bi-check2-circle {{ $sidebarIconClass }} shrink-0 mt-0.5 text-base"></i>
+                                        <i class="bi bi-check2-circle {{ $sidebarIconClass }} shrink-0 mt-0.5 text-base"></i>
                                         <span>{{ $item->description }}</span>
                                     </li>
                                 @endforeach
                             </ul>
                         </div>
                     @endif
-
                     {{-- Admission Requirements --}}
                     @if($program->requirements->isNotEmpty())
                         <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm glow-effect">
-                            <h3
-                                class="text-lg font-extrabold text-gray-900 mb-5 pb-3 border-b border-gray-100 flex items-center gap-2.5">
+                            <h3 class="text-lg font-extrabold text-gray-900 mb-5 pb-3 border-b border-gray-100 flex items-center gap-2.5">
                                 <i class="bi bi-clipboard2-check {{ $sidebarIconClass }} text-lg"></i>
                                 Requisitos de Matrícula
                             </h3>
                             <p class="text-sm text-gray-500 mb-4 leading-relaxed">
                                 Documentación mínima necesaria para el proceso de admisión:
                             </p>
-
                             <ul class="space-y-3">
                                 @foreach ($program->requirements as $item)
                                     <li class="text-sm text-gray-700 flex items-start gap-2.5 leading-relaxed font-semibold">
@@ -628,10 +618,8 @@
                             </ul>
                         </div>
                     @endif
-
                     {{-- CTA Box --}}
-                    <div
-                        class="{{ $color['solid_bg'] ?? 'bg-blue-800' }} rounded-3xl p-6 text-white text-center shadow-lg relative overflow-hidden">
+                    <div class="{{ $color['solid_bg'] ?? 'bg-blue-800' }} rounded-3xl p-6 text-white text-center shadow-lg relative overflow-hidden">
                         <div class="relative z-10">
                             <h4 class="font-extrabold text-xl mb-3">¿Deseas iniciar tu inscripción?</h4>
                             <p class="text-sm text-white/90 leading-relaxed mb-6">
@@ -650,7 +638,6 @@
         </div>
     </section>
 @endsection
-
 @push('scripts')
     <script>
         function programHeroCarousel(count = 1) {

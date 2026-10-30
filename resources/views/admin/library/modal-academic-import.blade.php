@@ -19,7 +19,7 @@
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-indigo-50 text-indigo-700 border border-indigo-200 tracking-wider">
                             Indexación Abierta
                         </span>
-                        <span class="text-[11px] text-slate-400 font-semibold">SciELO · Google Scholar · Redalyc · DOAJ · Crossref · OpenAlex</span>
+                        <span class="text-[11px] text-slate-400 font-semibold">SciELO · Google Scholar · Redalyc · DOAJ · Crossref · OpenAlex · Europe PMC · Open Library</span>
                     </div>
                     <h3 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight mt-0.5">
                         Búsqueda y Carga Masiva Académica
@@ -110,7 +110,7 @@
                         <i class="bi bi-shield-check text-emerald-600"></i>
                         <span>Fuentes Científicas Verificables (Open Access)</span>
                     </label>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 pt-1">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
                         <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-100 cursor-pointer text-xs font-semibold text-slate-700 transition">
                             <input type="checkbox" value="scielo" checked x-model="importForm.sources" class="rounded text-indigo-600 focus:ring-indigo-500">
                             <span>SciELO</span>
@@ -134,6 +134,14 @@
                         <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-100 cursor-pointer text-xs font-semibold text-slate-700 transition">
                             <input type="checkbox" value="openalex" checked x-model="importForm.sources" class="rounded text-indigo-600 focus:ring-indigo-500">
                             <span>OpenAlex</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-100 cursor-pointer text-xs font-semibold text-slate-700 transition">
+                            <input type="checkbox" value="europe_pmc" checked x-model="importForm.sources" class="rounded text-indigo-600 focus:ring-indigo-500">
+                            <span>Europe PMC</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-100 cursor-pointer text-xs font-semibold text-slate-700 transition">
+                            <input type="checkbox" value="open_library" checked x-model="importForm.sources" class="rounded text-indigo-600 focus:ring-indigo-500">
+                            <span>Open Library (Libros)</span>
                         </label>
                     </div>
                 </div>

@@ -223,7 +223,7 @@
                 study_program_id: 'all',
                 category: 'all',
                 limit: 10,
-                sources: ['scielo', 'google_scholar', 'redalyc', 'doaj', 'crossref', 'openalex'],
+                sources: ['scielo', 'google_scholar', 'redalyc', 'doaj', 'crossref', 'openalex', 'europe_pmc', 'open_library'],
                 custom_query: ''
             },
 

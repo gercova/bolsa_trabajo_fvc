@@ -410,4 +410,131 @@ HTML;
         $this->assertEquals('https://revistas.peru.org/recursos/articulo-2024.pdf', $results[0]['external_url']);
         $this->assertEquals('2024', $results[0]['publication_year']);
     }
+
+    public function test_query_europe_pmc_returns_peer_reviewed_records(): void
+    {
+        $pmcResponse = [
+            'resultList' => [
+                'result' => [
+                    [
+                        'id' => 'PMC13631969',
+                        'pmcid' => 'PMC13631969',
+                        'title' => 'Cuidados Clínicos en Enfermería y Atención Primaria',
+                        'authorString' => 'Dra. Elena Ramos, Lic. Juan Castro',
+                        'journalTitle' => 'Revista Latinoamericana de Enfermería',
+                        'pubType' => 'journal article',
+                        'isOpenAccess' => 'Y',
+                        'hasPDF' => 'Y',
+                        'firstPublicationDate' => '2025-06-15',
+                        'abstractText' => 'Investigación sobre procedimientos de bioseguridad y atención hospitalaria.',
+                        'doi' => '10.1590/rlae.2025.1001',
+                    ],
+                ],
+            ],
+        ];
+
+        Http::fake([
+            'https://www.ebi.ac.uk/europepmc/webservices/rest/search*' => Http::response($pmcResponse, 200),
+        ]);
+
+        $results = $this->service->queryEuropePmc('enfermeria clinica', ['default_category' => 'Paper'], 2, 'Paper', 5);
+
+        $this->assertCount(1, $results);
+        $this->assertEquals('Cuidados Clínicos en Enfermería y Atención Primaria', $results[0]['title']);
+        $this->assertEquals('Dra. Elena Ramos, Lic. Juan Castro', $results[0]['author']);
+        $this->assertEquals('https://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC13631969&blobtype=pdf', $results[0]['external_url']);
+        $this->assertEquals(2025, $results[0]['publication_year']);
+        $this->assertEquals('Revista', $results[0]['category']);
+    }
+
+    public function test_query_open_library_returns_digitized_books_with_ia_pdf(): void
+    {
+        $olResponse = [
+            'docs' => [
+                [
+                    'title' => 'Manual Completo de Redes de Computadoras y Telecomunicaciones',
+                    'author_name' => ['Andrew S. Tanenbaum', 'David J. Wetherall'],
+                    'publisher' => ['Prentice Hall Latinoamericana'],
+                    'first_publish_year' => 2021,
+                    'number_of_pages_median' => 960,
+                    'isbn' => ['9786073208597'],
+                    'ia' => ['redesdecomputadoras01tane'],
+                    'key' => '/works/OL12345W',
+                ],
+            ],
+        ];
+
+        Http::fake([
+            'https://openlibrary.org/search.json*' => Http::response($olResponse, 200),
+        ]);
+
+        $results = $this->service->queryOpenLibrary('redes computadoras', ['default_category' => 'Libro'], 3, 'Libro', 5);
+
+        $this->assertCount(1, $results);
+        $this->assertEquals('Manual Completo de Redes de Computadoras y Telecomunicaciones', $results[0]['title']);
+        $this->assertEquals('Andrew S. Tanenbaum, David J. Wetherall', $results[0]['author']);
+        $this->assertEquals('https://archive.org/download/redesdecomputadoras01tane/redesdecomputadoras01tane.pdf', $results[0]['external_url']);
+        $this->assertEquals('Libro', $results[0]['category']);
+        $this->assertEquals(2021, $results[0]['publication_year']);
+        $this->assertEquals(960, $results[0]['pages']);
+    }
+
+    public function test_sanitize_search_term_cleans_lucene_special_characters(): void
+    {
+        $raw = 'redes: [cisco] OR {routing}^2 ~test* \ protocols /';
+        $cleaned = $this->service->sanitizeSearchTerm($raw);
+
+        $this->assertEquals('redes cisco OR routing 2 test protocols', $cleaned);
+        $this->assertStringNotContainsString('[', $cleaned);
+        $this->assertStringNotContainsString(']', $cleaned);
+        $this->assertStringNotContainsString('{', $cleaned);
+        $this->assertStringNotContainsString('}', $cleaned);
+        $this->assertStringNotContainsString('^', $cleaned);
+        $this->assertStringNotContainsString('~', $cleaned);
+        $this->assertStringNotContainsString('*', $cleaned);
+        $this->assertStringNotContainsString(':', $cleaned);
+    }
+
+    public function test_resolve_direct_document_link_with_europe_pmc_and_internet_archive(): void
+    {
+        // Europe PMC pattern
+        $epmcUrl = 'https://europepmc.org/article/PMC/13631969';
+        $this->assertEquals(
+            'https://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC13631969&blobtype=pdf',
+            $this->service->resolveDirectDocumentLink($epmcUrl)
+        );
+
+        // Internet Archive pattern
+        $iaUrl = 'https://archive.org/details/manual_forestal_2024';
+        $this->assertEquals(
+            'https://archive.org/download/manual_forestal_2024/manual_forestal_2024.pdf',
+            $this->service->resolveDirectDocumentLink($iaUrl)
+        );
+    }
+
+    public function test_resolve_doi_multi_tier_fallback_to_crossref_when_unpaywall_fails(): void
+    {
+        $doi = '10.1007/s00267-024-01999-x';
+
+        // Unpaywall fails with 404
+        // Crossref succeeds with a genuine PDF link
+        Http::fake([
+            'https://api.unpaywall.org/v2/*' => Http::response(['message' => 'Not Found'], 404),
+            'https://api.crossref.org/works/*' => Http::response([
+                'status' => 'ok',
+                'message' => [
+                    'link' => [
+                        [
+                            'URL' => 'https://link.springer.com/content/pdf/10.1007/s00267-024-01999-x.pdf',
+                            'content-type' => 'application/pdf',
+                        ],
+                    ],
+                ],
+            ], 200),
+        ]);
+
+        $resolved = $this->service->resolveDoiToOpenAccessPdf($doi);
+
+        $this->assertEquals('https://link.springer.com/content/pdf/10.1007/s00267-024-01999-x.pdf', $resolved);
+    }
 }

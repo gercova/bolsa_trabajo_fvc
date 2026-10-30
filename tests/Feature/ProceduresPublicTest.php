@@ -3,7 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\Enterprise;
+use App\Models\Tupa;
+use App\Models\TupaCategory;
+use App\Models\TupaProcedure;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class ProceduresPublicTest extends TestCase
@@ -34,14 +38,57 @@ class ProceduresPublicTest extends TestCase
         $response = $this->get('/tramites/mesa-de-partes');
 
         $response->assertOk();
-        $response->assertSee('Mesa de Partes Virtual');
-        $response->assertSee('Formulario de Envío Digital');
-        $response->assertSee('Datos del Solicitante');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Procedures/PartsTable')
+            ->has('enterprise')
+            ->where('enterprise.company_name', 'Test Enterprise')
+        );
+    }
 
-        // Assert SEO tags are present in the response
-        $response->assertSee('<meta name="description"', false);
-        $response->assertSee('<meta name="keywords"', false);
-        $response->assertSee('<link rel="canonical"', false);
-        $response->assertSee('<script type="application/ld+json">', false);
+    public function test_public_user_can_access_tupa_page(): void
+    {
+        $this->createEnterprise();
+
+        $tupa = Tupa::create([
+            'title' => 'TUPA 2026',
+            'description' => 'Texto Único de Procedimientos Administrativos',
+            'file_path' => 'tupa/tupa-2026.pdf',
+            'effective_start_date' => now()->toDateString(),
+            'is_active' => true,
+        ]);
+
+        $category = TupaCategory::create([
+            'name' => 'Trámites Académicos',
+            'icon' => 'bi-journal-check',
+            'is_active' => true,
+        ]);
+
+        TupaProcedure::create([
+            'tupa_id' => $tupa->id,
+            'category_id' => $category->id,
+            'code' => 'TUPA-001',
+            'name' => 'Certificado de Estudios',
+            'description' => 'Expedición de certificados oficiales',
+            'requirements' => ['Solicitud FUT', 'Comprobante de pago'],
+            'cost' => 25.00,
+            'uit_percent' => '0.5%',
+            'qualification' => 'Automática',
+            'duration' => '3 días hábiles',
+            'office' => 'Secretaría Académica',
+            'is_active' => true,
+        ]);
+
+        $response = $this->get('/tramites/tupa');
+
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Procedures/Tupa')
+            ->has('enterprise')
+            ->has('currentTupa')
+            ->has('tupaHistory')
+            ->has('procedures', 1)
+            ->where('procedures.0.category', 'Trámites Académicos')
+            ->where('procedures.0.items.0.code', 'TUPA-001')
+        );
     }
 }

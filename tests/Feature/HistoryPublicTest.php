@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Enterprise;
 use App\Models\HistoricalReview;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class HistoryPublicTest extends TestCase
@@ -36,41 +37,36 @@ class HistoryPublicTest extends TestCase
             'start_year' => 2024,
             'title' => 'Licenciamiento Institucional',
             'description' => 'El instituto se licencia ante el MINEDU.',
+            'is_active' => true,
         ]);
 
         HistoricalReview::create([
             'start_year' => 1991,
             'title' => 'Fundación del Instituto',
             'description' => 'Nace como instituto tecnológico.',
+            'is_active' => true,
         ]);
 
         HistoricalReview::create([
             'start_year' => 2006,
             'title' => 'Revalidación de Carreras',
             'description' => 'Se revalidan los programas formativos.',
+            'is_active' => true,
         ]);
 
         $response = $this->get('/nosotros/historia');
 
         $response->assertOk();
-        $response->assertSee('Reseña Histórica');
-        $response->assertSee('Fundación del Instituto');
-        $response->assertSee('Revalidación de Carreras');
-        $response->assertSee('Licenciamiento Institucional');
-
-        // Assert chronological ascending order: 1991 (Fundación) -> 2006 (Revalidación) -> 2024 (Licenciamiento)
-        $html = $response->getContent();
-        $pos1991 = strpos($html, 'Fundación del Instituto');
-        $pos2006 = strpos($html, 'Revalidación de Carreras');
-        $pos2024 = strpos($html, 'Licenciamiento Institucional');
-
-        $this->assertTrue($pos1991 < $pos2006, 'El hito de 1991 debe mostrarse antes del de 2006.');
-        $this->assertTrue($pos2006 < $pos2024, 'El hito de 2006 debe mostrarse antes del de 2024.');
-
-        // Assert SEO tags are present
-        $response->assertSee('<meta name="description"', false);
-        $response->assertSee('<meta name="keywords"', false);
-        $response->assertSee('<link rel="canonical"', false);
-        $response->assertSee('<script type="application/ld+json">', false);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('AboutUs/History')
+            ->has('enterprise')
+            ->has('histories', 3)
+            ->where('histories.0.start_year', 1991)
+            ->where('histories.0.title', 'Fundación del Instituto')
+            ->where('histories.1.start_year', 2006)
+            ->where('histories.1.title', 'Revalidación de Carreras')
+            ->where('histories.2.start_year', 2024)
+            ->where('histories.2.title', 'Licenciamiento Institucional')
+        );
     }
 }

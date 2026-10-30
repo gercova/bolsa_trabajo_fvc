@@ -48,6 +48,11 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $appends = [
+        'photo_profile_url',
+        'cv_file_url',
+    ];
+
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
@@ -126,5 +131,37 @@ class User extends Authenticatable
     public function isStudentOrApplicant(): bool
     {
         return $this->isStudent();
+    }
+
+    /**
+     * Get the full public URL for the user's profile photo.
+     */
+    public function getPhotoProfileUrlAttribute(): ?string
+    {
+        if (! $this->photo_profile) {
+            return null;
+        }
+
+        if (str_starts_with($this->photo_profile, 'http://') || str_starts_with($this->photo_profile, 'https://')) {
+            return $this->photo_profile;
+        }
+
+        return asset('storage/'.$this->photo_profile);
+    }
+
+    /**
+     * Get the full public URL for the user's CV file.
+     */
+    public function getCvFileUrlAttribute(): ?string
+    {
+        if (! $this->cv_file) {
+            return null;
+        }
+
+        if (str_starts_with($this->cv_file, 'http://') || str_starts_with($this->cv_file, 'https://')) {
+            return $this->cv_file;
+        }
+
+        return asset('storage/'.$this->cv_file);
     }
 }

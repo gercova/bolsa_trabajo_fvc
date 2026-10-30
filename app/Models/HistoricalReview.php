@@ -12,6 +12,8 @@ class HistoricalReview extends Model
 
     protected $dates = ['created_at', 'updated_at'];
 
+    protected $appends = ['image_url'];
+
     protected $fillable = [
         'title',
         'description',

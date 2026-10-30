@@ -1,0 +1,438 @@
+<script setup>
+import { ref, computed } from 'vue';
+import { Head, Link } from '@inertiajs/vue3';
+import PublicLayout from '@/Layouts/PublicLayout.vue';
+
+const props = defineProps({
+    enterprise: {
+        type: Object,
+        default: () => ({}),
+    },
+    currentTupa: {
+        type: Object,
+        default: null,
+    },
+    tupaHistory: {
+        type: Array,
+        default: () => [],
+    },
+    procedures: {
+        type: Array,
+        default: () => [],
+    },
+});
+
+const search = ref('');
+const selectedCategory = ref('all');
+const showModal = ref(false);
+const modalUrl = ref('');
+const modalTitle = ref('');
+
+const openPdfModal = (url, title) => {
+    modalUrl.value = url;
+    modalTitle.value = title;
+    showModal.value = true;
+};
+
+const closeModal = () => {
+    showModal.value = false;
+    modalUrl.value = '';
+    modalTitle.value = '';
+};
+
+const totalProceduresCount = computed(() => {
+    return props.procedures.reduce((acc, cat) => acc + (cat.items?.length || 0), 0);
+});
+
+const matchesSearch = (item) => {
+    if (!search.value.trim()) return true;
+    const q = search.value.toLowerCase().trim();
+    const code = (item.code || '').toLowerCase();
+    const name = (item.name || '').toLowerCase();
+    const desc = (item.description || '').toLowerCase();
+    const reqs = Array.isArray(item.requirements) ? item.requirements.join(' ').toLowerCase() : '';
+    return code.includes(q) || name.includes(q) || desc.includes(q) || reqs.includes(q);
+};
+
+const filteredProcedures = computed(() => {
+    return props.procedures
+        .filter((group) => {
+            if (selectedCategory.value !== 'all' && selectedCategory.value !== group.category) {
+                return false;
+            }
+            return true;
+        })
+        .map((group) => {
+            const matchingItems = group.items.filter(matchesSearch);
+            return {
+                ...group,
+                items: matchingItems,
+            };
+        })
+        .filter((group) => group.items.length > 0);
+});
+
+const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    try {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    } catch {
+        return dateStr;
+    }
+};
+
+const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'GovernmentOffice',
+    'name': 'Texto Único de Procedimientos Administrativos (TUPA) — IESTP Francisco Vigo Caballero',
+    'description': 'Reglamento oficial que compendia los procedimientos administrativos, requisitos, costos y plazos de atención para estudiantes y público general.',
+    'url': typeof window !== 'undefined' ? window.location.href : '',
+    'address': {
+        '@type': 'PostalAddress',
+        'streetAddress': props.enterprise?.address || 'Av. Ricardo Palma N° 1401',
+        'addressLocality': props.enterprise?.city || 'Uchiza',
+        'addressCountry': 'PE',
+    },
+});
+</script>
+
+<template>
+    <PublicLayout :enterprise="enterprise">
+        <Head>
+            <title>TUPA — Texto Único de Procedimientos Administrativos — IESTP Francisco Vigo Caballero</title>
+            <meta name="description" content="Reglamento del Texto Único de Procedimientos Administrativos (TUPA) del IESTP Francisco Vigo Caballero de Uchiza. Consulta todos los trámites académicos, requisitos, tasas, derechos de pago y plazos de atención." />
+            <meta name="keywords" content="TUPA, TUPA IESTP Francisco Vigo Caballero, reglamentos de trámites, requisitos de trámites, tasas educativas, derechos de pago, Uchiza, certificado de estudios, titulación, matrícula" />
+            <meta name="robots" content="index, follow" />
+            <meta property="og:type" content="website" />
+            <meta property="og:title" content="TUPA — IESTP Francisco Vigo Caballero" />
+            <meta property="og:description" content="Texto Único de Procedimientos Administrativos del IESTP Francisco Vigo Caballero. Descarga el reglamento oficial y consulta trámites, costos y requisitos." />
+            <meta property="og:image" :content="enterprise?.logo_path ? `/${enterprise.logo_path}` : '/img/logo.png'" />
+            <component :is="'script'" type="application/ld+json" v-text="jsonLd" />
+        </Head>
+
+        <!-- HERO SECTION -->
+        <section class="relative bg-slate-900 text-white py-16 lg:py-20 overflow-hidden border-b border-slate-800">
+            <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
+
+            <div class="container mx-auto px-6 relative z-10 text-center max-w-4xl">
+                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-400/20 text-xs font-semibold uppercase tracking-wider mb-6">
+                    <i class="bi bi-shield-check text-blue-400"></i> Marco Normativo Institucional
+                </span>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight leading-tight">
+                    Texto Único de Procedimientos Administrativos
+                </h1>
+                <p class="text-base md:text-lg lg:text-xl text-slate-300 leading-relaxed max-w-3xl mx-auto">
+                    Compendio de todos los trámites, requisitos, derechos de pago y plazos estipulados para la comunidad educativa y usuarios del IESTP Francisco Vigo Caballero.
+                </p>
+            </div>
+        </section>
+
+        <!-- MAIN CONTENT CONTAINER -->
+        <section class="py-16 bg-slate-50/60">
+            <div class="container mx-auto px-4 sm:px-6 max-w-7xl space-y-12">
+
+                <!-- SECTION 1: DOCUMENTO TUPA PDF VIGENTE -->
+                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xl overflow-hidden p-6 sm:p-8 lg:p-10 relative">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-blue-50/50 rounded-full blur-3xl -z-10"></div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                        <div class="lg:col-span-8 space-y-4">
+                            <div class="flex flex-wrap items-center gap-3">
+                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-600 text-white shadow-sm">
+                                    TUPA Vigente {{ currentTupa ? currentTupa.year : new Date().getFullYear() }}
+                                </span>
+                                <span v-if="currentTupa && currentTupa.effective_start_date" class="text-xs text-slate-500 flex items-center gap-1 font-medium">
+                                    <i class="bi bi-calendar3 text-blue-600"></i> Vigente desde el
+                                    {{ formatDate(currentTupa.effective_start_date) }}
+                                </span>
+                            </div>
+
+                            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-snug">
+                                {{ currentTupa?.title || 'Reglamento Oficial TUPA - IESTP Francisco Vigo Caballero' }}
+                            </h2>
+
+                            <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
+                                {{ currentTupa?.description || 'Consulte y descargue el documento normativo completo que estipula todas las normas, resoluciones y el cuadro tarifario oficial vigente en la institución.' }}
+                            </p>
+
+                            <div class="flex flex-wrap gap-3 pt-2">
+                                <template v-if="currentTupa && currentTupa.url">
+                                    <button
+                                        type="button"
+                                        @click="openPdfModal(currentTupa.url, currentTupa.title)"
+                                        class="inline-flex items-center gap-2.5 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/20 transition-all duration-200 cursor-pointer"
+                                    >
+                                        <i class="bi bi-file-earmark-pdf text-lg"></i>
+                                        <span>Ver PDF Interactivo</span>
+                                    </button>
+
+                                    <a
+                                        :href="currentTupa.url"
+                                        target="_blank"
+                                        download
+                                        class="inline-flex items-center gap-2 px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-xl transition-colors"
+                                    >
+                                        <i class="bi bi-download text-base"></i>
+                                        <span>Descargar PDF</span>
+                                    </a>
+                                </template>
+                                <div
+                                    v-else
+                                    class="p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-2"
+                                >
+                                    <i class="bi bi-info-circle-fill text-amber-600 text-lg"></i>
+                                    <span>El archivo PDF correspondiente al periodo actual se encuentra en proceso de actualización administrativa.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card right graphic / summary badge -->
+                        <div class="lg:col-span-4 bg-slate-900 text-white rounded-2xl p-6 sm:p-8 space-y-6 border border-slate-800 shadow-sm relative overflow-hidden">
+                            <div class="flex items-center justify-between">
+                                <i class="bi bi-folder-check text-4xl text-blue-400"></i>
+                                <span class="text-xs font-semibold px-2.5 py-1 bg-white/10 rounded-lg backdrop-blur-md">Oficial</span>
+                            </div>
+
+                            <div>
+                                <p class="text-xs uppercase tracking-wider text-slate-400 font-bold">Total Trámites Reglamentados</p>
+                                <p class="text-3xl font-black text-white mt-1">{{ totalProceduresCount }} Conceptos</p>
+                            </div>
+
+                            <div class="space-y-2 pt-2 border-t border-white/10 text-xs text-slate-300">
+                                <div class="flex justify-between">
+                                    <span>Unidad Impositiva Tributaria (UIT):</span>
+                                    <strong class="text-white">Año Vigente</strong>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Atención Presencial / Virtual:</span>
+                                    <strong class="text-emerald-400">Habilitado</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: BUSCADOR Y CATÁLOGO DE TRÁMITES Y CONCEPTOS -->
+                <div class="space-y-8">
+                    <div class="text-center max-w-3xl mx-auto space-y-3">
+                        <h2 class="text-3xl font-extrabold text-slate-900">Catálogo de Trámites, Requisitos y Tasas</h2>
+                        <p class="text-slate-600 text-sm sm:text-base">
+                            Filtre y explore los procedimientos administrativos por categoría o busque directamente por palabra clave para conocer los requisitos, costos y tiempos de atención.
+                        </p>
+                    </div>
+
+                    <!-- Control Filters Bar -->
+                    <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                            <!-- Search Input -->
+                            <div class="md:col-span-6 relative">
+                                <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-base"></i>
+                                <input
+                                    type="text"
+                                    v-model="search"
+                                    placeholder="Buscar trámite, requisito o código (ej: Certificado, Titulación, P-01)..."
+                                    class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                                />
+                            </div>
+
+                            <!-- Category Select Pills -->
+                            <div class="md:col-span-6 flex flex-wrap gap-2">
+                                <button
+                                    type="button"
+                                    @click="selectedCategory = 'all'"
+                                    :class="selectedCategory === 'all'
+                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
+                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+                                    class="px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                                >
+                                    Todos ({{ totalProceduresCount }})
+                                </button>
+                                <button
+                                    v-for="group in procedures"
+                                    :key="group.category"
+                                    type="button"
+                                    @click="selectedCategory = group.category"
+                                    :class="selectedCategory === group.category
+                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
+                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+                                    class="px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                                >
+                                    {{ group.category }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Procedures Grid -->
+                    <div v-if="filteredProcedures.length > 0" class="space-y-10">
+                        <div
+                            v-for="group in filteredProcedures"
+                            :key="group.category"
+                            class="space-y-6"
+                        >
+                            <div class="flex items-center gap-3 border-b border-slate-200 pb-3">
+                                <div class="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+                                    <i :class="`bi ${group.icon || 'bi-journal-check'}`" class="text-xl"></i>
+                                </div>
+                                <h3 class="text-xl font-extrabold text-slate-900">{{ group.category }}</h3>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div
+                                    v-for="item in group.items"
+                                    :key="item.code"
+                                    class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between space-y-6 relative overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all duration-300"
+                                >
+                                    <div class="space-y-4">
+                                        <div class="flex items-start justify-between gap-3">
+                                            <span class="px-2.5 py-1 bg-slate-900 text-white rounded-lg text-xs font-bold tracking-wider">
+                                                {{ item.code }}
+                                            </span>
+                                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                {{ item.qualification }}
+                                            </span>
+                                        </div>
+
+                                        <div>
+                                            <h4 class="text-lg font-bold text-slate-900 leading-snug">{{ item.name }}</h4>
+                                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">{{ item.description }}</p>
+                                        </div>
+
+                                        <div class="space-y-2 pt-2 border-t border-slate-100">
+                                            <p class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                                                <i class="bi bi-list-check text-blue-600"></i> Requisitos Exigidos:
+                                            </p>
+                                            <ul class="space-y-1.5 text-xs text-slate-600">
+                                                <li
+                                                    v-for="(req, rIdx) in item.requirements"
+                                                    :key="rIdx"
+                                                    class="flex items-start gap-2"
+                                                >
+                                                    <i class="bi bi-check2-circle text-blue-600 flex-shrink-0 mt-0.5"></i>
+                                                    <span>{{ req }}</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <div class="pt-4 border-t border-slate-100 grid grid-cols-3 gap-2 text-center text-xs">
+                                        <div class="bg-blue-50/70 p-2.5 rounded-xl border border-blue-100">
+                                            <span class="block text-[10px] uppercase font-bold text-slate-500">Derecho Pago</span>
+                                            <strong class="text-sm font-extrabold text-blue-700">{{ item.cost }}</strong>
+                                            <span class="block text-[10px] text-slate-400">({{ item.uit_percent }} UIT)</span>
+                                        </div>
+
+                                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                            <span class="block text-[10px] uppercase font-bold text-slate-500">Plazo Atención</span>
+                                            <strong class="text-xs font-bold text-slate-800">{{ item.duration }}</strong>
+                                        </div>
+
+                                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                            <span class="block text-[10px] uppercase font-bold text-slate-500">Oficina Atiende</span>
+                                            <span class="block text-[11px] font-semibold text-slate-700 leading-tight mt-0.5">{{ item.office }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty Search State -->
+                    <div
+                        v-else
+                        class="bg-white rounded-2xl border border-slate-200 p-12 text-center max-w-md mx-auto space-y-4"
+                    >
+                        <div class="w-16 h-16 mx-auto bg-slate-100 text-slate-400 rounded-full flex items-center justify-center">
+                            <i class="bi bi-search text-3xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800">No se encontraron trámites</h3>
+                            <p class="text-xs text-slate-500 mt-1">Intente buscando con otros términos o seleccione otra categoría.</p>
+                        </div>
+                        <button
+                            type="button"
+                            @click="search = ''; selectedCategory = 'all'"
+                            class="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl hover:bg-blue-700 transition-colors cursor-pointer"
+                        >
+                            Restablecer Filtros
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: ACCIONES RÁPIDAS Y MESA DE PARTES -->
+                <div class="bg-slate-900 text-white rounded-3xl p-8 sm:p-10 shadow-lg border border-slate-800 relative overflow-hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                        <div class="lg:col-span-8 space-y-3">
+                            <span class="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-semibold border border-blue-400/20">
+                                ¿Listo para iniciar tu trámite?
+                            </span>
+                            <h3 class="text-2xl sm:text-3xl font-extrabold text-white">
+                                Presenta tu solicitud a través de la Mesa de Partes Virtual
+                            </h3>
+                            <p class="text-slate-300 text-sm leading-relaxed">
+                                Adjunta tu Formulario Único de Trámite (FUT), comprobante de pago y requisitos desde cualquier lugar de forma segura e inmediata.
+                            </p>
+                        </div>
+
+                        <div class="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3">
+                            <Link
+                                :href="route('mesa-de-partes')"
+                                class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl shadow-lg transition-all text-center"
+                            >
+                                <i class="bi bi-send-fill"></i>
+                                <span>Ir a Mesa de Partes Virtual</span>
+                            </Link>
+
+                            <a
+                                href="/documents/fut-iestp-fvc.pdf"
+                                target="_blank"
+                                download
+                                class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-sm rounded-xl border border-white/20 transition-all text-center"
+                            >
+                                <i class="bi bi-file-earmark-arrow-down"></i>
+                                <span>Descargar Modelo FUT</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Reader for PDF -->
+                <div
+                    v-if="showModal"
+                    class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4"
+                >
+                    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[88vh] flex flex-col overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-950 text-white">
+                            <div class="flex items-center gap-3">
+                                <i class="bi bi-file-earmark-pdf text-red-400 text-xl"></i>
+                                <h3 class="font-bold text-sm sm:text-base truncate max-w-lg">{{ modalTitle }}</h3>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a
+                                    :href="modalUrl"
+                                    target="_blank"
+                                    download
+                                    class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1"
+                                >
+                                    <i class="bi bi-download"></i> Descargar
+                                </a>
+                                <button
+                                    type="button"
+                                    @click="closeModal"
+                                    class="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
+                                >
+                                    <i class="bi bi-x-lg text-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex-1 bg-slate-100 relative">
+                            <iframe :src="modalUrl" class="w-full h-full border-none"></iframe>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </PublicLayout>
+</template>

@@ -493,17 +493,17 @@ class AppController extends Controller
     }
 
     // tramites/mesa-de-partes
-    public function partsTable(): View
+    public function partsTable(): Response
     {
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
 
-        return view('procedures.parts-table', compact('enterprise'));
+        return Inertia::render('Procedures/PartsTable', compact('enterprise'));
     }
 
     // tramites/tupa
-    public function tupa(): View
+    public function tupa(): Response
     {
-        $enterprise = Enterprise::first();
+        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
         $currentTupa = Tupa::where('is_active', true)
             ->orderBy('effective_start_date', 'desc')
             ->first();
@@ -543,35 +543,38 @@ class AppController extends Controller
             ];
         })->filter(fn ($group) => ! empty($group['items']))->values()->toArray();
 
-        return view('procedures.tupa', compact('enterprise', 'currentTupa', 'tupaHistory', 'procedures'));
+        return Inertia::render('Procedures/Tupa', compact('enterprise', 'currentTupa', 'tupaHistory', 'procedures'));
     }
 
     // nosotros/quienes-somos
-    public function whoWeAre(): View
+    public function whoWeAre(): Response
     {
-        $enterprise = Enterprise::get();
+        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
 
-        return view('aboutus.who-we-are', compact('enterprise'));
+        return Inertia::render('AboutUs/WhoWeAre', compact('enterprise'));
     }
 
     // nosotros/historia
-    public function history(): View
+    public function history(): Response
     {
-        $histories = HistoricalReview::where('is_active', true)->orderBy('order', 'asc')->get();
+        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
+        $histories = HistoricalReview::where('is_active', true)->orderBy('start_year', 'asc')->orderBy('order', 'asc')->get();
 
-        return view('aboutus.history', compact('histories'));
+        return Inertia::render('AboutUs/History', compact('histories', 'enterprise'));
     }
 
     // nosotros/organigrama-institucional
-    public function institutionalOrganizationChart(): View
+    public function institutionalOrganizationChart(): Response
     {
-        return view('aboutus.institutional-organization-chart');
+        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
+
+        return Inertia::render('AboutUs/OrganizationChart', compact('enterprise'));
     }
 
     // nosotros/plana-jerarquica
-    public function hierarchicalStaff(): View
+    public function hierarchicalStaff(): Response
     {
-        $enterprise = Enterprise::first();
+        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
         // 1. Alta Dirección (Director General)
         $director = User::where('is_active', true)
             ->where(function ($q) {
@@ -608,12 +611,14 @@ class AppController extends Controller
 
         $allHierarchical = User::whereIn('id', $allHierarchicalIds)->get();
 
-        return view('aboutus.hierarchical-flat', compact('director', 'managementStaff', 'coordinators', 'allHierarchical', 'enterprise'));
+        return Inertia::render('AboutUs/HierarchicalStaff', compact('director', 'managementStaff', 'coordinators', 'allHierarchical', 'enterprise'));
     }
 
     // nosotros/plana-de-docentes
-    public function teachersStaff(): View
+    public function teachersStaff(): Response
     {
+        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
+
         $teacherDetails = UserRoleDetail::with(['user', 'program'])
             ->where('is_active', true)
             ->whereHas('user', function ($q) {
@@ -646,13 +651,13 @@ class AppController extends Controller
 
         $unassignedTeachers = $transversalTeachers;
 
-        return view('aboutus.teachers-staff', compact('teacherDetails', 'programs', 'transversalTeachers', 'unassignedTeachers'));
+        return Inertia::render('AboutUs/TeachersStaff', compact('teacherDetails', 'programs', 'transversalTeachers', 'unassignedTeachers', 'enterprise'));
     }
 
     // nosotros/plana-administrativa
-    public function administrativeStaff(): View
+    public function administrativeStaff(): Response
     {
-        $enterprise = Enterprise::first();
+        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
         $staffs = User::where('is_active', true)
             ->where(function ($q) {
                 $q->whereIn('role', ['Administrativo', 'Admin'])
@@ -663,19 +668,19 @@ class AppController extends Controller
                     ->orWhere('job_position', 'LIKE', '%Auxiliar%')
                     ->orWhere('job_position', 'LIKE', '%Seguridad%');
             })
-            ->where('role', '=', 'Director')
+            ->where('role', '!=', 'Director')
             ->where('role', '!=', 'estudiante')
             ->where('email', '!=', 'admin@example.com')
             ->orderBy('id', 'asc')
             ->get();
 
-        return view('aboutus.administrative-staff', compact('staffs', 'enterprise'));
+        return Inertia::render('AboutUs/AdministrativeStaff', compact('staffs', 'enterprise'));
     }
 
     // nosotros/consejo-de-estudiantes
-    public function studentCouncil(): View
+    public function studentCouncil(): Response
     {
-        $enterprise = Enterprise::first();
+        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
         // Obtener períodos académicos disponibles
         $periods = StudentCouncil::where('is_active', true)
             ->select('academic_period')
@@ -703,7 +708,7 @@ class AppController extends Controller
             return str_contains($pos, 'presidente') || str_contains($pos, 'vicepresidente') || str_contains($pos, 'vice presidente');
         })->values();
 
-        return view('aboutus.student-council', compact(
+        return Inertia::render('AboutUs/StudentCouncil', compact(
             'enterprise',
             'members',
             'board',
@@ -714,12 +719,12 @@ class AppController extends Controller
     }
 
     // nosotros/locales
-    public function locales(): View
+    public function locales(): Response
     {
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
         $programs = StudyProgram::where('is_active', true)->get();
 
-        return view('aboutus.locals', compact('enterprise', 'programs'));
+        return Inertia::render('AboutUs/Locals', compact('enterprise', 'programs'));
     }
 
     // bolsa-de-trabajo

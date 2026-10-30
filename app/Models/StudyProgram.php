@@ -50,6 +50,11 @@ class StudyProgram extends Model
         'updated_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'color_config',
+        'logo_url',
+    ];
+
     /**
      * Scope a query to sort programs by sequential order and name.
      */

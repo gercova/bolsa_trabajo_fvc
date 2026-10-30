@@ -1,0 +1,702 @@
+<script setup>
+import { Head, Link } from '@inertiajs/vue3';
+import PublicLayout from '@/Layouts/PublicLayout.vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+
+const props = defineProps({
+    programs:    { type: Array, default: () => [] },
+    partners:    { type: Array, default: () => [] },
+    jobOffers:   { type: Array, default: () => [] },
+    users:       { type: Array, default: () => [] },
+    blogs:       { type: Array, default: () => [] },
+    carousels:   { type: Array, default: () => [] },
+    totalVisits: { type: Number, default: 0 },
+    visitDigits: { type: Array, default: () => ['0', '0', '0', '0', '0', '0'] },
+});
+
+// ═══ CAROUSEL LOGIC ════════════════════════════════════════════
+const currentSlide = ref(0);
+const isPaused = ref(false);
+let autoplayTimer = null;
+const totalSlides = computed(() => props.carousels?.length || 0);
+
+const nextSlide = () => {
+    if (totalSlides.value <= 1) return;
+    currentSlide.value = (currentSlide.value + 1) % totalSlides.value;
+};
+
+const prevSlide = () => {
+    if (totalSlides.value <= 1) return;
+    currentSlide.value = (currentSlide.value - 1 + totalSlides.value) % totalSlides.value;
+};
+
+const goToSlide = (idx) => {
+    currentSlide.value = idx;
+    restartAutoplay();
+};
+
+const startAutoplay = () => {
+    clearAutoplay();
+    if (totalSlides.value <= 1) return;
+    autoplayTimer = setInterval(() => {
+        if (!isPaused.value) {
+            nextSlide();
+        }
+    }, 6000);
+};
+
+const clearAutoplay = () => {
+    if (autoplayTimer) {
+        clearInterval(autoplayTimer);
+        autoplayTimer = null;
+    }
+};
+
+const restartAutoplay = () => {
+    clearAutoplay();
+    startAutoplay();
+};
+
+const pauseTimer = () => { isPaused.value = true; };
+const resumeTimer = () => { isPaused.value = false; };
+
+// Touch Swipe
+let touchStartX = 0;
+let touchEndX = 0;
+
+const onTouchStart = (e) => {
+    if (e.changedTouches && e.changedTouches.length > 0) {
+        touchStartX = e.changedTouches[0].screenX;
+    }
+    pauseTimer();
+};
+
+const onTouchEnd = (e) => {
+    if (e.changedTouches && e.changedTouches.length > 0) {
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchStartX - touchEndX;
+        if (Math.abs(diff) > 40) {
+            if (diff > 0) nextSlide();
+            else prevSlide();
+        }
+    }
+    resumeTimer();
+};
+
+const handleKeyDown = (e) => {
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+};
+
+// ═══ VISITOR DIGIT SCRAMBLE ANIMATION ══════════════════════════
+const displayDigits = ref([...props.visitDigits]);
+
+const animateDigits = () => {
+    props.visitDigits.forEach((target, i) => {
+        const duration = 800 + i * 100;
+        const startTime = performance.now();
+        const tick = (now) => {
+            const elapsed = now - startTime;
+            if (elapsed < duration) {
+                displayDigits.value[i] = Math.floor(Math.random() * 10).toString();
+                requestAnimationFrame(tick);
+            } else {
+                displayDigits.value[i] = target;
+            }
+        };
+        requestAnimationFrame(tick);
+    });
+};
+
+onMounted(() => {
+    startAutoplay();
+    window.addEventListener('keydown', handleKeyDown);
+    animateDigits();
+});
+
+onUnmounted(() => {
+    clearAutoplay();
+    window.removeEventListener('keydown', handleKeyDown);
+});
+
+// ═══ ACCESOS RÁPIDOS ═══════════════════════════════════════════
+const quickAccess = [
+    { href: '/admision-y-matricula/cepre-fvc', icon: 'bi-book-fill', color: 'blue', label: 'CEPRE FVC', desc: 'Preparación para ingreso directo' },
+    { href: '/admision-y-matricula/examen-de-admision', icon: 'bi-pencil-square', color: 'sky', label: 'Examen de Admisión', desc: 'Procesos de admisión vigentes' },
+    { href: '/admision-y-matricula/matriculas', icon: 'bi-clipboard-check-fill', color: 'cyan', label: 'Matrículas', desc: 'Información de matrículas' },
+    { href: '/admision-y-matriculas/becas-y-creditos', icon: 'bi-award-fill', color: 'indigo', label: 'Becas y Créditos', desc: 'Beneficios de financiamiento' },
+    { href: '/programas-de-estudios', icon: 'bi-mortarboard-fill', color: 'blue', label: 'Programas de Estudio', desc: '5 carreras técnicas disponibles' },
+    { href: '/transparencia/documentos-de-gestion', icon: 'bi-folder2-open', color: 'sky', label: 'Documentos de Gestión', desc: 'Acceso a documentos oficiales' },
+    { href: '/transparencia/estadisticas', icon: 'bi-bar-chart-fill', color: 'cyan', label: 'Estadísticas', desc: 'Datos e indicadores institucionales' },
+    { href: '/transparencia/licenciamiento', icon: 'bi-patch-check-fill', color: 'indigo', label: 'Licenciamiento', desc: 'Estado del proceso de licencia' },
+    { href: '/tramites/mesa-de-partes', icon: 'bi-inbox-fill', color: 'blue', label: 'Mesa de Partes', desc: 'Ingresa documentos y solicitudes' },
+    { href: '/tramites/tupa', icon: 'bi-file-earmark-ruled', color: 'sky', label: 'TUPA', desc: 'Texto Único de Procedimientos' },
+    { href: '/nosotros/quienes-somos', icon: 'bi-people-fill', color: 'cyan', label: '¿Quiénes somos?', desc: 'Misión, visión e identidad' },
+    { href: '/servicios/bolsa-de-trabajo', icon: 'bi-briefcase-fill', color: 'indigo', label: 'Bolsa de Trabajo', desc: 'Ofertas de empleo vigentes' },
+];
+
+const qaColorStyles = {
+    blue:   { qa: 'bg-blue-50/70 border-blue-100 hover:border-blue-300', ic: 'bg-blue-600 text-white', lbl: 'text-blue-900', sub: 'text-blue-700', arr: 'text-blue-500' },
+    sky:    { qa: 'bg-sky-50/70 border-sky-100 hover:border-sky-300', ic: 'bg-sky-500 text-white', lbl: 'text-sky-900', sub: 'text-sky-700', arr: 'text-sky-500' },
+    cyan:   { qa: 'bg-cyan-50/70 border-cyan-100 hover:border-cyan-300', ic: 'bg-cyan-600 text-white', lbl: 'text-cyan-900', sub: 'text-cyan-700', arr: 'text-cyan-500' },
+    indigo: { qa: 'bg-indigo-50/70 border-indigo-100 hover:border-indigo-300', ic: 'bg-indigo-600 text-white', lbl: 'text-indigo-900', sub: 'text-indigo-700', arr: 'text-indigo-500' },
+};
+
+// ═══ PROPUESTA DE VALOR ════════════════════════════════════════
+const values = [
+    { icon: 'bi-award-fill', color: 'blue', title: 'Carreras a Nombre de la Nación', desc: 'Nuestros títulos son emitidos por el Minedu, con validez oficial en todo el territorio peruano y reconocidos nacionalmente.' },
+    { icon: 'bi-lightning-charge-fill', color: 'sky', title: 'Formación práctica e innovadora', desc: 'Talleres equipados, laboratorios actualizados y docentes con experiencia en el sector productivo para una educación de calidad.' },
+    { icon: 'bi-briefcase-fill', color: 'cyan', title: 'Inserción laboral garantizada', desc: 'Nuestra bolsa de trabajo activa conecta a nuestros egresados con las mejores empresas e instituciones de la región y del país.' },
+    { icon: 'bi-people-fill', color: 'indigo', title: 'Convenios con empresas líderes', desc: 'Contamos con alianzas estratégicas con empresas del sector público y privado que garantizan prácticas pre-profesionales.' },
+    { icon: 'bi-patch-check-fill', color: 'blue', title: 'En proceso de licenciamiento', desc: 'Cumplimos rigurosamente con las condiciones básicas de calidad exigidas por el Ministerio de Educación del Perú.' },
+    { icon: 'bi-geo-alt-fill', color: 'sky', title: 'Accesible para toda la región', desc: 'Ubicados en Uchiza, servimos a toda la provincia de Tocache y regiones vecinas con horarios y costos accesibles.' },
+];
+
+const valueColorStyles = {
+    blue:   { card: 'bg-blue-50/60 border-blue-100 hover:border-blue-300', ic: 'bg-blue-600 text-white shadow-blue-600/20', h: 'text-blue-900' },
+    sky:    { card: 'bg-sky-50/60 border-sky-100 hover:border-sky-300', ic: 'bg-sky-500 text-white shadow-sky-500/20', h: 'text-sky-900' },
+    cyan:   { card: 'bg-cyan-50/60 border-cyan-100 hover:border-cyan-300', ic: 'bg-cyan-600 text-white shadow-cyan-600/20', h: 'text-cyan-900' },
+    indigo: { card: 'bg-indigo-50/60 border-indigo-100 hover:border-indigo-300', ic: 'bg-indigo-600 text-white shadow-indigo-600/20', h: 'text-indigo-900' },
+};
+</script>
+
+<template>
+    <Head>
+        <title>IESTP Francisco Vigo Caballero — Formación Técnica Superior en Uchiza</title>
+        <meta name="description" content="El IESTP Francisco Vigo Caballero ofrece 5 carreras técnicas a Nombre de la Nación en Uchiza, San Martín. Admisión, bolsa de trabajo, programas de estudio y más." />
+        <meta name="keywords" content="IESTP Francisco Vigo Caballero, instituto técnico Uchiza, carreras técnicas San Martín, admisión 2026, bolsa de trabajo, CEPRE FVC, formación técnica Perú" />
+        <meta property="og:title" content="IESTP Francisco Vigo Caballero — Educación Superior" />
+        <meta property="og:description" content="Formando profesionales técnicos competentes, con 5 carreras a Nombre de la Nación en Uchiza, San Martín." />
+    </Head>
+
+    <PublicLayout title="Inicio">
+        <!-- ═══ 1. HERO CAROUSEL ═══════════════════════════════════ -->
+        <section class="relative bg-slate-950 text-white overflow-hidden select-none"
+                 aria-label="Carrusel de Portada Institucional"
+                 @mouseenter="pauseTimer"
+                 @mouseleave="resumeTimer"
+                 @touchstart="onTouchStart"
+                 @touchend="onTouchEnd">
+
+            <!-- Container Slides -->
+            <div class="relative w-full min-h-[580px] h-[640px] sm:h-[580px] md:h-[620px] lg:h-[660px] xl:h-[700px] overflow-hidden">
+                <template v-if="carousels && carousels.length > 0">
+                    <div v-for="(slide, index) in carousels" :key="slide.id ?? index"
+                         class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+                         :class="currentSlide === index ? 'opacity-100 z-20 pointer-events-auto' : 'opacity-0 z-10 pointer-events-none'">
+                        
+                        <!-- Background Photo Ken Burns -->
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-[8000ms] ease-out"
+                             :class="currentSlide === index ? 'scale-105' : 'scale-100'"
+                             :style="{ backgroundImage: `url('${slide.image_url ?? slide.image?.url ?? '/images/slider_admision.jpg'}')` }">
+                        </div>
+
+                        <!-- Solid High-Contrast Scrim -->
+                        <div class="absolute inset-0 bg-slate-950/85"></div>
+
+                        <!-- Slide Content -->
+                        <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center pt-8 pb-24 sm:pt-10 sm:pb-24 lg:py-0">
+                            <div class="max-w-3xl space-y-4 sm:space-y-6">
+                                <!-- Solid Program Color Accent Bar -->
+                                <div class="w-16 h-1 rounded-full"
+                                     :class="slide.theme_styles?.solid_accent_bar ?? 'bg-amber-500'"></div>
+
+                                <!-- Slide Tag Badge -->
+                                <div v-if="slide.tag"
+                                     class="inline-flex items-center gap-2 px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full border text-xs sm:text-sm font-bold tracking-wide"
+                                     :class="[
+                                         slide.theme_styles?.badge_bg ?? 'bg-slate-900/90',
+                                         slide.theme_styles?.badge_border ?? 'border-amber-400/80',
+                                         slide.theme_styles?.badge_text ?? 'text-amber-300'
+                                     ]">
+                                    <i :class="['bi', slide.tag_icon ?? 'bi-mortarboard-fill', slide.theme_styles?.badge_icon ?? 'text-amber-400']"></i>
+                                    <span>{{ slide.tag }}</span>
+                                </div>
+
+                                <!-- Slide Title & Highlight -->
+                                <component :is="index === 0 ? 'h1' : 'h2'"
+                                           class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] text-white font-sans">
+                                    {{ slide.title }}
+                                    <template v-if="slide.highlight_text">
+                                        <br class="hidden sm:inline">
+                                        <span class="font-black block sm:inline"
+                                              :class="slide.theme_styles?.solid_highlight ?? 'text-amber-400'">
+                                            {{ slide.highlight_text }}
+                                        </span>
+                                    </template>
+                                </component>
+
+                                <!-- Slide Description -->
+                                <p v-if="slide.description"
+                                   class="text-xs sm:text-base lg:text-lg text-slate-200 leading-relaxed font-sans max-w-2xl line-clamp-3 sm:line-clamp-none">
+                                    {{ slide.description }}
+                                </p>
+
+                                <!-- Slide Action Buttons -->
+                                <div v-if="slide.primary_button_text || slide.secondary_button_text"
+                                     class="flex flex-col sm:flex-row gap-2.5 sm:gap-3.5 pt-1 sm:pt-2">
+                                    <Link v-if="slide.primary_button_text"
+                                          :href="slide.primary_button_link || slide.primary_button_url || '#'"
+                                          class="inline-flex items-center justify-center gap-2 px-5 py-3 sm:px-7 sm:py-3.5 font-bold rounded-xl shadow-md transition-all text-xs sm:text-sm md:text-base group w-full sm:w-auto"
+                                          :class="slide.theme_styles?.btn_primary ?? 'bg-amber-500 hover:bg-amber-600 text-slate-950'">
+                                        <i :class="['bi', slide.primary_button_icon ?? 'bi-pencil-square', 'text-base sm:text-lg group-hover:scale-105 transition-transform']"></i>
+                                        <span>{{ slide.primary_button_text }}</span>
+                                    </Link>
+
+                                    <Link v-if="slide.secondary_button_text"
+                                          :href="slide.secondary_button_link || slide.secondary_button_url || '#'"
+                                          class="inline-flex items-center justify-center gap-2 px-5 py-3 sm:px-7 sm:py-3.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white font-bold rounded-xl transition-colors text-xs sm:text-sm md:text-base w-full sm:w-auto">
+                                        <i :class="['bi', slide.secondary_button_icon ?? 'bi-grid-3x3-gap-fill', slide.theme_styles?.btn_sec_icon ?? 'text-slate-300']"></i>
+                                        <span>{{ slide.secondary_button_text }}</span>
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Fallback Slide if carousels is empty -->
+                <div v-else class="absolute inset-0 flex items-center justify-center bg-slate-900 text-white">
+                    <div class="text-center space-y-4 max-w-xl px-4">
+                        <span class="inline-block px-3 py-1 text-xs font-bold uppercase tracking-wider bg-sky-500/20 text-sky-300 rounded-full">
+                            Educación Superior Tecnológica
+                        </span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold font-sans">IESTP Francisco Vigo Caballero</h1>
+                        <p class="text-slate-300 text-base sm:text-lg">Formación Técnica Superior de Calidad en Uchiza, San Martín.</p>
+                        <div class="flex flex-wrap justify-center gap-3 pt-4">
+                            <Link href="/programas-de-estudios" class="px-6 py-3 bg-sky-600 hover:bg-sky-700 rounded-xl font-semibold transition">
+                                Ver Programas
+                            </Link>
+                            <Link href="/admision-y-matricula/examen-de-admision" class="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-semibold transition">
+                                Admisión 2026
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carousel Controls -->
+            <template v-if="totalSlides > 1">
+                <button type="button" @click="prevSlide"
+                        class="hidden sm:flex absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white items-center justify-center transition-all duration-200 shadow-xl hover:scale-105 focus:outline-none cursor-pointer"
+                        aria-label="Diapositiva anterior">
+                    <i class="bi bi-chevron-left text-xl sm:text-2xl"></i>
+                </button>
+
+                <button type="button" @click="nextSlide"
+                        class="hidden sm:flex absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white items-center justify-center transition-all duration-200 shadow-xl hover:scale-105 focus:outline-none cursor-pointer"
+                        aria-label="Siguiente diapositiva">
+                    <i class="bi bi-chevron-right text-xl sm:text-2xl"></i>
+                </button>
+
+                <!-- Bottom Slide Indicator Bar -->
+                <div class="absolute bottom-4 sm:bottom-8 left-0 right-0 z-30 pointer-events-none">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+                        <!-- Slide Pills / Indicators -->
+                        <div class="flex items-center gap-1.5 sm:gap-2.5 bg-slate-900/90 border border-slate-800 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full pointer-events-auto shadow-lg">
+                            <button v-for="(slide, idx) in carousels" :key="idx"
+                                    type="button" @click="goToSlide(idx)"
+                                    class="px-2.5 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                                    :class="currentSlide === idx ? (slide.theme_styles?.pill_active ?? 'bg-amber-500 text-slate-950 shadow-md scale-105') : 'text-slate-300 hover:text-white hover:bg-slate-800'">
+                                <span class="w-1.5 h-1.5 rounded-full"
+                                      :class="currentSlide === idx ? 'bg-white' : 'bg-slate-400'"></span>
+                                <span class="hidden sm:inline">{{ slide.indicator_label || slide.tag || `Slide ${idx + 1}` }}</span>
+                                <span class="sm:hidden">{{ idx + 1 }}</span>
+                            </button>
+                        </div>
+
+                        <!-- Play/Pause & Counter indicator -->
+                        <div class="hidden md:flex items-center gap-3 bg-slate-900/90 border border-slate-800 px-4 py-1.5 rounded-full text-xs font-semibold text-slate-300 pointer-events-auto shadow-lg">
+                            <button type="button" @click="isPaused = !isPaused"
+                                    class="hover:text-white transition-colors cursor-pointer"
+                                    :title="isPaused ? 'Reanudar carrusel' : 'Pausar carrusel'">
+                                <i :class="['bi', isPaused ? 'bi-play-fill text-amber-400 text-sm' : 'bi-pause-fill text-sm']"></i>
+                            </button>
+                            <span class="text-white font-bold">{{ currentSlide + 1 }} / {{ totalSlides }}</span>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </section>
+
+        <!-- ═══ 2. QUICK ACCESS BAR ════════════════════════════════ -->
+        <section class="bg-slate-900 text-white border-y border-slate-800 py-4 shadow-sm relative z-30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                    <Link href="/admision-y-matricula/examen-de-admision"
+                          class="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 transition-all group">
+                        <div class="w-10 h-10 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-400/30 flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform">
+                            <i class="bi bi-pencil-square"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-blue-200 font-medium">Proceso 2026-I</p>
+                            <p class="text-xs sm:text-sm font-bold text-white group-hover:text-sky-200 transition-colors">Admisión Ordinaria</p>
+                        </div>
+                    </Link>
+
+                    <Link href="/tramites/mesa-de-partes"
+                          class="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 transition-all group">
+                        <div class="w-10 h-10 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform">
+                            <i class="bi bi-inbox-fill"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-cyan-200 font-medium">Trámite Documentario</p>
+                            <p class="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-200 transition-colors">Mesa de Partes</p>
+                        </div>
+                    </Link>
+
+                    <Link href="/servicios/bolsa-de-trabajo"
+                          class="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 transition-all group">
+                        <div class="w-10 h-10 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform">
+                            <i class="bi bi-briefcase-fill"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-indigo-200 font-medium">Oportunidades Laborales</p>
+                            <p class="text-xs sm:text-sm font-bold text-white group-hover:text-indigo-200 transition-colors">Bolsa de Trabajo</p>
+                        </div>
+                    </Link>
+
+                    <Link href="/transparencia/documentos-de-gestion"
+                          class="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 transition-all group">
+                        <div class="w-10 h-10 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-400/30 flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform">
+                            <i class="bi bi-file-earmark-ruled-fill"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-amber-200 font-medium">Transparencia</p>
+                            <p class="text-xs sm:text-sm font-bold text-white group-hover:text-amber-200 transition-colors">Documentos & TUPA</p>
+                        </div>
+                    </Link>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ 3. PROGRAMAS DE ESTUDIO ═════════════════════════════ -->
+        <section v-if="programs && programs.length > 0" class="py-20 bg-white" aria-label="Programas de estudio">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-14">
+                    <span class="inline-block px-3 py-1 text-xs font-bold uppercase tracking-wider bg-sky-100 text-sky-700 rounded-full mb-3">
+                        Oferta Académica
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-900 mt-2">Nuestros Programas de Estudio</h2>
+                    <div class="w-20 h-1.5 bg-sky-500 mx-auto mt-4 rounded-full"></div>
+                    <p class="text-gray-500 mt-5 max-w-xl mx-auto leading-relaxed">
+                        Formación técnica de calidad orientada al mundo laboral. Elige la carrera que impulsará tu desarrollo profesional.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+                    <Link v-for="program in programs" :key="program.id"
+                          :href="`/programas-de-estudios/${program.slug}`"
+                          class="group bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col hover:-translate-y-1 hover:shadow-xl hover:border-sky-300 transition-all duration-300">
+                        
+                        <!-- Header banner con color institucional por programa -->
+                        <div class="w-full relative overflow-hidden flex items-center justify-center aspect-[16/10]"
+                             :class="program.color_config?.solid_bg ?? 'bg-sky-600'">
+                            <img v-if="program.logo_url ?? program.logo_path"
+                                 :src="program.logo_url ?? program.logo_path"
+                                 :alt="program.name"
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                                 loading="lazy"
+                                 onerror="this.style.display='none'">
+                            <i v-else :class="['bi', program.meta?.icon ?? program.icon ?? 'bi-mortarboard-fill', 'text-7xl text-white/50 drop-shadow z-10']"></i>
+
+                            <div class="absolute inset-0 bg-slate-950/30"></div>
+
+                            <div class="absolute top-3 left-3 z-20">
+                                <span class="px-3 py-1 text-xs font-bold rounded-lg uppercase tracking-wider shadow border"
+                                      :class="program.color_config?.badge ?? 'bg-sky-100 text-sky-800 border-sky-200'">
+                                    {{ program.meta?.tag ?? program.tag ?? program.color_config?.name ?? 'Técnico' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="font-bold text-slate-900 text-base leading-snug mb-2 group-hover:text-blue-700 transition-colors">
+                                {{ program.name }}
+                            </h3>
+                            <div class="w-12 h-1 rounded-full mb-3"
+                                 :class="program.color_config?.bar ?? 'bg-sky-600'"></div>
+                            
+                            <p v-if="program.description" class="text-gray-600 text-sm line-clamp-3 flex-grow">
+                                {{ program.description }}
+                            </p>
+                            <p v-else class="text-gray-400 text-sm italic flex-grow">
+                                Sin descripción disponible.
+                            </p>
+
+                            <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                                <span class="text-xs font-bold uppercase tracking-wide"
+                                      :class="program.color_config?.text ?? 'text-sky-700'">
+                                    Ver programa
+                                </span>
+                                <i :class="['bi bi-arrow-right group-hover:translate-x-1 transition-transform', program.color_config?.text ?? 'text-sky-700']"></i>
+                            </div>
+                        </div>
+                    </Link>
+                </div>
+
+                <div class="text-center mt-12">
+                    <Link href="/programas-de-estudios"
+                          class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/25 hover:shadow-xl">
+                        <i class="bi bi-grid-3x3-gap-fill"></i>
+                        Ver todos los programas
+                    </Link>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ 4. ACCESOS RÁPIDOS A SECCIONES ═════════════════════ -->
+        <section class="bg-slate-50 py-20" aria-label="Accesos rápidos a secciones">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-14">
+                    <span class="inline-block px-3 py-1 text-xs font-bold uppercase tracking-wider bg-blue-100 text-blue-700 rounded-full mb-3">
+                        Navega el instituto
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-900 mt-2">Todo lo que necesitas, en un solo lugar</h2>
+                    <p class="text-gray-500 mt-3 max-w-2xl mx-auto">Accede rápidamente a cualquier sección del portal institucional.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    <Link v-for="(qa, i) in quickAccess" :key="i"
+                          :href="qa.href"
+                          class="flex items-center gap-4 p-4 bg-white border rounded-2xl transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 group"
+                          :class="qaColorStyles[qa.color]?.qa">
+                        <span class="w-13 h-13 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-sm transition-transform duration-200 group-hover:scale-110"
+                              :class="qaColorStyles[qa.color]?.ic">
+                            <i :class="['bi', qa.icon]"></i>
+                        </span>
+                        <div class="min-w-0">
+                            <p class="font-bold text-sm leading-tight" :class="qaColorStyles[qa.color]?.lbl">{{ qa.label }}</p>
+                            <p class="text-xs mt-0.5 line-clamp-2" :class="qaColorStyles[qa.color]?.sub">{{ qa.desc }}</p>
+                        </div>
+                        <i :class="['bi bi-arrow-right-short text-lg ml-auto opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0', qaColorStyles[qa.color]?.arr]"></i>
+                    </Link>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ 5. ¿POR QUÉ ELEGIRNOS? ═════════════════════════════ -->
+        <section class="py-20 bg-white" aria-label="Propuesta de valor institucional">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-14">
+                    <span class="inline-block px-3 py-1 text-xs font-bold uppercase tracking-wider bg-cyan-100 text-cyan-800 rounded-full mb-3">
+                        Nuestra propuesta
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-900 mt-2">¿Por qué elegir el IESTP FVC?</h2>
+                    <div class="w-20 h-1.5 bg-cyan-500 mx-auto mt-4 rounded-full"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div v-for="(v, i) in values" :key="i"
+                         class="border p-7 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                         :class="valueColorStyles[v.color]?.card">
+                        <div class="w-14 h-14 rounded-xl flex items-center justify-center mb-5 shadow-lg"
+                             :class="valueColorStyles[v.color]?.ic">
+                            <i :class="['bi', v.icon, 'text-2xl']"></i>
+                        </div>
+                        <h3 class="text-base font-bold mb-2" :class="valueColorStyles[v.color]?.h">{{ v.title }}</h3>
+                        <p class="text-gray-600 text-sm leading-relaxed">{{ v.desc }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ 6. BLOG / NOTICIAS ═════════════════════════════════ -->
+        <section class="py-20 bg-slate-900 relative overflow-hidden" aria-label="Blog institucional y noticias">
+            <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-14">
+                    <div>
+                        <span class="inline-block px-3 py-1 text-xs font-bold uppercase tracking-wider bg-sky-500/20 text-sky-300 border border-sky-400/30 rounded-full mb-3">
+                            Blog Institucional
+                        </span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-2">Noticias y Novedades</h2>
+                        <div class="w-20 h-1.5 bg-sky-400 mt-4 rounded-full"></div>
+                    </div>
+                </div>
+
+                <div v-if="blogs && blogs.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <article v-for="post in blogs" :key="post.id"
+                             class="bg-slate-800/80 border border-slate-700 rounded-2xl overflow-hidden flex flex-col hover:border-sky-400/50 hover:-translate-y-1 transition-all group">
+                        <!-- Imagen de portada -->
+                        <div v-if="post.cover_image_url" class="h-44 overflow-hidden">
+                            <img :src="post.cover_image_url" :alt="post.title"
+                                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                 loading="lazy">
+                        </div>
+                        <div v-else class="h-44 bg-slate-800 flex items-center justify-center">
+                            <i class="bi bi-newspaper text-5xl text-white/30"></i>
+                        </div>
+
+                        <div class="p-6 flex flex-col flex-grow">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="text-[10px] font-bold uppercase tracking-widest text-sky-400 bg-sky-400/10 border border-sky-400/20 px-2.5 py-1 rounded-full">
+                                    Publicación
+                                </span>
+                                <time v-if="post.formatted_date || post.created_at" class="text-xs text-blue-300/70">
+                                    {{ post.formatted_date ?? post.created_at }}
+                                </time>
+                            </div>
+                            <h3 class="font-bold text-white text-base leading-snug mb-3 line-clamp-2">
+                                {{ post.title }}
+                            </h3>
+                            <p class="text-blue-200/70 text-sm leading-relaxed line-clamp-3 flex-grow">
+                                {{ post.excerpt_text ?? post.details ?? post.content }}
+                            </p>
+                            <div class="mt-5 pt-4 border-t border-white/10 flex items-center justify-between">
+                                <span class="text-xs text-blue-300/60 flex items-center gap-1.5">
+                                    <i class="bi bi-clock"></i> Reciente
+                                </span>
+                                <Link :href="`/blog/${post.slug}`"
+                                      class="text-xs font-bold text-sky-400 hover:text-sky-300 flex items-center gap-1 transition-colors">
+                                    Leer más <i class="bi bi-arrow-right text-sm"></i>
+                                </Link>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <!-- Estado vacío blog -->
+                <div v-else class="text-center py-16 bg-white/5 border border-dashed border-sky-400/20 rounded-2xl">
+                    <div class="w-16 h-16 mx-auto mb-4 bg-sky-500/15 border border-sky-400/20 rounded-2xl flex items-center justify-center">
+                        <i class="bi bi-newspaper text-3xl text-sky-400"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Próximamente — Blog Institucional</h3>
+                    <p class="text-blue-300/60 mt-2 text-sm max-w-md mx-auto">
+                        Aquí publicaremos noticias, eventos y novedades del IESTP Francisco Vigo Caballero. ¡Vuelve pronto!
+                    </p>
+                    <div class="mt-6 flex items-center justify-center gap-4 text-xs text-blue-400/60">
+                        <span class="flex items-center gap-1.5"><i class="bi bi-calendar3"></i> Eventos</span>
+                        <span class="flex items-center gap-1.5"><i class="bi bi-megaphone"></i> Noticias</span>
+                        <span class="flex items-center gap-1.5"><i class="bi bi-trophy"></i> Logros</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ 7. ALIADOS / PARTNERS ═══════════════════════════════ -->
+        <section class="py-16 bg-white border-t border-sky-100 overflow-hidden" aria-label="Empresas e instituciones aliadas">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 text-center">
+                <span class="inline-block px-3 py-1 text-xs font-bold uppercase tracking-wider bg-blue-100 text-blue-700 rounded-full mb-3">
+                    Nuestros Aliados
+                </span>
+                <h2 class="text-3xl font-extrabold text-blue-900 mt-2">
+                    Convenios con empresas e instituciones que confían en nosotros
+                </h2>
+                <p class="text-gray-500 mt-3 text-sm">
+                    Aliados estratégicos en la formación y el empleo de nuestros estudiantes.
+                </p>
+            </div>
+
+            <div v-if="partners && partners.length > 0" class="relative w-full max-w-[1400px] mx-auto overflow-hidden flex items-center">
+                <div class="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+                <div class="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+                
+                <div class="carousel-track gap-6 px-4">
+                    <template v-for="loop in 2" :key="loop">
+                        <div v-for="partner in partners" :key="`${loop}-${partner.id}`"
+                             class="w-44 h-28 shrink-0 bg-white border border-sky-100 rounded-2xl flex items-center justify-center p-4 shadow-sm hover:shadow-md hover:border-sky-300 transition-all cursor-default">
+                            <img v-if="partner.logo_url ?? partner.image_url"
+                                 :src="partner.logo_url ?? partner.image_url"
+                                 :alt="partner.company"
+                                 class="w-full h-full object-contain filter grayscale hover:grayscale-0 transition-all duration-300"
+                                 loading="lazy"
+                                 onerror="this.style.display='none'">
+                            <span v-else class="text-gray-400 font-bold text-center text-sm px-2">
+                                {{ partner.company }}
+                            </span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div v-else class="text-center text-gray-400 py-8 text-sm">
+                Próximamente estaremos añadiendo a nuestros aliados estratégicos.
+            </div>
+        </section>
+
+        <!-- ═══ 8. CTA FINAL ═══════════════════════════════════════ -->
+        <section class="relative py-24 bg-blue-800 overflow-hidden text-white" aria-label="Llamada a la acción">
+            <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <div class="inline-flex items-center gap-2 bg-blue-900/60 border border-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-6">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    Admisión 2026 Abierta
+                </div>
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight">
+                    ¿Listo para comenzar tu carrera técnica<br class="hidden sm:block"> y transformar tu futuro?
+                </h2>
+                <p class="text-white/85 text-lg mt-5 max-w-2xl mx-auto leading-relaxed">
+                    Únete al IESTP Francisco Vigo Caballero, la institución tecnológica de referencia en Uchiza. Formación de calidad, docentes expertos y conexión directa con el mundo laboral.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center mt-10">
+                    <Link href="/admision-y-matricula/cepre-fvc"
+                          class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white hover:bg-blue-50 text-blue-700 font-extrabold rounded-xl transition-all shadow-xl text-base">
+                        <i class="bi bi-book-fill"></i>
+                        Proceso CEPRE FVC
+                    </Link>
+                    <Link href="/admision-y-matricula/examen-de-admision"
+                          class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white/70 hover:bg-white/15 text-white font-bold rounded-xl transition-all text-base">
+                        <i class="bi bi-pencil-square"></i>
+                        Examen de Admisión
+                    </Link>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ 9. CONTADOR DE VISITAS ══════════════════════════════ -->
+        <section class="relative py-16 bg-slate-950 text-white overflow-hidden border-t border-slate-800"
+                 aria-label="Contador de visitas al portal institucional">
+            <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white font-sans tracking-tight">
+                    Impacto y Presencia Digital del <span class="text-sky-400 font-black">IESTP FVC</span>
+                </h2>
+                <p class="text-slate-300 text-sm sm:text-base mt-2.5 max-w-xl mx-auto leading-relaxed">
+                    Monitoreo permanente de consultas y accesos a nuestra plataforma educativa institucional.
+                </p>
+
+                <!-- Board contador digital -->
+                <div class="mt-8 bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 md:p-10 shadow-xl relative overflow-hidden">
+                    <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-sky-400 mb-4 flex items-center justify-center gap-2">
+                        <i class="bi bi-eye-fill text-sky-400"></i>
+                        <span>Total Acumulado de Visitas</span>
+                    </p>
+
+                    <!-- Dígitos estilo Odometer / Flip plate -->
+                    <div class="flex items-center justify-center gap-1.5 sm:gap-2.5 md:gap-3 flex-wrap py-2">
+                        <div v-for="(digit, idx) in displayDigits" :key="idx"
+                             class="relative flex flex-col items-center justify-center w-10 h-14 sm:w-14 sm:h-20 md:w-16 md:h-24 bg-slate-800 border-2 border-slate-700 rounded-xl sm:rounded-2xl shadow-md overflow-hidden transform hover:-translate-y-1 transition-all select-none">
+                            <div class="absolute inset-x-0 top-1/2 h-[1px] bg-slate-700 shadow-sm pointer-events-none"></div>
+                            <span class="relative z-10 font-mono font-black text-2xl sm:text-4xl md:text-5xl text-sky-400 tabular-nums">
+                                {{ digit }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 flex items-center justify-center gap-2 text-slate-300 text-xs sm:text-sm font-medium">
+                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+                        <span>
+                            Registrando <strong class="text-white font-bold">{{ Number(totalVisits).toLocaleString('es-PE') }}</strong> visitas totales al portal
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </PublicLayout>
+</template>
+
+<style scoped>
+@keyframes slide-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.carousel-track {
+    display: flex;
+    width: max-content;
+    animation: slide-left 35s linear infinite;
+}
+
+.carousel-track:hover {
+    animation-play-state: paused;
+}
+</style>

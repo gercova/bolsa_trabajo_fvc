@@ -24,6 +24,27 @@ class Blog extends Model
         'is_published' => 'boolean',
     ];
 
+    protected $appends = [
+        'cover_image_url',
+        'excerpt_text',
+        'formatted_date',
+    ];
+
+    public function getCoverImageUrlAttribute(): ?string
+    {
+        return $this->coverImage();
+    }
+
+    public function getExcerptTextAttribute(): string
+    {
+        return $this->excerpt(160);
+    }
+
+    public function getFormattedDateAttribute(): ?string
+    {
+        return $this->created_at ? $this->created_at->locale('es')->isoFormat('D MMM YYYY') : null;
+    }
+
     /** Returns a plain-text excerpt of the content. */
     public function excerpt(int $limit = 150): string
     {

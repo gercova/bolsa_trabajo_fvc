@@ -122,12 +122,16 @@ class Enterprise extends Model
     // Accessors para cada campo de imagen o archivo
     protected function logoPath(): Attribute
     {
-        return $this->resolveImageUrl($this->attributes['logo_path'] ?? 'enterprise/favicons/logo-iestpfvc.png');
+        return Attribute::make(
+            get: fn (?string $value) => $this->formatImageUrl($value ?? $this->attributes['logo_path'] ?? 'enterprise/favicons/logo-iestpfvc.png')
+        );
     }
 
     protected function faviconPath(): Attribute
     {
-        return $this->resolveImageUrl($this->attributes['favicon_path'] ?? 'enterprise/favicons/logo-iestpfvc.png');
+        return Attribute::make(
+            get: fn (?string $value) => $this->formatImageUrl($value ?? $this->attributes['favicon_path'] ?? 'enterprise/favicons/logo-iestpfvc.png')
+        );
     }
 
     protected function complaintsBookPath(): Attribute
@@ -143,17 +147,15 @@ class Enterprise extends Model
     }
 
     /**
-     * Método reutilizable para la lógica de resolución de URLs de imágenes.
+     * Método auxiliar para la lógica de resolución de URLs de imágenes.
      */
-    private function resolveImageUrl(?string $value): Attribute
+    private function formatImageUrl(?string $value): string
     {
-        return Attribute::make(
-            get: fn () => match (true) {
-                empty($value) => Storage::url('enterprise/favicons/logo-iestpfvc.png'),
-                Str::startsWith($value, ['http://', 'https://']) => $value,
-                Str::startsWith($value, '/storage/') => $value,
-                default => Storage::url($value),
-            }
-        );
+        return match (true) {
+            empty($value) => Storage::url('enterprise/favicons/logo-iestpfvc.png'),
+            Str::startsWith($value, ['http://', 'https://']) => $value,
+            Str::startsWith($value, '/storage/') => $value,
+            default => Storage::url($value),
+        };
     }
 }

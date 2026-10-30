@@ -36,6 +36,13 @@ class InstitutionalCarousel extends Model
         'is_active' => 'boolean',
     ];
 
+    protected $appends = [
+        'image_url',
+        'primary_button_link',
+        'secondary_button_link',
+        'theme_styles',
+    ];
+
     /**
      * Relación polimórfica: Imagen principal del slide
      */

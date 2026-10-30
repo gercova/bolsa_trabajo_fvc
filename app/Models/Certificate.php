@@ -33,7 +33,8 @@ class Certificate extends Model
         'download_count',
     ];
 
-    protected static function booted(): void {
+    protected static function booted(): void
+    {
         static::saving(function (Certificate $certificate) {
             $code = $certificate->attributes['code'] ?? null;
             $certCode = $certificate->attributes['certificate_code'] ?? null;
@@ -47,31 +48,34 @@ class Certificate extends Model
     }
 
     protected $casts = [
-        'is_active'         => 'boolean',
-        'download_count'    => 'integer',
-        'start_date'        => 'date:Y-m-d',
-        'end_date'          => 'date:Y-m-d',
-        'issue_date'        => 'date:Y-m-d',
+        'is_active' => 'boolean',
+        'download_count' => 'integer',
+        'start_date' => 'date:Y-m-d',
+        'end_date' => 'date:Y-m-d',
+        'issue_date' => 'date:Y-m-d',
     ];
 
     /**
      * Scope for active certificates.
      */
-    public function scopeActive(Builder $query): Builder {
+    public function scopeActive(Builder $query): Builder
+    {
         return $query->where('is_active', true);
     }
 
     /**
      * Scope for modality filter.
      */
-    public function scopeModality(Builder $query, string $modality): Builder {
+    public function scopeModality(Builder $query, string $modality): Builder
+    {
         return $query->where('modality', $modality);
     }
 
     /**
      * Scope for filtering certificates by user (Model, ID or DNI).
      */
-    public function scopeForUser(Builder $query, User|int|string $user): Builder {
+    public function scopeForUser(Builder $query, User|int|string $user): Builder
+    {
         if ($user instanceof User) {
             return $query->where('user_id', $user->id);
         }
@@ -125,10 +129,11 @@ class Certificate extends Model
     /**
      * Generate a unique certificate code for a student DNI using sequence number: CERT-{user_DNI}-{sequence_number}.
      */
-    public static function generateUniqueCodeForStudent(string $dni, ?int $courseId = null): string {
-        $cleanDni   = trim($dni);
-        $seq        = 1;
-        $code       = "CERT-{$cleanDni}-{$seq}";
+    public static function generateUniqueCodeForStudent(string $dni, ?int $courseId = null): string
+    {
+        $cleanDni = trim($dni);
+        $seq = 1;
+        $code = "CERT-{$cleanDni}-{$seq}";
 
         while (static::where('code', $code)->orWhere('certificate_code', $code)->exists()) {
             $seq++;
@@ -138,31 +143,38 @@ class Certificate extends Model
         return $code;
     }
 
-    public function getCodeAttribute(?string $value): ?string {
+    public function getCodeAttribute(?string $value): ?string
+    {
         return $value ?: ($this->attributes['certificate_code'] ?? null);
     }
 
-    public function getCertificateCodeAttribute(?string $value): ?string {
+    public function getCertificateCodeAttribute(?string $value): ?string
+    {
         return $value ?: ($this->attributes['code'] ?? null);
     }
 
-    public function course(): BelongsTo {
+    public function course(): BelongsTo
+    {
         return $this->belongsTo(Course::class, 'course_id', 'id');
     }
 
-    public function studyProgram(): BelongsTo {
+    public function studyProgram(): BelongsTo
+    {
         return $this->belongsTo(StudyProgram::class, 'study_program_id', 'id');
     }
 
-    public function user(): BelongsTo {
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    public function details(): HasMany {
+    public function details(): HasMany
+    {
         return $this->hasMany(CertificateDetail::class, 'certificate_id', 'id')->orderBy('order')->orderBy('id');
     }
 
-    public function isTraining(): bool {
+    public function isTraining(): bool
+    {
         if ($this->isBasicEnglish() || $this->isSmartOffice()) {
             return false;
         }
@@ -170,12 +182,13 @@ class Certificate extends Model
         return ($this->certificate_type ?? $this->course?->certificate_type ?? 'capacitacion') === 'capacitacion';
     }
 
-    public function isSmartOffice(): bool {
-        $searchTerms    = ['oficina administrativa', 'inteligente 4.0', 'smart administrative office', 'oficina inteligente'];
-        $courseName     = mb_strtolower($this->course?->name ?? '', 'UTF-8');
-        $eventName      = mb_strtolower($this->event_name ?? '', 'UTF-8');
-        $desc           = mb_strtolower($this->description ?? '', 'UTF-8');
-        $certType       = mb_strtolower($this->certificate_type ?? '', 'UTF-8');
+    public function isSmartOffice(): bool
+    {
+        $searchTerms = ['oficina administrativa', 'inteligente 4.0', 'smart administrative office', 'oficina inteligente'];
+        $courseName = mb_strtolower($this->course?->name ?? '', 'UTF-8');
+        $eventName = mb_strtolower($this->event_name ?? '', 'UTF-8');
+        $desc = mb_strtolower($this->description ?? '', 'UTF-8');
+        $certType = mb_strtolower($this->certificate_type ?? '', 'UTF-8');
 
         if ($certType === 'oficina_4_0' || $certType === 'asistencia_administrativa') {
             return true;
@@ -193,12 +206,13 @@ class Certificate extends Model
     /**
      * Check if this certificate corresponds to the "Basic English" course format.
      */
-    public function isBasicEnglish(): bool {
-        $searchTerms    = ['inglés', 'ingles', 'english'];
-        $courseName     = mb_strtolower($this->course?->name ?? '', 'UTF-8');
-        $eventName      = mb_strtolower($this->event_name ?? '', 'UTF-8');
-        $desc           = mb_strtolower($this->description ?? '', 'UTF-8');
-        $certType       = mb_strtolower($this->certificate_type ?? '', 'UTF-8');
+    public function isBasicEnglish(): bool
+    {
+        $searchTerms = ['inglés', 'ingles', 'english'];
+        $courseName = mb_strtolower($this->course?->name ?? '', 'UTF-8');
+        $eventName = mb_strtolower($this->event_name ?? '', 'UTF-8');
+        $desc = mb_strtolower($this->description ?? '', 'UTF-8');
+        $certType = mb_strtolower($this->certificate_type ?? '', 'UTF-8');
 
         foreach ($searchTerms as $term) {
             if (str_contains($courseName, $term) || str_contains($eventName, $term) || str_contains($desc, $term)) {
@@ -212,8 +226,10 @@ class Certificate extends Model
     /**
      * Permanent institutional verification URL.
      */
-    public function getValidationUrlAttribute(): string {
+    public function getValidationUrlAttribute(): string
+    {
         $code = trim((string) ($this->code ?: $this->certificate_code ?: ''));
+
         return $code !== ''
             ? url('/validar-certificado?code='.$code)
             : url('/validar-certificado');
@@ -222,7 +238,8 @@ class Certificate extends Model
     /**
      * Permanent institutional verification URL (alias for validation_url).
      */
-    public function getVerificationUrlAttribute(): string {
+    public function getVerificationUrlAttribute(): string
+    {
         return $this->validation_url;
     }
 
@@ -230,50 +247,59 @@ class Certificate extends Model
      * Direct path verification URL: /validar-certificado/{certificate_code?}
      * Used for QR code scanning on mobile devices to navigate directly to the verification route.
      */
-    public function getDirectValidationUrlAttribute(): string {
+    public function getDirectValidationUrlAttribute(): string
+    {
         $code = trim((string) ($this->code ?: $this->certificate_code ?: ''));
+
         return $code !== ''
             ? url('/validar-certificado/'.rawurlencode($code))
             : url('/validar-certificado');
     }
 
-    public function getCleanDurationAttribute(): string {
+    public function getCleanDurationAttribute(): string
+    {
         $d = trim((string) ($this->duration ?: '90 horas'));
+
         return preg_replace('/\b(horas?)\s+\1\b/iu', '$1', $d);
     }
 
     /**
      * Generate vector SVG QR Code for verification.
      */
-    public function getQrCodeSvgAttribute(): string {
+    public function getQrCodeSvgAttribute(): string
+    {
         return QrCodeService::svg($this->validation_url, 130);
     }
 
     /**
      * Generate vector SVG QR Code for Smart Office certificate pointing to the direct validation route.
      */
-    public function getSmartQrCodeSvgAttribute(): string {
+    public function getSmartQrCodeSvgAttribute(): string
+    {
         return QrCodeService::svg($this->direct_validation_url, 110);
     }
 
     /**
      * Generate base64 Data URI QR Code.
      */
-    public function getQrCodeDataUriAttribute(): string {
+    public function getQrCodeDataUriAttribute(): string
+    {
         return QrCodeService::dataUri($this->validation_url, 130);
     }
 
     /**
      * Resolved study program (from certificate directly or inherited from course).
      */
-    public function getEffectiveStudyProgramAttribute(): ?StudyProgram {
+    public function getEffectiveStudyProgramAttribute(): ?StudyProgram
+    {
         return $this->studyProgram ?: $this->course?->studyProgram;
     }
 
     /**
      * Formatted date range in Spanish (e.g. "del 21 al 24 de setiembre del presente año").
      */
-    public function getFormattedDateRangeAttribute(): string {
+    public function getFormattedDateRangeAttribute(): string
+    {
         if (! $this->start_date && ! $this->end_date) {
             return '';
         }
@@ -284,41 +310,46 @@ class Certificate extends Model
             9 => 'setiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre',
         ];
 
-        $start  = $this->start_date ? Carbon::parse($this->start_date) : null;
-        $end    = $this->end_date ? Carbon::parse($this->end_date) : null;
+        $start = $this->start_date ? Carbon::parse($this->start_date) : null;
+        $end = $this->end_date ? Carbon::parse($this->end_date) : null;
 
         if ($start && $end) {
             if ($start->month === $end->month && $start->year === $end->year) {
                 $monthName = $meses[$start->month] ?? $start->format('F');
+
                 return "del {$start->day} al {$end->day} de {$monthName} del {$end->year}";
             }
             $startMonth = $meses[$start->month] ?? $start->format('F');
-            $endMonth   = $meses[$end->month] ?? $end->format('F');
+            $endMonth = $meses[$end->month] ?? $end->format('F');
+
             return "del {$start->day} de {$startMonth} al {$end->day} de {$endMonth} del {$end->year}";
         }
 
         if ($end) {
             $endMonth = $meses[$end->month] ?? $end->format('F');
+
             return "el {$end->day} de {$endMonth} del {$end->year}";
         }
 
         $startMonth = $meses[$start->month] ?? $start->format('F');
+
         return "el {$start->day} de {$startMonth} del {$start->year}";
     }
 
     /**
      * Formatted issue date in Spanish (e.g. "Uchiza, 30 de setiembre del 2026.").
      */
-    public function getFormattedIssueDateAttribute(): string {
+    public function getFormattedIssueDateAttribute(): string
+    {
         $meses = [
             1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril',
             5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto',
             9 => 'setiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre',
         ];
 
-        $date       = $this->issue_date ? Carbon::parse($this->issue_date) : now();
-        $city       = $this->city ?: 'Uchiza';
-        $monthName  = $meses[$date->month] ?? $date->format('F');
+        $date = $this->issue_date ? Carbon::parse($this->issue_date) : now();
+        $city = $this->city ?: 'Uchiza';
+        $monthName = $meses[$date->month] ?? $date->format('F');
 
         return "{$city}, {$date->day} de {$monthName} del {$date->year}.";
     }
@@ -326,7 +357,8 @@ class Certificate extends Model
     /**
      * Formatted issue date for Smart Office 4.0 template matching the reference layout: "Uchiza, 28, de setiembre del 2026".
      */
-    public function getSmartOfficeIssueDateAttribute(): string {
+    public function getSmartOfficeIssueDateAttribute(): string
+    {
         $meses = [
             1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril',
             5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto',
@@ -343,7 +375,8 @@ class Certificate extends Model
     /**
      * Resolved list of syllabus topics (TEMARIO) for training certificates.
      */
-    public function getTopicsListAttribute(): array {
+    public function getTopicsListAttribute(): array
+    {
         // 1. If explicit details exist for this certificate
         if ($this->details && $this->details->isNotEmpty()) {
             $topics = $this->details->map(function ($d) {
@@ -376,7 +409,8 @@ class Certificate extends Model
     /**
      * Resolved syllabus topics specifically for the Smart Office 4.0 certificate template.
      */
-    public function getSmartOfficeTopicsAttribute(): array {
+    public function getSmartOfficeTopicsAttribute(): array
+    {
         $topics = $this->topics_list;
         if (! empty($topics)) {
             return $topics;
@@ -393,7 +427,8 @@ class Certificate extends Model
     /**
      * Resolves the official logo URL for the Administrative Assistance / Study Program.
      */
-    public function getProgramLogoSrcAttribute(): string {
+    public function getProgramLogoSrcAttribute(): string
+    {
         $program = $this->studyProgram ?: $this->course?->studyProgram;
 
         if (! $program && $this->isSmartOffice()) {
@@ -403,7 +438,7 @@ class Certificate extends Model
         $rawPath = $program?->logo_path;
 
         if (! empty($rawPath)) {
-            if (Str ::startsWith($rawPath, ['http://', 'https://', 'data:'])) {
+            if (Str::startsWith($rawPath, ['http://', 'https://', 'data:'])) {
                 return $rawPath;
             }
 
@@ -418,7 +453,8 @@ class Certificate extends Model
     /**
      * Resolved modules, contents, credits and grades for the Basic English certificate reverso.
      */
-    public function getEnglishModulesDataAttribute(): array {
+    public function getEnglishModulesDataAttribute(): array
+    {
         $defaultModules = [
             [
                 'name' => 'MODULO: I',

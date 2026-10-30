@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\DocumentType;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -25,6 +26,13 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
+            'document_type_id' => DocumentType::value('id') ?? DocumentType::insertGetId([
+                'name' => 'DNI',
+                'abreviation' => 'DNI',
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]),
             'names' => fake()->name(),
             'dni' => fake()->unique()->numerify('########'),
             'email' => fake()->unique()->safeEmail(),

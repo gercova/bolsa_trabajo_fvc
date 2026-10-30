@@ -52,8 +52,6 @@ class AppController extends Controller
         $visitDigits = VisitorCounter::getPaddedDigits($totalVisits, 6);
 
         return Inertia::render('Home', compact('partners', 'jobOffers', 'users', 'programs', 'blogs', 'carousels', 'totalVisits', 'visitDigits'));
-
-        // return view('home', compact('partners', 'jobOffers', 'users', 'programs', 'blogs', 'carousels', 'totalVisits', 'visitDigits'));
     }
 
     // admision-y-matricula/cepre-fvc
@@ -728,13 +726,12 @@ class AppController extends Controller
     }
 
     // bolsa-de-trabajo
-    public function offers(Request $request): View
+    public function offers(Request $request): Response
     {
-        $enterprise = Enterprise::first();
+        $enterprise = Enterprise::first() ?? Enterprise::getDefault();
         $search = $request->input('search');
         $selectedLocation = $request->input('location');
         $selectedSource = $request->input('source');
-
         $jobs = JobOffer::where('is_active', true)
             ->when($search, function ($q, $search) {
                 $q->where(function ($sub) use ($search) {
@@ -776,7 +773,7 @@ class AppController extends Controller
             ->orderBy('name', 'asc')
             ->get();
 
-        return view('job-board.index', compact(
+        return Inertia::render('Services/JobBoard', compact(
             'jobs',
             'enterprise',
             'locations',
@@ -789,12 +786,12 @@ class AppController extends Controller
         ));
     }
 
-    public function institutionalLinks(): View
+    public function institutionalLinks(): Response
     {
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
         $links = ExternalInstitutionalLink::where('is_active', true)->get();
 
-        return view('services.institutional-links', compact('enterprise', 'links'));
+        return Inertia::render('Services/InstitutionalLinks', compact('enterprise', 'links'));
     }
 
     /**
@@ -802,7 +799,7 @@ class AppController extends Controller
      * Validates certificates issued by the institution via QR code or certificate_code / DNI.
      * Presents consolidated summary tables grouped by Year, Academic Period, and Study Programs / Courses.
      */
-    public function validateCertificate(?string $certificate_code = null, ?Request $request = null): View
+    public function validateCertificate(?string $certificate_code = null, ?Request $request = null): Response
     {
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
         $request = $request ?? request();
@@ -979,7 +976,7 @@ class AppController extends Controller
         $totalCourses = Course::where('is_active', true)->count();
         $totalHours = Certificate::whereNotNull('duration')->count();
 
-        return view('services.validate-certificate', compact(
+        return Inertia::render('Services/ValidateCertificate', compact(
             'enterprise',
             'certificate',
             'certificates',
@@ -1002,7 +999,7 @@ class AppController extends Controller
     /**
      * Public print/view view for official verifiable certificates.
      */
-    public function printCertificate(string $certificate_code): View
+    public function printCertificate(string $certificate_code): Response|View
     {
         $certificate = Certificate::with([
             'user',
@@ -1020,6 +1017,10 @@ class AppController extends Controller
             ->firstOrFail();
 
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
+
+        if (request()->header('X-Inertia') || request()->query('spa') || request()->query('view') === 'inertia') {
+            return Inertia::render('Certificates/PrintCertificate', compact('certificate', 'enterprise'));
+        }
 
         return view('admin.certificates.print', compact('certificate', 'enterprise'));
     }

@@ -16,14 +16,15 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class RegisteredUserController extends Controller
 {
     /**
      * Display the registration view.
      */
-    public function create(Request $request): View
+    public function create(Request $request): Response
     {
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
         $initialDni = trim((string) $request->input('dni'));
@@ -33,7 +34,7 @@ class RegisteredUserController extends Controller
             $matchedUser = User::where('dni', $initialDni)->first();
         }
 
-        return view('auth.register', compact('enterprise', 'matchedUser', 'initialDni'));
+        return Inertia::render('Auth/Register', compact('enterprise', 'matchedUser', 'initialDni'));
     }
 
     /**

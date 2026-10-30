@@ -55,6 +55,17 @@ class Certificate extends Model
         'issue_date' => 'date:Y-m-d',
     ];
 
+    protected $appends = [
+        'validation_url',
+        'verification_url',
+        'clean_duration',
+        'qr_code_svg',
+        'formatted_date_range',
+        'formatted_issue_date',
+        'topics_list',
+        'english_modules_data',
+    ];
+
     /**
      * Scope for active certificates.
      */

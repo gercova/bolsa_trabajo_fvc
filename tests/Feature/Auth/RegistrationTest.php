@@ -63,8 +63,7 @@ class RegistrationTest extends TestCase
         $response = $this->get('/register');
 
         $response->assertStatus(200);
-        $response->assertSee('Registro de Cuenta Institucional');
-        $response->assertSee('Validación de Padrón Institucional');
+        $response->assertInertia(fn ($page) => $page->component('Auth/Register'));
     }
 
     public function test_dni_verification_endpoint_returns_user_data_for_existing_member(): void

@@ -140,10 +140,11 @@ class CertificateFormatAndValidationTest extends TestCase
         $response = $this->get('/validar-certificado/'.$this->certificate->certificate_code);
 
         $response->assertStatus(200);
-        $response->assertSee('JOSE DANIEL CHAVEZ HERRERA');
-        $response->assertSee('005-2026-ST-FVC');
-        $response->assertSee('Temario y Contenidos Desarrollados');
-        $response->assertSee('Ver Certificado Oficial (Formato Original)');
+        $response->assertInertia(fn ($page) => $page
+            ->component('Services/ValidateCertificate')
+            ->where('certificate.certificate_code', '005-2026-ST-FVC')
+            ->has('certificate.topics_list')
+        );
     }
 
     public function test_qr_code_link_points_to_validar_certificado_with_query_code(): void
@@ -159,9 +160,11 @@ class CertificateFormatAndValidationTest extends TestCase
         // Scanning QR redirects / navigates to the validation view with ?code=
         $response = $this->get('/validar-certificado?code='.$this->certificate->certificate_code);
         $response->assertStatus(200);
-        $response->assertSee('JOSE DANIEL CHAVEZ HERRERA');
-        $response->assertSee('005-2026-ST-FVC');
-        $response->assertSee('Semana Técnica 2026');
+        $response->assertInertia(fn ($page) => $page
+            ->component('Services/ValidateCertificate')
+            ->where('certificate.certificate_code', '005-2026-ST-FVC')
+            ->where('certificate.event_name', 'Semana Técnica 2026')
+        );
 
         // Works also when certificate has custom code field
         $customCert = Certificate::create([
@@ -184,8 +187,11 @@ class CertificateFormatAndValidationTest extends TestCase
 
         $responseCustom = $this->get('/validar-certificado?code=CERT-71234567-99');
         $responseCustom->assertStatus(200);
-        $responseCustom->assertSee('CERT-71234567-99');
-        $responseCustom->assertSee('Semana Técnica 2026 Especial');
+        $responseCustom->assertInertia(fn ($page) => $page
+            ->component('Services/ValidateCertificate')
+            ->where('certificate.code', 'CERT-71234567-99')
+            ->where('certificate.event_name', 'Semana Técnica 2026 Especial')
+        );
 
         // verify.certificate alias redirects to /validar-certificado?code=
         $responseAlias = $this->get('/verify-certificate/CERT-71234567-99');
@@ -365,11 +371,11 @@ class CertificateFormatAndValidationTest extends TestCase
         $response = $this->get('/validar-certificado/'.$englishCert->certificate_code);
 
         $response->assertStatus(200);
-        $response->assertSee('Registro Académico y Calificaciones — Inglés a Nivel Básico');
-        $response->assertSee('Greatings and farewells');
-        $response->assertSee('Demostrative Pronuons A.N.I form');
-        $response->assertSee('Catorce');
-        $response->assertSee('Ver Certificado Oficial (Formato Original)');
+        $response->assertInertia(fn ($page) => $page
+            ->component('Services/ValidateCertificate')
+            ->where('certificate.certificate_code', $englishCert->certificate_code)
+            ->has('certificate.english_modules_data')
+        );
     }
 
     public function test_user_can_hold_multiple_certificates_and_relationship_works(): void
@@ -528,18 +534,20 @@ class CertificateFormatAndValidationTest extends TestCase
         $response = $this->get('/validar-certificado/'.$student->dni);
 
         $response->assertStatus(200);
-        $response->assertSee($student->names);
-        $response->assertSee($this->certificate->certificate_code);
-        $response->assertSee($secondCert->certificate_code);
-        $response->assertSee('Certificados Disponibles');
-        $response->assertSee('Certificados del estudiante');
+        $response->assertInertia(fn ($page) => $page
+            ->component('Services/ValidateCertificate')
+            ->where('searchedUser.names', $student->names)
+            ->where('certificates', fn ($c) => count($c) >= 2)
+        );
 
         // Search by DNI via query parameter (?code=...)
         $responseQuery = $this->get('/validar-certificado?code='.$student->dni);
         $responseQuery->assertStatus(200);
-        $responseQuery->assertSee($student->names);
-        $responseQuery->assertSee($this->certificate->certificate_code);
-        $responseQuery->assertSee($secondCert->certificate_code);
+        $responseQuery->assertInertia(fn ($page) => $page
+            ->component('Services/ValidateCertificate')
+            ->where('searchedUser.names', $student->names)
+            ->where('certificates', fn ($c) => count($c) >= 2)
+        );
     }
 
     public function test_certificate_model_and_migration_support_code_field(): void

@@ -5,18 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CourseRequest;
 use App\Models\Course;
 use App\Models\StudyProgram;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class CourseController extends Controller
 {
     /**
      * Display a listing of courses.
      */
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $search = $request->input('search');
         $status = $request->input('status');
@@ -43,16 +44,16 @@ class CourseController extends Controller
         $withModulesCount = Course::has('modules')->count();
         $withCertificatesCount = Course::has('certificates')->count();
 
-        return view('admin.courses.index', compact(
-            'courses',
-            'studyPrograms',
-            'totalCourses',
-            'activeCourses',
-            'withModulesCount',
-            'withCertificatesCount',
-            'search',
-            'status'
-        ));
+        return Inertia::render('Admin/Courses/Index', [
+            'courses' => $courses,
+            'studyPrograms' => $studyPrograms,
+            'totalCourses' => $totalCourses,
+            'activeCourses' => $activeCourses,
+            'withModulesCount' => $withModulesCount,
+            'withCertificatesCount' => $withCertificatesCount,
+            'search' => $search ?? '',
+            'status' => $status ?? '',
+        ]);
     }
 
     /**

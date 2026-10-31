@@ -5,18 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ModuleRequest;
 use App\Models\Course;
 use App\Models\Module;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ModuleController extends Controller
 {
     /**
      * Display a listing of modules.
      */
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $search = $request->input('search');
         $courseId = $request->input('course_id');
@@ -49,16 +50,16 @@ class ModuleController extends Controller
         $activeModules = Module::where('is_active', true)->count();
         $coursesCount = Course::has('modules')->count();
 
-        return view('admin.modules.index', compact(
-            'modules',
-            'courses',
-            'totalModules',
-            'activeModules',
-            'coursesCount',
-            'search',
-            'courseId',
-            'status'
-        ));
+        return Inertia::render('Admin/Modules/Index', [
+            'modules' => $modules,
+            'courses' => $courses,
+            'totalModules' => $totalModules,
+            'activeModules' => $activeModules,
+            'coursesCount' => $coursesCount,
+            'search' => $search ?? '',
+            'courseId' => $courseId ?? '',
+            'status' => $status ?? '',
+        ]);
     }
 
     /**

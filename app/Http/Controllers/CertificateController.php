@@ -18,6 +18,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -28,7 +30,7 @@ class CertificateController extends Controller
     /**
      * Display a listing of certificates.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|Response
     {
         $authUser = auth()->user();
         $isStudentUser = $authUser && (
@@ -123,22 +125,22 @@ class CertificateController extends Controller
         $totalDownloads = (int) Certificate::sum('download_count');
         $issuedCoursesCount = Certificate::distinct('course_id')->count('course_id');
 
-        return view('admin.certificates.index', compact(
-            'certificates',
-            'courses',
-            'users',
-            'totalCertificates',
-            'activeCertificates',
-            'presencialCount',
-            'virtualSemipresCount',
-            'totalDownloads',
-            'issuedCoursesCount',
-            'search',
-            'courseId',
-            'userId',
-            'modality',
-            'status'
-        ));
+        return Inertia::render('Admin/Certificates/Index', [
+            'certificates' => $certificates,
+            'courses' => $courses,
+            'users' => $users,
+            'totalCertificates' => $totalCertificates,
+            'activeCertificates' => $activeCertificates,
+            'presencialCount' => $presencialCount,
+            'virtualSemipresCount' => $virtualSemipresCount,
+            'totalDownloads' => $totalDownloads,
+            'issuedCoursesCount' => $issuedCoursesCount,
+            'search' => $search ?? '',
+            'courseId' => $courseId ?? '',
+            'userId' => $userId ?? '',
+            'modality' => $modality ?? '',
+            'status' => $status ?? '',
+        ]);
     }
 
     /**

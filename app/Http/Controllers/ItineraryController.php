@@ -6,18 +6,19 @@ use App\Http\Requests\ItineraryRequest;
 use App\Models\Course;
 use App\Models\Itinerary;
 use App\Models\Module;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ItineraryController extends Controller
 {
     /**
      * Display a listing of itineraries.
      */
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $search = $request->input('search');
         $courseId = $request->input('course_id');
@@ -55,18 +56,18 @@ class ItineraryController extends Controller
         $activeItineraries = Itinerary::where('is_active', true)->count();
         $coursesWithItin = Course::has('itineraries')->count();
 
-        return view('admin.itineraries.index', compact(
-            'itineraries',
-            'courses',
-            'modules',
-            'totalItineraries',
-            'activeItineraries',
-            'coursesWithItin',
-            'search',
-            'courseId',
-            'moduleId',
-            'status'
-        ));
+        return Inertia::render('Admin/Itineraries/Index', [
+            'itineraries' => $itineraries,
+            'courses' => $courses,
+            'modules' => $modules,
+            'totalItineraries' => $totalItineraries,
+            'activeItineraries' => $activeItineraries,
+            'coursesWithItin' => $coursesWithItin,
+            'search' => $search ?? '',
+            'courseId' => $courseId ?? '',
+            'moduleId' => $moduleId ?? '',
+            'status' => $status ?? '',
+        ]);
     }
 
     /**

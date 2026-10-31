@@ -15,19 +15,20 @@ use App\Models\ProgramJobField;
 use App\Models\ProgramMeta;
 use App\Models\ProgramRequirement;
 use App\Models\StudyProgram;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class StudyProgramsController extends Controller
 {
     /**
      * Display a listing of the resources across tabs.
      */
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $validated = $request->validate([
             'search' => 'nullable|string|max:255',
@@ -136,26 +137,29 @@ class StudyProgramsController extends Controller
 
         $allProgramsList = StudyProgram::where('is_active', true)->orderBy('order', 'asc')->orderBy('name')->get();
 
-        return view('admin.programs.index', compact(
-            'programs',
-            'modules',
-            'competencies',
-            'jobFields',
-            'metas',
-            'requirements',
-            'activeTab',
-            'allProgramsList'
-        ));
+        return Inertia::render('Admin/Programs/Index', [
+            'programs' => $programs,
+            'modules' => $modules,
+            'competencies' => $competencies,
+            'jobFields' => $jobFields,
+            'metas' => $metas,
+            'requirements' => $requirements,
+            'activeTab' => $activeTab,
+            'allProgramsList' => $allProgramsList,
+            'search' => $search ?? '',
+            'status' => $statusFilter ?? '',
+            'studyProgramId' => $programFilter ?? '',
+        ]);
     }
 
     // =========================================================================
     // STUDY PROGRAMS
     // =========================================================================
-    public function create(): View
+    public function create(): Response
     {
         $nextOrder = (StudyProgram::max('order') ?? 0) + 1;
 
-        return view('admin.programs.create', compact('nextOrder'));
+        return Inertia::render('Admin/Programs/Create', ['nextOrder' => $nextOrder]);
     }
 
     public function store(StudyProgramValidate $request): RedirectResponse
@@ -164,7 +168,8 @@ class StudyProgramsController extends Controller
         $validated['slug'] = Str::slug($validated['name']);
         $validated['is_active'] = $request->boolean('is_active');
         $validated['enable_carousel'] = $request->boolean('enable_carousel');
-        $validated['order'] = $validated['order'] ?? ((StudyProgram::max('order') ?? 0) + 1);
+        $validated['order'] = $validated['order']
+            ?? ((StudyProgram::max('order') ?? 0) + 1);
 
         if ($request->hasFile('logo_path')) {
             $path = $request->file('logo_path')->store('programs', 'public');
@@ -198,11 +203,11 @@ class StudyProgramsController extends Controller
         return redirect()->route('admin.programs.index', ['tab' => 'programs'])->with('success', 'Programa de estudio creado correctamente.');
     }
 
-    public function edit(StudyProgram $program): View
+    public function edit(StudyProgram $program): Response
     {
         $program->load('images');
 
-        return view('admin.programs.edit', compact('program'));
+        return Inertia::render('Admin/Programs/Edit', ['program' => $program]);
     }
 
     public function update(StudyProgramValidate $request, StudyProgram $program): RedirectResponse
@@ -285,7 +290,9 @@ class StudyProgramsController extends Controller
     {
         $program->update(['is_active' => ! $program->is_active]);
 
-        return redirect()->back()->with('success', 'Estado del programa de estudio actualizado correctamente.');
+        return redirect()
+            ->back()
+            ->with('success', 'Estado del programa de estudio actualizado correctamente.');
     }
 
     public function destroy(StudyProgram $program): RedirectResponse
@@ -366,11 +373,11 @@ class StudyProgramsController extends Controller
     // =========================================================================
     // MODULAR CERTIFICATION (modular_certification)
     // =========================================================================
-    public function createModule(): View
+    public function createModule(): Response
     {
         $programs = StudyProgram::orderBy('name')->get();
 
-        return view('admin.programs.modules.create', compact('programs'));
+        return Inertia::render('Admin/Programs/Modules/Create', ['programs' => $programs]);
     }
 
     public function storeModule(ModularCertificationRequest $request): RedirectResponse
@@ -380,14 +387,19 @@ class StudyProgramsController extends Controller
         $validated['is_active'] = $request->has('is_active');
         ModularCertification::create($validated);
 
-        return redirect()->route('admin.programs.index', ['tab' => 'modules'])->with('success', 'Módulo de certificación creado correctamente.');
+        return redirect()
+            ->route('admin.programs.index', ['tab' => 'modules'])
+            ->with('success', 'Módulo de certificación creado correctamente.');
     }
 
-    public function editModule(ModularCertification $module): View
+    public function editModule(ModularCertification $module): Response
     {
         $programs = StudyProgram::orderBy('name')->get();
 
-        return view('admin.programs.modules.edit', compact('module', 'programs'));
+        return Inertia::render('Admin/Programs/Modules/Edit', [
+            'module' => $module,
+            'programs' => $programs,
+        ]);
     }
 
     public function updateModule(ModularCertificationRequest $request, ModularCertification $module): RedirectResponse
@@ -397,32 +409,38 @@ class StudyProgramsController extends Controller
         $validated['is_active'] = $request->has('is_active');
         $module->update($validated);
 
-        return redirect()->route('admin.programs.index', ['tab' => 'modules'])->with('success', 'Módulo de certificación actualizado correctamente.');
+        return redirect()
+            ->route('admin.programs.index', ['tab' => 'modules'])
+            ->with('success', 'Módulo de certificación actualizado correctamente.');
     }
 
     public function toggleModuleStatus(ModularCertification $module): RedirectResponse
     {
         $module->update(['is_active' => ! $module->is_active]);
 
-        return redirect()->back()->with('success', 'Estado del módulo actualizado correctamente.');
+        return redirect()
+            ->back()
+            ->with('success', 'Estado del módulo actualizado correctamente.');
     }
 
     public function destroyModule(ModularCertification $module): RedirectResponse
     {
         $module->delete();
 
-        return redirect()->route('admin.programs.index', ['tab' => 'modules'])->with('success', 'Módulo de certificación eliminado correctamente.');
+        return redirect()
+            ->route('admin.programs.index', ['tab' => 'modules'])
+            ->with('success', 'Módulo de certificación eliminado correctamente.');
     }
 
     // =========================================================================
     // PROGRAM COMPETENCIES (program_competencies)
     // =========================================================================
 
-    public function createCompetency(): View
+    public function createCompetency(): Response
     {
         $programs = StudyProgram::orderBy('name')->get();
 
-        return view('admin.programs.competencies.create', compact('programs'));
+        return Inertia::render('Admin/Programs/Competencies/Create', ['programs' => $programs]);
     }
 
     public function storeCompetency(ProgramCompetencyRequest $request): RedirectResponse
@@ -431,14 +449,19 @@ class StudyProgramsController extends Controller
         $validated['is_active'] = $request->has('is_active');
         ProgramCompetency::create($validated);
 
-        return redirect()->route('admin.programs.index', ['tab' => 'competencies'])->with('success', 'Competencia creada correctamente.');
+        return redirect()
+            ->route('admin.programs.index', ['tab' => 'competencies'])
+            ->with('success', 'Competencia creada correctamente.');
     }
 
-    public function editCompetency(ProgramCompetency $competency): View
+    public function editCompetency(ProgramCompetency $competency): Response
     {
         $programs = StudyProgram::orderBy('name')->get();
 
-        return view('admin.programs.competencies.edit', compact('competency', 'programs'));
+        return Inertia::render('Admin/Programs/Competencies/Edit', [
+            'competency' => $competency,
+            'programs' => $programs,
+        ]);
     }
 
     public function updateCompetency(ProgramCompetencyRequest $request, ProgramCompetency $competency): RedirectResponse
@@ -454,25 +477,29 @@ class StudyProgramsController extends Controller
     {
         $competency->update(['is_active' => ! $competency->is_active]);
 
-        return redirect()->back()->with('success', 'Estado de la competencia actualizado correctamente.');
+        return redirect()
+            ->back()
+            ->with('success', 'Estado de la competencia actualizado correctamente.');
     }
 
     public function destroyCompetency(ProgramCompetency $competency): RedirectResponse
     {
         $competency->delete();
 
-        return redirect()->route('admin.programs.index', ['tab' => 'competencies'])->with('success', 'Competencia eliminada correctamente.');
+        return redirect()
+            ->route('admin.programs.index', ['tab' => 'competencies'])
+            ->with('success', 'Competencia eliminada correctamente.');
     }
 
     // =========================================================================
     // PROGRAM JOB FIELDS (program_job_fields)
     // =========================================================================
 
-    public function createJobField(): View
+    public function createJobField(): Response
     {
         $programs = StudyProgram::orderBy('name')->get();
 
-        return view('admin.programs.job_fields.create', compact('programs'));
+        return Inertia::render('Admin/Programs/JobFields/Create', ['programs' => $programs]);
     }
 
     public function storeJobField(ProgramJobFieldRequest $request): RedirectResponse
@@ -481,14 +508,19 @@ class StudyProgramsController extends Controller
         $validated['is_active'] = $request->has('is_active');
         ProgramJobField::create($validated);
 
-        return redirect()->route('admin.programs.index', ['tab' => 'job_fields'])->with('success', 'Campo laboral registrado correctamente.');
+        return redirect()
+            ->route('admin.programs.index', ['tab' => 'job_fields'])
+            ->with('success', 'Campo laboral registrado correctamente.');
     }
 
-    public function editJobField(ProgramJobField $jobField): View
+    public function editJobField(ProgramJobField $jobField): Response
     {
         $programs = StudyProgram::orderBy('name')->get();
 
-        return view('admin.programs.job_fields.edit', compact('jobField', 'programs'));
+        return Inertia::render('Admin/Programs/JobFields/Edit', [
+            'jobField' => $jobField,
+            'programs' => $programs,
+        ]);
     }
 
     public function updateJobField(ProgramJobFieldRequest $request, ProgramJobField $jobField): RedirectResponse
@@ -504,7 +536,9 @@ class StudyProgramsController extends Controller
     {
         $jobField->update(['is_active' => ! $jobField->is_active]);
 
-        return redirect()->back()->with('success', 'Estado del campo laboral actualizado correctamente.');
+        return redirect()
+            ->back()
+            ->with('success', 'Estado del campo laboral actualizado correctamente.');
     }
 
     public function destroyJobField(ProgramJobField $jobField): RedirectResponse
@@ -518,11 +552,11 @@ class StudyProgramsController extends Controller
     // PROGRAM METAS (program_metas)
     // =========================================================================
 
-    public function createMeta(): View
+    public function createMeta(): Response
     {
         $programs = StudyProgram::orderBy('name')->get();
 
-        return view('admin.programs.meta.create', compact('programs'));
+        return Inertia::render('Admin/Programs/Meta/Create', ['programs' => $programs]);
     }
 
     public function storeMeta(ProgramMetaRequest $request): RedirectResponse
@@ -530,14 +564,19 @@ class StudyProgramsController extends Controller
         $validated = $request->validated();
         ProgramMeta::create($validated);
 
-        return redirect()->route('admin.programs.index', ['tab' => 'meta'])->with('success', 'Metadatos de presentación guardados correctamente.');
+        return redirect()
+            ->route('admin.programs.index', ['tab' => 'meta'])
+            ->with('success', 'Metadatos de presentación guardados correctamente.');
     }
 
-    public function editMeta(ProgramMeta $meta): View
+    public function editMeta(ProgramMeta $meta): Response
     {
         $programs = StudyProgram::orderBy('name')->get();
 
-        return view('admin.programs.meta.edit', compact('meta', 'programs'));
+        return Inertia::render('Admin/Programs/Meta/Edit', [
+            'meta' => $meta,
+            'programs' => $programs,
+        ]);
     }
 
     public function updateMeta(ProgramMetaRequest $request, ProgramMeta $meta): RedirectResponse
@@ -545,25 +584,29 @@ class StudyProgramsController extends Controller
         $validated = $request->validated();
         $meta->update($validated);
 
-        return redirect()->route('admin.programs.index', ['tab' => 'meta'])->with('success', 'Metadatos de presentación actualizados correctamente.');
+        return redirect()
+            ->route('admin.programs.index', ['tab' => 'meta'])
+            ->with('success', 'Metadatos de presentación actualizados correctamente.');
     }
 
     public function destroyMeta(ProgramMeta $meta): RedirectResponse
     {
         $meta->delete();
 
-        return redirect()->route('admin.programs.index', ['tab' => 'meta'])->with('success', 'Metadatos eliminados correctamente.');
+        return redirect()
+            ->route('admin.programs.index', ['tab' => 'meta'])
+            ->with('success', 'Metadatos eliminados correctamente.');
     }
 
     // =========================================================================
     // PROGRAM REQUIREMENTS (program_requirements)
     // =========================================================================
 
-    public function createRequirement(): View
+    public function createRequirement(): Response
     {
         $programs = StudyProgram::orderBy('name')->get();
 
-        return view('admin.programs.requirements.create', compact('programs'));
+        return Inertia::render('Admin/Programs/Requirements/Create', ['programs' => $programs]);
     }
 
     public function storeRequirement(ProgramRequirementRequest $request): RedirectResponse
@@ -572,14 +615,19 @@ class StudyProgramsController extends Controller
         $validated['is_active'] = $request->has('is_active');
         ProgramRequirement::create($validated);
 
-        return redirect()->route('admin.programs.index', ['tab' => 'requirements'])->with('success', 'Requisito registrado correctamente.');
+        return redirect()
+            ->route('admin.programs.index', ['tab' => 'requirements'])
+            ->with('success', 'Requisito registrado correctamente.');
     }
 
-    public function editRequirement(ProgramRequirement $requirement): View
+    public function editRequirement(ProgramRequirement $requirement): Response
     {
         $programs = StudyProgram::orderBy('name')->get();
 
-        return view('admin.programs.requirements.edit', compact('requirement', 'programs'));
+        return Inertia::render('Admin/Programs/Requirements/Edit', [
+            'requirement' => $requirement,
+            'programs' => $programs,
+        ]);
     }
 
     public function updateRequirement(ProgramRequirementRequest $request, ProgramRequirement $requirement): RedirectResponse
@@ -588,20 +636,26 @@ class StudyProgramsController extends Controller
         $validated['is_active'] = $request->has('is_active');
         $requirement->update($validated);
 
-        return redirect()->route('admin.programs.index', ['tab' => 'requirements'])->with('success', 'Requisito actualizado correctamente.');
+        return redirect()
+            ->route('admin.programs.index', ['tab' => 'requirements'])
+            ->with('success', 'Requisito actualizado correctamente.');
     }
 
     public function toggleRequirementStatus(ProgramRequirement $requirement): RedirectResponse
     {
         $requirement->update(['is_active' => ! $requirement->is_active]);
 
-        return redirect()->back()->with('success', 'Estado del requisito actualizado correctamente.');
+        return redirect()
+            ->back()
+            ->with('success', 'Estado del requisito actualizado correctamente.');
     }
 
     public function destroyRequirement(ProgramRequirement $requirement): RedirectResponse
     {
         $requirement->delete();
 
-        return redirect()->route('admin.programs.index', ['tab' => 'requirements'])->with('success', 'Requisito eliminado correctamente.');
+        return redirect()
+            ->route('admin.programs.index', ['tab' => 'requirements'])
+            ->with('success', 'Requisito eliminado correctamente.');
     }
 }

@@ -9,6 +9,7 @@ use App\Models\StudyProgram;
 use App\Models\User;
 use App\Services\QrCodeService;
 use Illuminate\Support\Facades\DB;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class CertificateFormatAndValidationTest extends TestCase
@@ -799,10 +800,10 @@ class CertificateFormatAndValidationTest extends TestCase
         $response = $this->actingAs($this->adminUser)->get('/admin-certificados');
 
         $response->assertStatus(200);
-        $response->assertSee('Eliminar Todos');
-        $response->assertSee('Eliminar Seleccionados');
-        $response->assertSee('toggleSelectAll');
-        $response->assertSee('selectedCerts');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Certificates/Index')
+            ->has('certificates')
+        );
     }
 
     public function test_bulk_delete_selected_certificates_successfully(): void
@@ -950,15 +951,10 @@ class CertificateFormatAndValidationTest extends TestCase
         $response = $this->actingAs($this->adminUser)->get('/admin-certificados');
 
         $response->assertStatus(200);
-        $response->assertSee('Exportar PDF');
-        $response->assertSee('bulkPdfModalOpen');
-        $response->assertSee('Exportación Masiva de Certificados en PDF');
-        $response->assertSee('Cursos a Exportar');
-        $response->assertSee('Páginas / Caras a Incluir');
-        $response->assertSee('Ambas Caras');
-        $response->assertSee('Solo Anverso');
-        $response->assertSee('Solo Reverso');
-        $response->assertSee('Generar y Exportar PDF');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Certificates/Index')
+            ->has('courses')
+        );
     }
 
     public function test_admin_can_bulk_export_certificates_to_pdf_view_for_all_courses(): void
@@ -1230,11 +1226,11 @@ class CertificateFormatAndValidationTest extends TestCase
     {
         $response = $this->actingAs($this->adminUser)->get('/admin-certificados');
         $response->assertStatus(200);
-        $response->assertSee('toggleStudentDropdown');
-        $response->assertSee('studentSearchInput');
-        $response->assertSee('onStudentSearchInput');
-        $response->assertSee('availableModules');
-        $response->assertSee('Módulo asociado al curso');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Certificates/Index')
+            ->has('courses')
+            ->has('certificates')
+        );
     }
 
     protected function createSmartOfficeCertificate(): Certificate

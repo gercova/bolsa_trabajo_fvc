@@ -106,8 +106,11 @@ class StudyProgramImagesTest extends TestCase
         $response = $this->actingAs($this->admin)->get(route('admin.programs.edit', $program));
 
         $response->assertOk();
-        $response->assertSee('Galería de Fotos del Programa');
-        $response->assertSee('enfermeria_lab.jpg');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Programs/Edit')
+            ->has('program.images', 1)
+            ->where('program.images.0.path', 'programs/gallery/enfermeria_lab.jpg')
+        );
     }
 
     public function test_can_update_program_and_upload_new_gallery_images(): void

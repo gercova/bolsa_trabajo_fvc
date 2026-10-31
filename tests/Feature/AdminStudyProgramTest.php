@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class AdminStudyProgramTest extends TestCase
@@ -25,7 +26,10 @@ class AdminStudyProgramTest extends TestCase
         $response = $this->actingAs($user)->get('/admin-programas');
 
         $response->assertOk();
-        $response->assertViewHas('programs');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Programs/Index')
+            ->has('programs')
+        );
     }
 
     public function test_admin_can_access_create_program_page(): void
@@ -34,7 +38,10 @@ class AdminStudyProgramTest extends TestCase
         $response = $this->actingAs($user)->get('/admin-programas/crear-programa');
 
         $response->assertOk();
-        $response->assertSee('Nuevo Programa de Estudio');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Programs/Create')
+            ->has('nextOrder')
+        );
     }
 
     public function test_admin_can_store_new_program(): void
@@ -96,8 +103,11 @@ class AdminStudyProgramTest extends TestCase
         $response = $this->actingAs($user)->get("/admin-programas/editar-programa/{$program->id}");
 
         $response->assertOk();
-        $response->assertSee('Editar Programa de Estudio');
-        $response->assertSee('Agropecuaria');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Programs/Edit')
+            ->where('program.id', $program->id)
+            ->where('program.name', 'Agropecuaria')
+        );
     }
 
     public function test_admin_can_update_program(): void
@@ -221,10 +231,12 @@ class AdminStudyProgramTest extends TestCase
         $response = $this->actingAs($user)->get('/admin-programas');
         $response->assertOk();
 
-        $programsInView = $response->viewData('programs');
-        $this->assertEquals('Administración', $programsInView->first()->name);
-        $this->assertEquals(1, $programsInView->first()->order);
-        $this->assertEquals('Zootecnia', $programsInView->last()->name);
-        $this->assertEquals(3, $programsInView->last()->order);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Programs/Index')
+            ->where('programs.data.0.name', 'Administración')
+            ->where('programs.data.0.order', 1)
+            ->where('programs.data.2.name', 'Zootecnia')
+            ->where('programs.data.2.order', 3)
+        );
     }
 }

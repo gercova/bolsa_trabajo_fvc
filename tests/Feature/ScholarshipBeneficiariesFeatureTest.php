@@ -65,9 +65,11 @@ class ScholarshipBeneficiariesFeatureTest extends TestCase
             ->get(route('admin.scholarships.index', ['tab' => 'beneficiaries']));
 
         $response->assertStatus(200);
-        $response->assertSee('Padrón de Beneficiarios (PDF)');
-        $response->assertSee('Subir Nuevo Padrón PDF');
-        $response->assertSee('2026-I');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Scholarships/Index')
+            ->where('activeTab', 'beneficiaries')
+            ->has('beneficiaries')
+        );
     }
 
     public function test_admin_can_upload_beneficiary_pdf(): void

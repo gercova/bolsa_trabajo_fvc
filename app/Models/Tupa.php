@@ -27,6 +27,11 @@ class Tupa extends Model
         'is_active' => 'boolean',
     ];
 
+    protected $appends = [
+        'url',
+        'year',
+    ];
+
     /**
      * Accesor para obtener la URL del archivo
      */

@@ -12,13 +12,15 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class TupaController extends Controller
 {
     /**
      * Display a listing of the resources (TUPA Documents, Categories, Procedures).
      */
-    public function index(Request $request): View
+    public function index(Request $request): InertiaResponse
     {
         $validated = $request->validate([
             'search' => 'nullable|string|max:255',
@@ -103,22 +105,29 @@ class TupaController extends Controller
         $allCategoriesList = TupaCategory::where('is_active', true)->orderBy('name')->get();
         $allTupasList = Tupa::where('is_active', true)->orderBy('title')->get();
 
-        return view('admin.tupa.index', compact(
-            'tupas',
-            'categories',
-            'procedures',
-            'activeTab',
-            'allCategoriesList',
-            'allTupasList'
-        ));
+        return Inertia::render('Admin/Tupa/Index', [
+            'tupas' => $tupas,
+            'categories' => $categories,
+            'procedures' => $procedures,
+            'activeTab' => $activeTab,
+            'filters' => [
+                'search' => $validated['search'] ?? '',
+                'status' => $validated['status'] ?? '',
+                'year' => $validated['year'] ?? '',
+                'category_id' => $validated['category_id'] ?? '',
+                'tupa_id' => $validated['tupa_id'] ?? '',
+            ],
+            'allCategoriesList' => $allCategoriesList,
+            'allTupasList' => $allTupasList,
+        ]);
     }
 
     /**
      * Show the form for creating a new TUPA document.
      */
-    public function create(): View
+    public function create(): InertiaResponse
     {
-        return view('admin.tupa.create');
+        return Inertia::render('Admin/Tupa/Create');
     }
 
     /**
@@ -143,9 +152,11 @@ class TupaController extends Controller
     /**
      * Show the form for editing the specified TUPA document.
      */
-    public function edit(Tupa $tupa): View
+    public function edit(Tupa $tupa): InertiaResponse
     {
-        return view('admin.tupa.edit', compact('tupa'));
+        return Inertia::render('Admin/Tupa/Edit', [
+            'tupa' => $tupa,
+        ]);
     }
 
     /**
@@ -166,7 +177,6 @@ class TupaController extends Controller
         }
 
         $validated['is_active'] = $request->has('is_active');
-
         $tupa->update($validated);
 
         return redirect()->route('admin.tupa.index', ['tab' => 'documents'])->with('success', 'Registro TUPA actualizado exitosamente.');
@@ -191,9 +201,7 @@ class TupaController extends Controller
      */
     public function toggleStatus(Tupa $tupa): RedirectResponse
     {
-        $tupa->update([
-            'is_active' => ! $tupa->is_active,
-        ]);
+        $tupa->update(['is_active' => ! $tupa->is_active]);
 
         return redirect()->back()->with('success', 'Estado del registro TUPA actualizado correctamente.');
     }
@@ -208,7 +216,6 @@ class TupaController extends Controller
     {
         $validated = $request->validated();
         $validated['is_active'] = $request->has('is_active');
-
         TupaCategory::create($validated);
 
         return redirect()->route('admin.tupa.index', ['tab' => 'categories'])->with('success', 'Categoría TUPA creada exitosamente.');
@@ -223,7 +230,6 @@ class TupaController extends Controller
     {
         $validated = $request->validated();
         $validated['is_active'] = $request->has('is_active');
-
         $category->update($validated);
 
         return redirect()->route('admin.tupa.index', ['tab' => 'categories'])->with('success', 'Categoría TUPA actualizada exitosamente.');
@@ -242,9 +248,7 @@ class TupaController extends Controller
 
     public function toggleCategoryStatus(TupaCategory $category): RedirectResponse
     {
-        $category->update([
-            'is_active' => ! $category->is_active,
-        ]);
+        $category->update(['is_active' => ! $category->is_active]);
 
         return redirect()->back()->with('success', 'Estado de la categoría actualizado correctamente.');
     }
@@ -261,7 +265,6 @@ class TupaController extends Controller
     public function storeProcedure(TupaProcedureRequest $request): RedirectResponse
     {
         $validated = $request->validated();
-
         if (is_string($validated['requirements'])) {
             $validated['requirements'] = array_values(array_filter(
                 array_map('trim', explode("\n", $validated['requirements']))
@@ -269,7 +272,6 @@ class TupaController extends Controller
         }
 
         $validated['is_active'] = $request->has('is_active');
-
         TupaProcedure::create($validated);
 
         return redirect()->route('admin.tupa.index', ['tab' => 'procedures'])->with('success', 'Procedimiento TUPA creado exitosamente.');
@@ -294,7 +296,6 @@ class TupaController extends Controller
         }
 
         $validated['is_active'] = $request->has('is_active');
-
         $procedure->update($validated);
 
         return redirect()->route('admin.tupa.index', ['tab' => 'procedures'])->with('success', 'Procedimiento TUPA actualizado exitosamente.');
@@ -309,9 +310,7 @@ class TupaController extends Controller
 
     public function toggleProcedureStatus(TupaProcedure $procedure): RedirectResponse
     {
-        $procedure->update([
-            'is_active' => ! $procedure->is_active,
-        ]);
+        $procedure->update(['is_active' => ! $procedure->is_active]);
 
         return redirect()->back()->with('success', 'Estado del procedimiento actualizado correctamente.');
     }

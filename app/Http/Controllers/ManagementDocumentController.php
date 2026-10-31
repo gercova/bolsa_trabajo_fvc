@@ -7,13 +7,15 @@ use App\Models\Enterprise;
 use App\Models\ManagementDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class ManagementDocumentController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): InertiaResponse
     {
         $query = ManagementDocument::query();
 
@@ -36,15 +38,21 @@ class ManagementDocumentController extends Controller
 
         $documents = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
 
-        return view('admin.documents.index', compact('documents'));
+        return Inertia::render('Admin/Documents/Index', [
+            'documents' => $documents,
+            'filters' => [
+                'search' => $request->search ?? '',
+                'status' => $request->status ?? '',
+            ],
+        ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): InertiaResponse
     {
-        return view('admin.documents.create');
+        return Inertia::render('Admin/Documents/Create');
     }
 
     /**
@@ -83,9 +91,11 @@ class ManagementDocumentController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ManagementDocument $managementDocument)
+    public function edit(ManagementDocument $managementDocument): InertiaResponse
     {
-        return view('admin.documents.edit', compact('managementDocument'));
+        return Inertia::render('Admin/Documents/Edit', [
+            'managementDocument' => $managementDocument,
+        ]);
     }
 
     /**

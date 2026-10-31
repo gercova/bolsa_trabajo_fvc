@@ -5,17 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ScholarshipRequest;
 use App\Models\Scholarship;
 use App\Models\ScholarshipBeneficiary;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ScholarshipController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $search = $request->input('search');
         $status = $request->input('status');
@@ -75,28 +76,28 @@ class ScholarshipController extends Controller
             }
         }
 
-        return view('admin.scholarships.index', compact(
-            'scholarships',
-            'search',
-            'status',
-            'beneficiaries',
-            'beneficiarySearch',
-            'beneficiaryPeriod',
-            'beneficiaryStatus',
-            'allScholarships',
-            'periods',
-            'totalModalities',
-            'totalBeneficiaries',
-            'activeTab'
-        ));
+        return Inertia::render('Admin/Scholarships/Index', [
+            'scholarships' => $scholarships,
+            'search' => $search ?? '',
+            'status' => $status ?? '',
+            'beneficiaries' => $beneficiaries,
+            'beneficiarySearch' => $beneficiarySearch ?? '',
+            'beneficiaryPeriod' => $beneficiaryPeriod ?? '',
+            'beneficiaryStatus' => $beneficiaryStatus ?? '',
+            'allScholarships' => $allScholarships,
+            'periods' => $periods,
+            'totalModalities' => $totalModalities,
+            'totalBeneficiaries' => $totalBeneficiaries,
+            'activeTab' => $activeTab,
+        ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): View
+    public function create(): Response
     {
-        return view('admin.scholarships.create');
+        return Inertia::render('Admin/Scholarships/Create');
     }
 
     /**
@@ -135,9 +136,9 @@ class ScholarshipController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Scholarship $scholarship): View
+    public function edit(Scholarship $scholarship): Response
     {
-        return view('admin.scholarships.edit', compact('scholarship'));
+        return Inertia::render('Admin/Scholarships/Edit', compact('scholarship'));
     }
 
     /**

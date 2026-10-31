@@ -41,18 +41,6 @@
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://iestpfranciscovigocaballero.edu.pe/programas-de-estudios/produccion-agropecuaria</loc>
-        <lastmod>2026-10-30</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>https://iestpfranciscovigocaballero.edu.pe/programas-de-estudios/enfermeria-tecnica</loc>
-        <lastmod>2026-10-30</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
         <loc>https://iestpfranciscovigocaballero.edu.pe/programas-de-estudios/administracion-de-redes-y-comunicaciones</loc>
         <lastmod>2026-10-30</lastmod>
         <changefreq>monthly</changefreq>
@@ -60,12 +48,6 @@
     </url>
     <url>
         <loc>https://iestpfranciscovigocaballero.edu.pe/programas-de-estudios/asistencia-administrativa</loc>
-        <lastmod>2026-10-30</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>https://iestpfranciscovigocaballero.edu.pe/programas-de-estudios/manejo-forestal</loc>
         <lastmod>2026-10-30</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>

@@ -17,12 +17,13 @@ use App\Models\StudyProgram;
 use App\Models\Tupa;
 use App\Models\User;
 use App\Models\VisitorCounter;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function index(): View|RedirectResponse
+    public function index(): Response|RedirectResponse
     {
         $user = auth()->user();
         if ($user && (
@@ -92,7 +93,7 @@ class DashboardController extends Controller
         $degreeRecordsTotal = DegreeRecord::count();
         $studentRecordsTotal = StudentRecord::count();
 
-        return view('dashboard', compact(
+        return Inertia::render('Admin/Dashboard', compact(
             'usersTotal', 'usersActive', 'usersThisMonth', 'usersRoles', 'recentUsers',
             'jobOffersTotal', 'jobOffersActive', 'recentOffers',
             'claimsTotal', 'claimsPending', 'claimsThisMonth', 'recentClaims',

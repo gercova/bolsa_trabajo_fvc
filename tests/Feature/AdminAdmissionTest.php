@@ -6,6 +6,7 @@ use App\Models\Admission;
 use App\Models\StudyProgram;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class AdminAdmissionTest extends TestCase
@@ -24,7 +25,11 @@ class AdminAdmissionTest extends TestCase
         $response = $this->actingAs($user)->get('/admin-exams');
 
         $response->assertOk();
-        $response->assertViewHas('admission');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Admission/Index')
+            ->has('admisionAdmissions')
+            ->has('cepreAdmissions')
+        );
     }
 
     public function test_admin_can_filter_exams_by_search(): void
@@ -60,16 +65,20 @@ class AdminAdmissionTest extends TestCase
         // Search for period "2026-I"
         $response = $this->actingAs($user)->get('/admin-exams?search=2026-I');
         $response->assertOk();
-        $admissions = $response->viewData('admission');
-        $this->assertCount(1, $admissions);
-        $this->assertEquals('2026-I', $admissions->first()->period);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Admission/Index')
+            ->where('admisionAdmissions.data.0.period', '2026-I')
+            ->has('admisionAdmissions.data', 1)
+        );
 
         // Search for activity "intensivo"
         $response = $this->actingAs($user)->get('/admin-exams?search=intensivo');
         $response->assertOk();
-        $admissions = $response->viewData('admission');
-        $this->assertCount(1, $admissions);
-        $this->assertEquals('2027-II', $admissions->first()->period);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Admission/Index')
+            ->where('cepreAdmissions.data.0.period', '2027-II')
+            ->has('cepreAdmissions.data', 1)
+        );
     }
 
     public function test_admin_can_filter_exams_by_process(): void
@@ -105,9 +114,11 @@ class AdminAdmissionTest extends TestCase
         // Filter by process "cepre"
         $response = $this->actingAs($user)->get('/admin-exams?process=cepre');
         $response->assertOk();
-        $admissions = $response->viewData('admission');
-        $this->assertCount(1, $admissions);
-        $this->assertEquals('cepre', $admissions->first()->process);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Admission/Index')
+            ->where('cepreAdmissions.data.0.process', 'cepre')
+            ->has('cepreAdmissions.data', 1)
+        );
     }
 
     public function test_admin_can_filter_exams_by_type(): void
@@ -143,9 +154,11 @@ class AdminAdmissionTest extends TestCase
         // Filter by type "extraordinario"
         $response = $this->actingAs($user)->get('/admin-exams?type=extraordinario');
         $response->assertOk();
-        $admissions = $response->viewData('admission');
-        $this->assertCount(1, $admissions);
-        $this->assertEquals('extraordinario', $admissions->first()->type);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Admission/Index')
+            ->where('admisionAdmissions.data.0.type', 'extraordinario')
+            ->has('admisionAdmissions.data', 1)
+        );
     }
 
     public function test_admin_can_filter_exams_by_status(): void
@@ -181,9 +194,11 @@ class AdminAdmissionTest extends TestCase
         // Filter by status "inactive"
         $response = $this->actingAs($user)->get('/admin-exams?status=inactive');
         $response->assertOk();
-        $admissions = $response->viewData('admission');
-        $this->assertCount(1, $admissions);
-        $this->assertFalse($admissions->first()->is_active);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Admission/Index')
+            ->where('admisionAdmissions.data.0.is_active', false)
+            ->has('admisionAdmissions.data', 1)
+        );
     }
 
     public function test_admin_can_filter_exams_by_date_range(): void
@@ -219,9 +234,11 @@ class AdminAdmissionTest extends TestCase
         // Filter by date range enclosing only the first exam
         $response = $this->actingAs($user)->get('/admin-exams?date=2026-03-01 - 2026-03-31');
         $response->assertOk();
-        $admissions = $response->viewData('admission');
-        $this->assertCount(1, $admissions);
-        $this->assertEquals('2026-03-15', $admissions->first()->exam_date);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Admission/Index')
+            ->where('admisionAdmissions.data.0.exam_date', '2026-03-15')
+            ->has('admisionAdmissions.data', 1)
+        );
     }
 
     public function test_index_validation_fails_for_invalid_parameters(): void
@@ -301,8 +318,10 @@ class AdminAdmissionTest extends TestCase
         $response = $this->actingAs($user)->get('/admin-exams/crear-examen');
 
         $response->assertOk();
-        $response->assertSee('Crear Nuevo Examen / CEPRE');
-        $response->assertSee('Computación e Informática');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Admission/Create')
+            ->has('programs')
+        );
     }
 
     public function test_admin_can_store_new_exam(): void
@@ -412,8 +431,11 @@ class AdminAdmissionTest extends TestCase
         $response = $this->actingAs($user)->get("/admin-exams/editar-examen/{$exam->id}");
 
         $response->assertOk();
-        $response->assertSee('Actualizar Examen / CEPRE');
-        $response->assertSee('Contabilidad');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Admission/Edit')
+            ->has('admission')
+            ->has('programs')
+        );
     }
 
     public function test_admin_can_update_exam(): void

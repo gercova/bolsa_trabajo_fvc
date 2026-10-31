@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EnrollmentScheduleRequest;
 use App\Models\EnrollmentSchedule;
 use App\Models\StudyProgram;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class EnrollmentScheduleController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $validated = $request->validate([
             'search' => 'nullable|string|max:255',
@@ -43,14 +44,17 @@ class EnrollmentScheduleController extends Controller
 
         $schedules = $query->orderBy($sortBy, $sortOrder)->paginate($perPage)->withQueryString();
 
-        return view('admin.enrollment-schedules.index', compact('schedules'));
+        return Inertia::render('Admin/EnrollmentSchedules/Index', [
+            'schedules' => $schedules,
+            'filters' => $validated,
+        ]);
     }
 
-    public function create(): View
+    public function create(): Response
     {
         $programs = StudyProgram::where('is_active', true)->get();
 
-        return view('admin.enrollment-schedules.create', compact('programs'));
+        return Inertia::render('Admin/EnrollmentSchedules/Create', compact('programs'));
     }
 
     public function store(EnrollmentScheduleRequest $request): RedirectResponse
@@ -75,13 +79,13 @@ class EnrollmentScheduleController extends Controller
             ->with('success', 'Cronograma de matrícula creado correctamente.');
     }
 
-    public function edit(EnrollmentSchedule $schedule): View
+    public function edit(EnrollmentSchedule $schedule): Response
     {
         $schedule->load('details.program');
         $programs = StudyProgram::where('is_active', true)->get();
         $existingDetails = $schedule->details->keyBy('program_id');
 
-        return view('admin.enrollment-schedules.edit', compact('schedule', 'programs', 'existingDetails'));
+        return Inertia::render('Admin/EnrollmentSchedules/Edit', compact('schedule', 'programs', 'existingDetails'));
     }
 
     public function update(EnrollmentScheduleRequest $request, EnrollmentSchedule $schedule): RedirectResponse

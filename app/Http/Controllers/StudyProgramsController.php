@@ -151,7 +151,6 @@ class StudyProgramsController extends Controller
     // =========================================================================
     // STUDY PROGRAMS
     // =========================================================================
-
     public function create(): View
     {
         $nextOrder = (StudyProgram::max('order') ?? 0) + 1;
@@ -367,7 +366,6 @@ class StudyProgramsController extends Controller
     // =========================================================================
     // MODULAR CERTIFICATION (modular_certification)
     // =========================================================================
-
     public function createModule(): View
     {
         $programs = StudyProgram::orderBy('name')->get();

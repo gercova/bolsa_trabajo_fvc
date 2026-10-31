@@ -20,7 +20,6 @@ class HandleInertiaRequests extends Middleware
     {
         return array_merge(parent::share($request), [
             'enterprise' => fn () => Enterprise::first() ?? Enterprise::getDefault(),
-
             'headerPrograms' => fn () => StudyProgram::where('is_active', true)
                 ->orderBy('order')
                 ->with('meta')
@@ -32,6 +31,8 @@ class HandleInertiaRequests extends Middleware
                     'names' => $request->user()->names,
                     'email' => $request->user()->email,
                     'role' => $request->user()->role,
+                    'is_student' => method_exists($request->user(), 'isStudent') ? $request->user()->isStudent() : false,
+                    'photo_profile_url' => $request->user()->photo_profile_url,
                 ] : null,
             ],
 

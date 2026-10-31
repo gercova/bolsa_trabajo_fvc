@@ -7,15 +7,16 @@ use App\Models\Admission;
 use App\Models\Area;
 use App\Models\Image;
 use App\Models\StudyProgram;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class AdmissionsController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $validated = $request->validate([
             'search' => 'nullable|string|max:255',
@@ -66,12 +67,14 @@ class AdmissionsController extends Controller
         $cepreImage = Image::where('imageable_type', 'cepre')->where('imageable_id', 1)->first();
         $admisionImage = Image::where('imageable_type', 'admision')->where('imageable_id', 1)->first();
 
-        return view('admin.admission.index', compact(
-            'cepreAdmissions',
-            'admisionAdmissions',
-            'cepreImage',
-            'admisionImage'
-        ));
+        return Inertia::render('Admin/Admission/Index', [
+            'cepreAdmissions' => $cepreAdmissions,
+            'admisionAdmissions' => $admisionAdmissions,
+            'admission' => (! empty($validated['process']) && $validated['process'] === 'cepre') ? $cepreAdmissions : $admisionAdmissions,
+            'cepreImage' => $cepreImage,
+            'admisionImage' => $admisionImage,
+            'filters' => $validated,
+        ]);
     }
 
     /**
@@ -119,15 +122,15 @@ class AdmissionsController extends Controller
         return back()->with('success', 'Imagen del banner Examen de Admisión actualizada correctamente.');
     }
 
-    public function create(): View
+    public function create(): Response
     {
         $programs = StudyProgram::where('is_active', true)->get();
         $areas = Area::all();
 
-        return view('admin.admission.create', compact('programs', 'areas'));
+        return Inertia::render('Admin/Admission/Create', compact('programs', 'areas'));
     }
 
-    public function edit(Admission $admission): View
+    public function edit(Admission $admission): Response
     {
         $allPrograms = StudyProgram::where('is_active', true)->get();
         $existingDetails = $admission->admissionDetail->keyBy('program_id');
@@ -135,7 +138,7 @@ class AdmissionsController extends Controller
         $programs = $allPrograms->map(function ($program) use ($existingDetails) {
             $detail = $existingDetails->get($program->id);
 
-            return (object) [
+            return [
                 'id' => $program->id,
                 'name' => $program->name,
                 'vacancies' => $detail ? $detail->vacancies : 0,
@@ -144,7 +147,7 @@ class AdmissionsController extends Controller
 
         $areas = Area::all();
 
-        return view('admin.admission.edit', compact('admission', 'programs', 'areas'));
+        return Inertia::render('Admin/Admission/Edit', compact('admission', 'programs', 'areas'));
     }
 
     public function store(AdmissionRequest $request): RedirectResponse

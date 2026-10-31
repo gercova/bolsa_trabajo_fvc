@@ -1,7 +1,8 @@
 import '../css/app.css';
-import './bootstrap'; // Configuración de Axios
+import './bootstrap'; // Configuración de Axios y route
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
+import { route } from './route';
 
 createInertiaApp({
     resolve: (name) => {
@@ -9,8 +10,9 @@ createInertiaApp({
         return pages[`./Pages/${name}.vue`];
     },
     setup({ el, App, props, plugin }) {
-        createApp({ render: () => h(App, props) })
-            .use(plugin)
-            .mount(el);
+        const app = createApp({ render: () => h(App, props) });
+        app.config.globalProperties.route = route;
+        app.provide('route', route);
+        app.use(plugin).mount(el);
     },
 });

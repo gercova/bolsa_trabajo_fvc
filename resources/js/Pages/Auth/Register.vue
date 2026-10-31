@@ -64,7 +64,7 @@ const verifyDni = async () => {
     alreadyRegistered.value = false;
 
     try {
-        const response = await fetch(`${route('register.verify-dni')}?dni=${encodeURIComponent(form.dni)}`, {
+        const response = await fetch(`/register/verify-dni?dni=${encodeURIComponent(form.dni)}`, {
             headers: {
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
@@ -79,11 +79,11 @@ const verifyDni = async () => {
                 alreadyRegisteredMessage.value = data.message;
                 isVerified.value = false;
             } else {
-                isVerified.value = true;
-                form.names = data.user.names || form.names;
-                form.birthdate = data.user.birthdate || form.birthdate;
-                form.phone = data.user.phone || form.phone;
-                userRole.value = data.user.role || '';
+                isVerified.value    = true;
+                form.names          = data.user.names || form.names;
+                form.birthdate      = data.user.birthdate || form.birthdate;
+                form.phone          = data.user.phone || form.phone;
+                userRole.value      = data.user.role || '';
                 if (!form.personal_email && data.user.personal_email) {
                     form.personal_email = data.user.personal_email;
                 }
@@ -117,7 +117,7 @@ const submit = () => {
         return;
     }
 
-    form.post(route('register'), {
+    form.post('/register', {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };
@@ -136,16 +136,16 @@ onMounted(() => {
             <meta name="description" content="Portal oficial de activación y registro institucional para la comunidad del IESTP Francisco Vigo Caballero." />
         </Head>
 
-        <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#F4F1EA]">
+        <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-sky-50/50">
             <div class="w-full max-w-xl">
-                <div class="bg-white rounded-3xl shadow-2xl shadow-[rgba(15,23,42,.08)] p-6 sm:p-10 border border-slate-200/80 transition-all duration-300">
+                <div class="bg-white rounded-3xl shadow-2xl shadow-[rgba(15,23,42,.08)] p-6 sm:p-10 border border-slate-200 transition-all duration-300">
                     <!-- Encabezado con Logo Institucional -->
                     <div class="flex flex-col items-center text-center mb-6">
-                        <div v-if="enterprise.logo_path || enterprise.logo_base64"
-                            class="w-20 h-20 rounded-2xl flex items-center justify-center mb-3">
-                            <img :src="enterprise.logo_base64 || enterprise.logo_path"
-                                :alt="`Logo ${enterprise.company_name || 'IESTP FVC'}`"
-                                class="w-20 h-20 object-contain" />
+                        <div v-if="enterprise?.logo_path || enterprise?.logo_base64"
+                            class="w-20 h-20 rounded-2xl flex items-center justify-center mb-3 bg-white p-2 border border-slate-100 shadow-sm">
+                            <img :src="enterprise?.logo_base64 || enterprise?.logo_path"
+                                :alt="`Logo ${enterprise?.company_name || 'IESTP FVC'}`"
+                                class="w-16 h-16 object-contain" />
                         </div>
                         <div v-else class="w-16 h-16 rounded-2xl flex items-center justify-center mb-3 bg-slate-900 text-amber-400">
                             <i class="bi bi-mortarboard-fill text-3xl"></i>
@@ -159,7 +159,7 @@ onMounted(() => {
                         </p>
                         <p class="text-xs text-slate-500 mt-2">
                             ¿Ya completaste tu registro?
-                            <Link :href="route('login')" class="font-bold underline decoration-1 underline-offset-2 transition-colors hover:text-purple-700 text-purple-600">
+                            <Link href="/login" class="font-bold underline decoration-1 underline-offset-2 transition-colors hover:text-blue-800 text-blue-600">
                                 Inicia sesión aquí
                             </Link>
                         </p>
@@ -234,7 +234,7 @@ onMounted(() => {
                                 <div class="leading-relaxed flex-1">
                                     <p class="font-bold text-blue-900">Usuario ya registrado</p>
                                     <p class="mt-0.5">{{ alreadyRegisteredMessage }}</p>
-                                    <Link :href="route('login')" class="inline-flex items-center gap-1 mt-2 font-bold text-blue-700 hover:text-blue-900 underline">
+                                    <Link href="/login" class="inline-flex items-center gap-1 mt-2 font-bold text-blue-700 hover:text-blue-900 underline">
                                         <span>Ir a Iniciar Sesión</span>
                                         <i class="bi bi-arrow-right"></i>
                                     </Link>

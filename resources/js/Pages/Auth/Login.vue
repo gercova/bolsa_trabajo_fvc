@@ -24,7 +24,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('login'), {
+    form.post('/login', {
         onFinish: () => form.reset('password'),
     });
 };
@@ -37,30 +37,30 @@ const submit = () => {
             <meta name="description" content="Inicio de sesión institucional para estudiantes, docentes y egresados del IESTP Francisco Vigo Caballero." />
         </Head>
 
-        <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#F4F1EA]">
+        <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-sky-50/50">
             <div class="w-full max-w-md">
-                <div class="bg-white rounded-2xl shadow-xl shadow-[rgba(15,23,42,.06)] p-8 md:p-10 border border-[#E2E0DA]">
+                <div class="bg-white rounded-2xl shadow-xl shadow-[rgba(15,23,42,.06)] p-8 md:p-10 border border-slate-200">
                     <!-- Institutional Logo -->
                     <div class="flex justify-center mb-6">
-                        <div class="w-24 h-24 rounded-2xl flex items-center justify-center overflow-hidden">
-                            <img v-if="enterprise.logo_path || enterprise.logo_base64"
-                                :src="enterprise.logo_base64 || enterprise.logo_path"
-                                :alt="`Logo ${enterprise.company_name || 'IESTP FVC'}`"
-                                class="w-24 h-24 object-contain" />
-                            <div v-else class="w-20 h-20 rounded-2xl bg-slate-900 text-amber-400 flex items-center justify-center text-3xl">
+                        <div class="w-24 h-24 rounded-2xl flex items-center justify-center overflow-hidden bg-white p-2 border border-slate-100 shadow-sm">
+                            <img v-if="enterprise?.logo_path || enterprise?.logo_base64"
+                                :src="enterprise?.logo_base64 || enterprise?.logo_path"
+                                :alt="`Logo ${enterprise?.company_name || 'IESTP FVC'}`"
+                                class="w-20 h-20 object-contain" />
+                            <div v-else class="w-20 h-20 rounded-2xl bg-blue-900 text-blue-200 flex items-center justify-center text-3xl">
                                 <i class="bi bi-mortarboard-fill"></i>
                             </div>
                         </div>
                     </div>
 
                     <!-- Header -->
-                    <h2 class="text-center text-3xl font-bold mb-2 text-[#0F172A] font-display">
+                    <h2 class="text-center text-2xl sm:text-3xl font-extrabold mb-2 text-slate-900 tracking-tight">
                         Iniciar Sesión
                     </h2>
-                    <p class="text-center text-sm mb-6 text-[#64748B]">
+                    <p class="text-center text-sm mb-6 text-slate-500">
                         ¿No tienes una cuenta?
-                        <Link :href="route('register')"
-                            class="font-medium underline decoration-1 underline-offset-2 transition-colors hover:text-[#0F172A] text-[#B45309]">
+                        <Link href="/register"
+                            class="font-semibold underline decoration-1 underline-offset-2 transition-colors hover:text-blue-800 text-blue-600">
                             Regístrate aquí
                         </Link>
                     </p>
@@ -86,17 +86,17 @@ const submit = () => {
                     <form @submit.prevent="submit" class="space-y-5">
                         <!-- Email or DNI -->
                         <div>
-                            <label for="email" class="block text-sm font-medium mb-1.5 text-[#0F172A]">
+                            <label for="email" class="block text-sm font-semibold mb-1.5 text-slate-700">
                                 Correo Electrónico o N° de DNI
                             </label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                    <i class="bi bi-person-vcard text-lg text-[#64748B]"></i>
+                                    <i class="bi bi-person-vcard text-lg text-slate-400"></i>
                                 </div>
                                 <input id="email" v-model="form.email" type="text" required autofocus
                                     autocomplete="username"
-                                    class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm transition-all duration-200 outline-none bg-white text-[#0F172A]"
-                                    :class="form.errors.email ? 'border-red-300 ring-2 ring-red-100' : 'border-[#E2E0DA] focus:ring-2 focus:ring-[#FEF3C7] focus:border-[#B45309]'"
+                                    class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm transition-all duration-200 outline-none bg-white text-slate-900"
+                                    :class="form.errors.email ? 'border-red-300 ring-2 ring-red-100' : 'border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-600'"
                                     placeholder="correo@ejemplo.com o N° de DNI" />
                             </div>
                             <p v-if="form.errors.email && !form.errors.email.toLowerCase().includes('intentos')"
@@ -108,17 +108,17 @@ const submit = () => {
 
                         <!-- Password -->
                         <div>
-                            <label for="password" class="block text-sm font-medium mb-1.5 text-[#0F172A]">
+                            <label for="password" class="block text-sm font-semibold mb-1.5 text-slate-700">
                                 Contraseña
                             </label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                    <i class="bi bi-lock text-lg text-[#64748B]"></i>
+                                    <i class="bi bi-lock text-lg text-slate-400"></i>
                                 </div>
                                 <input id="password" v-model="form.password" :type="showPassword ? 'text' : 'password'"
                                     required autocomplete="current-password"
-                                    class="w-full pl-10 pr-11 py-2.5 rounded-xl border text-sm transition-all duration-200 outline-none bg-white text-[#0F172A]"
-                                    :class="form.errors.password ? 'border-red-300 ring-2 ring-red-100' : 'border-[#E2E0DA] focus:ring-2 focus:ring-[#FEF3C7] focus:border-[#B45309]'"
+                                    class="w-full pl-10 pr-11 py-2.5 rounded-xl border text-sm transition-all duration-200 outline-none bg-white text-slate-900"
+                                    :class="form.errors.password ? 'border-red-300 ring-2 ring-red-100' : 'border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-600'"
                                     placeholder="••••••••" />
                                 <button type="button" @click="showPassword = !showPassword"
                                     class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
@@ -136,19 +136,19 @@ const submit = () => {
                         <div class="flex items-center justify-between">
                             <label class="flex items-center gap-2 cursor-pointer select-none">
                                 <input id="remember_me" v-model="form.remember" type="checkbox"
-                                    class="w-4 h-4 rounded border-gray-300 text-[#B45309] focus:ring-[#FEF3C7] focus:ring-offset-0" />
-                                <span class="text-sm text-[#64748B]">Recordarme</span>
+                                    class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-200 focus:ring-offset-0" />
+                                <span class="text-sm text-slate-600">Recordarme</span>
                             </label>
 
-                            <Link :href="route('password.request')"
-                                class="text-sm font-medium underline decoration-1 underline-offset-2 transition-colors hover:text-[#0F172A] text-[#B45309]">
+                            <Link href="/forgot-password"
+                                class="text-sm font-medium underline decoration-1 underline-offset-2 transition-colors hover:text-blue-800 text-blue-600">
                                 ¿Olvidaste tu contraseña?
                             </Link>
                         </div>
 
                         <!-- Submit Button -->
                         <button type="submit" :disabled="form.processing"
-                            class="w-full flex items-center justify-center gap-2 py-3 px-6 text-sm font-semibold rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg cursor-pointer bg-[#0F172A] text-white disabled:opacity-50">
+                            class="w-full flex items-center justify-center gap-2 py-3 px-6 text-sm font-bold rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg cursor-pointer bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 shadow-md shadow-blue-500/20">
                             <i class="bi bi-box-arrow-in-right"></i>
                             <span>{{ form.processing ? 'Iniciando...' : 'Iniciar Sesión' }}</span>
                         </button>
@@ -167,9 +167,9 @@ const submit = () => {
                     </form>
                 </div>
 
-                <p class="text-center mt-6 text-xs text-[#64748B]">
+                <p class="text-center mt-6 text-xs text-slate-500">
                     Al iniciar sesión aceptas nuestros
-                    <a href="#" class="underline decoration-1 underline-offset-2 transition-colors hover:text-[#0F172A] text-[#64748B]">
+                    <a href="#" class="underline decoration-1 underline-offset-2 transition-colors hover:text-slate-800 text-slate-500">
                         Términos y Condiciones
                     </a>
                 </p>

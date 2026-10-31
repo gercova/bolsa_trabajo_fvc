@@ -71,7 +71,17 @@ body {
     transition: background .3s ease, box-shadow .3s ease, height .3s ease;
 }
 
-/* Accent stripe on scroll */
+/* Accent stripe on top (always present, reinforced on scroll) */
+.header-stripe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--blue-deep);
+    z-index: 101;
+}
+
 #site-header::before {
     content: '';
     position: absolute;
@@ -80,7 +90,7 @@ body {
     right: 0;
     height: 3px;
     background: var(--blue-deep);
-    opacity: 0;
+    opacity: 1;
     transition: opacity .3s ease;
     z-index: 1;
 }
@@ -339,6 +349,15 @@ body {
     padding: 6px;
     z-index: 200;
     min-width: 220px;
+}
+
+.dropdown-panel::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
 }
 
 .dropdown-panel--right {

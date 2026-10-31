@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class AdminHistoryTest extends TestCase
@@ -34,9 +35,10 @@ class AdminHistoryTest extends TestCase
         $response = $this->actingAs($user)->get('/admin-historia');
 
         $response->assertOk();
-        $response->assertSee('Historia Institucional');
-        $response->assertSee('Etapa de Prueba 1991');
-        $response->assertSee('1991 - 2000');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/History/Index')
+            ->has('histories.data', 1)
+        );
     }
 
     public function test_admin_can_access_create_history_page(): void
@@ -45,7 +47,10 @@ class AdminHistoryTest extends TestCase
         $response = $this->actingAs($user)->get('/admin-historia/crear');
 
         $response->assertOk();
-        $response->assertSee('Registrar Hito Histórico');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/History/Create')
+            ->has('nextOrder')
+        );
     }
 
     public function test_admin_can_store_new_history_with_image(): void
@@ -91,8 +96,10 @@ class AdminHistoryTest extends TestCase
         $response = $this->actingAs($user)->get("/admin-historia/editar/{$history->id}");
 
         $response->assertOk();
-        $response->assertSee('Editar Hito Histórico');
-        $response->assertSee('Hito para editar');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/History/Edit')
+            ->where('history.title', 'Hito para editar')
+        );
     }
 
     public function test_admin_can_update_history(): void

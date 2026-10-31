@@ -4,16 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EnterpriseValidate;
 use App\Models\Enterprise;
-use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class EnterpriseController extends Controller
 {
     /**
      * Show the form for editing the enterprise information.
      */
-    public function edit(): View
+    public function edit(): Response
     {
         $enterprise = Enterprise::first();
 
@@ -22,7 +23,9 @@ class EnterpriseController extends Controller
             $enterprise = new Enterprise;
         }
 
-        return view('admin.enterprise.edit', compact('enterprise'));
+        return Inertia::render('Admin/Enterprise/Edit', [
+            'enterprise' => $enterprise,
+        ]);
     }
 
     /**

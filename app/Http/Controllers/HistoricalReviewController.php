@@ -4,22 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\HistoricalReviewRequest;
 use App\Models\HistoricalReview;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class HistoricalReviewController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $search = $request->input('search');
         $status = $request->input('status');
-
         $histories = HistoricalReview::query()
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
@@ -37,22 +34,22 @@ class HistoricalReviewController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('admin.history.index', compact('histories', 'search', 'status'));
+        return Inertia::render('Admin/History/Index', [
+            'histories' => $histories,
+            'search' => $search ?? '',
+            'status' => $status ?? '',
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): View
+    public function create(): Response
     {
         $nextOrder = (HistoricalReview::max('order') ?? 0) + 1;
 
-        return view('admin.history.create', compact('nextOrder'));
+        return Inertia::render('Admin/History/Create', [
+            'nextOrder' => $nextOrder,
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(HistoricalReviewRequest $request): RedirectResponse|JsonResponse
     {
         $validated = $request->validated();
@@ -77,9 +74,6 @@ class HistoricalReviewController extends Controller
         return redirect()->route('admin.history.index')->with('success', 'Hito histórico registrado correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(HistoricalReview $history): JsonResponse
     {
         return response()->json([
@@ -88,17 +82,13 @@ class HistoricalReviewController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(HistoricalReview $history): View
+    public function edit(HistoricalReview $history): Response
     {
-        return view('admin.history.edit', compact('history'));
+        return Inertia::render('Admin/History/Edit', [
+            'history' => $history,
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(HistoricalReviewRequest $request, HistoricalReview $history): RedirectResponse|JsonResponse
     {
         $validated = $request->validated();
@@ -135,14 +125,9 @@ class HistoricalReviewController extends Controller
         return redirect()->route('admin.history.index')->with('success', 'Hito histórico actualizado correctamente.');
     }
 
-    /**
-     * Toggle status (is_active) of specified resource.
-     */
     public function toggleStatus(HistoricalReview $history): RedirectResponse|JsonResponse
     {
-        $history->update([
-            'is_active' => ! $history->is_active,
-        ]);
+        $history->update(['is_active' => ! $history->is_active]);
 
         if (request()->wantsJson()) {
             return response()->json([
@@ -155,9 +140,6 @@ class HistoricalReviewController extends Controller
         return back()->with('success', 'Estado del hito histórico actualizado correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(HistoricalReview $history): RedirectResponse|JsonResponse
     {
         if ($history->image_path && Storage::disk('public')->exists($history->image_path)) {

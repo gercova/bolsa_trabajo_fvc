@@ -5,18 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Requests\InstitutionalCarouselRequest;
 use App\Models\Image;
 use App\Models\InstitutionalCarousel;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class CarouselController extends Controller
 {
     /**
      * Listado de diapositivas del carrusel con filtros y paginación.
      */
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $search = $request->input('search');
         $status = $request->input('status');
@@ -37,17 +38,23 @@ class CarouselController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('admin.carousel.index', compact('carousels', 'search', 'status'));
+        return Inertia::render('Admin/Carousel/Index', [
+            'carousels' => $carousels,
+            'search' => $search ?? '',
+            'status' => $status ?? '',
+        ]);
     }
 
     /**
      * Formulario para crear una nueva diapositiva.
      */
-    public function create(): View
+    public function create(): Response
     {
         $nextOrder = (InstitutionalCarousel::max('order') ?? 0) + 1;
 
-        return view('admin.carousel.create', compact('nextOrder'));
+        return Inertia::render('Admin/Carousel/Create', [
+            'nextOrder' => $nextOrder,
+        ]);
     }
 
     /**
@@ -88,11 +95,13 @@ class CarouselController extends Controller
     /**
      * Formulario de edición de diapositiva.
      */
-    public function edit(InstitutionalCarousel $carousel): View
+    public function edit(InstitutionalCarousel $carousel): Response
     {
         $carousel->load('image');
 
-        return view('admin.carousel.edit', compact('carousel'));
+        return Inertia::render('Admin/Carousel/Edit', [
+            'carousel' => $carousel,
+        ]);
     }
 
     /**

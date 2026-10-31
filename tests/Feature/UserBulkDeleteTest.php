@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
+use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -60,10 +61,12 @@ class UserBulkDeleteTest extends TestCase
         $response = $this->actingAs($this->admin)->get(route('admin.users.index'));
 
         $response->assertOk();
-        $response->assertSee('Eliminación Masiva');
-        $response->assertSee('name="job_position"', false);
-        $response->assertSee('Todos los puestos');
-        $response->assertSee('bulkDeleteModalOpen');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Users/Index')
+            ->has('users')
+            ->has('roles')
+            ->has('jobPositions')
+        );
     }
 
     public function test_admin_can_bulk_delete_users_by_explicit_ids(): void

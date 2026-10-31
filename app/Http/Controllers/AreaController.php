@@ -6,14 +6,17 @@ use App\Http\Requests\AreaRequest;
 use App\Models\Area;
 use App\Models\StudyProgram;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class AreaController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         $query = Area::with(['program', 'user']);
 
@@ -63,20 +66,25 @@ class AreaController extends Controller
         $areas = $query->orderBy('name', 'asc')->paginate(12)->withQueryString();
         $programs = StudyProgram::orderBy('name')->get();
 
-        return view('admin.areas.index', compact(
-            'areas',
-            'programs',
-            'totalAreas',
-            'withProgramCount',
-            'withLeaderCount',
-            'generalAreasCount'
-        ));
+        return Inertia::render('Admin/Areas/Index', [
+            'areas' => $areas,
+            'programs' => $programs,
+            'totalAreas' => $totalAreas,
+            'withProgramCount' => $withProgramCount,
+            'withLeaderCount' => $withLeaderCount,
+            'generalAreasCount' => $generalAreasCount,
+            'filters' => [
+                'search' => $request->search ?? '',
+                'program_id' => $request->program_id ?? '',
+                'has_user' => $request->has_user ?? '',
+            ],
+        ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): Response
     {
         $programs = StudyProgram::orderBy('name')->get();
 
@@ -93,13 +101,16 @@ class AreaController extends Controller
             ->orderBy('names')
             ->get();
 
-        return view('admin.areas.create', compact('programs', 'users'));
+        return Inertia::render('Admin/Areas/Create', [
+            'programs' => $programs,
+            'users' => $users,
+        ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(AreaRequest $request)
+    public function store(AreaRequest $request): RedirectResponse
     {
         Area::create($request->validated());
 
@@ -110,7 +121,7 @@ class AreaController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Area $area)
+    public function show(Area $area): RedirectResponse
     {
         return redirect()->route('admin.areas.edit', $area);
     }
@@ -118,7 +129,7 @@ class AreaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Area $area)
+    public function edit(Area $area): Response
     {
         $programs = StudyProgram::orderBy('name')->get();
         // Solo usuarios con rol distinto de estudiante (o el responsable asignado actualmente)
@@ -140,13 +151,17 @@ class AreaController extends Controller
             ->orderBy('names')
             ->get();
 
-        return view('admin.areas.edit', compact('area', 'programs', 'users'));
+        return Inertia::render('Admin/Areas/Edit', [
+            'area' => $area,
+            'programs' => $programs,
+            'users' => $users,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(AreaRequest $request, Area $area)
+    public function update(AreaRequest $request, Area $area): RedirectResponse
     {
         $area->update($request->validated());
 
@@ -157,7 +172,7 @@ class AreaController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Area $area)
+    public function destroy(Area $area): RedirectResponse
     {
         $areaName = $area->name;
         $area->delete();

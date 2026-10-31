@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\UserRoleDetail;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
+use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -56,7 +57,13 @@ class AdminTeacherRoleTest extends TestCase
         $response = $this->actingAs($this->admin)->get('/admin-docentes-roles');
 
         $response->assertOk();
-        $response->assertViewHas(['details', 'programs', 'teachers', 'roles']);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/TeacherRoles/Index')
+            ->has('details')
+            ->has('programs')
+            ->has('teachers')
+            ->has('roles')
+        );
     }
 
     public function test_admin_can_toggle_teacher_role_status_via_form_redirect(): void

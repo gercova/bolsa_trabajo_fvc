@@ -4,18 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ExternalInstitutionalLinkValidate;
 use App\Models\ExternalInstitutionalLink;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ExternalInstitutionalLinkController extends Controller
 {
     /**
      * Display a listing of external institutional links with search, filters, and pagination.
      */
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $search = $request->input('search');
         $status = $request->input('status');
@@ -47,22 +48,22 @@ class ExternalInstitutionalLinkController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('admin.external_links.index', compact(
-            'links',
-            'search',
-            'status',
-            'totalLinks',
-            'activeLinks',
-            'inactiveLinks'
-        ));
+        return Inertia::render('Admin/Links/Index', [
+            'links' => $links,
+            'search' => $search ?? '',
+            'status' => $status ?? '',
+            'totalLinks' => $totalLinks,
+            'activeLinks' => $activeLinks,
+            'inactiveLinks' => $inactiveLinks,
+        ]);
     }
 
     /**
      * Show form for creating a new institutional link.
      */
-    public function create(): View
+    public function create(): Response
     {
-        return view('admin.external_links.create');
+        return Inertia::render('Admin/Links/Create');
     }
 
     /**
@@ -105,9 +106,11 @@ class ExternalInstitutionalLinkController extends Controller
     /**
      * Show form for editing an existing institutional link.
      */
-    public function edit(ExternalInstitutionalLink $link): View
+    public function edit(ExternalInstitutionalLink $link): Response
     {
-        return view('admin.external_links.edit', compact('link'));
+        return Inertia::render('Admin/Links/Edit', [
+            'link' => $link,
+        ]);
     }
 
     /**

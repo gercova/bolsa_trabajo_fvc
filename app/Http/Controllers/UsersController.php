@@ -8,7 +8,6 @@ use App\Http\Requests\UserImportRequest;
 use App\Http\Requests\UserValidate;
 use App\Imports\UserImport;
 use App\Models\User;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,6 +15,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Permission\Models\Role;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -25,7 +26,7 @@ class UsersController extends Controller
 {
     public function __construct() {}
 
-    public function index(Request $request): View
+    public function index(Request $request): InertiaResponse
     {
         // Parámetros de búsqueda y filtros
         $search = $request->input('search');
@@ -67,18 +68,18 @@ class UsersController extends Controller
             ->orderBy('job_position')
             ->pluck('job_position');
 
-        return view('admin.user.index', compact(
-            'users',
-            'search',
-            'status',
-            'role',
-            'jobPosition',
-            'jobPositions',
-            'perPage',
-            'sortBy',
-            'sortOrder',
-            'roles'
-        ));
+        return Inertia::render('Admin/Users/Index', [
+            'users' => $users,
+            'search' => $search,
+            'status' => $status,
+            'role' => $role,
+            'jobPosition' => $jobPosition,
+            'jobPositions' => $jobPositions,
+            'perPage' => $perPage,
+            'sortBy' => $sortBy,
+            'sortOrder' => $sortOrder,
+            'roles' => $roles,
+        ]);
     }
 
     /**
@@ -126,18 +127,24 @@ class UsersController extends Controller
     /**
      * Muestra el formulario para crear un nuevo usuario
      */
-    public function create(): View
-    {
-        $roles = Role::get();
-
-        return view('admin.user.create', compact('roles'));
-    }
-
-    public function edit(User $user): View
+    public function create(): InertiaResponse
     {
         $roles = Role::all();
 
-        return view('admin.user.edit', compact('user', 'roles'));
+        return Inertia::render('Admin/Users/Create', [
+            'roles' => $roles,
+        ]);
+    }
+
+    public function edit(User $user): InertiaResponse
+    {
+        $user->load('roles');
+        $roles = Role::all();
+
+        return Inertia::render('Admin/Users/Edit', [
+            'user' => $user,
+            'roles' => $roles,
+        ]);
     }
 
     /**

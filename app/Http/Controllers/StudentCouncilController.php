@@ -6,18 +6,19 @@ use App\Http\Requests\StudentCouncilRequest;
 use App\Models\StudentCouncil;
 use App\Models\StudyProgram;
 use App\Models\User;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class StudentCouncilController extends Controller
 {
     /**
      * Display the student council management list in admin dashboard.
      */
-    public function index(Request $request): View
+    public function index(Request $request): InertiaResponse
     {
         $search = $request->input('search');
         $period = $request->input('period');
@@ -48,15 +49,15 @@ class StudentCouncilController extends Controller
             ->orderBy('academic_period', 'desc')
             ->pluck('academic_period');
 
-        return view('admin.student-council.index', compact(
-            'councils',
-            'users',
-            'programs',
-            'periods',
-            'search',
-            'period',
-            'programId'
-        ));
+        return Inertia::render('Admin/StudentCouncil/Index', [
+            'councils' => $councils,
+            'users' => $users,
+            'programs' => $programs,
+            'periods' => $periods,
+            'search' => $search,
+            'period' => $period,
+            'programId' => $programId,
+        ]);
     }
 
     /**
@@ -74,7 +75,6 @@ class StudentCouncilController extends Controller
             }
 
             $validated['is_active'] = $request->boolean('is_active', true);
-
             StudentCouncil::create($validated);
 
             if ($request->expectsJson() || $request->ajax()) {
@@ -109,7 +109,6 @@ class StudentCouncilController extends Controller
             }
 
             $validated['is_active'] = $request->boolean('is_active', true);
-
             $studentCouncil->update($validated);
 
             if ($request->expectsJson() || $request->ajax()) {

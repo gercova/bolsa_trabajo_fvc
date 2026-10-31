@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -18,7 +19,6 @@ class UserCreateTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
         // Ensure roles exist
         Role::firstOrCreate(['name' => 'Admin']);
         Role::firstOrCreate(['name' => 'Estudiante']);
@@ -52,10 +52,10 @@ class UserCreateTest extends TestCase
         $response = $this->actingAs($this->admin)->get(route('admin.users.create'));
 
         $response->assertOk();
-        $response->assertSee('Crear Nuevo Usuario');
-        $response->assertSee('name="password"', false);
-        $response->assertSee('name="password_confirmation"', false);
-        $response->assertSee(route('admin.users.store'), false);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Users/Create')
+            ->has('roles')
+        );
     }
 
     public function test_admin_can_create_user_with_custom_password(): void

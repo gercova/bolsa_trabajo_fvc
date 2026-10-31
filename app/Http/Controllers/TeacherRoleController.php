@@ -10,6 +10,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 use Spatie\Permission\Models\Role;
 
 class TeacherRoleController extends Controller
@@ -17,7 +19,7 @@ class TeacherRoleController extends Controller
     /**
      * Display the teacher-roles management section (sub-view of user management).
      */
-    public function index(Request $request): View
+    public function index(Request $request): InertiaResponse
     {
         $search = $request->input('search');
         $programId = $request->input('program_id');
@@ -44,10 +46,15 @@ class TeacherRoleController extends Controller
             ->get();
         $roles = Role::orderBy('name')->get();
 
-        return view('admin.user.teacher-roles', compact(
-            'details', 'programs', 'teachers', 'roles',
-            'search', 'programId', 'onlyCoord'
-        ));
+        return Inertia::render('Admin/TeacherRoles/Index', [
+            'details' => $details,
+            'programs' => $programs,
+            'teachers' => $teachers,
+            'roles' => $roles,
+            'search' => $search,
+            'programId' => $programId,
+            'onlyCoord' => $onlyCoord,
+        ]);
     }
 
     /**

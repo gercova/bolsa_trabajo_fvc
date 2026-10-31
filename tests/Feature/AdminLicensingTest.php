@@ -6,6 +6,7 @@ use App\Models\DocumentType;
 use App\Models\LicensingPhase;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class AdminLicensingTest extends TestCase
@@ -59,9 +60,11 @@ class AdminLicensingTest extends TestCase
         $response = $this->actingAs($admin)->get('/admin-licenciamiento');
 
         $response->assertOk();
-        $response->assertSee('Licenciamiento');
-        $response->assertSee('Documentos de Gestión de las 7 CBC');
-        $response->assertSee('CBC-01');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Licensing/Index')
+            ->has('phases.data')
+            ->has('stats')
+        );
     }
 
     public function test_admin_can_access_create_phase_page(): void
@@ -70,7 +73,11 @@ class AdminLicensingTest extends TestCase
         $response = $this->actingAs($admin)->get('/admin-licenciamiento/crear');
 
         $response->assertOk();
-        $response->assertSee('Registrar Fase de Licenciamiento');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Licensing/Create')
+            ->has('nextPhaseNumber')
+            ->has('nextOrder')
+        );
     }
 
     public function test_admin_can_store_new_phase(): void
@@ -119,8 +126,11 @@ class AdminLicensingTest extends TestCase
         $response = $this->actingAs($admin)->get("/admin-licenciamiento/editar/{$phase->id}");
 
         $response->assertOk();
-        $response->assertSee('Editar Fase');
-        $response->assertSee('Presentación y Registro');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Licensing/Edit')
+            ->where('licensing.id', $phase->id)
+            ->where('licensing.title', 'Presentación y Registro')
+        );
     }
 
     public function test_admin_can_update_phase_and_status(): void

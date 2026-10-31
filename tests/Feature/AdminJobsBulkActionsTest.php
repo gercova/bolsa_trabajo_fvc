@@ -6,6 +6,7 @@ use App\Models\DocumentType;
 use App\Models\JobOffer;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class AdminJobsBulkActionsTest extends TestCase
@@ -61,13 +62,11 @@ class AdminJobsBulkActionsTest extends TestCase
         $response = $this->actingAs($user)->get('/admin-trabajos');
 
         $response->assertOk();
-        $response->assertSee('btn-clear-table');
-        $response->assertSee('bulk-action-bar');
-        $response->assertSee('selectAllPageCheckbox');
-        $response->assertSee('job-checkbox');
-        $response->assertSee('select-all-pages-banner');
-        $response->assertSee('Vaciar Tabla');
-        $response->assertSee('Eliminar Seleccionados');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Jobs/Index')
+            ->has('jobs.data', 10)
+            ->where('totalJobs', 15)
+        );
     }
 
     public function test_bulk_delete_with_specific_ids(): void

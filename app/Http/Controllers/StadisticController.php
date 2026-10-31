@@ -8,10 +8,11 @@ use App\Imports\StudentRecordImport;
 use App\Models\DocumentType;
 use App\Models\StudentRecord;
 use App\Models\StudyProgram;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
 
@@ -20,13 +21,12 @@ class StadisticController extends Controller
     /**
      * Display a listing of the resource with statistics & filters.
      */
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $search = $request->input('search');
         $recordType = $request->input('record_type');
         $academicPeriod = $request->input('academic_period');
         $studyProgram = $request->input('study_program');
-
         $query = StudentRecord::with('documentType')
             ->when($search, function ($q, $search) {
                 $q->where(function ($sub) use ($search) {
@@ -43,7 +43,6 @@ class StadisticController extends Controller
             ->when($studyProgram, fn ($q, $prog) => $q->where('study_program', $prog));
 
         $studentRecords = $query->latest('id')->paginate(15)->withQueryString();
-
         // High-level KPI Statistics
         $totalRecords = StudentRecord::count();
         $totalAdmission = StudentRecord::where('record_type', 'ADMISION')->count();
@@ -68,31 +67,34 @@ class StadisticController extends Controller
             ->orderBy('name')
             ->pluck('name');
 
-        return view('admin.statistics.index', compact(
-            'studentRecords',
-            'totalRecords',
-            'totalAdmission',
-            'totalEnrollment',
-            'totalPrograms',
-            'programStats',
-            'academicPeriods',
-            'studyProgramsList',
-            'search',
-            'recordType',
-            'academicPeriod',
-            'studyProgram'
-        ));
+        return Inertia::render('Admin/Statistics/Index', [
+            'studentRecords' => $studentRecords,
+            'totalRecords' => $totalRecords,
+            'totalAdmission' => $totalAdmission,
+            'totalEnrollment' => $totalEnrollment,
+            'totalPrograms' => $totalPrograms,
+            'programStats' => $programStats,
+            'academicPeriods' => $academicPeriods,
+            'studyProgramsList' => $studyProgramsList,
+            'search' => $search ?? '',
+            'recordType' => $recordType ?? '',
+            'academicPeriod' => $academicPeriod ?? '',
+            'studyProgram' => $studyProgram ?? '',
+        ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): View
+    public function create(): Response
     {
         $documentTypes = DocumentType::where('is_active', true)->get();
         $studyPrograms = StudyProgram::where('is_active', true)->orderBy('name')->get();
 
-        return view('admin.statistics.create', compact('documentTypes', 'studyPrograms'));
+        return Inertia::render('Admin/Statistics/Create', [
+            'documentTypes' => $documentTypes,
+            'studyPrograms' => $studyPrograms,
+        ]);
     }
 
     /**
@@ -103,7 +105,8 @@ class StadisticController extends Controller
         $validated = $request->validated();
         StudentRecord::create($validated);
 
-        return redirect()->route('admin.statistics.index')
+        return redirect()
+            ->route('admin.statistics.index')
             ->with('success', 'Registro académico creado exitosamente.');
     }
 
@@ -124,12 +127,16 @@ class StadisticController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(StudentRecord $studentRecord): View
+    public function edit(StudentRecord $studentRecord): Response
     {
         $documentTypes = DocumentType::where('is_active', true)->get();
         $studyPrograms = StudyProgram::where('is_active', true)->orderBy('name')->get();
 
-        return view('admin.statistics.edit', compact('studentRecord', 'documentTypes', 'studyPrograms'));
+        return Inertia::render('Admin/Statistics/Edit', [
+            'studentRecord' => $studentRecord,
+            'documentTypes' => $documentTypes,
+            'studyPrograms' => $studyPrograms,
+        ]);
     }
 
     /**
@@ -140,7 +147,8 @@ class StadisticController extends Controller
         $validated = $request->validated();
         $studentRecord->update($validated);
 
-        return redirect()->route('admin.statistics.index')
+        return redirect()
+            ->route('admin.statistics.index')
             ->with('success', 'Registro académico actualizado exitosamente.');
     }
 
@@ -151,7 +159,8 @@ class StadisticController extends Controller
     {
         $studentRecord->delete();
 
-        return redirect()->route('admin.statistics.index')
+        return redirect()
+            ->route('admin.statistics.index')
             ->with('success', 'Registro académico eliminado exitosamente.');
     }
 

@@ -22,7 +22,7 @@ class AccountBalanceController extends Controller
     /**
      * Display the admin listing of account balance records with filters.
      */
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $year = $request->integer('year') ?: null;
         $month = $request->string('month')->toString() ?: null;
@@ -65,16 +65,20 @@ class AccountBalanceController extends Controller
             ->pluck('cnt', 'yr')
             ->toArray();
 
-        return view('admin.account-balances.index', compact(
-            'records',
-            'totalRecords',
-            'totalAmount',
-            'totalTableRecords',
-            'availableYears',
-            'availableMonths',
-            'availableCategories',
-            'yearCounts',
-        ));
+        return Inertia::render('Admin/AccountBalances/Index', [
+            'records' => $records,
+            'totalRecords' => $totalRecords,
+            'totalAmount' => $totalAmount,
+            'totalTableRecords' => $totalTableRecords,
+            'availableYears' => $availableYears,
+            'availableMonths' => $availableMonths,
+            'availableCategories' => $availableCategories,
+            'yearCounts' => $yearCounts,
+            'year' => $year ?? '',
+            'month' => $month ?? '',
+            'category' => $category ?? '',
+            'search' => $search ?? '',
+        ]);
     }
 
     /**

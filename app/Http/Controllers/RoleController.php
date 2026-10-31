@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -15,7 +16,7 @@ class RoleController extends Controller
     /**
      * Listar todos los roles del sistema (Index)
      */
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $query = Role::withCount(['users', 'permissions'])->with('permissions');
 
@@ -27,17 +28,23 @@ class RoleController extends Controller
         $roles = $query->orderBy('name', 'asc')->get();
         $permissions = Permission::all();
 
-        return view('admin.roles.index', compact('roles', 'permissions'));
+        return Inertia::render('Admin/Roles/Index', [
+            'roles' => $roles,
+            'permissions' => $permissions,
+            'search' => $request->input('search', ''),
+        ]);
     }
 
     /**
      * Mostrar formulario para crear nuevo rol
      */
-    public function create(): View
+    public function create(): Response
     {
         $permissions = Permission::all();
 
-        return view('admin.roles.create', compact('permissions'));
+        return Inertia::render('Admin/Roles/Create', [
+            'permissions' => $permissions,
+        ]);
     }
 
     /**
@@ -94,12 +101,16 @@ class RoleController extends Controller
     /**
      * Mostrar formulario para editar un rol existente
      */
-    public function edit(Role $role): View
+    public function edit(Role $role): Response
     {
         $permissions = Permission::all();
         $rolePermissions = $role->permissions->pluck('name')->toArray();
 
-        return view('admin.roles.edit', compact('role', 'permissions', 'rolePermissions'));
+        return Inertia::render('Admin/Roles/Edit', [
+            'role' => $role,
+            'permissions' => $permissions,
+            'rolePermissions' => $rolePermissions,
+        ]);
     }
 
     /**

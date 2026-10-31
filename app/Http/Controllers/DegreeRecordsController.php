@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DegreeRecordImportRequest;
 use App\Imports\DegreeRecordImport;
 use App\Models\DegreeRecord;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
 
@@ -15,7 +16,7 @@ class DegreeRecordsController extends Controller
 {
     // ── Index ────────────────────────────────────────────────────────────────
 
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $search = $request->input('search');
         $studyProgram = $request->input('study_program');
@@ -49,18 +50,27 @@ class DegreeRecordsController extends Controller
         $departments = DegreeRecord::whereNotNull('department')->select('department')->distinct()->orderBy('department')->pluck('department');
         $diplomaTypes = DegreeRecord::whereNotNull('diploma_type')->select('diploma_type')->distinct()->orderBy('diploma_type')->pluck('diploma_type');
 
-        return view('admin.degree-records.index', compact(
-            'records', 'search', 'studyProgram', 'department', 'diplomaType',
-            'totalRecords', 'totalPrograms', 'totalDepts', 'totalThisYear',
-            'programs', 'departments', 'diplomaTypes'
-        ));
+        return Inertia::render('Admin/DegreeRecords/Index', [
+            'records' => $records,
+            'search' => $search ?? '',
+            'studyProgram' => $studyProgram ?? '',
+            'department' => $department ?? '',
+            'diplomaType' => $diplomaType ?? '',
+            'totalRecords' => $totalRecords,
+            'totalPrograms' => $totalPrograms,
+            'totalDepts' => $totalDepts,
+            'totalThisYear' => $totalThisYear,
+            'programs' => $programs,
+            'departments' => $departments,
+            'diplomaTypes' => $diplomaTypes,
+        ]);
     }
 
     // ── Create / Store ───────────────────────────────────────────────────────
 
-    public function create(): View
+    public function create(): Response
     {
-        return view('admin.degree-records.create');
+        return Inertia::render('Admin/DegreeRecords/Create');
     }
 
     public function store(Request $request): RedirectResponse
@@ -81,9 +91,11 @@ class DegreeRecordsController extends Controller
 
     // ── Edit / Update ────────────────────────────────────────────────────────
 
-    public function edit(DegreeRecord $degreeRecord): View
+    public function edit(DegreeRecord $degreeRecord): Response
     {
-        return view('admin.degree-records.edit', compact('degreeRecord'));
+        return Inertia::render('Admin/DegreeRecords/Edit', [
+            'degreeRecord' => $degreeRecord,
+        ]);
     }
 
     public function update(Request $request, DegreeRecord $degreeRecord): RedirectResponse

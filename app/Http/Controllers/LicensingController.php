@@ -4,18 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LicensingPhaseRequest;
 use App\Models\LicensingPhase;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class LicensingController extends Controller
 {
     /**
      * Display a listing of the licensing phases.
      */
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $query = LicensingPhase::query();
 
@@ -39,7 +40,6 @@ class LicensingController extends Controller
         }
 
         $phases = $query->orderBy('phase_number', 'asc')->paginate(15)->withQueryString();
-
         $stats = [
             'total' => LicensingPhase::count(),
             'completed' => LicensingPhase::where('status', 'completed')->count(),
@@ -48,18 +48,27 @@ class LicensingController extends Controller
             'avg_progress' => round(LicensingPhase::avg('progress_percentage') ?? 0),
         ];
 
-        return view('admin.licensing.index', compact('phases', 'stats'));
+        return Inertia::render('Admin/Licensing/Index', [
+            'phases' => $phases,
+            'stats' => $stats,
+            'search' => $request->search ?? '',
+            'status' => $request->status ?? '',
+            'isActive' => $request->is_active ?? '',
+        ]);
     }
 
     /**
      * Show the form for creating a new licensing phase.
      */
-    public function create(): View
+    public function create(): Response
     {
         $nextPhaseNumber = (LicensingPhase::max('phase_number') ?? 0) + 1;
         $nextOrder = (LicensingPhase::max('order') ?? 0) + 1;
 
-        return view('admin.licensing.create', compact('nextPhaseNumber', 'nextOrder'));
+        return Inertia::render('Admin/Licensing/Create', [
+            'nextPhaseNumber' => $nextPhaseNumber,
+            'nextOrder' => $nextOrder,
+        ]);
     }
 
     /**
@@ -112,9 +121,11 @@ class LicensingController extends Controller
     /**
      * Show the form for editing the specified licensing phase.
      */
-    public function edit(LicensingPhase $licensing): View
+    public function edit(LicensingPhase $licensing): Response
     {
-        return view('admin.licensing.edit', compact('licensing'));
+        return Inertia::render('Admin/Licensing/Edit', [
+            'licensing' => $licensing,
+        ]);
     }
 
     /**

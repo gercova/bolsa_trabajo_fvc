@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\JobValidate;
 use App\Models\JobOffer;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
 use Symfony\Component\DomCrawler\Crawler;
 
 class JobsController extends Controller
@@ -75,7 +76,7 @@ class JobsController extends Controller
     /**
      * List all job offers with search, filters, and pagination.
      */
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $search = $request->input('search');
         $status = $request->input('status');
@@ -115,22 +116,22 @@ class JobsController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('admin.jobs.index', compact(
-            'jobs',
-            'search',
-            'status',
-            'source',
-            'totalJobs',
-            'activeJobs',
-            'inactiveJobs',
-            'internalJobs'
-        ));
+        return Inertia::render('Admin/Jobs/Index', [
+            'jobs' => $jobs,
+            'search' => $search ?? '',
+            'status' => $status ?? '',
+            'source' => $source ?? '',
+            'totalJobs' => $totalJobs,
+            'activeJobs' => $activeJobs,
+            'inactiveJobs' => $inactiveJobs,
+            'internalJobs' => $internalJobs,
+        ]);
     }
 
     /**
      * List internal calls only.
      */
-    public function internalCalls(Request $request): View
+    public function internalCalls(Request $request): Response
     {
         $search = $request->input('search');
         $query = JobOffer::where('source', 'like', '%Interna%');
@@ -152,22 +153,24 @@ class JobsController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('admin.jobs.index', compact(
-            'jobs',
-            'search',
-            'totalJobs',
-            'activeJobs',
-            'inactiveJobs',
-            'internalJobs'
-        ));
+        return Inertia::render('Admin/Jobs/Index', [
+            'jobs' => $jobs,
+            'search' => $search ?? '',
+            'status' => '',
+            'source' => 'Interna',
+            'totalJobs' => $totalJobs,
+            'activeJobs' => $activeJobs,
+            'inactiveJobs' => $inactiveJobs,
+            'internalJobs' => $internalJobs,
+        ]);
     }
 
     /**
      * Show form for creating a new job offer.
      */
-    public function create(): View
+    public function create(): Response
     {
-        return view('admin.jobs.create');
+        return Inertia::render('Admin/Jobs/Create');
     }
 
     /**
@@ -211,9 +214,11 @@ class JobsController extends Controller
     /**
      * Show form for editing an existing job offer.
      */
-    public function edit(JobOffer $offer): View
+    public function edit(JobOffer $offer): Response
     {
-        return view('admin.jobs.edit', compact('offer'));
+        return Inertia::render('Admin/Jobs/Edit', [
+            'offer' => $offer,
+        ]);
     }
 
     /**

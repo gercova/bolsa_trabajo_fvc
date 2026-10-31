@@ -5,20 +5,21 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BlogValidate;
 use App\Models\Blog;
 use App\Models\Image;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class BlogController extends Controller
 {
     /**
      * Display a listing of blogs with search, filter, stats, and pagination.
      */
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $search = $request->input('search');
         $status = $request->input('status');
@@ -51,22 +52,22 @@ class BlogController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('admin.blogs.index', compact(
-            'blogs',
-            'search',
-            'status',
-            'totalBlogs',
-            'publishedBlogs',
-            'draftBlogs'
-        ));
+        return Inertia::render('Admin/Blogs/Index', [
+            'blogs' => $blogs,
+            'search' => $search ?? '',
+            'status' => $status ?? '',
+            'totalBlogs' => $totalBlogs,
+            'publishedBlogs' => $publishedBlogs,
+            'draftBlogs' => $draftBlogs,
+        ]);
     }
 
     /**
      * Show the form for creating a new blog post.
      */
-    public function create(): View
+    public function create(): Response
     {
-        return view('admin.blogs.create');
+        return Inertia::render('Admin/Blogs/Create');
     }
 
     /**
@@ -132,11 +133,13 @@ class BlogController extends Controller
     /**
      * Show the form for editing the specified blog post.
      */
-    public function edit(Blog $blog): View
+    public function edit(Blog $blog): Response
     {
         $blog->load('images');
 
-        return view('admin.blogs.edit', compact('blog'));
+        return Inertia::render('Admin/Blogs/Edit', [
+            'blog' => $blog,
+        ]);
     }
 
     /**

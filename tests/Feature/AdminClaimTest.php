@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Claim;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class AdminClaimTest extends TestCase
@@ -23,7 +24,10 @@ class AdminClaimTest extends TestCase
         $response = $this->actingAs($user)->get('/admin-reclamos');
 
         $response->assertOk();
-        $response->assertViewHas('claims');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Claims/Index')
+            ->has('claims.data')
+        );
     }
 
     public function test_admin_can_search_claims(): void
@@ -49,14 +53,20 @@ class AdminClaimTest extends TestCase
         // Search for Carlos
         $response = $this->actingAs($user)->get('/admin-reclamos?search=Carlos');
         $response->assertOk();
-        $response->assertSee('Carlos Perez');
-        $response->assertDontSee('Maria Gomez');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Claims/Index')
+            ->has('claims.data', 1)
+            ->where('claims.data.0.names', 'Carlos Perez')
+        );
 
         // Search for maria@example.com
         $response = $this->actingAs($user)->get('/admin-reclamos?search=maria@example.com');
         $response->assertOk();
-        $response->assertSee('Maria Gomez');
-        $response->assertDontSee('Carlos Perez');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Claims/Index')
+            ->has('claims.data', 1)
+            ->where('claims.data.0.names', 'Maria Gomez')
+        );
     }
 
     public function test_admin_can_filter_claims_by_status(): void
@@ -84,8 +94,11 @@ class AdminClaimTest extends TestCase
         // Filter by leido
         $response = $this->actingAs($user)->get('/admin-reclamos?status=leido');
         $response->assertOk();
-        $response->assertSee('Carlos Perez');
-        $response->assertDontSee('Maria Gomez');
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Claims/Index')
+            ->has('claims.data', 1)
+            ->where('claims.data.0.names', 'Carlos Perez')
+        );
     }
 
     public function test_admin_can_view_claim_details_json(): void
@@ -119,7 +132,7 @@ class AdminClaimTest extends TestCase
             'status' => 'pendiente',
         ]);
 
-        $response = $this->actingAs($user)->post("/admin-reclamos/estado/{$claim->id}", [
+        $response = $this->actingAs($user)->patch("/admin-reclamos/estado/{$claim->id}", [
             'status' => 'leido',
         ]);
 

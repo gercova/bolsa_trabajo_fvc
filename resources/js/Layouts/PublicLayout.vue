@@ -434,7 +434,7 @@ const navServices = [
                                             <span class="dp-icon"><i class="bi bi-person-circle"></i></span>
                                             <span class="dp-label">Mi Perfil</span>
                                         </Link>
-                                        <Link href="/admin/dashboard" class="dp-item" @click="closeAll">
+                                        <Link v-if="!authUser.is_student" :href="route('admin.dashboard.index')" class="dp-item" @click="closeAll">
                                             <span class="dp-icon"><i class="bi bi-grid-1x2"></i></span>
                                             <span class="dp-label">Panel de Control</span>
                                         </Link>
@@ -671,6 +671,9 @@ const navServices = [
                             </div>
                             <Link :href="`/admin-perfil/${authUser.id}`" class="mobile-link" @click="mobileOpen = false">
                                 <i class="bi bi-person-circle"></i> Mi Perfil
+                            </Link>
+                            <Link v-if="!authUser.is_student" :href="route('admin.dashboard.index')" class="mobile-link" @click="mobileOpen = false">
+                                <i class="bi bi-grid-1x2"></i> Panel de Control
                             </Link>
                             <Link href="/biblioteca" class="mobile-link" @click="mobileOpen = false">
                                 <i class="bi bi-book"></i> Biblioteca Virtual

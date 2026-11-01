@@ -200,7 +200,7 @@ class StudentLoginTest extends TestCase
         $response = $this->actingAs($this->testStudent)->get('/biblioteca');
 
         $response->assertStatus(200);
-        $response->assertSee('Hola, Carlos Estudiante Prueba');
+        $response->assertInertia(fn ($page) => $page->component('Library/Home'));
     }
 
     /**

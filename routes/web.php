@@ -118,6 +118,8 @@ Route::get('/storage/{path}', function (string $path) {
 
 // Rutas de autenticación (definidas canónicamente en routes/auth.php)
 Route::middleware(['auth'])->group(function () {
+    Route::redirect('/admin/dashboard', '/admin-dashboard');
+
     Route::prefix('admin-dashboard')->name('admin.dashboard.')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('index');
     });

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -155,5 +156,20 @@ class SpaErrorPagesTest extends TestCase
                 'status' => 503,
             ],
         ]);
+    }
+
+    public function test_legacy_admin_dashboard_url_redirects_to_canonical_admin_dashboard(): void
+    {
+        $response = $this->get('/admin/dashboard');
+
+        // Unauthenticated visits to auth routes redirect to login
+        $response->assertRedirect('/login');
+
+        // Authenticated admin user visit redirects to /admin-dashboard
+        $admin = User::factory()->create(['role' => 'Administrador']);
+        $admin->assignRole('Administrador');
+
+        $authResponse = $this->actingAs($admin)->get('/admin/dashboard');
+        $authResponse->assertRedirect('/admin-dashboard');
     }
 }

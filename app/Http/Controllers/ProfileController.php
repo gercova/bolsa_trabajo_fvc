@@ -9,14 +9,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class ProfileController extends Controller
 {
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request, ?User $user = null): View|RedirectResponse
+    public function edit(Request $request, ?User $user = null): InertiaResponse|RedirectResponse
     {
         $authUser = $request->user();
         $targetUser = ($user && $user->exists) ? $user : $authUser;
@@ -28,7 +29,7 @@ class ProfileController extends Controller
                 ->with('error', 'Solo tiene acceso a la edición de su propio perfil de usuario.');
         }
 
-        return view('profile.edit', [
+        return Inertia::render('Admin/Profile/Edit', [
             'user' => $targetUser,
         ]);
     }

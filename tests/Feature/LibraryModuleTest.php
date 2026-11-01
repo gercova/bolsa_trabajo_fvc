@@ -82,9 +82,7 @@ class LibraryModuleTest extends TestCase
         $response = $this->actingAs($this->admin)->get(route('admin.library.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('Libros Asignados');
-        $response->assertSee('Subir Contenido');
-        $response->assertSee('Biblioteca Virtual');
+        $response->assertInertia(fn ($page) => $page->component('Admin/Library/AssignedBooks')->has('books'));
     }
 
     public function test_admin_can_access_library_repository(): void
@@ -92,8 +90,7 @@ class LibraryModuleTest extends TestCase
         $response = $this->actingAs($this->admin)->get(route('admin.library.repository'));
 
         $response->assertStatus(200);
-        $response->assertSee('Repositorio de Contenidos');
-        $response->assertSee('Subir Nuevo Contenido');
+        $response->assertInertia(fn ($page) => $page->component('Admin/Library/Repository')->has('books'));
     }
 
     public function test_admin_can_access_library_readers_monitoring_dashboard(): void
@@ -101,8 +98,7 @@ class LibraryModuleTest extends TestCase
         $response = $this->actingAs($this->admin)->get(route('admin.library.readers'));
 
         $response->assertStatus(200);
-        $response->assertSee('Monitoreo de Lectores');
-        $response->assertSee('Lectores Totales');
+        $response->assertInertia(fn ($page) => $page->component('Admin/Library/Readers')->has('readers'));
     }
 
     public function test_admin_can_store_book_with_pdf(): void
@@ -187,9 +183,7 @@ class LibraryModuleTest extends TestCase
         $response = $this->actingAs($this->docente)->get(route('biblioteca.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('Hola, '.$this->docente->names);
-        $response->assertSee('Mi biblioteca');
-        $response->assertSee('Leídos últimamente');
+        $response->assertInertia(fn ($page) => $page->component('Library/Home')->has('featuredBooks'));
     }
 
     public function test_reader_can_filter_books_in_catalog(): void
@@ -293,14 +287,12 @@ class LibraryModuleTest extends TestCase
         $response = $this->actingAs($this->estudiante)->get(route('biblioteca.read', $book));
 
         $response->assertStatus(200);
-        $response->assertViewIs('library.reader');
-        $response->assertSee('libraryViewerIframe');
-        $response->assertSee('https://scielo.org/articulo-test');
+        $response->assertInertia(fn ($page) => $page->component('Library/Reader')->where('book.slug', $book->slug));
 
         $this->assertDatabaseHas('library_access_logs', [
             'user_id' => $this->estudiante->id,
             'book_id' => $book->id,
-            'access_type' => 'external_link',
+            'access_type' => 'view',
         ]);
 
         $book->refresh();
@@ -323,7 +315,7 @@ class LibraryModuleTest extends TestCase
         $response = $this->actingAs($this->estudiante)->get(route('biblioteca.read', $book));
 
         $response->assertStatus(200);
-        $response->assertSee('Libro PDF Interno Test');
+        $response->assertInertia(fn ($page) => $page->component('Library/Reader')->where('book.slug', $book->slug));
 
         $this->assertDatabaseHas('library_access_logs', [
             'user_id' => $this->estudiante->id,

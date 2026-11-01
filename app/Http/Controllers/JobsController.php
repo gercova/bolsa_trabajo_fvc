@@ -81,7 +81,6 @@ class JobsController extends Controller
         $search = $request->input('search');
         $status = $request->input('status');
         $source = $request->input('source');
-
         $query = JobOffer::query();
 
         if (! empty($search)) {
@@ -508,7 +507,6 @@ class JobsController extends Controller
     public function fetchJobs(Request $request): JsonResponse
     {
         set_time_limit(120);
-
         $savedCount = 0;
         $updatedCount = 0;
         $skippedCount = 0;
@@ -576,7 +574,6 @@ class JobsController extends Controller
     {
         $slug = $this->toUrlSlug($term);
         $url = "https://www.computrabajo.com.pe/trabajo-de-{$slug}";
-
         $html = $this->httpGet($url);
         if (! $html) {
             return [];
@@ -630,8 +627,8 @@ class JobsController extends Controller
     {
         $slug = rawurlencode($term);
         $url = "https://www.bumeran.com.pe/empleos-busqueda-{$slug}.html?pais=peru";
-
         $html = $this->httpGet($url);
+
         if (! $html) {
             return [];
         }
@@ -687,7 +684,6 @@ class JobsController extends Controller
         foreach ($matches[1] as $raw) {
             try {
                 $data = json_decode(trim($raw), true, 512, JSON_THROW_ON_ERROR);
-
                 // Handle single job or array
                 $items = isset($data['@type']) ? [$data] : ($data['@graph'] ?? []);
 

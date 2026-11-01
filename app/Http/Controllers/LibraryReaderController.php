@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -26,7 +27,7 @@ class LibraryReaderController extends Controller
     /**
      * Portal principal de la Biblioteca Virtual (/biblioteca).
      */
-    public function index(Request $request): View
+    public function index(Request $request): InertiaResponse
     {
         $selectedCareer = $request->query('career', 'all');
         $searchQuery = trim((string) $request->query('q', ''));
@@ -74,23 +75,23 @@ class LibraryReaderController extends Controller
             $recentlyReadBooks = collect();
         }
 
-        return view('library.home', compact(
-            'user',
-            'favoriteBooks',
-            'recentlyReadBooks',
-            'featuredBooks',
-            'recentBooks',
-            'studyPrograms',
-            'selectedCareer',
-            'searchQuery',
-            'totalBooks'
-        ));
+        return Inertia::render('Library/Home', [
+            'user' => $user,
+            'favoriteBooks' => $favoriteBooks,
+            'recentlyReadBooks' => $recentlyReadBooks,
+            'featuredBooks' => $featuredBooks,
+            'recentBooks' => $recentBooks,
+            'studyPrograms' => $studyPrograms,
+            'selectedCareer' => $selectedCareer,
+            'searchQuery' => $searchQuery,
+            'totalBooks' => $totalBooks,
+        ]);
     }
 
     /**
      * Buscador avanzado del catálogo (/biblioteca/buscar).
      */
-    public function search(Request $request): View
+    public function search(Request $request): InertiaResponse
     {
         $selectedCareer = $request->query('career', 'all');
         $selectedCategory = $request->query('category', 'all');
@@ -109,19 +110,19 @@ class LibraryReaderController extends Controller
         $books = $query->paginate(24)->withQueryString();
         $studyPrograms = StudyProgram::select('id', 'name')->orderBy('name')->get();
 
-        return view('library.search', compact(
-            'books',
-            'studyPrograms',
-            'selectedCareer',
-            'selectedCategory',
-            'searchQuery'
-        ));
+        return Inertia::render('Library/Search', [
+            'books' => $books,
+            'studyPrograms' => $studyPrograms,
+            'selectedCareer' => $selectedCareer,
+            'selectedCategory' => $selectedCategory,
+            'searchQuery' => $searchQuery,
+        ]);
     }
 
     /**
      * Colección personal de favoritos del lector (/biblioteca/mi-biblioteca).
      */
-    public function myLibrary(Request $request): View
+    public function myLibrary(Request $request): InertiaResponse
     {
         $userId = auth()->id();
         $selectedCareer = $request->query('career', 'all');
@@ -144,12 +145,12 @@ class LibraryReaderController extends Controller
         $books = $query->paginate(24)->withQueryString();
         $studyPrograms = StudyProgram::select('id', 'name')->orderBy('name')->get();
 
-        return view('library.favorites', compact(
-            'books',
-            'studyPrograms',
-            'selectedCareer',
-            'searchQuery'
-        ));
+        return Inertia::render('Library/Favorites', [
+            'books' => $books,
+            'studyPrograms' => $studyPrograms,
+            'selectedCareer' => $selectedCareer,
+            'searchQuery' => $searchQuery,
+        ]);
     }
 
     /**
@@ -193,7 +194,7 @@ class LibraryReaderController extends Controller
      * Display the interactive document reader view (/biblioteca/leer/{book:slug}).
      * Automatically heals legacy landing-page URLs into direct PDF links and logs reader activity.
      */
-    public function read(Request $request, Book $book, AcademicLibraryService $academicService): View
+    public function read(Request $request, Book $book, AcademicLibraryService $academicService): InertiaResponse
     {
         $user = $request->user();
 
@@ -247,13 +248,13 @@ class LibraryReaderController extends Controller
                 ->exists();
         }
 
-        return view('library.reader', compact(
-            'book',
-            'streamUrl',
-            'directPdfUrl',
-            'relatedBooks',
-            'isFavorite'
-        ));
+        return Inertia::render('Library/Reader', [
+            'book' => $book,
+            'streamUrl' => $streamUrl,
+            'directPdfUrl' => $directPdfUrl,
+            'relatedBooks' => $relatedBooks,
+            'isFavorite' => $isFavorite,
+        ]);
     }
 
     /**

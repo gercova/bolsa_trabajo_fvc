@@ -81,14 +81,7 @@ class LibraryAcademicBulkImportTest extends TestCase
         $response = $this->actingAs($this->admin)->get(route('admin.library.repository'));
 
         $response->assertStatus(200);
-        $response->assertSee('Búsqueda Masiva de Revistas / Papers');
-        $response->assertSee('openAcademicModal()');
-        $response->assertSee('showAcademicModal');
-        $response->assertSee('showIframeModal');
-        $response->assertSee('SciELO');
-        $response->assertSee('Redalyc');
-        $response->assertSee('Europe PMC');
-        $response->assertSee('Open Library (Libros)');
+        $response->assertInertia(fn ($page) => $page->component('Admin/Library/Repository')->has('books'));
     }
 
     public function test_academic_service_stores_external_books_and_deduplicates(): void
@@ -200,11 +193,7 @@ class LibraryAcademicBulkImportTest extends TestCase
 
         // Must open within the site, NOT redirecting away
         $response->assertStatus(200);
-        $response->assertViewIs('library.reader');
-        $response->assertSee('<iframe', false);
-        $response->assertSee('libraryViewerIframe');
-        $response->assertSee('Visualización limpia sin páginas externas');
-        $response->assertSee('scielo.isciii.es');
+        $response->assertInertia(fn ($page) => $page->component('Library/Reader')->where('book.slug', $book->slug));
 
         // Check access log recorded
         $this->assertDatabaseHas('library_access_logs', [
@@ -219,10 +208,7 @@ class LibraryAcademicBulkImportTest extends TestCase
         $response = $this->actingAs($this->admin)->get(route('admin.library.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('Búsqueda Masiva de Revistas / Papers');
-        $response->assertSee('openAcademicModal()');
-        $response->assertSee('showAcademicModal');
-        $response->assertSee('showIframeModal');
+        $response->assertInertia(fn ($page) => $page->component('Admin/Library/AssignedBooks')->has('books'));
     }
 
     public function test_academic_service_extracts_direct_ojs_galley_link_from_html(): void

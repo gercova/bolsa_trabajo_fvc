@@ -16,14 +16,15 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class LibraryController extends Controller
 {
     /**
      * Display the "Libros Asignados" view.
      */
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $selectedCareer = $request->query('career', 'all');
         $searchQuery = $request->query('q', '');
@@ -37,20 +38,20 @@ class LibraryController extends Controller
         $books = $query->paginate(24)->withQueryString();
         $studyPrograms = StudyProgram::select('id', 'name')->orderBy('name')->get();
 
-        return view('admin.library.assigned-books', compact(
-            'books',
-            'studyPrograms',
-            'selectedCareer',
-            'searchQuery',
-            'viewMode',
-            'totalCount'
-        ));
+        return Inertia::render('Admin/Library/AssignedBooks', [
+            'books' => $books,
+            'studyPrograms' => $studyPrograms,
+            'selectedCareer' => $selectedCareer,
+            'searchQuery' => $searchQuery,
+            'viewMode' => $viewMode,
+            'totalCount' => $totalCount,
+        ]);
     }
 
     /**
      * Display the "Repositorio" table view for complete CRUD management.
      */
-    public function repository(Request $request): View
+    public function repository(Request $request): Response
     {
         $selectedCareer = $request->query('career', 'all');
         $selectedCategory = $request->query('category', 'all');
@@ -64,13 +65,13 @@ class LibraryController extends Controller
         $books = $query->paginate(15)->withQueryString();
         $studyPrograms = StudyProgram::select('id', 'name')->orderBy('name')->get();
 
-        return view('admin.library.repository', compact(
-            'books',
-            'studyPrograms',
-            'selectedCareer',
-            'selectedCategory',
-            'searchQuery'
-        ));
+        return Inertia::render('Admin/Library/Repository', [
+            'books' => $books,
+            'studyPrograms' => $studyPrograms,
+            'selectedCareer' => $selectedCareer,
+            'selectedCategory' => $selectedCategory,
+            'searchQuery' => $searchQuery,
+        ]);
     }
 
     /**
@@ -297,7 +298,7 @@ class LibraryController extends Controller
     /**
      * Dedicated Reader Monitoring Dashboard ("Lectores").
      */
-    public function readers(Request $request): View
+    public function readers(Request $request): Response
     {
         $roleFilter = $request->query('role', 'all');
         $careerFilter = $request->query('career', 'all');
@@ -372,39 +373,41 @@ class LibraryController extends Controller
 
         $studyPrograms = StudyProgram::select('id', 'name')->orderBy('name')->get();
 
-        return view('admin.library.readers', compact(
-            'totalUniqueReaders',
-            'totalAccessSessions',
-            'activeTeachersCount',
-            'activeStudentsCount',
-            'readsByCareer',
-            'mostReadBooks',
-            'readers',
-            'recentLogs',
-            'studyPrograms',
-            'roleFilter',
-            'careerFilter',
-            'search'
-        ));
+        return Inertia::render('Admin/Library/Readers', [
+            'totalUniqueReaders' => $totalUniqueReaders,
+            'totalAccessSessions' => $totalAccessSessions,
+            'activeTeachersCount' => $activeTeachersCount,
+            'activeStudentsCount' => $activeStudentsCount,
+            'readsByCareer' => $readsByCareer,
+            'mostReadBooks' => $mostReadBooks,
+            'readers' => $readers,
+            'recentLogs' => $recentLogs,
+            'studyPrograms' => $studyPrograms,
+            'roleFilter' => $roleFilter,
+            'careerFilter' => $careerFilter,
+            'search' => $search,
+        ]);
     }
 
     /**
      * Display Administrators list.
      */
-    public function administrators(): View
+    public function administrators(): Response
     {
         $admins = User::whereIn('role', ['Admin', 'Administrador', 'Director'])
             ->select('id', 'names', 'email', 'role', 'phone', 'is_active', 'created_at')
             ->orderBy('names')
             ->get();
 
-        return view('admin.library.administrators', compact('admins'));
+        return Inertia::render('Admin/Library/Administrators', [
+            'admins' => $admins,
+        ]);
     }
 
     /**
      * Display Reports and analytics.
      */
-    public function reports(): View
+    public function reports(): Response
     {
         $totalBooks = Book::count();
         $totalViews = Book::sum('views_count');
@@ -424,13 +427,13 @@ class LibraryController extends Controller
             ->orderByDesc('total')
             ->get();
 
-        return view('admin.library.reports', compact(
-            'totalBooks',
-            'totalViews',
-            'totalFavorites',
-            'totalCategories',
-            'booksByCategory',
-            'booksByProgram'
-        ));
+        return Inertia::render('Admin/Library/Reports', [
+            'totalBooks' => $totalBooks,
+            'totalViews' => $totalViews,
+            'totalFavorites' => $totalFavorites,
+            'totalCategories' => $totalCategories,
+            'booksByCategory' => $booksByCategory,
+            'booksByProgram' => $booksByProgram,
+        ]);
     }
 }

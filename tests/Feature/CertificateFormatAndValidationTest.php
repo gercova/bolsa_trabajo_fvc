@@ -1391,4 +1391,60 @@ class CertificateFormatAndValidationTest extends TestCase
         $response2->assertSessionHas('success', "Certificado {$code} activado.");
         $this->assertTrue($cert->fresh()->is_active);
     }
+
+    public function test_inactive_certificate_is_not_displayed_in_public_validation_by_code_or_dni(): void
+    {
+        $cert = $this->certificate;
+        $student = $cert->user;
+
+        // Set certificate as inactive
+        $cert->is_active = false;
+        $cert->save();
+
+        $code = $cert->certificate_code ?: $cert->code;
+
+        // 1. Search by code via query param
+        $responseQuery = $this->get('/validar-certificado?code='.$code);
+        $responseQuery->assertStatus(200);
+        $responseQuery->assertInertia(fn (Assert $page) => $page
+            ->component('Services/ValidateCertificate')
+            ->where('certificate', null)
+            ->where('certificates', [])
+        );
+
+        // 2. Search by code via route param
+        $responseParam = $this->get('/validar-certificado/'.$code);
+        $responseParam->assertStatus(200);
+        $responseParam->assertInertia(fn (Assert $page) => $page
+            ->component('Services/ValidateCertificate')
+            ->where('certificate', null)
+            ->where('certificates', [])
+        );
+
+        // 3. Search by student DNI
+        if ($student && $student->dni) {
+            $responseDni = $this->get('/validar-certificado?code='.$student->dni);
+            $responseDni->assertStatus(200);
+            $responseDni->assertInertia(fn (Assert $page) => $page
+                ->component('Services/ValidateCertificate')
+                ->where('certificate', null)
+                ->where('certificates', [])
+            );
+        }
+
+        // 4. Direct public print/view route returns 404
+        $responsePrint = $this->get('/validar-certificado/'.$code.'/imprimir');
+        $responsePrint->assertStatus(404);
+
+        // Restore certificate to active
+        $cert->is_active = true;
+        $cert->save();
+
+        $responseActive = $this->get('/validar-certificado?code='.$code);
+        $responseActive->assertStatus(200);
+        $responseActive->assertInertia(fn (Assert $page) => $page
+            ->component('Services/ValidateCertificate')
+            ->where('certificate.id', $cert->id)
+        );
+    }
 }

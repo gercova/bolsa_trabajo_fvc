@@ -832,20 +832,29 @@ class AppController extends Controller
             $matchedUser = User::where('dni', $searchCode)->first();
 
             if ($matchedUser) {
-                $searchedByDni = true;
-                $searchedUser = $matchedUser;
                 $certificates = Certificate::with($withRelations)
                     ->where('user_id', $matchedUser->id)
+                    ->where('is_active', true)
                     ->orderByDesc('issue_date')
                     ->orderByDesc('id')
                     ->get();
 
-                $selectedCode = $request->input('selected');
-                $certificate = ($selectedCode ? ($certificates->firstWhere('code', $selectedCode) ?: $certificates->firstWhere('certificate_code', $selectedCode)) : null)
-                    ?? $certificates->first();
+                if ($certificates->isNotEmpty()) {
+                    $searchedByDni = true;
+                    $searchedUser = $matchedUser;
+                    $selectedCode = $request->input('selected');
+                    $certificate = ($selectedCode ? ($certificates->firstWhere('code', $selectedCode) ?: $certificates->firstWhere('certificate_code', $selectedCode)) : null)
+                        ?? $certificates->first();
+                } else {
+                    $certificates = collect();
+                    $certificate = null;
+                    $searchedUser = null;
+                    $searchedByDni = true;
+                }
             } else {
                 // 1.2 Search by certificate code / code
                 $certByCode = Certificate::with($withRelations)
+                    ->where('is_active', true)
                     ->where(function ($q) use ($searchCode) {
                         $q->where('code', $searchCode)
                             ->orWhere('certificate_code', $searchCode);
@@ -883,15 +892,21 @@ class AppController extends Controller
                     if ($fallbackCerts->isNotEmpty()) {
                         $firstCert = $fallbackCerts->first();
                         if ($firstCert->user && ($firstCert->user->dni === $searchCode || str_contains($firstCert->user->dni, $searchCode))) {
-                            $searchedByDni = true;
-                            $searchedUser = $firstCert->user;
                             $certificates = Certificate::with($withRelations)
                                 ->where('user_id', $firstCert->user_id)
                                 ->where('is_active', true)
                                 ->orderByDesc('issue_date')
                                 ->orderByDesc('id')
                                 ->get();
-                            $certificate = $certificates->first();
+                            if ($certificates->isNotEmpty()) {
+                                $searchedByDni = true;
+                                $searchedUser = $firstCert->user;
+                                $certificate = $certificates->first();
+                            } else {
+                                $certificates = collect();
+                                $certificate = null;
+                                $searchedUser = null;
+                            }
                         } else {
                             $certificates = $fallbackCerts;
                             $certificate = $firstCert;
@@ -1018,6 +1033,7 @@ class AppController extends Controller
             'course.studyProgram',
             'details.module',
         ])
+            ->where('is_active', true)
             ->where(function ($q) use ($certificate_code) {
                 $q->where('code', $certificate_code)
                     ->orWhere('certificate_code', $certificate_code);

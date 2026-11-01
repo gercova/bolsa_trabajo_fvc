@@ -73,19 +73,26 @@ const props = defineProps({
 // Search input model
 const query = ref(props.searchCode || '');
 
-// Certificate list resolution
+// Helper to check if a certificate is active
+const isCertificateActive = (cert) => {
+    if (!cert) return false;
+    return cert.is_active === true || cert.is_active === 1 || cert.is_status === 1 || cert.is_status === true;
+};
+
+// Certificate list resolution - only display active certificates
 const certList = computed(() => {
     if (props.certificates && props.certificates.length > 0) {
-        return props.certificates;
+        return props.certificates.filter(isCertificateActive);
     }
-    return props.certificate ? [props.certificate] : [];
+    return (props.certificate && isCertificateActive(props.certificate)) ? [props.certificate] : [];
 });
 
 // Active certificate code selection
 const defaultCertCode = computed(() => {
-    return props.certificate?.certificate_code ||
-        props.certificate?.code ||
-        (certList.value.length > 0 ? (certList.value[0].certificate_code || certList.value[0].code) : '');
+    const activeCert = certList.value.length > 0 ? certList.value[0] : null;
+    return (props.certificate && isCertificateActive(props.certificate))
+        ? (props.certificate.certificate_code || props.certificate.code)
+        : (activeCert ? (activeCert.certificate_code || activeCert.code) : '');
 });
 
 const activeCertCode = ref(defaultCertCode.value);

@@ -76,28 +76,60 @@ const peopleOpen = ref(
     currentUrl.value.includes('/admin-consejo-estudiantil')
 );
 
-const instOpen = ref(
-    currentUrl.value.includes('/admin-blogs') ||
-    currentUrl.value.includes('/admin-trabajos') ||
+const companyOpen = ref(
+    currentUrl.value.includes('/admin-empresa') ||
     currentUrl.value.includes('/admin-carrusel') ||
     currentUrl.value.includes('/admin-historia') ||
-    currentUrl.value.includes('/admin-areas') ||
-    currentUrl.value.includes('/admin-programas') ||
+    currentUrl.value.includes('/admin-socios') ||
     currentUrl.value.includes('/admin-enlaces') ||
-    currentUrl.value.includes('/admin-roles') ||
+    currentUrl.value.includes('/admin-areas')
+);
+
+const programsOpen = ref(
+    currentUrl.value.includes('/admin-programas') ||
+    currentUrl.value.includes('/admin-certificados') ||
+    currentUrl.value.includes('/admin-cursos') ||
+    currentUrl.value.includes('/admin-modulos') ||
+    currentUrl.value.includes('/admin-itinerarios')
+);
+
+const transparencyOpen = ref(
     currentUrl.value.includes('/admin-reclamos') ||
     currentUrl.value.includes('/admin-estadisticas') ||
     currentUrl.value.includes('/admin-titulos') ||
     currentUrl.value.includes('/admin-licenciamiento') ||
-    currentUrl.value.includes('/admin-socios') ||
-    currentUrl.value.includes('/admin-empresa') ||
     currentUrl.value.includes('/admin-inversiones')
 );
 
-// Close mobile sidebar on page navigation
-watch(() => page.url, () => {
+const isCalendarActive = computed(() => isRouteActive('/admin-exams') || isRouteActive('/admin-matriculas') || isRouteActive('/admin-scholarships'));
+const isDocsActive = computed(() => isRouteActive('/admin-tupa') || isRouteActive('/admin-documentos'));
+const isPeopleActive = computed(() => isRouteActive('/admin-usuarios') || isRouteActive('/admin-docentes-roles') || isRouteActive('/admin-consejo-estudiantil'));
+const isCompanyActive = computed(() => isRouteActive('/admin-empresa') || isRouteActive('/admin-carrusel') || isRouteActive('/admin-historia') || isRouteActive('/admin-socios') || isRouteActive('/admin-enlaces') || isRouteActive('/admin-areas'));
+const isProgramsActive = computed(() => isRouteActive('/admin-programas') || isRouteActive('/admin-certificados') || isRouteActive('/admin-cursos') || isRouteActive('/admin-modulos') || isRouteActive('/admin-itinerarios'));
+const isTransparencyActive = computed(() => isRouteActive('/admin-reclamos') || isRouteActive('/admin-estadisticas') || isRouteActive('/admin-titulos') || isRouteActive('/admin-licenciamiento') || isRouteActive('/admin-inversiones'));
+
+// Close mobile sidebar on page navigation & auto-expand active accordion
+watch(() => page.url, (newUrl) => {
     if (window.innerWidth < 1024) {
         sidebarOpen.value = false;
+    }
+    if (newUrl.includes('/admin-exams') || newUrl.includes('/admin-matriculas') || newUrl.includes('/admin-scholarships')) {
+        calendarOpen.value = true;
+    }
+    if (newUrl.includes('/admin-tupa') || newUrl.includes('/admin-documentos')) {
+        docsOpen.value = true;
+    }
+    if (newUrl.includes('/admin-usuarios') || newUrl.includes('/admin-docentes-roles') || newUrl.includes('/admin-consejo-estudiantil')) {
+        peopleOpen.value = true;
+    }
+    if (newUrl.includes('/admin-empresa') || newUrl.includes('/admin-carrusel') || newUrl.includes('/admin-historia') || newUrl.includes('/admin-socios') || newUrl.includes('/admin-enlaces') || newUrl.includes('/admin-areas')) {
+        companyOpen.value = true;
+    }
+    if (newUrl.includes('/admin-programas') || newUrl.includes('/admin-certificados') || newUrl.includes('/admin-cursos') || newUrl.includes('/admin-modulos') || newUrl.includes('/admin-itinerarios')) {
+        programsOpen.value = true;
+    }
+    if (newUrl.includes('/admin-reclamos') || newUrl.includes('/admin-estadisticas') || newUrl.includes('/admin-titulos') || newUrl.includes('/admin-licenciamiento') || newUrl.includes('/admin-inversiones')) {
+        transparencyOpen.value = true;
     }
 });
 
@@ -255,36 +287,45 @@ const logout = () => {
                             <button @click="sidebarOpen ? calendarOpen = !calendarOpen : (sidebarOpen = true, calendarOpen = true)"
                                     type="button"
                                     class="w-full flex items-center px-3.5 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden"
-                                    :class="(isRouteActive('/admin-exams') || isRouteActive('/admin-matriculas') || isRouteActive('/admin-scholarships')) ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    :class="(calendarOpen || isCalendarActive) ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
                                 <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200"
-                                     :class="(isRouteActive('/admin-exams') || isRouteActive('/admin-matriculas') || isRouteActive('/admin-scholarships')) ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'"></div>
+                                     :class="(calendarOpen || isCalendarActive) ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'"></div>
                                 <i class="bi bi-calendar3 text-lg transition-transform group-hover:scale-110"
-                                   :class="(isRouteActive('/admin-exams') || isRouteActive('/admin-matriculas') || isRouteActive('/admin-scholarships')) ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'"></i>
+                                   :class="(calendarOpen || isCalendarActive) ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'"></i>
                                 <span v-show="sidebarOpen" class="ml-3 text-sm font-medium whitespace-nowrap flex-1 text-left">Admisión</span>
                                 <i v-show="sidebarOpen" class="bi text-xs ml-auto transition-transform duration-200"
                                    :class="calendarOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
                             </button>
 
-                            <div v-show="calendarOpen && sidebarOpen" class="mt-1 ml-4 pl-3 border-l border-slate-800 space-y-1">
+                            <div v-show="calendarOpen && sidebarOpen" class="mt-1 ml-4 pl-3 border-l border-slate-700/60 space-y-1">
                                 <Link :href="route('admin.exams.index')"
-                                      class="flex items-center px-3 py-2 rounded-xl transition-all duration-200 relative"
-                                      :class="isRouteActive('/admin-exams') ? 'bg-purple-600/20 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
-                                    <i class="bi bi-journal-text text-sm mr-2.5" :class="isRouteActive('/admin-exams') ? 'text-purple-400' : 'text-slate-500'"></i>
-                                    <span class="text-xs">Exámenes</span>
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-exams') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-journal-text text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-exams') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Exámenes</span>
+                                    <div v-if="isRouteActive('/admin-exams')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
 
                                 <Link :href="route('admin.enrollments.index')"
-                                      class="flex items-center px-3 py-2 rounded-xl transition-all duration-200 relative"
-                                      :class="isRouteActive('/admin-matriculas') ? 'bg-purple-600/20 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
-                                    <i class="bi bi-calendar-check text-sm mr-2.5" :class="isRouteActive('/admin-matriculas') ? 'text-purple-400' : 'text-slate-500'"></i>
-                                    <span class="text-xs">Matrículas</span>
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-matriculas') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-calendar-check text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-matriculas') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Matrículas</span>
+                                    <div v-if="isRouteActive('/admin-matriculas')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
 
                                 <Link :href="route('admin.scholarships.index')"
-                                      class="flex items-center px-3 py-2 rounded-xl transition-all duration-200 relative"
-                                      :class="isRouteActive('/admin-scholarships') ? 'bg-purple-600/20 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
-                                    <i class="bi bi-award text-sm mr-2.5" :class="isRouteActive('/admin-scholarships') ? 'text-purple-400' : 'text-slate-500'"></i>
-                                    <span class="text-xs">Becas y Créditos</span>
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-scholarships') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-award text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-scholarships') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Becas</span>
+                                    <div v-if="isRouteActive('/admin-scholarships')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
                             </div>
                         </div>
@@ -294,29 +335,35 @@ const logout = () => {
                             <button @click="sidebarOpen ? docsOpen = !docsOpen : (sidebarOpen = true, docsOpen = true)"
                                     type="button"
                                     class="w-full flex items-center px-3.5 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden"
-                                    :class="(isRouteActive('/admin-tupa') || isRouteActive('/admin-documentos')) ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    :class="(docsOpen || isDocsActive) ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
                                 <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200"
-                                     :class="(isRouteActive('/admin-tupa') || isRouteActive('/admin-documentos')) ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'"></div>
+                                     :class="(docsOpen || isDocsActive) ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'"></div>
                                 <i class="bi bi-folder2-open text-lg transition-transform group-hover:scale-110"
-                                   :class="(isRouteActive('/admin-tupa') || isRouteActive('/admin-documentos')) ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'"></i>
+                                   :class="(docsOpen || isDocsActive) ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'"></i>
                                 <span v-show="sidebarOpen" class="ml-3 text-sm font-medium whitespace-nowrap flex-1 text-left">Trámite</span>
                                 <i v-show="sidebarOpen" class="bi text-xs ml-auto transition-transform duration-200"
                                    :class="docsOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
                             </button>
 
-                            <div v-show="docsOpen && sidebarOpen" class="mt-1 ml-4 pl-3 border-l border-slate-800 space-y-1">
+                            <div v-show="docsOpen && sidebarOpen" class="mt-1 ml-4 pl-3 border-l border-slate-700/60 space-y-1">
                                 <Link :href="route('admin.tupa.index')"
-                                      class="flex items-center px-3 py-2 rounded-xl transition-all duration-200 relative"
-                                      :class="isRouteActive('/admin-tupa') ? 'bg-purple-600/20 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
-                                    <i class="bi bi-file-earmark-text text-sm mr-2.5" :class="isRouteActive('/admin-tupa') ? 'text-purple-400' : 'text-slate-500'"></i>
-                                    <span class="text-xs">TUPA</span>
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-tupa') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-file-earmark-text text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-tupa') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">TUPA</span>
+                                    <div v-if="isRouteActive('/admin-tupa')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
 
                                 <Link :href="route('admin.documents.index')"
-                                      class="flex items-center px-3 py-2 rounded-xl transition-all duration-200 relative"
-                                      :class="isRouteActive('/admin-documentos') ? 'bg-purple-600/20 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
-                                    <i class="bi bi-folder-symlink text-sm mr-2.5" :class="isRouteActive('/admin-documentos') ? 'text-purple-400' : 'text-slate-500'"></i>
-                                    <span class="text-xs">Documentos de Gestión</span>
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-documentos') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-folder-symlink text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-documentos') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Documentos</span>
+                                    <div v-if="isRouteActive('/admin-documentos')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
                             </div>
                         </div>
@@ -326,100 +373,307 @@ const logout = () => {
                             <button @click="sidebarOpen ? peopleOpen = !peopleOpen : (sidebarOpen = true, peopleOpen = true)"
                                     type="button"
                                     class="w-full flex items-center px-3.5 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden"
-                                    :class="(isRouteActive('/admin-usuarios') || isRouteActive('/admin-docentes-roles') || isRouteActive('/admin-consejo-estudiantil')) ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    :class="(peopleOpen || isPeopleActive) ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
                                 <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200"
-                                     :class="(isRouteActive('/admin-usuarios') || isRouteActive('/admin-docentes-roles') || isRouteActive('/admin-consejo-estudiantil')) ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'"></div>
+                                     :class="(peopleOpen || isPeopleActive) ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'"></div>
                                 <i class="bi bi-people-fill text-lg transition-transform group-hover:scale-110"
-                                   :class="(isRouteActive('/admin-usuarios') || isRouteActive('/admin-docentes-roles') || isRouteActive('/admin-consejo-estudiantil')) ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'"></i>
+                                   :class="(peopleOpen || isPeopleActive) ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'"></i>
                                 <span v-show="sidebarOpen" class="ml-3 text-sm font-medium whitespace-nowrap flex-1 text-left">Personas</span>
                                 <i v-show="sidebarOpen" class="bi text-xs ml-auto transition-transform duration-200"
                                    :class="peopleOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
                             </button>
 
-                            <div v-show="peopleOpen && sidebarOpen" class="mt-1 ml-4 pl-3 border-l border-slate-800 space-y-1">
+                            <div v-show="peopleOpen && sidebarOpen" class="mt-1 ml-4 pl-3 border-l border-slate-700/60 space-y-1">
                                 <Link :href="route('admin.users.index')"
-                                      class="flex items-center px-3 py-2 rounded-xl transition-all duration-200 relative"
-                                      :class="isRouteActive('/admin-usuarios') ? 'bg-purple-600/20 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
-                                    <i class="bi bi-people text-sm mr-2.5" :class="isRouteActive('/admin-usuarios') ? 'text-purple-400' : 'text-slate-500'"></i>
-                                    <span class="text-xs">Usuarios</span>
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-usuarios') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-people text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-usuarios') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Usuarios</span>
+                                    <div v-if="isRouteActive('/admin-usuarios')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
 
                                 <Link :href="route('admin.teacher-roles.index')"
-                                      class="flex items-center px-3 py-2 rounded-xl transition-all duration-200 relative"
-                                      :class="isRouteActive('/admin-docentes-roles') ? 'bg-purple-600/20 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
-                                    <i class="bi bi-mortarboard text-sm mr-2.5" :class="isRouteActive('/admin-docentes-roles') ? 'text-purple-400' : 'text-slate-500'"></i>
-                                    <span class="text-xs">Plana Docente</span>
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-docentes-roles') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-person-workspace text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-docentes-roles') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Plana Docente</span>
+                                    <div v-if="isRouteActive('/admin-docentes-roles')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
 
                                 <Link :href="route('admin.student-council.index')"
-                                      class="flex items-center px-3 py-2 rounded-xl transition-all duration-200 relative"
-                                      :class="isRouteActive('/admin-consejo-estudiantil') ? 'bg-purple-600/20 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
-                                    <i class="bi bi-award-fill text-sm mr-2.5" :class="isRouteActive('/admin-consejo-estudiantil') ? 'text-purple-400' : 'text-slate-500'"></i>
-                                    <span class="text-xs">Consejo Estudiantil</span>
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-consejo-estudiantil') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-mortarboard text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-consejo-estudiantil') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Concejo Estudiantil</span>
+                                    <div v-if="isRouteActive('/admin-consejo-estudiantil')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
                             </div>
                         </div>
 
-                        <!-- ── GRUPO: Institucional & Contenidos ── -->
+                        <!-- ── GRUPO: Empresa ── -->
                         <div>
-                            <button @click="sidebarOpen ? instOpen = !instOpen : (sidebarOpen = true, instOpen = true)"
+                            <button @click="sidebarOpen ? companyOpen = !companyOpen : (sidebarOpen = true, companyOpen = true)"
                                     type="button"
                                     class="w-full flex items-center px-3.5 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden"
-                                    :class="instOpen ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    :class="(companyOpen || isCompanyActive) ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
                                 <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200"
-                                     :class="instOpen ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'"></div>
+                                     :class="(companyOpen || isCompanyActive) ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'"></div>
                                 <i class="bi bi-building text-lg transition-transform group-hover:scale-110"
-                                   :class="instOpen ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'"></i>
-                                <span v-show="sidebarOpen" class="ml-3 text-sm font-medium whitespace-nowrap flex-1 text-left">Institucional</span>
+                                   :class="(companyOpen || isCompanyActive) ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'"></i>
+                                <span v-show="sidebarOpen" class="ml-3 text-sm font-medium whitespace-nowrap flex-1 text-left">Empresa</span>
                                 <i v-show="sidebarOpen" class="bi text-xs ml-auto transition-transform duration-200"
-                                   :class="instOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                                   :class="companyOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
                             </button>
 
-                            <div v-show="instOpen && sidebarOpen" class="mt-1 ml-4 pl-3 border-l border-slate-800 space-y-1">
-                                <Link :href="route('admin.blogs.index')" class="flex items-center px-3 py-2 rounded-xl text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100" :class="isRouteActive('/admin-blogs') ? 'text-white font-semibold bg-purple-600/20' : ''">
-                                    <i class="bi bi-newspaper mr-2 text-slate-500"></i> Noticias / Blog
+                            <div v-show="companyOpen && sidebarOpen" class="mt-1 ml-4 pl-3 border-l border-slate-700/60 space-y-1">
+                                <Link :href="route('admin.enterprise.edit')"
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-empresa') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-gear-wide-connected text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-empresa') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Configurar Empresa</span>
+                                    <div v-if="isRouteActive('/admin-empresa')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
-                                <Link :href="route('admin.works.index')" class="flex items-center px-3 py-2 rounded-xl text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100" :class="isRouteActive('/admin-trabajos') ? 'text-white font-semibold bg-purple-600/20' : ''">
-                                    <i class="bi bi-briefcase mr-2 text-slate-500"></i> Bolsa de Trabajo
+
+                                <Link :href="route('admin.carousel.index')"
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-carrusel') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-images text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-carrusel') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Carrusel Principal</span>
+                                    <div v-if="isRouteActive('/admin-carrusel')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
-                                <Link :href="route('admin.carousel.index')" class="flex items-center px-3 py-2 rounded-xl text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100" :class="isRouteActive('/admin-carrusel') ? 'text-white font-semibold bg-purple-600/20' : ''">
-                                    <i class="bi bi-images mr-2 text-slate-500"></i> Carrusel
+
+                                <Link :href="route('admin.history.index')"
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-historia') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-clock-history text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-historia') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Historia Institucional</span>
+                                    <div v-if="isRouteActive('/admin-historia')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
-                                <Link :href="route('admin.history.index')" class="flex items-center px-3 py-2 rounded-xl text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100" :class="isRouteActive('/admin-historia') ? 'text-white font-semibold bg-purple-600/20' : ''">
-                                    <i class="bi bi-clock-history mr-2 text-slate-500"></i> Historia
+
+                                <Link :href="route('admin.partners.index')"
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-socios') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-buildings text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-socios') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Gestionar Partners</span>
+                                    <div v-if="isRouteActive('/admin-socios')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
-                                <Link :href="route('admin.areas.index')" class="flex items-center px-3 py-2 rounded-xl text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100" :class="isRouteActive('/admin-areas') ? 'text-white font-semibold bg-purple-600/20' : ''">
-                                    <i class="bi bi-diagram-3 mr-2 text-slate-500"></i> Áreas
+
+                                <Link :href="route('admin.links.index')"
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-enlaces') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-box-arrow-up-right text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-enlaces') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Enlaces Institucionales</span>
+                                    <div v-if="isRouteActive('/admin-enlaces')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
-                                <Link :href="route('admin.programs.index')" class="flex items-center px-3 py-2 rounded-xl text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100" :class="isRouteActive('/admin-programas') ? 'text-white font-semibold bg-purple-600/20' : ''">
-                                    <i class="bi bi-book mr-2 text-slate-500"></i> Programas
+
+                                <Link :href="route('admin.areas.index')"
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-areas') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-diagram-3 text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-areas') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Áreas Institucionales</span>
+                                    <div v-if="isRouteActive('/admin-areas')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
-                                <Link :href="route('admin.links.index')" class="flex items-center px-3 py-2 rounded-xl text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100" :class="isRouteActive('/admin-enlaces') ? 'text-white font-semibold bg-purple-600/20' : ''">
-                                    <i class="bi bi-link-45deg mr-2 text-slate-500"></i> Enlaces Externos
+                            </div>
+                        </div>
+
+                        <!-- ── GRUPO: Programas ── -->
+                        <div>
+                            <button @click="sidebarOpen ? programsOpen = !programsOpen : (sidebarOpen = true, programsOpen = true)"
+                                    type="button"
+                                    class="w-full flex items-center px-3.5 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                    :class="(programsOpen || isProgramsActive) ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200"
+                                     :class="(programsOpen || isProgramsActive) ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'"></div>
+                                <i class="bi bi-book text-lg transition-transform group-hover:scale-110"
+                                   :class="(programsOpen || isProgramsActive) ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'"></i>
+                                <span v-show="sidebarOpen" class="ml-3 text-sm font-medium whitespace-nowrap flex-1 text-left">Programas</span>
+                                <i v-show="sidebarOpen" class="bi text-xs ml-auto transition-transform duration-200"
+                                   :class="programsOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                            </button>
+
+                            <div v-show="programsOpen && sidebarOpen" class="mt-1 ml-4 pl-3 border-l border-slate-700/60 space-y-1">
+                                <Link :href="route('admin.programs.index')"
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-programas') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-mortarboard text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-programas') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Programas de estudio</span>
+                                    <div v-if="isRouteActive('/admin-programas')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
-                                <Link :href="route('admin.roles.index')" class="flex items-center px-3 py-2 rounded-xl text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100" :class="isRouteActive('/admin-roles') ? 'text-white font-semibold bg-purple-600/20' : ''">
-                                    <i class="bi bi-shield-lock mr-2 text-slate-500"></i> Roles y Permisos
+
+                                <!-- Subtítulo: CERTIFICACIONES -->
+                                <div class="pt-2 pb-1 px-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-purple-400/80">
+                                    <i class="bi bi-patch-check"></i>
+                                    <span>CERTIFICACIONES</span>
+                                </div>
+
+                                <Link :href="route('admin.certificates.index')"
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-certificados') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-patch-check text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-certificados') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Certificados</span>
+                                    <div v-if="isRouteActive('/admin-certificados')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
-                                <Link :href="route('admin.claims.index')" class="flex items-center px-3 py-2 rounded-xl text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100" :class="isRouteActive('/admin-reclamos') ? 'text-white font-semibold bg-purple-600/20' : ''">
-                                    <i class="bi bi-bookmark-x mr-2 text-slate-500"></i> Reclamos
+
+                                <Link :href="route('admin.courses.index')"
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-cursos') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-journal-bookmark text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-cursos') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Cursos</span>
+                                    <div v-if="isRouteActive('/admin-cursos')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
-                                <Link :href="route('admin.statistics.index')" class="flex items-center px-3 py-2 rounded-xl text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100" :class="isRouteActive('/admin-estadisticas') ? 'text-white font-semibold bg-purple-600/20' : ''">
-                                    <i class="bi bi-bar-chart mr-2 text-slate-500"></i> Estadísticas
+
+                                <Link :href="route('admin.modules.index')"
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-modulos') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-layers text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-modulos') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Módulos</span>
+                                    <div v-if="isRouteActive('/admin-modulos')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
-                                <Link :href="route('admin.degree-records.index')" class="flex items-center px-3 py-2 rounded-xl text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100" :class="isRouteActive('/admin-titulos') ? 'text-white font-semibold bg-purple-600/20' : ''">
-                                    <i class="bi bi-file-earmark-ruled mr-2 text-slate-500"></i> Registro de Títulos
+
+                                <Link :href="route('admin.itineraries.index')"
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-itinerarios') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-diagram-3 text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-itinerarios') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Itinerarios</span>
+                                    <div v-if="isRouteActive('/admin-itinerarios')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
-                                <Link :href="route('admin.licensing.index')" class="flex items-center px-3 py-2 rounded-xl text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100" :class="isRouteActive('/admin-licenciamiento') ? 'text-white font-semibold bg-purple-600/20' : ''">
-                                    <i class="bi bi-patch-check mr-2 text-slate-500"></i> Licenciamiento
+                            </div>
+                        </div>
+
+                        <!-- ── ENLACE: Gestionar Blogs ── -->
+                        <Link :href="route('admin.blogs.index')"
+                              class="flex items-center px-3.5 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                              :class="isRouteActive('/admin-blogs') ? 'bg-gradient-to-r from-purple-600/25 to-indigo-600/25 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'"
+                              title="Gestionar Blogs">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200"
+                                 :class="isRouteActive('/admin-blogs') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'"></div>
+                            <i class="bi bi-newspaper text-xl transition-transform duration-200 group-hover:scale-110"
+                               :class="isRouteActive('/admin-blogs') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'"></i>
+                            <span v-show="sidebarOpen" class="ml-4 font-medium whitespace-nowrap">Gestionar Blogs</span>
+                            <div v-if="isRouteActive('/admin-blogs')"
+                                 class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
+                        </Link>
+
+                        <!-- ── ENLACE: Bolsa de Trabajo ── -->
+                        <Link :href="route('admin.works.index')"
+                              class="flex items-center px-3.5 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                              :class="isRouteActive('/admin-trabajos') ? 'bg-gradient-to-r from-purple-600/25 to-indigo-600/25 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'"
+                              title="Bolsa de Trabajo">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200"
+                                 :class="isRouteActive('/admin-trabajos') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'"></div>
+                            <i class="bi bi-briefcase text-xl transition-transform duration-200 group-hover:scale-110"
+                               :class="isRouteActive('/admin-trabajos') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'"></i>
+                            <span v-show="sidebarOpen" class="ml-4 font-medium whitespace-nowrap">Bolsa de Trabajo</span>
+                            <div v-if="isRouteActive('/admin-trabajos')"
+                                 class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
+                        </Link>
+
+                        <!-- ── ENLACE: Roles del sistema ── -->
+                        <Link :href="route('admin.roles.index')"
+                              class="flex items-center px-3.5 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                              :class="isRouteActive('/admin-roles') ? 'bg-gradient-to-r from-purple-600/25 to-indigo-600/25 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'"
+                              title="Roles del sistema">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200"
+                                 :class="isRouteActive('/admin-roles') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'"></div>
+                            <i class="bi bi-shield-lock text-xl transition-transform duration-200 group-hover:scale-110"
+                               :class="isRouteActive('/admin-roles') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'"></i>
+                            <span v-show="sidebarOpen" class="ml-4 font-medium whitespace-nowrap">Roles del sistema</span>
+                            <div v-if="isRouteActive('/admin-roles')"
+                                 class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
+                        </Link>
+
+                        <!-- ── GRUPO: Transparencia ── -->
+                        <div>
+                            <button @click="sidebarOpen ? transparencyOpen = !transparencyOpen : (sidebarOpen = true, transparencyOpen = true)"
+                                    type="button"
+                                    class="w-full flex items-center px-3.5 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                    :class="(transparencyOpen || isTransparencyActive) ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-white shadow-lg shadow-purple-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200"
+                                     :class="(transparencyOpen || isTransparencyActive) ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'"></div>
+                                <i class="bi bi-shield-check text-lg transition-transform group-hover:scale-110"
+                                   :class="(transparencyOpen || isTransparencyActive) ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'"></i>
+                                <span v-show="sidebarOpen" class="ml-3 text-sm font-medium whitespace-nowrap flex-1 text-left">Transparencia</span>
+                                <i v-show="sidebarOpen" class="bi text-xs ml-auto transition-transform duration-200"
+                                   :class="transparencyOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                            </button>
+
+                            <div v-show="transparencyOpen && sidebarOpen" class="mt-1 ml-4 pl-3 border-l border-slate-700/60 space-y-1">
+                                <Link :href="route('admin.claims.index')"
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-reclamos') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-bookmark-x text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-reclamos') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Reclamos</span>
+                                    <div v-if="isRouteActive('/admin-reclamos')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
-                                <Link :href="route('admin.partners.index')" class="flex items-center px-3 py-2 rounded-xl text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100" :class="isRouteActive('/admin-socios') ? 'text-white font-semibold bg-purple-600/20' : ''">
-                                    <i class="bi bi-handshake mr-2 text-slate-500"></i> Convenios / Socios
+
+                                <Link :href="route('admin.statistics.index')"
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-estadisticas') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-bar-chart-line text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-estadisticas') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Estadísticas</span>
+                                    <div v-if="isRouteActive('/admin-estadisticas')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
-                                <Link :href="route('admin.enterprise.edit')" class="flex items-center px-3 py-2 rounded-xl text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100" :class="isRouteActive('/admin-empresa') ? 'text-white font-semibold bg-purple-600/20' : ''">
-                                    <i class="bi bi-gear mr-2 text-slate-500"></i> Empresa / Config
+
+                                <Link :href="route('admin.degree-records.index')"
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-titulos') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-award text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-titulos') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Títulos</span>
+                                    <div v-if="isRouteActive('/admin-titulos')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
-                                <Link :href="route('admin.account-balances.index')" class="flex items-center px-3 py-2 rounded-xl text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-100" :class="isRouteActive('/admin-inversiones') ? 'text-white font-semibold bg-purple-600/20' : ''">
-                                    <i class="bi bi-cash-stack mr-2 text-slate-500"></i> Inversión y Gastos
+
+                                <Link :href="route('admin.licensing.index')"
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-licenciamiento') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-patch-check text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-licenciamiento') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Licenciamiento</span>
+                                    <div v-if="isRouteActive('/admin-licenciamiento')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
+                                </Link>
+
+                                <Link :href="route('admin.account-balances.index')"
+                                      class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden"
+                                      :class="isRouteActive('/admin-inversiones') ? 'bg-purple-600/15 text-white font-medium' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'">
+                                    <i class="bi bi-cash-stack text-base group-hover:scale-110 transition-transform duration-200"
+                                       :class="isRouteActive('/admin-inversiones') ? 'text-purple-400' : 'text-slate-500 group-hover:text-purple-400'"></i>
+                                    <span class="ml-3 text-sm font-medium whitespace-nowrap">Inversión y Gastos</span>
+                                    <div v-if="isRouteActive('/admin-inversiones')"
+                                         class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                                 </Link>
                             </div>
                         </div>

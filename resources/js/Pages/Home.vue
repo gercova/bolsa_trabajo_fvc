@@ -136,10 +136,10 @@ const quickAccess = [
 ];
 
 const qaColorStyles = {
-    blue:   { qa: 'bg-blue-50/70 border-blue-100 hover:border-blue-300', ic: 'bg-blue-600 text-white', lbl: 'text-blue-900', sub: 'text-blue-700', arr: 'text-blue-500' },
-    sky:    { qa: 'bg-sky-50/70 border-sky-100 hover:border-sky-300', ic: 'bg-sky-500 text-white', lbl: 'text-sky-900', sub: 'text-sky-700', arr: 'text-sky-500' },
-    cyan:   { qa: 'bg-cyan-50/70 border-cyan-100 hover:border-cyan-300', ic: 'bg-cyan-600 text-white', lbl: 'text-cyan-900', sub: 'text-cyan-700', arr: 'text-cyan-500' },
-    indigo: { qa: 'bg-indigo-50/70 border-indigo-100 hover:border-indigo-300', ic: 'bg-indigo-600 text-white', lbl: 'text-indigo-900', sub: 'text-indigo-700', arr: 'text-indigo-500' },
+    blue:   { qa: 'bg-blue-50 border-blue-100 hover:border-blue-300', ic: 'bg-blue-600 text-white', lbl: 'text-blue-900', sub: 'text-blue-700', arr: 'text-blue-500' },
+    sky:    { qa: 'bg-sky-50 border-sky-100 hover:border-sky-300', ic: 'bg-sky-500 text-white', lbl: 'text-sky-900', sub: 'text-sky-700', arr: 'text-sky-500' },
+    cyan:   { qa: 'bg-cyan-50 border-cyan-100 hover:border-cyan-300', ic: 'bg-cyan-600 text-white', lbl: 'text-cyan-900', sub: 'text-cyan-700', arr: 'text-cyan-500' },
+    indigo: { qa: 'bg-indigo-50 border-indigo-100 hover:border-indigo-300', ic: 'bg-indigo-600 text-white', lbl: 'text-indigo-900', sub: 'text-indigo-700', arr: 'text-indigo-500' },
 };
 
 // ═══ PROPUESTA DE VALOR ════════════════════════════════════════
@@ -460,9 +460,9 @@ const valueColorStyles = {
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     <Link v-for="(qa, i) in quickAccess" :key="i"
                           :href="qa.href"
-                          class="flex items-center gap-4 p-4 bg-white border rounded-2xl transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 group"
+                          class="qa-card flex items-center gap-4 p-4 border rounded-2xl transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 group"
                           :class="qaColorStyles[qa.color]?.qa">
-                        <span class="w-13 h-13 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-sm transition-transform duration-200 group-hover:scale-110"
+                        <span class="qa-icon shadow-sm"
                               :class="qaColorStyles[qa.color]?.ic">
                             <i :class="['bi', qa.icon]"></i>
                         </span>
@@ -475,7 +475,6 @@ const valueColorStyles = {
                 </div>
             </div>
         </section>
-
         <!-- ═══ 5. ¿POR QUÉ ELEGIRNOS? ═════════════════════════════ -->
         <section class="py-20 bg-white" aria-label="Propuesta de valor institucional">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -486,7 +485,6 @@ const valueColorStyles = {
                     <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-900 mt-2">¿Por qué elegir el IESTP FVC?</h2>
                     <div class="w-20 h-1.5 bg-cyan-500 mx-auto mt-4 rounded-full"></div>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div v-for="(v, i) in values" :key="i"
                          class="border p-7 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
@@ -501,7 +499,6 @@ const valueColorStyles = {
                 </div>
             </div>
         </section>
-
         <!-- ═══ 6. BLOG / NOTICIAS ═════════════════════════════════ -->
         <section class="py-20 bg-slate-900 relative overflow-hidden" aria-label="Blog institucional y noticias">
             <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -514,7 +511,6 @@ const valueColorStyles = {
                         <div class="w-20 h-1.5 bg-sky-400 mt-4 rounded-full"></div>
                     </div>
                 </div>
-
                 <div v-if="blogs && blogs.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <article v-for="post in blogs" :key="post.id"
                              class="bg-slate-800/80 border border-slate-700 rounded-2xl overflow-hidden flex flex-col hover:border-sky-400/50 hover:-translate-y-1 transition-all group">
@@ -555,7 +551,6 @@ const valueColorStyles = {
                         </div>
                     </article>
                 </div>
-
                 <!-- Estado vacío blog -->
                 <div v-else class="text-center py-16 bg-white/5 border border-dashed border-sky-400/20 rounded-2xl">
                     <div class="w-16 h-16 mx-auto mb-4 bg-sky-500/15 border border-sky-400/20 rounded-2xl flex items-center justify-center">
@@ -685,6 +680,26 @@ const valueColorStyles = {
 </template>
 
 <style scoped>
+/* ── Quick-access icon ring ─────────────────────────────── */
+.qa-icon {
+    width: 3.25rem;
+    height: 3.25rem;
+    min-width: 3.25rem;
+    min-height: 3.25rem;
+    border-radius: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: transform 0.22s ease;
+}
+
+.qa-card:hover .qa-icon {
+    transform: scale(1.12) rotate(-4deg);
+}
+
 @keyframes slide-left {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }

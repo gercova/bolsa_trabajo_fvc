@@ -146,7 +146,9 @@ class TupaController extends Controller
 
         Tupa::create($validated);
 
-        return redirect()->route('admin.tupa.index', ['tab' => 'documents'])->with('success', 'Registro TUPA creado exitosamente.');
+        return redirect()
+            ->route('admin.tupa.index', ['tab' => 'documents'])
+            ->with('success', 'Registro TUPA creado exitosamente.');
     }
 
     /**
@@ -154,9 +156,7 @@ class TupaController extends Controller
      */
     public function edit(Tupa $tupa): InertiaResponse
     {
-        return Inertia::render('Admin/Tupa/Edit', [
-            'tupa' => $tupa,
-        ]);
+        return Inertia::render('Admin/Tupa/Edit', ['tupa' => $tupa]);
     }
 
     /**
@@ -203,7 +203,9 @@ class TupaController extends Controller
     {
         $tupa->update(['is_active' => ! $tupa->is_active]);
 
-        return redirect()->back()->with('success', 'Estado del registro TUPA actualizado correctamente.');
+        return redirect()
+            ->back()
+            ->with('success', 'Estado del registro TUPA actualizado correctamente.');
     }
 
     // CATEGORÍAS TUPA (tupa_categories)
@@ -232,25 +234,33 @@ class TupaController extends Controller
         $validated['is_active'] = $request->has('is_active');
         $category->update($validated);
 
-        return redirect()->route('admin.tupa.index', ['tab' => 'categories'])->with('success', 'Categoría TUPA actualizada exitosamente.');
+        return redirect()
+            ->route('admin.tupa.index', ['tab' => 'categories'])
+            ->with('success', 'Categoría TUPA actualizada exitosamente.');
     }
 
     public function destroyCategory(TupaCategory $category): RedirectResponse
     {
         if ($category->procedures()->count() > 0) {
-            return redirect()->back()->with('error', 'No se puede eliminar la categoría porque tiene procedimientos asociados.');
+            return redirect()
+                ->back()
+                ->with('error', 'No se puede eliminar la categoría porque tiene procedimientos asociados.');
         }
 
         $category->delete();
 
-        return redirect()->route('admin.tupa.index', ['tab' => 'categories'])->with('success', 'Categoría TUPA eliminada exitosamente.');
+        return redirect()
+            ->route('admin.tupa.index', ['tab' => 'categories'])
+            ->with('success', 'Categoría TUPA eliminada exitosamente.');
     }
 
     public function toggleCategoryStatus(TupaCategory $category): RedirectResponse
     {
         $category->update(['is_active' => ! $category->is_active]);
 
-        return redirect()->back()->with('success', 'Estado de la categoría actualizado correctamente.');
+        return redirect()
+            ->back()
+            ->with('success', 'Estado de la categoría actualizado correctamente.');
     }
 
     // PROCEDIMIENTOS TUPA (tupa_procedures)
@@ -274,7 +284,9 @@ class TupaController extends Controller
         $validated['is_active'] = $request->has('is_active');
         TupaProcedure::create($validated);
 
-        return redirect()->route('admin.tupa.index', ['tab' => 'procedures'])->with('success', 'Procedimiento TUPA creado exitosamente.');
+        return redirect()
+            ->route('admin.tupa.index', ['tab' => 'procedures'])
+            ->with('success', 'Procedimiento TUPA creado exitosamente.');
     }
 
     public function editProcedure(TupaProcedure $procedure): View
@@ -298,20 +310,26 @@ class TupaController extends Controller
         $validated['is_active'] = $request->has('is_active');
         $procedure->update($validated);
 
-        return redirect()->route('admin.tupa.index', ['tab' => 'procedures'])->with('success', 'Procedimiento TUPA actualizado exitosamente.');
+        return redirect()
+            ->route('admin.tupa.index', ['tab' => 'procedures'])
+            ->with('success', 'Procedimiento TUPA actualizado exitosamente.');
     }
 
     public function destroyProcedure(TupaProcedure $procedure): RedirectResponse
     {
         $procedure->delete();
 
-        return redirect()->route('admin.tupa.index', ['tab' => 'procedures'])->with('success', 'Procedimiento TUPA eliminado exitosamente.');
+        return redirect()
+            ->route('admin.tupa.index', ['tab' => 'procedures'])
+            ->with('success', 'Procedimiento TUPA eliminado exitosamente.');
     }
 
     public function toggleProcedureStatus(TupaProcedure $procedure): RedirectResponse
     {
         $procedure->update(['is_active' => ! $procedure->is_active]);
 
-        return redirect()->back()->with('success', 'Estado del procedimiento actualizado correctamente.');
+        return redirect()
+            ->back()
+            ->with('success', 'Estado del procedimiento actualizado correctamente.');
     }
 }

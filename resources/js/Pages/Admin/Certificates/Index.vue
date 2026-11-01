@@ -1,8 +1,10 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { route } from '@/route';
+
+const page = usePage();
 
 const props = defineProps({
     certificates: {
@@ -489,15 +491,57 @@ const executeDeleteAll = () => {
     });
 };
 
+// ── TOAST NOTIFICATIONS ────────────────────────────────────────────────────────
+const toastMessage = ref('');
+const toastType = ref('success');
+const showToast = ref(false);
+let toastTimer = null;
+
+const notify = (msg, type = 'success') => {
+    toastMessage.value = msg;
+    toastType.value = type;
+    showToast.value = true;
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+        showToast.value = false;
+    }, 4000);
+};
+
+// Sync with backend flash messages
+watch(
+    () => page.props.flash?.success,
+    (msg) => {
+        if (msg) notify(msg, 'success');
+    }
+);
+
+watch(
+    () => page.props.flash?.error,
+    (msg) => {
+        if (msg) notify(msg, 'error');
+    }
+);
+
 // Toggle active status
 const togglingId = ref(null);
 const toggleStatus = (cert) => {
     togglingId.value = cert.id;
+    const code = cert.certificate_code || cert.code || `#${cert.id}`;
+    const nextState = !cert.is_active;
+    const action = nextState ? 'activado' : 'desactivado';
+
     router.patch(
         route('admin.certificates.toggle-status', cert.id),
         {},
         {
             preserveScroll: true,
+            onSuccess: (pageObj) => {
+                const flash = pageObj?.props?.flash?.success;
+                notify(flash || `Certificado ${code} ${action}.`, 'success');
+            },
+            onError: () => {
+                notify(`No se pudo actualizar el estado del certificado ${code}.`, 'error');
+            },
             onFinish: () => {
                 togglingId.value = null;
             },
@@ -509,6 +553,28 @@ const toggleStatus = (cert) => {
 <template>
     <AdminLayout title="Gestión de Certificados">
         <Head title="Gestión de Certificados — Panel Administrativo" />
+
+        <!-- Floating Toast Alert -->
+        <transition
+            enter-active-class="transition duration-300 ease-out"
+            enter-from-class="transform -translate-y-4 opacity-0"
+            enter-to-class="transform translate-y-0 opacity-100"
+            leave-active-class="transition duration-200 ease-in"
+            leave-from-class="transform translate-y-0 opacity-100"
+            leave-to-class="transform -translate-y-4 opacity-0"
+        >
+            <div
+                v-if="showToast"
+                class="fixed top-20 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-xs font-bold border backdrop-blur-md"
+                :class="toastType === 'success' ? 'bg-emerald-600 text-white border-emerald-500 shadow-emerald-500/20' : 'bg-rose-600 text-white border-rose-500 shadow-rose-500/20'"
+            >
+                <i :class="toastType === 'success' ? 'bi bi-check-circle-fill text-base' : 'bi bi-exclamation-triangle-fill text-base'"></i>
+                <span>{{ toastMessage }}</span>
+                <button type="button" @click="showToast = false" class="ml-2 hover:opacity-75">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </transition>
 
         <div class="space-y-6">
             <!-- ── Header & Sub-Navigation Tabs ── -->

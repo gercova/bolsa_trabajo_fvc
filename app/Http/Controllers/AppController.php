@@ -556,7 +556,10 @@ class AppController extends Controller
     public function history(): Response
     {
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
-        $histories = HistoricalReview::where('is_active', true)->orderBy('start_year', 'asc')->orderBy('order', 'asc')->get();
+        $histories = HistoricalReview::where('is_active', true)
+            ->orderBy('start_year', 'asc')
+            ->orderBy('order', 'asc')
+            ->get();
 
         return Inertia::render('AboutUs/History', compact('histories', 'enterprise'));
     }
@@ -616,7 +619,6 @@ class AppController extends Controller
     public function teachersStaff(): Response
     {
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
-
         $teacherDetails = UserRoleDetail::with(['user', 'program'])
             ->where('is_active', true)
             ->whereHas('user', function ($q) {
@@ -804,7 +806,10 @@ class AppController extends Controller
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
         $request = $request ?? request();
         // 1. Search code resolution (from URL route parameter or query string)
-        $searchCode = trim((string) ($certificate_code ?: $request->input('code') ?: $request->input('search') ?: $request->input('dni') ?: ''));
+        $searchCode = trim((string) ($certificate_code
+            ?: $request->input('code')
+            ?: $request->input('search')
+            ?: $request->input('dni') ?: ''));
         $certificate = null;
         $certificates = collect();
         $searchedUser = null;
@@ -853,6 +858,7 @@ class AppController extends Controller
                     if ($certByCode->user_id) {
                         $certificates = Certificate::with($withRelations)
                             ->where('user_id', $certByCode->user_id)
+                            ->where('is_active', true)
                             ->orderByDesc('issue_date')
                             ->orderByDesc('id')
                             ->get();
@@ -862,6 +868,7 @@ class AppController extends Controller
                 } else {
                     // 1.3 Fallback partial match
                     $fallbackCerts = Certificate::with($withRelations)
+                        ->where('is_active', true)
                         ->where(function ($q) use ($searchCode) {
                             $q->where('code', 'LIKE', "%{$searchCode}%")
                                 ->orWhere('certificate_code', 'LIKE', "%{$searchCode}%")
@@ -880,6 +887,7 @@ class AppController extends Controller
                             $searchedUser = $firstCert->user;
                             $certificates = Certificate::with($withRelations)
                                 ->where('user_id', $firstCert->user_id)
+                                ->where('is_active', true)
                                 ->orderByDesc('issue_date')
                                 ->orderByDesc('id')
                                 ->get();

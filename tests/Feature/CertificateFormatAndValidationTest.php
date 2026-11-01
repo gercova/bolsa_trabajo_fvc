@@ -1358,4 +1358,37 @@ class CertificateFormatAndValidationTest extends TestCase
         $response->assertSee('TEMARIO');
         $response->assertSee('Mary Panduro Vasquez');
     }
+
+    public function test_admin_toggle_status_with_inertia_request_redirects_back_with_flash_message(): void
+    {
+        $cert = $this->certificate;
+        $this->assertTrue($cert->is_active);
+
+        $code = $cert->code ?: $cert->certificate_code ?: "#{$cert->id}";
+
+        $response = $this->actingAs($this->adminUser)
+            ->from('/admin-certificados')
+            ->withHeaders([
+                'X-Inertia' => 'true',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ])
+            ->patch(route('admin.certificates.toggle-status', $cert));
+
+        $response->assertRedirect('/admin-certificados');
+        $response->assertSessionHas('success', "Certificado {$code} desactivado.");
+        $this->assertFalse($cert->fresh()->is_active);
+
+        // Toggle back to active
+        $response2 = $this->actingAs($this->adminUser)
+            ->from('/admin-certificados')
+            ->withHeaders([
+                'X-Inertia' => 'true',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ])
+            ->patch(route('admin.certificates.toggle-status', $cert));
+
+        $response2->assertRedirect('/admin-certificados');
+        $response2->assertSessionHas('success', "Certificado {$code} activado.");
+        $this->assertTrue($cert->fresh()->is_active);
+    }
 }

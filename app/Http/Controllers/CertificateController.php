@@ -194,7 +194,7 @@ class CertificateController extends Controller
             $certificate = Certificate::create($data);
             $certCode = $certificate->code ?: $certificate->certificate_code;
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => true,
                     'message' => "El certificado '{$certCode}' ha sido registrado exitosamente.",
@@ -208,7 +208,7 @@ class CertificateController extends Controller
         } catch (\Exception $e) {
             Log::error('Error registrando certificado: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Ocurrió un error al registrar el certificado: '.$e->getMessage(),
@@ -363,7 +363,7 @@ class CertificateController extends Controller
             $certificate->update($data);
             $certCode = $certificate->code ?: $certificate->certificate_code;
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => true,
                     'message' => "El certificado '{$certCode}' ha sido actualizado exitosamente.",
@@ -377,7 +377,7 @@ class CertificateController extends Controller
         } catch (\Exception $e) {
             Log::error('Error actualizando certificado: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Ocurrió un error al actualizar el certificado: '.$e->getMessage(),
@@ -397,7 +397,7 @@ class CertificateController extends Controller
             $code = $certificate->code ?: $certificate->certificate_code;
             $certificate->delete();
 
-            if (request()->expectsJson() || request()->ajax()) {
+            if ($this->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => "El certificado '{$code}' ha sido eliminado correctamente.",
@@ -410,7 +410,7 @@ class CertificateController extends Controller
         } catch (\Exception $e) {
             Log::error('Error eliminando certificado: '.$e->getMessage());
 
-            if (request()->expectsJson() || request()->ajax()) {
+            if ($this->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No se pudo eliminar el certificado.',
@@ -548,6 +548,16 @@ class CertificateController extends Controller
     }
 
     /**
+     * Determine if the request explicitly wants a JSON response (excluding Inertia requests).
+     */
+    protected function wantsJson(?Request $request = null): bool
+    {
+        $req = $request ?: request();
+
+        return ($req->expectsJson() || $req->ajax()) && ! $req->header('X-Inertia');
+    }
+
+    /**
      * Toggle the active status of a certificate.
      */
     public function toggleStatus(Certificate $certificate): JsonResponse|RedirectResponse
@@ -555,15 +565,19 @@ class CertificateController extends Controller
         $certificate->is_active = ! $certificate->is_active;
         $certificate->save();
 
-        if (request()->expectsJson() || request()->ajax()) {
+        $action = $certificate->is_active ? 'activado' : 'desactivado';
+        $code = $certificate->code ?: $certificate->certificate_code ?: "#{$certificate->id}";
+        $message = "Certificado {$code} {$action}.";
+
+        if ($this->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'is_active' => $certificate->is_active,
-                'message' => 'Estado actualizado correctamente.',
+                'message' => $message,
             ]);
         }
 
-        return back()->with('success', 'Estado del certificado actualizado.');
+        return back()->with('success', $message);
     }
 
     /**

@@ -356,13 +356,13 @@ const toggleStatus = (book) => {
                             Libros Asignados
                         </h1>
                         <p class="text-xs text-slate-500">
-                            Catálogo general de materiales, libros y bibliografía académica asignada.
+                            Catálogo general de materiales y bibliografía académica asignada.
                         </p>
                     </div>
 
                     <!-- Right actions: Mass Import & Upload buttons -->
-                    <div class="flex items-center gap-2.5 flex-wrap">
-                        <span class="text-xs font-semibold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <span class="text-xs font-semibold text-slate-500">
                             <strong class="text-slate-800">{{ Number(totalCount).toLocaleString() }}</strong> registros
                         </span>
 
@@ -372,7 +372,7 @@ const toggleStatus = (book) => {
                             class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xs rounded-xl shadow-xs transition inline-flex items-center gap-2"
                         >
                             <i class="bi bi-journal-arrow-down"></i>
-                            <span>Búsqueda Masiva de Papers / Revistas</span>
+                            <span>Búsqueda Masiva de Revistas / Papers</span>
                         </button>
 
                         <button
@@ -386,7 +386,7 @@ const toggleStatus = (book) => {
                     </div>
                 </div>
 
-                <!-- Filters Bar: Career Dropdown, Search Input, View Mode -->
+                <!-- Filters Bar: Career Dropdown, Search Input, View Mode (Matching Image 1) -->
                 <div class="flex flex-col sm:flex-row sm:items-center gap-3 pt-3 border-t border-slate-100">
                     <!-- Career Selector -->
                     <div class="w-full sm:w-64">
@@ -425,15 +425,6 @@ const toggleStatus = (book) => {
                             <i class="bi bi-x-lg"></i>
                         </button>
                     </div>
-
-                    <button
-                        type="button"
-                        @click="handleSearch"
-                        class="px-4 py-2 bg-[#0b4d57] text-white rounded-xl text-xs font-bold hover:bg-teal-900 transition flex items-center gap-1.5"
-                    >
-                        <i class="bi bi-funnel"></i>
-                        <span>Filtrar</span>
-                    </button>
 
                     <button
                         v-if="searchInput || currentCareer !== 'all'"

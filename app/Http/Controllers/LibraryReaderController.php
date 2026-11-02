@@ -385,8 +385,19 @@ class LibraryReaderController extends Controller
             Log::info("Stream proxy fallback note for book [{$book->id} - {$binaryCandidateUrl}]: ".$e->getMessage());
         }
 
-        // ── FALLBACK SEGURO: Redirigir al URL binario directo si el repositorio remoto bloquea conexiones proxy ──
-        return redirect()->away($binaryCandidateUrl);
+        // ── FALLBACK SEGURO: Si el repositorio remoto bloquea conexiones proxy o no es un PDF binario ──
+        if ($dispositionType === 'attachment') {
+            return redirect()->away($binaryCandidateUrl);
+        }
+
+        return response()->view('library.external-fallback', [
+            'book' => $book,
+            'targetUrl' => $binaryCandidateUrl,
+        ], 200, [
+            'Content-Type' => 'text/html; charset=UTF-8',
+            'X-Frame-Options' => 'SAMEORIGIN',
+            'Cache-Control' => 'no-cache, private',
+        ]);
     }
 
     /**
@@ -400,6 +411,11 @@ class LibraryReaderController extends Controller
         // Desempaquetar visores PDF.js (?file=...)
         if ($academicService && preg_match('/[?&](?:file|pdf|doc|url)=(https?%3A%2F%2F[^&#]+|https?:\/\/[^&#]+|%2F[^&#]+\.pdf)/i', $url, $viewerMatch)) {
             $url = $academicService->makeAbsoluteUrl(rawurldecode($viewerMatch[1]), $url);
+        }
+
+        // Europe PMC: convertir URL backend fcgi a visor web oficial del artículo
+        if (preg_match('~europepmc\.org/backend/ptpmcrender\.fcgi\?accid=(PMC\d+)~i', $url, $epmc)) {
+            return "https://europepmc.org/articles/{$epmc[1]}?pdf=render";
         }
 
         // OJS: /article/view/{articleId}/{galleyId} -> /article/download/{articleId}/{galleyId}

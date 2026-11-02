@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
-use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Excel;
 use Spatie\Permission\Models\Role;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -131,9 +131,7 @@ class UsersController extends Controller
     {
         $roles = Role::all();
 
-        return Inertia::render('Admin/Users/Create', [
-            'roles' => $roles,
-        ]);
+        return Inertia::render('Admin/Users/Create', ['roles' => $roles]);
     }
 
     public function edit(User $user): InertiaResponse
@@ -541,7 +539,7 @@ class UsersController extends Controller
 
         if (in_array($format, ['xlsx', 'excel', 'xls'], true)) {
             $ext = $format === 'xls' ? 'xls' : 'xlsx';
-            $excelType = $format === 'xls' ? \Maatwebsite\Excel\Excel::XLS : \Maatwebsite\Excel\Excel::XLSX;
+            $excelType = $format === 'xls' ? Excel::XLS : Excel::XLSX;
             $filename = 'plantilla_usuarios_'.date('Y-m-d').'.'.$ext;
 
             return Excel::download(new UserTemplateExport, $filename, $excelType);

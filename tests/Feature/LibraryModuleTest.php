@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -325,5 +326,52 @@ class LibraryModuleTest extends TestCase
 
         $book->refresh();
         $this->assertEquals(1, $book->views_count);
+    }
+
+    public function test_stream_returns_institutional_fallback_view_when_external_server_blocks_proxy(): void
+    {
+        Http::fake([
+            'https://europepmc.org/*' => Http::response('<html>Forbidden by Cloudflare</html>', 403, [
+                'Content-Type' => 'text/html',
+                'X-Frame-Options' => 'SAMEORIGIN',
+            ]),
+        ]);
+
+        $book = Book::create([
+            'title' => 'Campylobacter jejuni response in cecal tonsil',
+            'slug' => 'campylobacter-jejuni-response-test',
+            'author' => 'Swaggerty CL et al.',
+            'category' => 'Revista',
+            'study_program_id' => $this->program->id,
+            'external_url' => 'https://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC13553628&blobtype=pdf',
+            'publisher' => 'Europe PMC / Europe PMC Open Access',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($this->estudiante)->get(route('biblioteca.stream', $book));
+
+        $response->assertStatus(200);
+        $response->assertHeader('X-Frame-Options', 'SAMEORIGIN');
+        $response->assertSee('Repositorio Externo Protegido');
+        $response->assertSee('Abrir en Visor Oficial');
+        $response->assertSee('https://europepmc.org/articles/PMC13553628?pdf=render');
+    }
+
+    public function test_stream_redirects_when_download_requested_for_external_book(): void
+    {
+        $book = Book::create([
+            'title' => 'Libro Para Descargar Test',
+            'slug' => 'libro-para-descargar-test',
+            'author' => 'Autor D',
+            'category' => 'Libro',
+            'study_program_id' => $this->program->id,
+            'external_url' => 'https://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC13553628&blobtype=pdf',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($this->estudiante)->get(route('biblioteca.stream', ['book' => $book, 'download' => 1]));
+
+        $response->assertStatus(302);
+        $response->assertRedirect('https://europepmc.org/articles/PMC13553628?pdf=render');
     }
 }

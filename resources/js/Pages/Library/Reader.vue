@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import route from '@/route';
 
 const props = defineProps({
@@ -11,21 +11,41 @@ const props = defineProps({
     isFavorite: { type: Boolean, default: false },
 });
 
-const isFavorited = ref(props.isFavorite);
-const isFullscreen = ref(false);
-const isLoading = ref(true);
-const showRelatedDrawer = ref(false);
+const isFavorited           = ref(props.isFavorite);
+const isFullscreen          = ref(false);
+const isLoading             = ref(true);
+const showRelatedDrawer     = ref(false);
+const isExternalProtected   = ref(false);
+const activeExternalUrl     = ref(props.directPdfUrl || '');
 
-const baseStreamUrl = computed(() => props.streamUrl || route('biblioteca.stream', props.book.slug));
-const viewerUrl = computed(() => `${baseStreamUrl.value}#toolbar=1&navpanes=0&scrollbar=1&view=FitH`);
+const handleMessage = (event) => {
+    if (event.data?.type === 'LIBRARY_READER_EXTERNAL_PROTECTED') {
+        isLoading.value = false;
+        isExternalProtected.value = true;
+        if (event.data.targetUrl) {
+            activeExternalUrl.value = event.data.targetUrl;
+        }
+    }
+};
+
+onMounted(() => {
+    window.addEventListener('message', handleMessage);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('message', handleMessage);
+});
+
+const baseStreamUrl     = computed(() => props.streamUrl || route('biblioteca.stream', props.book.slug));
+const viewerUrl         = computed(() => `${baseStreamUrl.value}#toolbar=1&navpanes=0&scrollbar=1&view=FitH`);
 const downloadStreamUrl = computed(() => `${baseStreamUrl.value}?download=1`);
 
-const reloadIframe = () => {
+const reloadIframe  = () => {
     isLoading.value = true;
-    const iframe = document.getElementById('libraryViewerIframe');
+    const iframe    = document.getElementById('libraryViewerIframe');
     if (iframe) {
-        const curSrc = iframe.src;
-        iframe.src = '';
+        const curSrc    = iframe.src;
+        iframe.src      = '';
         setTimeout(() => {
             iframe.src = curSrc;
         }, 80);
@@ -45,13 +65,13 @@ const toggleFullscreen = () => {
     }
 };
 
-const toggleFavorite = async () => {
-    const prev = isFavorited.value;
-    isFavorited.value = !prev;
+const toggleFavorite    = async () => {
+    const prev          = isFavorited.value;
+    isFavorited.value   = !prev;
 
     try {
         const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-        const res = await fetch(`/biblioteca/favorito/${props.book.id}`, {
+        const res   = await fetch(`/biblioteca/favorito/${props.book.id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -70,15 +90,11 @@ const toggleFavorite = async () => {
     }
 };
 </script>
-
 <template>
     <Head :title="`Leyendo: ${book.title} - Biblioteca Virtual`" />
-
     <div class="h-screen w-full flex flex-col bg-slate-900 font-sans text-white overflow-hidden">
-
         <!-- TOP TOOLBAR -->
         <header class="bg-slate-950/95 backdrop-blur-md text-white border-b border-slate-800 px-4 sm:px-6 py-2.5 flex items-center justify-between z-20 shrink-0">
-
             <!-- Left: Back & Title -->
             <div class="flex items-center gap-3.5 min-w-0">
                 <Link
@@ -89,7 +105,6 @@ const toggleFavorite = async () => {
                     <i class="bi bi-arrow-left text-base"></i>
                     <span class="hidden sm:inline">Biblioteca</span>
                 </Link>
-
                 <div class="min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
                         <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-500/20 text-blue-300 border border-blue-500/30">
@@ -114,7 +129,6 @@ const toggleFavorite = async () => {
                     </p>
                 </div>
             </div>
-
             <!-- Right: Actions -->
             <div class="flex items-center gap-2 shrink-0">
                 <!-- Favorite Button -->
@@ -132,7 +146,6 @@ const toggleFavorite = async () => {
                     <i class="bi" :class="isFavorited ? 'bi-heart-fill text-rose-500' : 'bi-heart'"></i>
                     <span class="hidden sm:inline">{{ isFavorited ? 'En Mi Biblioteca' : 'Favorito' }}</span>
                 </button>
-
                 <!-- Reload Iframe -->
                 <button
                     type="button"
@@ -142,7 +155,6 @@ const toggleFavorite = async () => {
                 >
                     <i class="bi bi-arrow-clockwise text-sm"></i>
                 </button>
-
                 <!-- Fullscreen Toggle -->
                 <button
                     type="button"
@@ -152,7 +164,6 @@ const toggleFavorite = async () => {
                 >
                     <i class="bi" :class="isFullscreen ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'"></i>
                 </button>
-
                 <!-- Download Direct PDF -->
                 <a
                     :href="downloadStreamUrl"
@@ -162,20 +173,23 @@ const toggleFavorite = async () => {
                     <i class="bi bi-download"></i>
                     <span class="hidden sm:inline">Descargar PDF</span>
                 </a>
-
-                <!-- Open Direct PDF in New Tab -->
+                <!-- Open Direct PDF / Official Viewer in New Tab -->
                 <a
-                    v-if="directPdfUrl"
-                    :href="directPdfUrl"
+                    v-if="activeExternalUrl"
+                    :href="activeExternalUrl"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="px-3 py-1.5 rounded-xl bg-teal-600/90 hover:bg-teal-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-xs"
-                    title="Abrir PDF directo en pestaña nueva"
+                    :class="[
+                        'px-3 py-1.5 rounded-xl text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-xs',
+                        isExternalProtected
+                            ? 'bg-gradient-to-r from-teal-500 to-sky-500 hover:from-teal-400 hover:to-sky-400 ring-2 ring-teal-400/40'
+                            : 'bg-teal-600/90 hover:bg-teal-500'
+                    ]"
+                    :title="isExternalProtected ? 'Abrir visor oficial en pestaña nueva' : 'Abrir PDF directo en pestaña nueva'"
                 >
                     <i class="bi bi-box-arrow-up-right text-xs"></i>
-                    <span class="hidden md:inline">Abrir PDF</span>
+                    <span class="hidden sm:inline">{{ isExternalProtected ? 'Abrir en Visor' : 'Abrir PDF' }}</span>
                 </a>
-
                 <!-- Related Books Drawer Button -->
                 <button
                     v-if="relatedBooks.length > 0"
@@ -188,26 +202,42 @@ const toggleFavorite = async () => {
                 </button>
             </div>
         </header>
-
         <!-- IFRAME VIEWER CONTAINER -->
         <main class="flex-1 w-full bg-slate-900 relative overflow-hidden flex flex-col" id="readerContainer">
             <!-- Sub-bar Status Header -->
             <div class="bg-slate-800/90 border-b border-slate-700/80 px-4 py-1.5 text-[11px] text-slate-300 flex items-center justify-between gap-3 shrink-0">
                 <div class="flex items-center gap-2 truncate">
-                    <i class="bi bi-shield-check text-emerald-400"></i>
+                    <i v-if="isExternalProtected" class="bi bi-shield-lock-fill text-amber-400"></i>
+                    <i v-else class="bi bi-shield-check text-emerald-400"></i>
                     <span class="truncate">
-                        Lector de Documento Directo (PDF):
-                        <strong>{{ book.publisher || 'Repositorio Académico Verificado' }}</strong>
+                        <template v-if="isExternalProtected">
+                            Documento en Repositorio Oficial:
+                            <strong class="text-teal-300">{{ book.publisher || 'Repositorio Académico Protegido' }}</strong>
+                        </template>
+                        <template v-else>
+                            Lector de Documento Directo (PDF):
+                            <strong>{{ book.publisher || 'Repositorio Académico Verificado' }}</strong>
+                        </template>
                         <template v-if="book.publication_year">
                             ({{ book.publication_year }})
                         </template>
                     </span>
                 </div>
                 <div class="flex items-center gap-3 shrink-0 text-[10px]">
-                    <span class="text-slate-400 hidden sm:inline">Visualización limpia sin páginas externas</span>
+                    <template v-if="isExternalProtected">
+                        <a
+                            :href="activeExternalUrl"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="text-teal-300 hover:text-teal-200 font-semibold flex items-center gap-1 transition"
+                        >
+                            <span>Abrir visor oficial en nueva pestaña</span>
+                            <i class="bi bi-box-arrow-up-right text-[9px]"></i>
+                        </a>
+                    </template>
+                    <span v-else class="text-slate-400 hidden sm:inline">Visualización limpia sin páginas externas</span>
                 </div>
             </div>
-
             <!-- Iframe & Loading Viewport -->
             <div class="flex-1 w-full h-full relative bg-slate-900">
                 <!-- Loading State -->
@@ -238,7 +268,6 @@ const toggleFavorite = async () => {
                     :title="book.title"
                 ></iframe>
             </div>
-
             <!-- Related Books Drawer -->
             <transition
                 enter-active-class="transition duration-300 ease-out"
@@ -264,7 +293,6 @@ const toggleFavorite = async () => {
                             <i class="bi bi-x-lg"></i>
                         </button>
                     </div>
-
                     <div class="space-y-3 flex-1 overflow-y-auto">
                         <div
                             v-for="rb in relatedBooks"
@@ -291,6 +319,5 @@ const toggleFavorite = async () => {
                 </aside>
             </transition>
         </main>
-
     </div>
 </template>

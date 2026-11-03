@@ -93,7 +93,6 @@ const pageDescription = 'Libro de Reclamaciones Virtual del IESTP Francisco Vigo
             <meta name="twitter:title" :content="pageTitle" />
             <meta name="twitter:description" :content="pageDescription" />
         </Head>
-
         <!-- HERO SECTION -->
         <section class="relative bg-slate-900 text-white py-16 lg:py-20 overflow-hidden border-b border-slate-800">
             <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
@@ -106,7 +105,6 @@ const pageDescription = 'Libro de Reclamaciones Virtual del IESTP Francisco Vigo
                 </p>
             </div>
         </section>
-
         <!-- MAIN GRID SECTION -->
         <section class="py-16 bg-slate-50/50">
             <div class="container mx-auto px-6">
@@ -126,7 +124,6 @@ const pageDescription = 'Libro de Reclamaciones Virtual del IESTP Francisco Vigo
                                 <p class="text-sm text-slate-600 leading-relaxed">{{ flashSuccess }}</p>
                             </div>
                         </div>
-
                         <div class="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
                             <div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
                                 <h2 class="text-2xl font-extrabold text-slate-900 flex items-center gap-3">
@@ -137,7 +134,6 @@ const pageDescription = 'Libro de Reclamaciones Virtual del IESTP Francisco Vigo
                                     Ley N° 29571
                                 </span>
                             </div>
-
                             <form @submit.prevent="submitForm" class="space-y-8">
                                 <!-- Section 1: Identificación del Reclamante -->
                                 <div class="space-y-6">
@@ -158,7 +154,6 @@ const pageDescription = 'Libro de Reclamaciones Virtual del IESTP Francisco Vigo
                                             />
                                             <p v-if="form.errors.names" class="mt-1 text-sm text-red-600">{{ form.errors.names }}</p>
                                         </div>
-
                                         <!-- DNI / Document -->
                                         <div class="space-y-1.5">
                                             <label class="block text-sm font-bold text-slate-700">Documento de Identidad (DNI/CE)</label>
@@ -172,7 +167,6 @@ const pageDescription = 'Libro de Reclamaciones Virtual del IESTP Francisco Vigo
                                             />
                                             <p v-if="form.errors.dni" class="mt-1 text-sm text-red-600">{{ form.errors.dni }}</p>
                                         </div>
-
                                         <!-- Email -->
                                         <div class="md:col-span-2 space-y-1.5">
                                             <label class="block text-sm font-bold text-slate-700">Correo Electrónico</label>
@@ -188,13 +182,11 @@ const pageDescription = 'Libro de Reclamaciones Virtual del IESTP Francisco Vigo
                                         </div>
                                     </div>
                                 </div>
-
                                 <!-- Section 2: Detalles del Reclamo o Queja -->
                                 <div class="pt-6 border-t border-slate-100 space-y-6">
                                     <label class="block text-sm font-bold uppercase tracking-wider text-slate-500">
                                         2. Detalles del Reclamo o Queja
                                     </label>
-
                                     <div class="grid grid-cols-1 gap-6">
                                         <!-- Subject -->
                                         <div class="space-y-1.5">
@@ -212,7 +204,6 @@ const pageDescription = 'Libro de Reclamaciones Virtual del IESTP Francisco Vigo
                                             </select>
                                             <p v-if="form.errors.subject" class="mt-1 text-sm text-red-600">{{ form.errors.subject }}</p>
                                         </div>
-
                                         <!-- Message -->
                                         <div class="space-y-1.5">
                                             <label class="block text-sm font-bold text-slate-700">Descripción del Reclamo o Queja</label>
@@ -226,7 +217,6 @@ const pageDescription = 'Libro de Reclamaciones Virtual del IESTP Francisco Vigo
                                             ></textarea>
                                             <p v-if="form.errors.message" class="mt-1 text-sm text-red-600">{{ form.errors.message }}</p>
                                         </div>
-
                                         <!-- Attachment -->
                                         <div class="space-y-1.5">
                                             <label class="block text-sm font-bold text-slate-700">Adjuntar archivo sustentatorio (Opcional)</label>
@@ -242,7 +232,6 @@ const pageDescription = 'Libro de Reclamaciones Virtual del IESTP Francisco Vigo
                                                     accept=".pdf,.jpg,.jpeg,.png"
                                                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                                 />
-
                                                 <div class="flex flex-col items-center justify-center gap-3">
                                                     <div class="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-blue-600 group-hover:border-blue-200 transition-colors shadow-sm">
                                                         <i class="bi bi-cloud-arrow-up text-2xl"></i>
@@ -253,7 +242,6 @@ const pageDescription = 'Libro de Reclamaciones Virtual del IESTP Francisco Vigo
                                                     <p class="text-xs text-slate-400">PDF, JPG, JPEG, PNG (Máx. 10MB)</p>
                                                 </div>
                                             </div>
-
                                             <div
                                                 v-if="uploadedFile"
                                                 class="mt-3 p-4 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between"
@@ -274,13 +262,11 @@ const pageDescription = 'Libro de Reclamaciones Virtual del IESTP Francisco Vigo
                                                     <i class="bi bi-trash text-lg"></i>
                                                 </button>
                                             </div>
-
                                             <p v-if="fileError" class="mt-1 text-sm text-red-600">{{ fileError }}</p>
                                             <p v-if="form.errors.file_path" class="mt-1 text-sm text-red-600">{{ form.errors.file_path }}</p>
                                         </div>
                                     </div>
                                 </div>
-
                                 <!-- Action Buttons -->
                                 <div class="pt-6 border-t border-slate-100 flex justify-end">
                                     <button
@@ -296,7 +282,6 @@ const pageDescription = 'Libro de Reclamaciones Virtual del IESTP Francisco Vigo
                             </form>
                         </div>
                     </div>
-
                     <!-- RIGHT COLUMN: SIDEBAR DETAILS -->
                     <div class="space-y-8">
                         <!-- Download official complaints book PDF -->
@@ -305,7 +290,6 @@ const pageDescription = 'Libro de Reclamaciones Virtual del IESTP Francisco Vigo
                                 <i class="bi bi-file-earmark-pdf-fill text-blue-600 text-xl"></i>
                                 Formato Físico (PDF)
                             </h3>
-
                             <div v-if="enterprise && enterprise.complaints_book_path" class="space-y-4">
                                 <p class="text-sm text-slate-500 leading-relaxed">
                                     Si lo prefieres, puedes descargar la hoja de reclamación física oficial en formato PDF, llenarla y hacérnosla llegar.
@@ -322,14 +306,12 @@ const pageDescription = 'Libro de Reclamaciones Virtual del IESTP Francisco Vigo
                                 El formato en PDF no está disponible en este momento.
                             </p>
                         </div>
-
                         <!-- General Definitions -->
                         <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
                             <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2.5 pb-3 border-b border-slate-100">
                                 <i class="bi bi-info-circle text-blue-600 text-xl"></i>
                                 Definiciones Útiles
                             </h3>
-
                             <div class="space-y-4 text-sm">
                                 <div class="space-y-1">
                                     <h4 class="font-bold text-slate-800 flex items-center gap-1.5">
@@ -350,7 +332,6 @@ const pageDescription = 'Libro de Reclamaciones Virtual del IESTP Francisco Vigo
                                 </div>
                             </div>
                         </div>
-
                         <!-- Mesa de Partes Shortcut -->
                         <div class="bg-slate-900 rounded-3xl p-6 text-white space-y-5 border border-slate-800 shadow-sm">
                             <div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-blue-400">

@@ -16,6 +16,16 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class JobsController extends Controller
 {
+    /**
+     * Determine if the request explicitly wants a JSON response (excluding Inertia requests).
+     */
+    protected function wantsJson(?Request $request = null): bool
+    {
+        $req = $request ?: request();
+
+        return ($req->expectsJson() || $req->wantsJson()) && ! $req->header('X-Inertia');
+    }
+
     // ─── Keyword groups mapped to the 5 study programs ─────────────────────
     private const SEARCH_QUERIES = [
         'Redes y Comunicaciones' => [
@@ -185,7 +195,7 @@ class JobsController extends Controller
 
             $job = JobOffer::create($validated);
 
-            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Oferta laboral creada con éxito.',
@@ -199,7 +209,7 @@ class JobsController extends Controller
         } catch (\Exception $e) {
             Log::error('Error creando oferta laboral: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Error al guardar la oferta: '.$e->getMessage(),
@@ -233,7 +243,7 @@ class JobsController extends Controller
 
             $offer->update($validated);
 
-            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Oferta laboral actualizada correctamente.',
@@ -247,7 +257,7 @@ class JobsController extends Controller
         } catch (\Exception $e) {
             Log::error('Error actualizando oferta laboral: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Error al actualizar la oferta: '.$e->getMessage(),
@@ -266,7 +276,7 @@ class JobsController extends Controller
         try {
             $offer->update(['is_active' => ! $offer->is_active]);
 
-            if (request()->expectsJson() || request()->ajax() || request()->wantsJson()) {
+            if ($this->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'is_active' => $offer->is_active,
@@ -278,7 +288,7 @@ class JobsController extends Controller
         } catch (\Exception $e) {
             Log::error('Error alternando estado de oferta: '.$e->getMessage());
 
-            if (request()->expectsJson() || request()->ajax() || request()->wantsJson()) {
+            if ($this->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Error al cambiar el estado.',
@@ -297,7 +307,7 @@ class JobsController extends Controller
         try {
             $offer->delete();
 
-            if (request()->expectsJson() || request()->ajax() || request()->wantsJson()) {
+            if ($this->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'La oferta ha sido eliminada correctamente.',
@@ -309,7 +319,7 @@ class JobsController extends Controller
         } catch (\Exception $e) {
             Log::error('Error eliminando oferta laboral: '.$e->getMessage());
 
-            if (request()->expectsJson() || request()->ajax() || request()->wantsJson()) {
+            if ($this->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No se pudo eliminar el registro.',
@@ -361,7 +371,7 @@ class JobsController extends Controller
 
                 $count = $query->count();
                 if ($count === 0) {
-                    if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                    if ($this->wantsJson($request)) {
                         return response()->json([
                             'success' => false,
                             'message' => 'No se encontraron registros para eliminar con los filtros seleccionados.',
@@ -377,7 +387,7 @@ class JobsController extends Controller
             } else {
                 // Delete explicitly selected IDs (from one or multiple pages)
                 if (empty($ids) || ! is_array($ids)) {
-                    if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                    if ($this->wantsJson($request)) {
                         return response()->json([
                             'success' => false,
                             'message' => 'Debe seleccionar al menos una oferta laboral para eliminar.',
@@ -389,7 +399,7 @@ class JobsController extends Controller
 
                 $validIds = array_filter(array_map('intval', $ids));
                 if (empty($validIds)) {
-                    if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                    if ($this->wantsJson($request)) {
                         return response()->json([
                             'success' => false,
                             'message' => 'Identificadores de oferta inválidos.',
@@ -402,7 +412,7 @@ class JobsController extends Controller
                 $count = JobOffer::whereIn('id', $validIds)->delete();
 
                 if ($count === 0) {
-                    if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                    if ($this->wantsJson($request)) {
                         return response()->json([
                             'success' => false,
                             'message' => 'No se encontraron los registros seleccionados para eliminar.',
@@ -417,7 +427,7 @@ class JobsController extends Controller
                     : "Se han eliminado exitosamente {$count} ofertas laborales seleccionadas.";
             }
 
-            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => true,
                     'message' => $message,
@@ -430,7 +440,7 @@ class JobsController extends Controller
         } catch (\Exception $e) {
             Log::error('Error en eliminación masiva de ofertas laborales: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Ocurrió un error al procesar la eliminación masiva: '.$e->getMessage(),
@@ -450,7 +460,7 @@ class JobsController extends Controller
             $totalCount = JobOffer::count();
 
             if ($totalCount === 0) {
-                if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+                if ($this->wantsJson($request)) {
                     return response()->json([
                         'success' => true,
                         'message' => 'La tabla de ofertas laborales ya se encuentra vacía.',
@@ -472,7 +482,7 @@ class JobsController extends Controller
 
             $message = "Se han eliminado todas las ofertas laborales ({$totalCount} registros). La tabla ha quedado completamente limpia.";
 
-            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => true,
                     'message' => $message,
@@ -485,7 +495,7 @@ class JobsController extends Controller
         } catch (\Exception $e) {
             Log::error('Error al vaciar tabla de ofertas laborales: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Error al vaciar la tabla: '.$e->getMessage(),

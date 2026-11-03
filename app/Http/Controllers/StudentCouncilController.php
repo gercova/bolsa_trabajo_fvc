@@ -77,27 +77,19 @@ class StudentCouncilController extends Controller
             $validated['is_active'] = $request->boolean('is_active', true);
             StudentCouncil::create($validated);
 
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json(['success' => true, 'message' => 'Miembro del Consejo creado correctamente.'], 201);
-            }
-
             return redirect()->route('admin.student-council.index')
                 ->with('success', 'Miembro del Consejo de Estudiantes guardado correctamente.');
         } catch (\Exception $e) {
             Log::error('Error al guardar miembro del Consejo de Estudiantes: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json(['success' => false, 'message' => 'Ocurrió un error al guardar el registro.'], 500);
-            }
-
-            return back()->withInput()->with('error', 'Ocurrió un error al guardar el registro.');
+            return back()->withInput()->with('error', 'Ocurrió un error al guardar el registro: '.$e->getMessage());
         }
     }
 
     /**
      * Update an existing student council member.
      */
-    public function update(StudentCouncilRequest $request, StudentCouncil $studentCouncil): RedirectResponse|JsonResponse
+    public function update(StudentCouncilRequest $request, StudentCouncil $studentCouncil): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -111,51 +103,28 @@ class StudentCouncilController extends Controller
             $validated['is_active'] = $request->boolean('is_active', true);
             $studentCouncil->update($validated);
 
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json(['success' => true, 'message' => 'Registro del Consejo actualizado correctamente.']);
-            }
-
             return redirect()->route('admin.student-council.index')
                 ->with('success', 'Miembro del Consejo actualizado correctamente.');
         } catch (\Exception $e) {
             Log::error('Error al actualizar miembro del Consejo de Estudiantes: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json(['success' => false, 'message' => 'Ocurrió un error al actualizar el registro.'], 500);
-            }
-
-            return back()->withInput()->with('error', 'Ocurrió un error al actualizar el registro.');
+            return back()->withInput()->with('error', 'Ocurrió un error al actualizar el registro: '.$e->getMessage());
         }
     }
 
     /**
      * Toggle the active status of a council record.
      */
-    public function toggleStatus(Request $request, StudentCouncil $studentCouncil): JsonResponse|RedirectResponse
+    public function toggleStatus(Request $request, StudentCouncil $studentCouncil): RedirectResponse
     {
         try {
             $studentCouncil->update(['is_active' => ! $studentCouncil->is_active]);
-
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Estado del miembro actualizado.',
-                    'status' => $studentCouncil->is_active,
-                ]);
-            }
 
             $statusText = $studentCouncil->is_active ? 'activado' : 'desactivado';
 
             return redirect()->back()->with('success', "Estado del miembro {$statusText} correctamente.");
         } catch (\Exception $e) {
             Log::error('Error alternando estado del miembro del consejo estudiantil: '.$e->getMessage());
-
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error al actualizar el estado.',
-                ], 500);
-            }
 
             return redirect()->back()->with('error', 'Ocurrió un error al actualizar el estado.');
         }
@@ -164,23 +133,15 @@ class StudentCouncilController extends Controller
     /**
      * Delete a student council member record.
      */
-    public function destroy(StudentCouncil $studentCouncil): JsonResponse|RedirectResponse
+    public function destroy(StudentCouncil $studentCouncil): RedirectResponse
     {
         try {
             $studentCouncil->delete();
-
-            if (request()->expectsJson() || request()->ajax()) {
-                return response()->json(['success' => true, 'message' => 'Miembro eliminado del Consejo correctamente.']);
-            }
 
             return redirect()->route('admin.student-council.index')
                 ->with('success', 'Registro del Consejo eliminado correctamente.');
         } catch (\Exception $e) {
             Log::error('Error al eliminar miembro del Consejo: '.$e->getMessage());
-
-            if (request()->expectsJson() || request()->ajax()) {
-                return response()->json(['success' => false, 'message' => 'No se pudo eliminar el registro.'], 500);
-            }
 
             return back()->with('error', 'No se pudo eliminar el registro.');
         }

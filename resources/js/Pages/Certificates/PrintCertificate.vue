@@ -17,22 +17,27 @@ const activeView = ref('both'); // 'both', 'front', 'back'
 
 const isBasicEnglish = computed(() => {
     const cert = props.certificate;
+    if (!cert) return false;
     const name = (cert.course?.name || cert.event_name || '').toLowerCase();
-    return name.includes('inglés') || name.includes('ingles') || cert.certificate_type === 'english' || (cert.english_modules_data && cert.english_modules_data.length > 0);
+    const type = (cert.certificate_type || cert.course?.certificate_type || '').toLowerCase();
+    return name.includes('inglés') || name.includes('ingles') || name.includes('english') || type === 'english' || type === 'ingles' || type === 'basic_english';
 });
 
 const isSmartOffice = computed(() => {
     const cert = props.certificate;
+    if (!cert) return false;
     const name = (cert.course?.name || cert.description || '').toLowerCase();
-    return name.includes('inteligente') || name.includes('oficina') || cert.certificate_type === 'smart_office';
+    const type = (cert.certificate_type || cert.course?.certificate_type || '').toLowerCase();
+    return name.includes('inteligente') || name.includes('oficina') || type === 'smart_office' || type === 'oficina_4_0';
 });
 
 const isTraining = computed(() => {
     const cert = props.certificate;
-    if (isBasicEnglish.value) return false;
+    if (!cert) return false;
+    if (isBasicEnglish.value || isSmartOffice.value) return false;
     const modality = (cert.modality || '').toLowerCase();
-    const certType = (cert.certificate_type || '').toLowerCase();
-    return certType === 'training' || modality === 'capacitación' || modality === 'capacitacion' || (cert.topics_list && cert.topics_list.length > 0 && (!cert.details || cert.details.length === 0));
+    const certType = (cert.certificate_type || cert.course?.certificate_type || '').toLowerCase();
+    return certType === 'training' || certType === 'capacitacion' || certType === 'capacitación' || modality === 'capacitación' || modality === 'capacitacion' || (cert.topics_list && cert.topics_list.length > 0 && (!cert.details || cert.details.length === 0));
 });
 
 const logoSrc = computed(() => {
@@ -57,7 +62,6 @@ const goBack = () => {
         <Head>
             <title>{{ `Certificado — ${certificate.certificate_code} — ${certificate.user?.names ?? 'Estudiante'}` }}</title>
         </Head>
-
         <!-- Floating Action Toolbar (Hidden in Print) -->
         <header class="toolbar no-print">
             <div class="toolbar-info">
@@ -65,7 +69,6 @@ const goBack = () => {
                 <span class="toolbar-code">{{ certificate.certificate_code }}</span>
                 <span class="text-xs text-slate-400 hidden sm:inline">{{ certificate.user?.names }}</span>
             </div>
-
             <!-- View Switcher for English 2-sided Certificate -->
             <div v-if="isBasicEnglish" class="view-switcher flex items-center gap-1 bg-white/10 p-1 rounded-xl text-xs">
                 <button type="button" @click="activeView = 'both'"
@@ -84,7 +87,6 @@ const goBack = () => {
                     Reverso (Notas)
                 </button>
             </div>
-
             <div class="toolbar-actions flex items-center gap-2">
                 <Link :href="route('validar-certificado', { certificate_code: certificate.certificate_code })"
                     class="btn btn-secondary">
@@ -100,7 +102,6 @@ const goBack = () => {
                 </button>
             </div>
         </header>
-
         <!-- Preview Stage Canvas -->
         <main class="stage" :class="{ 'english-stage': isBasicEnglish }">
             <!-- 1. ENGLISH CERTIFICATE (ANVERSO & REVERSO) -->
@@ -135,7 +136,6 @@ const goBack = () => {
                         <path d="M0,0 L195,0 C130,75 75,120 0,155 Z" fill="url(#engRoyalGradTL)" />
                         <path d="M0,155 C70,118 122,75 190,0 L200,0 C132,80 77,122 0,162 Z" fill="url(#engGoldGradTL)" />
                     </svg>
-
                     <!-- Bottom-Right Flowing Corner Wave SVG -->
                     <svg class="english-wave english-wave-br" viewBox="0 0 520 280" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
@@ -158,10 +158,8 @@ const goBack = () => {
                         <path d="M520,280 L180,280 C240,185 320,100 520,55 Z" fill="url(#dotPatternBR)" />
                         <path d="M520,95 C330,130 235,205 170,280 L150,280 C215,195 315,115 520,75 Z" fill="url(#engGoldGradBR)" />
                     </svg>
-
                     <!-- Watermark -->
                     <img :src="logoSrc" alt="Marca de agua" class="english-watermark" />
-
                     <!-- Top Header Section -->
                     <div class="english-header">
                         <img :src="logoSrc" alt="Logo IESTP FVC" class="english-logo-img" />
@@ -171,13 +169,11 @@ const goBack = () => {
                             <div class="eng-inst-subline">LEY DE CREACIÓN N° 24016 • REVALIDADO CON R.D. N° 0450-2006-ED</div>
                         </div>
                     </div>
-
                     <!-- Certificate Title Banner -->
                     <div class="english-title-box">
                         <h1 class="english-title-h1">CERTIFICADO</h1>
                         <div class="english-title-sub">DE INGLÉS A NIVEL BÁSICO</div>
                     </div>
-
                     <!-- Recipient Block -->
                     <div class="english-content-center">
                         <p class="english-granted-to">Otorgado a:</p>
@@ -192,13 +188,11 @@ const goBack = () => {
                             <strong>{{ certificate.duration || '128 horas pedagógicas' }}</strong>.
                         </p>
                     </div>
-
                     <!-- Location & Date -->
                     <div class="english-date-location">
                         {{ certificate.city || 'Uchiza' }}, {{ certificate.formatted_issue_date }}
                     </div>
                 </article>
-
                 <!-- REVERSO (NOTAS & QR) -->
                 <article v-show="activeView === 'both' || activeView === 'back'" class="certificate-sheet english-sheet english-sheet-back" id="sheet-reverso">
                     <div class="english-back-grid flex gap-8 items-center h-full">
@@ -213,7 +207,6 @@ const goBack = () => {
                                 <div class="text-[10px] uppercase font-bold text-slate-500 mt-1">ESCANEAR PARA VALIDAR</div>
                             </div>
                         </div>
-
                         <!-- Right Academic Table Column -->
                         <div class="english-table-column flex-1 relative">
                             <img :src="logoSrc" alt="Marca de agua" class="english-table-watermark absolute inset-0 m-auto opacity-10 w-64 pointer-events-none" />
@@ -254,7 +247,6 @@ const goBack = () => {
                     </div>
                 </article>
             </template>
-
             <!-- 2. STANDARD MODULAR / TRAINING CERTIFICATE -->
             <template v-else>
                 <article class="certificate-sheet relative">
@@ -267,10 +259,8 @@ const goBack = () => {
                         <polygon points="0,50 220,240 140,240 0,110" fill="#c99e3a" />
                         <polygon points="0,130 0,240 120,240" fill="#0f1115" />
                     </svg>
-
                     <!-- Watermark -->
                     <img :src="logoSrc" alt="Marca de agua" class="watermark" />
-
                     <!-- Header -->
                     <header class="cert-header">
                         <img :src="logoSrc" alt="Logo IESTP FVC" class="cert-logo h-20 w-auto object-contain" />
@@ -283,14 +273,12 @@ const goBack = () => {
                             </div>
                         </div>
                     </header>
-
                     <!-- Main Title -->
                     <div class="cert-main-title text-center my-4">
                         <h1 class="text-3xl sm:text-4xl font-extrabold text-[#9a7620] tracking-widest uppercase font-serif">
                             {{ isTraining ? 'CERTIFICADO' : 'CERTIFICADO MODULAR' }}
                         </h1>
                     </div>
-
                     <!-- Body Area: Narrative & Temario -->
                     <div class="cert-body-grid grid grid-cols-1 md:grid-cols-3 gap-6 items-start my-auto">
                         <div class="narrative-col md:col-span-2 space-y-3">
@@ -300,7 +288,6 @@ const goBack = () => {
                                     {{ (certificate.user?.names || 'ESTUDIANTE REGISTRADO').toUpperCase() }}
                                 </div>
                             </div>
-
                             <p v-if="isTraining" class="narrative-paragraph text-xs sm:text-sm text-slate-700 leading-relaxed text-justify">
                                 Por su participación en calidad de
                                 <strong>{{ (certificate.participation_type || 'ASISTENTE').toUpperCase() }}</strong>
@@ -315,7 +302,6 @@ const goBack = () => {
                                 realizado {{ certificate.formatted_date_range }}, con una duración de
                                 {{ certificate.duration || '90 horas pedagógicas' }}.
                             </p>
-
                             <p v-else class="narrative-paragraph text-xs sm:text-sm text-slate-700 leading-relaxed text-justify">
                                 Por haber aprobado satisfactoriamente los módulos técnico-profesionales correspondientes al plan curricular de
                                 <strong>{{ certificate.course?.name }}</strong>, en el Programa de Estudios de
@@ -324,7 +310,6 @@ const goBack = () => {
                                 realizado {{ certificate.formatted_date_range }}, con una duración de
                                 {{ certificate.duration || 'Horas pedagógicas curriculares' }}.
                             </p>
-
                             <!-- Modular Details Table if applicable -->
                             <div v-if="!isTraining && certificate.details && certificate.details.length > 0" class="modular-table-wrap mt-2">
                                 <table class="w-full text-[11px] border border-slate-200">
@@ -346,12 +331,10 @@ const goBack = () => {
                                     </tbody>
                                 </table>
                             </div>
-
                             <div class="narrative-date-location text-xs text-slate-600 font-serif italic pt-2">
                                 {{ certificate.city || 'Uchiza' }}, {{ certificate.formatted_issue_date }}
                             </div>
                         </div>
-
                         <!-- Right Temario Column -->
                         <div class="temario-col border border-slate-200 rounded-xl bg-slate-50/60 p-3">
                             <div class="temario-badge text-center text-xs font-bold uppercase tracking-wider text-amber-700 border-b border-amber-200 pb-1 mb-2">TEMARIO</div>
@@ -366,7 +349,6 @@ const goBack = () => {
                             </ul>
                         </div>
                     </div>
-
                     <!-- Bottom Bar: QR and Certificate Code -->
                     <footer class="cert-bottom-bar flex items-center justify-between border-t border-slate-200 pt-3 mt-4">
                         <div class="text-[10px] text-slate-400">

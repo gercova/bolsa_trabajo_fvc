@@ -36,7 +36,6 @@ const submit = () => {
             <title>Iniciar Sesión — Portal FVC</title>
             <meta name="description" content="Inicio de sesión institucional para estudiantes, docentes y egresados del IESTP Francisco Vigo Caballero." />
         </Head>
-
         <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-sky-50/50">
             <div class="w-full max-w-md">
                 <div class="bg-white rounded-2xl shadow-xl shadow-[rgba(15,23,42,.06)] p-8 md:p-10 border border-slate-200">
@@ -52,7 +51,6 @@ const submit = () => {
                             </div>
                         </div>
                     </div>
-
                     <!-- Header -->
                     <h2 class="text-center text-2xl sm:text-3xl font-extrabold mb-2 text-slate-900 tracking-tight">
                         Iniciar Sesión
@@ -64,14 +62,12 @@ const submit = () => {
                             Regístrate aquí
                         </Link>
                     </p>
-
                     <!-- Status / Session Flash -->
                     <div v-if="status"
                         class="mb-5 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3 text-sm text-emerald-800">
                         <i class="bi bi-check-circle-fill text-emerald-600 text-lg flex-shrink-0"></i>
                         <span>{{ status }}</span>
                     </div>
-
                     <!-- Rate Limit Lockout Banner -->
                     <div v-if="form.errors.email && form.errors.email.toLowerCase().includes('intentos')"
                         class="mb-5 p-3.5 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 text-sm text-red-800">
@@ -81,7 +77,6 @@ const submit = () => {
                             <p class="text-xs text-red-700 mt-0.5">{{ form.errors.email }}</p>
                         </div>
                     </div>
-
                     <!-- Form -->
                     <form @submit.prevent="submit" class="space-y-5">
                         <!-- Email or DNI -->
@@ -105,7 +100,6 @@ const submit = () => {
                                 <span>{{ form.errors.email }}</span>
                             </p>
                         </div>
-
                         <!-- Password -->
                         <div>
                             <label for="password" class="block text-sm font-semibold mb-1.5 text-slate-700">
@@ -131,7 +125,6 @@ const submit = () => {
                                 <span>{{ form.errors.password }}</span>
                             </p>
                         </div>
-
                         <!-- Remember me & Forgot Password -->
                         <div class="flex items-center justify-between">
                             <label class="flex items-center gap-2 cursor-pointer select-none">
@@ -145,14 +138,12 @@ const submit = () => {
                                 ¿Olvidaste tu contraseña?
                             </Link>
                         </div>
-
                         <!-- Submit Button -->
                         <button type="submit" :disabled="form.processing"
                             class="w-full flex items-center justify-center gap-2 py-3 px-6 text-sm font-bold rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg cursor-pointer bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 shadow-md shadow-blue-500/20">
                             <i class="bi bi-box-arrow-in-right"></i>
                             <span>{{ form.processing ? 'Iniciando...' : 'Iniciar Sesión' }}</span>
                         </button>
-
                         <!-- Protection Indicator -->
                         <div class="pt-2 flex items-center justify-center gap-1.5 text-[11.5px] text-slate-500">
                             <i class="bi bi-shield-check text-emerald-600 text-sm"></i>
@@ -166,7 +157,6 @@ const submit = () => {
                         </div>
                     </form>
                 </div>
-
                 <p class="text-center mt-6 text-xs text-slate-500">
                     Al iniciar sesión aceptas nuestros
                     <a href="#" class="underline decoration-1 underline-offset-2 transition-colors hover:text-slate-800 text-slate-500">

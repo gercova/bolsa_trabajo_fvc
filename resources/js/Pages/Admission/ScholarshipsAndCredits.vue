@@ -151,12 +151,10 @@ const toggleFaq = (index) => {
         <meta property="og:title" content="Becas y Créditos Educativos — IESTP Francisco Vigo Caballero" />
         <meta property="og:description" content="Información oficial sobre becas institucionales, exoneraciones de ley y programas de financiamiento en Uchiza." />
     </Head>
-
     <PublicLayout title="Becas y Créditos">
         <!-- ═══ 1. HERO SECTION ═══════════════════════════════════════ -->
         <section class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
             <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
-
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                     <!-- Col Left: Title & Actions -->
@@ -165,16 +163,13 @@ const toggleFaq = (index) => {
                             <i class="bi bi-patch-check-fill text-blue-300"></i>
                             <span>Inclusión y Apoyo Estudiantil</span>
                         </div>
-
                         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-white font-sans">
                             Becas, Beneficios y <br />
                             <span class="text-blue-200">Créditos Educativos</span>
                         </h1>
-
                         <p class="text-lg sm:text-xl text-blue-100 max-w-2xl leading-relaxed">
                             Garantizamos una educación técnica superior inclusiva. Accede a exoneraciones de pago por mérito académico, reservas por ley y acompañamiento en convenios nacionales como <strong class="text-white font-semibold">Beca 18 - PRONABEC</strong>.
                         </p>
-
                         <div class="flex flex-col sm:flex-row gap-4 pt-4">
                             <a href="#modalidades-becas"
                                class="inline-flex items-center justify-center px-6 py-4 text-base font-bold text-blue-900 bg-white hover:bg-blue-50 rounded-xl transition shadow-lg hover:shadow-xl group">
@@ -188,7 +183,6 @@ const toggleFaq = (index) => {
                             </a>
                         </div>
                     </div>
-
                     <!-- Col Right: Visual Graphic Card -->
                     <div class="lg:col-span-5 relative">
                         <div class="relative mx-auto max-w-md lg:max-w-none">
@@ -207,7 +201,6 @@ const toggleFaq = (index) => {
                                         Convocatoria 2026
                                     </span>
                                 </div>
-
                                 <div class="space-y-4">
                                     <div class="flex items-start gap-3 bg-white/5 p-3.5 rounded-xl border border-white/10">
                                         <i class="bi bi-check-circle-fill text-emerald-400 text-lg mt-0.5"></i>
@@ -224,7 +217,6 @@ const toggleFaq = (index) => {
                                         </div>
                                     </div>
                                 </div>
-
                                 <div class="pt-2 flex items-center justify-between text-xs text-blue-200">
                                     <span class="flex items-center gap-1"><i class="bi bi-geo-alt text-blue-300"></i> {{ ent.city || 'Uchiza' }}, San Martín</span>
                                     <span class="flex items-center gap-1"><i class="bi bi-clock-history text-blue-300"></i> Atención presencial</span>
@@ -235,7 +227,6 @@ const toggleFaq = (index) => {
                 </div>
             </div>
         </section>
-
         <!-- ═══ 2. RESUMEN DE IMPACTO / STAT CARDS ═════════════════════ -->
         <section class="py-12 bg-white relative -mt-6 z-20">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -249,7 +240,6 @@ const toggleFaq = (index) => {
                         <p class="text-sm font-bold text-blue-700">Vacantes Disponibles</p>
                         <p class="text-xs text-gray-600 mt-1">Plazas totales reservadas en modalidades preferenciales de becas.</p>
                     </div>
-
                     <!-- Card 2: Primeros Puestos -->
                     <div class="bg-blue-50/70 hover:bg-blue-50 border border-blue-100 p-6 rounded-2xl transition-all shadow-sm hover:shadow-md">
                         <div class="w-12 h-12 bg-emerald-600 text-white rounded-xl flex items-center justify-center mb-4 shadow-md shadow-emerald-600/20">
@@ -259,7 +249,6 @@ const toggleFaq = (index) => {
                         <p class="text-sm font-bold text-emerald-700">Primeros Puestos</p>
                         <p class="text-xs text-gray-600 mt-1">100% de descuento para el 1° puesto y 50% para el 2° puesto escolar.</p>
                     </div>
-
                     <!-- Card 3: Fuerzas Armadas -->
                     <div class="bg-blue-50/70 hover:bg-blue-50 border border-blue-100 p-6 rounded-2xl transition-all shadow-sm hover:shadow-md">
                         <div class="w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center mb-4 shadow-md shadow-indigo-600/20">
@@ -269,7 +258,6 @@ const toggleFaq = (index) => {
                         <p class="text-sm font-bold text-indigo-700">Servicio Militar (FF.AA.)</p>
                         <p class="text-xs text-gray-600 mt-1">Beneficio arancelario para personal del SMV y licenciados.</p>
                     </div>
-
                     <!-- Card 4: Inclusión y Leyes -->
                     <div class="bg-blue-50/70 hover:bg-blue-50 border border-blue-100 p-6 rounded-2xl transition-all shadow-sm hover:shadow-md">
                         <div class="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center mb-4 shadow-md shadow-blue-600/20">
@@ -282,11 +270,9 @@ const toggleFaq = (index) => {
                 </div>
             </div>
         </section>
-
         <!-- ═══ 3. MODALIDADES DE BECAS INSTITUCIONALES ═══════════════ -->
         <section id="modalidades-becas" class="py-16 bg-slate-50 border-y border-blue-100/60">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                
                 <div class="text-center max-w-3xl mx-auto mb-16">
                     <span class="text-xs font-bold tracking-widest text-blue-600 uppercase bg-blue-100/80 px-3.5 py-1.5 rounded-full inline-flex items-center gap-1.5">
                         <i class="bi bi-award-fill text-blue-600"></i>
@@ -300,7 +286,6 @@ const toggleFaq = (index) => {
                         Conoce las modalidades de ingreso preferencial, vacantes disponibles y el porcentaje de descuento arancelario establecido por norma institucional y legislación nacional en favor de nuestros postulantes.
                     </p>
                 </div>
-
                 <div v-if="scholarships && scholarships.length > 0"
                      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <div v-for="(scholarship, idx) in scholarships" :key="scholarship.id"
@@ -321,12 +306,10 @@ const toggleFaq = (index) => {
                                     </span>
                                 </div>
                             </div>
-
                             <!-- Title -->
                             <h3 class="text-xl font-bold text-blue-900 mb-3 group-hover:text-blue-600 transition-colors">
                                 {{ scholarship.name }}
                             </h3>
-
                             <!-- Discount Highlight Box -->
                             <div v-if="scholarship.discount_details || Number(scholarship.discount_percentage) > 0"
                                  class="mb-4 p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200 text-emerald-950">
@@ -348,12 +331,10 @@ const toggleFaq = (index) => {
                                     {{ scholarship.discount_details || 'Exoneración arancelaria preferencial de acuerdo al reglamento institucional.' }}
                                 </p>
                             </div>
-
                             <!-- Description -->
                             <p class="text-gray-600 text-sm leading-relaxed mb-6">
                                 {{ scholarship.description || 'Modalidad especial de beca y exoneración de acuerdo a los requerimientos de evaluación e ingreso institucional del IESTP Francisco Vigo Caballero.' }}
                             </p>
-
                             <!-- Requirements List -->
                             <div class="border-t border-gray-100 pt-4 space-y-2 text-xs text-gray-700">
                                 <p class="font-bold text-blue-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
@@ -366,7 +347,6 @@ const toggleFaq = (index) => {
                                 </div>
                             </div>
                         </div>
-
                         <!-- Card Footer -->
                         <div class="px-8 py-4 bg-slate-50 border-t border-gray-100 flex items-center justify-between">
                             <span class="text-xs font-bold text-blue-800 flex items-center gap-1">
@@ -381,7 +361,6 @@ const toggleFaq = (index) => {
                         </div>
                     </div>
                 </div>
-
                 <div v-else class="text-center py-12 bg-white rounded-3xl border border-blue-100 p-8 max-w-xl mx-auto shadow-sm">
                     <i class="bi bi-info-circle text-4xl text-blue-500 mb-4 inline-block"></i>
                     <h3 class="text-xl font-bold text-blue-900 mb-2">Información en actualización</h3>
@@ -390,7 +369,6 @@ const toggleFaq = (index) => {
 
             </div>
         </section>
-
         <!-- ═══ MODAL DE DETALLE POR BECA ══════════════════════════════ -->
         <div v-if="activeScholarship"
              class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
@@ -402,7 +380,6 @@ const toggleFaq = (index) => {
                         class="absolute top-5 right-5 text-gray-400 hover:text-gray-700 w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition">
                     <i class="bi bi-x-lg text-lg"></i>
                 </button>
-
                 <div class="flex items-center space-x-4">
                     <div class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl font-bold shadow-md shadow-blue-600/20">
                         <i :class="['bi', activeScholarship.icon || 'bi-award']"></i>
@@ -417,7 +394,6 @@ const toggleFaq = (index) => {
                         <h3 class="text-xl font-bold text-blue-900">{{ activeScholarship.name }}</h3>
                     </div>
                 </div>
-
                 <div class="space-y-4 text-sm text-gray-700">
                     <!-- Discount in modal -->
                     <div v-if="activeScholarship.discount_details || Number(activeScholarship.discount_percentage) > 0"
@@ -438,11 +414,9 @@ const toggleFaq = (index) => {
                             {{ activeScholarship.discount_details }}
                         </p>
                     </div>
-
                     <p class="leading-relaxed bg-blue-50/60 p-4 rounded-2xl border border-blue-100 text-xs sm:text-sm">
                         {{ activeScholarship.description }}
                     </p>
-
                     <div>
                         <h4 class="font-bold text-blue-900 mb-2 flex items-center gap-2">
                             <i class="bi bi-folder-check text-blue-600"></i> Documentación obligatoria a presentar:
@@ -475,11 +449,9 @@ const toggleFaq = (index) => {
                 </div>
             </div>
         </div>
-
         <!-- ═══ 4. PADRÓN OFICIAL DE BENEFICIARIOS (PDF) ══════════════ -->
         <section id="padron-beneficiarios" class="py-16 sm:py-24 bg-white border-b border-blue-100/70">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                
                 <!-- Section Header -->
                 <div class="text-center max-w-3xl mx-auto mb-14">
                     <span class="text-xs font-bold tracking-widest text-blue-700 uppercase bg-blue-100/80 px-4 py-1.5 rounded-full inline-flex items-center gap-1.5 border border-blue-200/60 shadow-xs">
@@ -495,7 +467,6 @@ const toggleFaq = (index) => {
                         Ponemos a disposición de la comunidad educativa y público en general las resoluciones y nóminas oficiales con la relación de estudiantes que obtuvieron becas, medias becas o exoneraciones, clasificados por periodo académico o semestre.
                     </p>
                 </div>
-
                 <!-- Beneficiary Documents Content -->
                 <template v-if="beneficiaries && beneficiaries.length > 0">
                     <!-- Period Filter Tabs -->
@@ -515,7 +486,6 @@ const toggleFaq = (index) => {
                                 {{ beneficiaries.length }}
                             </span>
                         </button>
-
                         <button v-for="period in beneficiaryPeriods" :key="period"
                                 type="button"
                                 @click="selectedPeriod = period"

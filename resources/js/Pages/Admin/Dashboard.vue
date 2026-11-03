@@ -100,15 +100,12 @@ const firstName = computed(() => {
                             <i class="bi bi-mortarboard-fill text-amber-400"></i>
                             <span>IESTP Francisco Vigo Caballero • Uchiza</span>
                         </div>
-
                         <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight text-white">
                             Hola, <span class="text-sky-400">{{ firstName }}</span>
                         </h2>
-
                         <p class="text-slate-300 text-sm sm:text-base leading-relaxed font-normal">
                             Supervisa y gestiona en tiempo real la admisión, programas de estudio, bolsa de empleo, carrusel de portada y transparencia institucional.
                         </p>
-
                         <!-- Quick action buttons -->
                         <div class="flex flex-wrap items-center gap-2.5 pt-2">
                             <Link :href="route('admin.carousel.create')"
@@ -136,14 +133,12 @@ const firstName = computed(() => {
                             </Link>
                         </div>
                     </div>
-
                     <!-- Visit counter & identity badge -->
                     <div class="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex-shrink-0">
                         <div class="flex items-center gap-2 text-right">
                             <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
                             <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-300">Sistema 100% Operativo</span>
                         </div>
-
                         <div class="space-y-1 text-left sm:text-right lg:text-right">
                             <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest block">Visitas del Portal Web</span>
                             <div class="flex items-center gap-1">
@@ -153,7 +148,6 @@ const firstName = computed(() => {
                                 </span>
                             </div>
                         </div>
-
                         <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
                             <i class="bi bi-eye"></i>
                             <span>Total acumulado: {{ totalVisits.toLocaleString('es-PE') }} visitas</span>
@@ -161,7 +155,6 @@ const firstName = computed(() => {
                     </div>
                 </div>
             </div>
-
             <!-- ══ SECCIÓN 1: KPIs Principales (4 Columnas) ══ -->
             <section class="space-y-4">
                 <div class="flex items-center justify-between">
@@ -170,7 +163,6 @@ const firstName = computed(() => {
                     </h3>
                     <span class="text-xs text-slate-400 font-medium">Actualizado en tiempo real</span>
                 </div>
-
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                     <!-- 1. Usuarios -->
                     <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between relative overflow-hidden group hover:-translate-y-1 hover:shadow-md transition-all">
@@ -198,7 +190,6 @@ const firstName = computed(() => {
                             </Link>
                         </div>
                     </div>
-
                     <!-- 2. Bolsa de Trabajo -->
                     <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between relative overflow-hidden group hover:-translate-y-1 hover:shadow-md transition-all">
                         <div class="space-y-3">
@@ -224,7 +215,6 @@ const firstName = computed(() => {
                             </Link>
                         </div>
                     </div>
-
                     <!-- 3. Admisiones & Matrículas -->
                     <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between relative overflow-hidden group hover:-translate-y-1 hover:shadow-md transition-all">
                         <div class="space-y-3">
@@ -250,7 +240,6 @@ const firstName = computed(() => {
                             </Link>
                         </div>
                     </div>
-
                     <!-- 4. Reclamos -->
                     <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between relative overflow-hidden group hover:-translate-y-1 hover:shadow-md transition-all">
                         <div class="space-y-3">
@@ -279,7 +268,6 @@ const firstName = computed(() => {
                     </div>
                 </div>
             </section>
-
             <!-- ══ SECCIÓN 2: KPIs Secundarios (4 Columnas) ══ -->
             <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-5 flex items-center justify-between">
@@ -296,7 +284,6 @@ const firstName = computed(() => {
                         <i class="bi bi-arrow-right text-base"></i>
                     </Link>
                 </div>
-
                 <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-5 flex items-center justify-between">
                     <div class="flex items-center gap-3.5">
                         <div class="w-11 h-11 rounded-2xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center text-xl">
@@ -311,7 +298,6 @@ const firstName = computed(() => {
                         <i class="bi bi-arrow-right text-base"></i>
                     </Link>
                 </div>
-
                 <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-5 flex items-center justify-between">
                     <div class="flex items-center gap-3.5">
                         <div class="w-11 h-11 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-xl">
@@ -326,7 +312,6 @@ const firstName = computed(() => {
                         <i class="bi bi-arrow-right text-base"></i>
                     </Link>
                 </div>
-
                 <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-5 flex items-center justify-between">
                     <div class="flex items-center gap-3.5">
                         <div class="w-11 h-11 rounded-2xl bg-cyan-50 border border-cyan-100 text-cyan-600 flex items-center justify-center text-xl">
@@ -342,10 +327,8 @@ const firstName = computed(() => {
                     </Link>
                 </div>
             </section>
-
             <!-- ══ SECCIÓN 3: Distribución Demográfica + Actividad Multitab ══ -->
             <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
                 <!-- Columna Izquierda: Demografía & Roles -->
                 <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-7 flex flex-col justify-between space-y-6">
                     <div class="space-y-1">
@@ -357,7 +340,6 @@ const firstName = computed(() => {
                         </div>
                         <p class="text-xs text-slate-500">Composición del personal y usuarios registrados en el sistema.</p>
                     </div>
-
                     <div class="space-y-4">
                         <template v-for="(count, role) in usersRoles" :key="role">
                             <div class="space-y-1.5">
@@ -377,12 +359,10 @@ const firstName = computed(() => {
                                 </div>
                             </div>
                         </template>
-
                         <div v-if="!usersRoles || Object.keys(usersRoles).length === 0" class="text-center py-6 text-xs text-slate-400">
                             No hay información de roles disponible.
                         </div>
                     </div>
-
                     <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
                         <span class="text-slate-500 font-medium">Total: <strong class="text-slate-800">{{ usersTotal }} usuarios</strong></span>
                         <Link :href="route('admin.users.index')" class="text-purple-600 font-bold hover:underline">
@@ -390,7 +370,6 @@ const firstName = computed(() => {
                         </Link>
                     </div>
                 </div>
-
                 <!-- Columna Derecha: Panel Multitab de Actividad -->
                 <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-7 flex flex-col justify-between space-y-5">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -400,7 +379,6 @@ const firstName = computed(() => {
                             </h4>
                             <p class="text-xs text-slate-500 mt-0.5">Últimos movimientos registrados en las áreas principales.</p>
                         </div>
-
                         <!-- Tab buttons -->
                         <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-2xl overflow-x-auto text-xs font-bold">
                             <button @click="activeTab = 'users'"
@@ -429,7 +407,6 @@ const firstName = computed(() => {
                             </button>
                         </div>
                     </div>
-
                     <!-- Tab Contents -->
                     <div class="flex-1 min-h-[260px]">
                         <!-- Users List -->
@@ -456,7 +433,6 @@ const firstName = computed(() => {
                                 No hay usuarios registrados recientemente.
                             </div>
                         </div>
-
                         <!-- Job Offers List -->
                         <div v-show="activeTab === 'offers'" class="divide-y divide-slate-100">
                             <div v-for="job in recentOffers" :key="job.id" class="py-3 flex items-center justify-between gap-3 text-xs">
@@ -476,7 +452,6 @@ const firstName = computed(() => {
                                 No hay ofertas de empleo registradas recientemente.
                             </div>
                         </div>
-
                         <!-- Claims List -->
                         <div v-show="activeTab === 'claims'" class="divide-y divide-slate-100">
                             <div v-for="c in recentClaims" :key="c.id" class="py-3 flex items-center justify-between gap-3 text-xs">
@@ -496,7 +471,6 @@ const firstName = computed(() => {
                                 No hay reclamos registrados recientemente.
                             </div>
                         </div>
-
                         <!-- Admissions List -->
                         <div v-show="activeTab === 'admissions'" class="divide-y divide-slate-100">
                             <div v-for="a in recentAdmissions" :key="a.id" class="py-3 flex items-center justify-between gap-3 text-xs">
@@ -517,7 +491,6 @@ const firstName = computed(() => {
                             </div>
                         </div>
                     </div>
-
                     <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
                         <span class="text-slate-400 font-medium">Bolsa FVC • Sistema de Gestión Institucional</span>
                         <Link :href="route('admin.exams.index')" class="text-purple-600 font-bold hover:underline flex items-center gap-1">
@@ -526,7 +499,6 @@ const firstName = computed(() => {
                     </div>
                 </div>
             </section>
-
             <!-- ══ SECCIÓN 4: Accesos Rápidos de Transparencia & Registros ══ -->
             <section class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <Link :href="route('admin.statistics.index')"
@@ -539,7 +511,6 @@ const firstName = computed(() => {
                         <p class="text-[11px] text-slate-400">Postulantes</p>
                     </div>
                 </Link>
-
                 <Link :href="route('admin.degree-records.index')"
                       class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all flex items-center gap-3 group">
                     <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform">
@@ -550,7 +521,6 @@ const firstName = computed(() => {
                         <p class="text-[11px] text-slate-400">{{ degreeRecordsTotal }} registros</p>
                     </div>
                 </Link>
-
                 <Link :href="route('admin.documents.index')"
                       class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all flex items-center gap-3 group">
                     <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform">
@@ -561,7 +531,6 @@ const firstName = computed(() => {
                         <p class="text-[11px] text-slate-400">{{ documentsTotal }} archivos</p>
                     </div>
                 </Link>
-
                 <Link :href="route('admin.enterprise.edit')"
                       class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all flex items-center gap-3 group">
                     <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform">

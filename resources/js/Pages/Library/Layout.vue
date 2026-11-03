@@ -28,14 +28,12 @@ const isRouteActive = (pattern) => {
 
 <template>
     <div class="flex w-full bg-white font-sans text-slate-800 min-h-screen">
-
         <!-- Mobile Drawer Overlay -->
         <div
             v-if="isReaderSidebarOpen"
             @click="isReaderSidebarOpen = false"
             class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-30 lg:hidden"
         ></div>
-
         <!-- Reader Navigation Sidebar -->
         <aside
             class="bg-white border-r border-slate-200/80 shrink-0 transition-all duration-300 ease-in-out fixed lg:sticky inset-y-0 left-0 z-40 top-0 h-screen overflow-hidden flex flex-col p-4"
@@ -52,10 +50,8 @@ const isRouteActive = (pattern) => {
                     <span class="text-[10px] text-blue-700 font-bold tracking-wider uppercase block">Biblioteca Virtual</span>
                 </div>
             </div>
-
             <!-- Divider -->
             <div class="h-px bg-slate-100 w-full mb-4"></div>
-
             <!-- Nav Links -->
             <nav class="space-y-1.5 flex-1">
                 <!-- 1. Inicio -->
@@ -79,7 +75,6 @@ const isRouteActive = (pattern) => {
                     ></i>
                     <span v-show="isReaderSidebarOpen" class="truncate">Inicio</span>
                 </Link>
-
                 <!-- 2. Buscar -->
                 <Link
                     :href="route('biblioteca.search')"
@@ -101,7 +96,6 @@ const isRouteActive = (pattern) => {
                     ></i>
                     <span v-show="isReaderSidebarOpen" class="truncate">Buscar</span>
                 </Link>
-
                 <!-- 3. Mi Biblioteca -->
                 <Link
                     :href="route('biblioteca.favorites')"
@@ -124,7 +118,6 @@ const isRouteActive = (pattern) => {
                     <span v-show="isReaderSidebarOpen" class="truncate">Mi Biblioteca</span>
                 </Link>
             </nav>
-
             <!-- Bottom shortcuts (Admin or Student profile) -->
             <div class="pt-3 border-t border-slate-100 space-y-1">
                 <Link
@@ -136,7 +129,6 @@ const isRouteActive = (pattern) => {
                     <i class="bi bi-sliders text-sm shrink-0"></i>
                     <span v-show="isReaderSidebarOpen" class="truncate font-bold">Panel Admin</span>
                 </Link>
-
                 <Link
                     v-if="authUser"
                     :href="route('admin.profile.edit', authUser.id)"
@@ -148,7 +140,6 @@ const isRouteActive = (pattern) => {
                 </Link>
             </div>
         </aside>
-
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col min-w-0 bg-white">
             <!-- Top bar -->
@@ -168,7 +159,6 @@ const isRouteActive = (pattern) => {
                         <span class="text-slate-900 font-bold">{{ pageTitle }}</span>
                     </div>
                 </div>
-
                 <!-- User profile badge -->
                 <div v-if="authUser" class="flex items-center gap-2.5">
                     <div class="w-8 h-8 rounded-full bg-rose-500 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
@@ -180,13 +170,11 @@ const isRouteActive = (pattern) => {
                     </div>
                 </div>
             </header>
-
             <!-- Page Body Slot -->
             <main class="flex-1 p-5 sm:p-8 max-w-7xl w-full mx-auto relative">
                 <slot />
             </main>
         </div>
-
         <!-- Floating Help Button -->
         <div class="fixed bottom-5 right-5 z-20">
             <a
@@ -197,6 +185,5 @@ const isRouteActive = (pattern) => {
                 <i class="bi bi-question-lg"></i>
             </a>
         </div>
-
     </div>
 </template>

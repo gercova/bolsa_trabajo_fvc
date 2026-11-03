@@ -6,7 +6,6 @@ use App\Http\Requests\ItineraryRequest;
 use App\Models\Course;
 use App\Models\Itinerary;
 use App\Models\Module;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -73,33 +72,18 @@ class ItineraryController extends Controller
     /**
      * Store a newly created itinerary.
      */
-    public function store(ItineraryRequest $request): RedirectResponse|JsonResponse
+    public function store(ItineraryRequest $request): RedirectResponse
     {
         try {
             $data = $request->validated();
             $data['is_active'] = $request->boolean('is_active', true);
             $itinerary = Itinerary::create($data);
 
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => "El itinerario '{$itinerary->name}' ha sido registrado exitosamente.",
-                    'itinerary' => $itinerary->load(['course', 'module']),
-                ], 201);
-            }
-
             return redirect()->route('admin.itineraries.index')
                 ->with('success', "El itinerario '{$itinerary->name}' ha sido registrado exitosamente.");
 
         } catch (\Exception $e) {
             Log::error('Error registrando itinerario: '.$e->getMessage());
-
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Ocurrió un error al registrar el itinerario: '.$e->getMessage(),
-                ], 500);
-            }
 
             return back()->withInput()->with('error', 'Error al registrar el itinerario.');
         }
@@ -108,32 +92,18 @@ class ItineraryController extends Controller
     /**
      * Update the specified itinerary.
      */
-    public function update(ItineraryRequest $request, Itinerary $itinerary): RedirectResponse|JsonResponse
+    public function update(ItineraryRequest $request, Itinerary $itinerary): RedirectResponse
     {
         try {
             $data = $request->validated();
             $data['is_active'] = $request->boolean('is_active');
             $itinerary->update($data);
 
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => "El itinerario '{$itinerary->name}' ha sido actualizado exitosamente.",
-                    'itinerary' => $itinerary->load(['course', 'module']),
-                ], 200);
-            }
-
             return redirect()->route('admin.itineraries.index')
                 ->with('success', "El itinerario '{$itinerary->name}' ha sido actualizado exitosamente.");
 
         } catch (\Exception $e) {
             Log::error('Error actualizando itinerario: '.$e->getMessage());
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Ocurrió un error al actualizar el itinerario: '.$e->getMessage(),
-                ], 500);
-            }
 
             return back()->withInput()->with('error', 'Error al actualizar el itinerario.');
         }
@@ -142,31 +112,17 @@ class ItineraryController extends Controller
     /**
      * Remove the specified itinerary.
      */
-    public function destroy(Itinerary $itinerary): RedirectResponse|JsonResponse
+    public function destroy(Itinerary $itinerary): RedirectResponse
     {
         try {
             $name = $itinerary->name;
             $itinerary->delete();
-
-            if (request()->expectsJson() || request()->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => "El itinerario '{$name}' ha sido eliminado correctamente.",
-                ], 200);
-            }
 
             return redirect()->route('admin.itineraries.index')
                 ->with('success', "El itinerario '{$name}' ha sido eliminado correctamente.");
 
         } catch (\Exception $e) {
             Log::error('Error eliminando itinerario: '.$e->getMessage());
-
-            if (request()->expectsJson() || request()->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No se pudo eliminar el itinerario.',
-                ], 500);
-            }
 
             return back()->with('error', 'No se pudo eliminar el itinerario.');
         }
@@ -175,18 +131,10 @@ class ItineraryController extends Controller
     /**
      * Toggle the active status of an itinerary.
      */
-    public function toggleStatus(Itinerary $itinerary): JsonResponse|RedirectResponse
+    public function toggleStatus(Itinerary $itinerary): RedirectResponse
     {
         $itinerary->is_active = ! $itinerary->is_active;
         $itinerary->save();
-
-        if (request()->expectsJson() || request()->ajax()) {
-            return response()->json([
-                'success' => true,
-                'is_active' => $itinerary->is_active,
-                'message' => 'Estado actualizado correctamente.',
-            ]);
-        }
 
         return back()->with('success', 'Estado del itinerario actualizado.');
     }

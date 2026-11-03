@@ -24,6 +24,16 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UsersController extends Controller
 {
+    /**
+     * Determine if the request explicitly wants a JSON response (excluding Inertia requests).
+     */
+    protected function wantsJson(?Request $request = null): bool
+    {
+        $req = $request ?: request();
+
+        return ($req->expectsJson() || $req->wantsJson()) && ! $req->header('X-Inertia');
+    }
+
     public function __construct() {}
 
     public function index(Request $request): InertiaResponse
@@ -187,7 +197,7 @@ class UsersController extends Controller
         $validated = $request->validated();
         $user->update(['password' => Hash::make($validated['password'])]);
 
-        if ($request->wantsJson() || $request->ajax()) {
+        if ($this->wantsJson($request)) {
             return response()->json([
                 'success' => true,
                 'message' => 'Contraseña de '.($user->names ?? 'usuario').' actualizada exitosamente.',
@@ -250,7 +260,7 @@ class UsersController extends Controller
     {
         $user->update(['is_active' => ! $user->is_active]);
 
-        if (request()->expectsJson() || request()->ajax()) {
+        if ($this->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Estado del usuario actualizado.',
@@ -267,7 +277,7 @@ class UsersController extends Controller
     {
         // Prevenir auto-eliminación
         if (auth()->id() && $user->id === auth()->id()) {
-            if (request()->expectsJson() || request()->ajax()) {
+            if ($this->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No puedes eliminar tu propia cuenta en sesión activa.',
@@ -279,7 +289,7 @@ class UsersController extends Controller
 
         // Verificar que no sea el último admin
         if ($this->isUserAdmin($user) && $this->getTotalAdminCount() <= 1) {
-            if (request()->expectsJson() || request()->ajax()) {
+            if ($this->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No se puede eliminar el único administrador del sistema.',
@@ -299,7 +309,7 @@ class UsersController extends Controller
 
         $user->delete();
 
-        if (request()->expectsJson() || request()->ajax()) {
+        if ($this->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Usuario eliminado exitosamente.',
@@ -360,7 +370,7 @@ class UsersController extends Controller
 
             if (! $hasFilter && ! $request->boolean('confirm_all')) {
                 $msg = 'Debe especificar al menos un filtro (rol, puesto, estado o búsqueda) para la eliminación masiva.';
-                if ($request->expectsJson() || $request->ajax()) {
+                if ($this->wantsJson($request)) {
                     return response()->json(['success' => false, 'message' => $msg], 422);
                 }
 
@@ -382,7 +392,7 @@ class UsersController extends Controller
 
             if ($usersToDelete->isEmpty()) {
                 $msg = 'No se encontraron usuarios para eliminar con los filtros seleccionados.';
-                if ($request->expectsJson() || $request->ajax()) {
+                if ($this->wantsJson($request)) {
                     return response()->json(['success' => false, 'message' => $msg], 404);
                 }
 
@@ -402,7 +412,7 @@ class UsersController extends Controller
             $ids = $request->input('ids', []);
             if (empty($ids) || ! is_array($ids)) {
                 $msg = 'Debe seleccionar al menos un usuario para eliminar.';
-                if ($request->expectsJson() || $request->ajax()) {
+                if ($this->wantsJson($request)) {
                     return response()->json(['success' => false, 'message' => $msg], 422);
                 }
 
@@ -412,7 +422,7 @@ class UsersController extends Controller
             $validIds = array_values(array_filter(array_map('intval', $ids)));
             if (empty($validIds)) {
                 $msg = 'Identificadores de usuario no válidos.';
-                if ($request->expectsJson() || $request->ajax()) {
+                if ($this->wantsJson($request)) {
                     return response()->json(['success' => false, 'message' => $msg], 422);
                 }
 
@@ -427,7 +437,7 @@ class UsersController extends Controller
 
             if (empty($validIds)) {
                 $msg = 'No se puede eliminar la cuenta propia que se encuentra en sesión activa.';
-                if ($request->expectsJson() || $request->ajax()) {
+                if ($this->wantsJson($request)) {
                     return response()->json(['success' => false, 'message' => $msg], 422);
                 }
 
@@ -441,7 +451,7 @@ class UsersController extends Controller
             $adminUsersInList = $usersToDelete->filter(fn ($u) => $this->isUserAdmin($u));
             if ($totalAdmins > 0 && $adminUsersInList->count() >= $totalAdmins) {
                 $msg = 'No se puede eliminar a todos los administradores del sistema. Debe permanecer al menos un administrador.';
-                if ($request->expectsJson() || $request->ajax()) {
+                if ($this->wantsJson($request)) {
                     return response()->json(['success' => false, 'message' => $msg], 400);
                 }
 
@@ -451,7 +461,7 @@ class UsersController extends Controller
 
         if ($usersToDelete->isEmpty()) {
             $msg = 'No hay usuarios disponibles para eliminar (fueron protegidos por seguridad).';
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json(['success' => false, 'message' => $msg], 404);
             }
 
@@ -491,7 +501,7 @@ class UsersController extends Controller
             $message .= ' ('.implode(' ', $notices).')';
         }
 
-        if ($request->expectsJson() || $request->ajax()) {
+        if ($this->wantsJson($request)) {
             return response()->json([
                 'success' => true,
                 'message' => $message,

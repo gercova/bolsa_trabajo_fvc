@@ -110,7 +110,6 @@ const jsonLd = JSON.stringify({
             <meta property="og:image" :content="enterprise?.logo_path ? `/${enterprise.logo_path}` : '/img/logo.png'" />
             <component :is="'script'" type="application/ld+json" v-text="jsonLd" />
         </Head>
-
         <!-- HERO SECTION -->
         <section class="relative bg-slate-900 text-white py-16 lg:py-20 overflow-hidden border-b border-slate-800">
             <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
@@ -127,15 +126,12 @@ const jsonLd = JSON.stringify({
                 </p>
             </div>
         </section>
-
         <!-- MAIN CONTENT CONTAINER -->
         <section class="py-16 bg-slate-50/60">
             <div class="container mx-auto px-4 sm:px-6 max-w-7xl space-y-12">
-
                 <!-- SECTION 1: DOCUMENTO TUPA PDF VIGENTE -->
                 <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xl overflow-hidden p-6 sm:p-8 lg:p-10 relative">
                     <div class="absolute top-0 right-0 w-64 h-64 bg-blue-50/50 rounded-full blur-3xl -z-10"></div>
-
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                         <div class="lg:col-span-8 space-y-4">
                             <div class="flex flex-wrap items-center gap-3">
@@ -147,15 +143,12 @@ const jsonLd = JSON.stringify({
                                     {{ formatDate(currentTupa.effective_start_date) }}
                                 </span>
                             </div>
-
                             <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-snug">
                                 {{ currentTupa?.title || 'Reglamento Oficial TUPA - IESTP Francisco Vigo Caballero' }}
                             </h2>
-
                             <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
                                 {{ currentTupa?.description || 'Consulte y descargue el documento normativo completo que estipula todas las normas, resoluciones y el cuadro tarifario oficial vigente en la institución.' }}
                             </p>
-
                             <div class="flex flex-wrap gap-3 pt-2">
                                 <template v-if="currentTupa && currentTupa.url">
                                     <button
@@ -166,7 +159,6 @@ const jsonLd = JSON.stringify({
                                         <i class="bi bi-file-earmark-pdf text-lg"></i>
                                         <span>Ver PDF Interactivo</span>
                                     </button>
-
                                     <a
                                         :href="currentTupa.url"
                                         target="_blank"
@@ -186,19 +178,16 @@ const jsonLd = JSON.stringify({
                                 </div>
                             </div>
                         </div>
-
                         <!-- Card right graphic / summary badge -->
                         <div class="lg:col-span-4 bg-slate-900 text-white rounded-2xl p-6 sm:p-8 space-y-6 border border-slate-800 shadow-sm relative overflow-hidden">
                             <div class="flex items-center justify-between">
                                 <i class="bi bi-folder-check text-4xl text-blue-400"></i>
                                 <span class="text-xs font-semibold px-2.5 py-1 bg-white/10 rounded-lg backdrop-blur-md">Oficial</span>
                             </div>
-
                             <div>
                                 <p class="text-xs uppercase tracking-wider text-slate-400 font-bold">Total Trámites Reglamentados</p>
                                 <p class="text-3xl font-black text-white mt-1">{{ totalProceduresCount }} Conceptos</p>
                             </div>
-
                             <div class="space-y-2 pt-2 border-t border-white/10 text-xs text-slate-300">
                                 <div class="flex justify-between">
                                     <span>Unidad Impositiva Tributaria (UIT):</span>
@@ -212,7 +201,6 @@ const jsonLd = JSON.stringify({
                         </div>
                     </div>
                 </div>
-
                 <!-- SECTION 2: BUSCADOR Y CATÁLOGO DE TRÁMITES Y CONCEPTOS -->
                 <div class="space-y-8">
                     <div class="text-center max-w-3xl mx-auto space-y-3">
@@ -221,7 +209,6 @@ const jsonLd = JSON.stringify({
                             Filtre y explore los procedimientos administrativos por categoría o busque directamente por palabra clave para conocer los requisitos, costos y tiempos de atención.
                         </p>
                     </div>
-
                     <!-- Control Filters Bar -->
                     <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
@@ -235,7 +222,6 @@ const jsonLd = JSON.stringify({
                                     class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
                                 />
                             </div>
-
                             <!-- Category Select Pills -->
                             <div class="md:col-span-6 flex flex-wrap gap-2">
                                 <button
@@ -263,7 +249,6 @@ const jsonLd = JSON.stringify({
                             </div>
                         </div>
                     </div>
-
                     <!-- Procedures Grid -->
                     <div v-if="filteredProcedures.length > 0" class="space-y-10">
                         <div
@@ -277,7 +262,6 @@ const jsonLd = JSON.stringify({
                                 </div>
                                 <h3 class="text-xl font-extrabold text-slate-900">{{ group.category }}</h3>
                             </div>
-
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div
                                     v-for="item in group.items"
@@ -293,12 +277,10 @@ const jsonLd = JSON.stringify({
                                                 {{ item.qualification }}
                                             </span>
                                         </div>
-
                                         <div>
                                             <h4 class="text-lg font-bold text-slate-900 leading-snug">{{ item.name }}</h4>
                                             <p class="text-xs text-slate-500 mt-1 leading-relaxed">{{ item.description }}</p>
                                         </div>
-
                                         <div class="space-y-2 pt-2 border-t border-slate-100">
                                             <p class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                                                 <i class="bi bi-list-check text-blue-600"></i> Requisitos Exigidos:
@@ -315,19 +297,16 @@ const jsonLd = JSON.stringify({
                                             </ul>
                                         </div>
                                     </div>
-
                                     <div class="pt-4 border-t border-slate-100 grid grid-cols-3 gap-2 text-center text-xs">
                                         <div class="bg-blue-50/70 p-2.5 rounded-xl border border-blue-100">
                                             <span class="block text-[10px] uppercase font-bold text-slate-500">Derecho Pago</span>
                                             <strong class="text-sm font-extrabold text-blue-700">{{ item.cost }}</strong>
                                             <span class="block text-[10px] text-slate-400">({{ item.uit_percent }} UIT)</span>
                                         </div>
-
                                         <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                                             <span class="block text-[10px] uppercase font-bold text-slate-500">Plazo Atención</span>
                                             <strong class="text-xs font-bold text-slate-800">{{ item.duration }}</strong>
                                         </div>
-
                                         <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                                             <span class="block text-[10px] uppercase font-bold text-slate-500">Oficina Atiende</span>
                                             <span class="block text-[11px] font-semibold text-slate-700 leading-tight mt-0.5">{{ item.office }}</span>
@@ -337,7 +316,6 @@ const jsonLd = JSON.stringify({
                             </div>
                         </div>
                     </div>
-
                     <!-- Empty Search State -->
                     <div
                         v-else
@@ -359,7 +337,6 @@ const jsonLd = JSON.stringify({
                         </button>
                     </div>
                 </div>
-
                 <!-- SECTION 3: ACCIONES RÁPIDAS Y MESA DE PARTES -->
                 <div class="bg-slate-900 text-white rounded-3xl p-8 sm:p-10 shadow-lg border border-slate-800 relative overflow-hidden">
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -374,7 +351,6 @@ const jsonLd = JSON.stringify({
                                 Adjunta tu Formulario Único de Trámite (FUT), comprobante de pago y requisitos desde cualquier lugar de forma segura e inmediata.
                             </p>
                         </div>
-
                         <div class="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3">
                             <Link
                                 :href="route('mesa-de-partes')"
@@ -383,7 +359,6 @@ const jsonLd = JSON.stringify({
                                 <i class="bi bi-send-fill"></i>
                                 <span>Ir a Mesa de Partes Virtual</span>
                             </Link>
-
                             <a
                                 href="/documents/fut-iestp-fvc.pdf"
                                 target="_blank"
@@ -396,7 +371,6 @@ const jsonLd = JSON.stringify({
                         </div>
                     </div>
                 </div>
-
                 <!-- Modal Reader for PDF -->
                 <div
                     v-if="showModal"
@@ -431,7 +405,6 @@ const jsonLd = JSON.stringify({
                         </div>
                     </div>
                 </div>
-
             </div>
         </section>
     </PublicLayout>

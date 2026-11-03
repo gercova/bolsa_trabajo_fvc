@@ -60,7 +60,6 @@ const truncate = (str, len = 120) => {
         />
         <meta name="robots" content="index, follow" />
     </Head>
-
     <PublicLayout title="Programas de Estudio">
         <!-- ═══ HERO SECTION ═══════════════════════════════════════════ -->
         <section class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
@@ -71,7 +70,6 @@ const truncate = (str, len = 120) => {
                 <p class="text-xl sm:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-medium">
                     Descubre carreras profesionales acreditadas diseñadas para responder con éxito a las demandas del mercado laboral actual.
                 </p>
-
                 <!-- Metrics Grid in Hero -->
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-16 pt-12 border-t border-white/10">
                     <div class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/5 hover:border-sky-500/20 transition-all duration-300">
@@ -89,7 +87,6 @@ const truncate = (str, len = 120) => {
                 </div>
             </div>
         </section>
-
         <!-- ═══ PROGRAM LIST SECTION ═══════════════════════════════════ -->
         <section v-if="programs.length > 0" class="py-24 bg-slate-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -104,7 +101,6 @@ const truncate = (str, len = 120) => {
                         Nuestras mallas curriculares están orientadas al desarrollo de competencias prácticas, preparándote directamente para incorporarte al empleo técnico.
                     </p>
                 </div>
-
                 <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
                     <div
                         v-for="program in programs"
@@ -140,7 +136,6 @@ const truncate = (str, len = 120) => {
                                 </span>
                             </div>
                         </div>
-
                         <!-- Card Body -->
                         <div class="p-8 flex flex-col flex-grow space-y-6">
                             <div>
@@ -152,14 +147,12 @@ const truncate = (str, len = 120) => {
                                     :class="program.color_config?.bar || 'bg-blue-600'"
                                 ></div>
                             </div>
-
                             <p v-if="program.description" class="text-base text-slate-600 leading-relaxed line-clamp-4 flex-grow font-medium">
                                 {{ truncate(stripHtml(program.description), 120) }}
                             </p>
                             <p v-else class="text-slate-400 text-base italic flex-grow">
                                 Descripción detallada no disponible en este momento.
                             </p>
-
                             <!-- Details lines -->
                             <div v-if="getDetailLines(program.details).length > 0" class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2">
                                 <div
@@ -171,7 +164,6 @@ const truncate = (str, len = 120) => {
                                     <span>{{ detailLine }}</span>
                                 </div>
                             </div>
-
                             <!-- Modules list -->
                             <div v-if="program.modules && program.modules.length > 0" class="space-y-3">
                                 <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
@@ -193,7 +185,6 @@ const truncate = (str, len = 120) => {
                                     </div>
                                 </div>
                             </div>
-
                             <!-- Action Button -->
                             <div class="pt-4">
                                 <Link
@@ -209,7 +200,6 @@ const truncate = (str, len = 120) => {
                 </div>
             </div>
         </section>
-
         <!-- ═══ WHY STUDY HERE SECTION ═════════════════════════════════ -->
         <section class="py-24 bg-white border-t border-slate-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -224,7 +214,6 @@ const truncate = (str, len = 120) => {
                         Ofrecemos una educación técnica integral, práctica y con respaldo oficial para impulsar tu inserción laboral.
                     </p>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     <!-- Point 1 -->
                     <div class="p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-md transition duration-300 flex flex-col justify-between">
@@ -238,7 +227,6 @@ const truncate = (str, len = 120) => {
                             </p>
                         </div>
                     </div>
-
                     <!-- Point 2 -->
                     <div class="p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-md transition duration-300 flex flex-col justify-between">
                         <div>
@@ -251,7 +239,6 @@ const truncate = (str, len = 120) => {
                             </p>
                         </div>
                     </div>
-
                     <!-- Point 3 -->
                     <div class="p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-md transition duration-300 flex flex-col justify-between">
                         <div>
@@ -264,7 +251,6 @@ const truncate = (str, len = 120) => {
                             </p>
                         </div>
                     </div>
-
                     <!-- Point 4 -->
                     <div class="p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-md transition duration-300 flex flex-col justify-between">
                         <div>
@@ -280,7 +266,6 @@ const truncate = (str, len = 120) => {
                 </div>
             </div>
         </section>
-
         <!-- ═══ ADMISSION ROADMAP SECTION ═══════════════════════════════ -->
         <section class="py-24 bg-slate-50 border-t border-slate-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -295,7 +280,6 @@ const truncate = (str, len = 120) => {
                         Sigue esta secuencia de pasos para completar exitosamente tu postulación e ingresar al período lectivo.
                     </p>
                 </div>
-
                 <div class="relative max-w-5xl mx-auto">
                     <div class="absolute top-1/2 left-0 w-full h-1 bg-blue-200 -translate-y-1/2 z-0 hidden lg:block"></div>
 
@@ -309,7 +293,6 @@ const truncate = (str, len = 120) => {
                                 Reúne tu DNI, certificado de secundaria completa y partida de nacimiento.
                             </p>
                         </div>
-
                         <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center hover:shadow-md transition">
                             <div class="w-12 h-12 rounded-full bg-blue-600 text-white font-black flex items-center justify-center mx-auto mb-4 text-lg">
                                 2
@@ -319,7 +302,6 @@ const truncate = (str, len = 120) => {
                                 Inscríbete de manera digital en la web o acudiendo a las oficinas del instituto.
                             </p>
                         </div>
-
                         <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center hover:shadow-md transition">
                             <div class="w-12 h-12 rounded-full bg-blue-600 text-white font-black flex items-center justify-center mx-auto mb-4 text-lg">
                                 3
@@ -329,7 +311,6 @@ const truncate = (str, len = 120) => {
                                 Rinde el examen de admisión (conocimientos y aptitud) en las fechas oficiales.
                             </p>
                         </div>
-
                         <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center hover:shadow-md transition">
                             <div class="w-12 h-12 rounded-full bg-blue-600 text-white font-black flex items-center justify-center mx-auto mb-4 text-lg">
                                 4
@@ -341,7 +322,6 @@ const truncate = (str, len = 120) => {
                         </div>
                     </div>
                 </div>
-
                 <div class="text-center mt-14">
                     <Link
                         href="/admision-y-matricula/examen-de-admision"
@@ -353,7 +333,6 @@ const truncate = (str, len = 120) => {
                 </div>
             </div>
         </section>
-
         <!-- ═══ FAQ SECTION ═════════════════════════════════════════════ -->
         <section class="py-24 bg-white">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -368,7 +347,6 @@ const truncate = (str, len = 120) => {
                         Resolvemos de forma inmediata las dudas comunes sobre los estudios en el IESTP.
                     </p>
                 </div>
-
                 <div class="space-y-4">
                     <!-- FAQ 1 -->
                     <div
@@ -390,7 +368,6 @@ const truncate = (str, len = 120) => {
                             Todos nuestros programas tienen una duración de 3 años, estructurados en 6 períodos académicos semestrales. Las clases se dictan de lunes a viernes en horario diurno (7:30 am – 1:30 pm).
                         </div>
                     </div>
-
                     <!-- FAQ 2 -->
                     <div
                         class="border rounded-2xl overflow-hidden transition-all duration-300"
@@ -411,7 +388,6 @@ const truncate = (str, len = 120) => {
                             Al culminar y aprobar los cursos correspondientes a cada año de estudios, el instituto te entrega una certificación modular oficial a nombre de la Nación. Esto te califica para incorporarte al mercado laboral en puestos asociados antes de culminar la carrera completa.
                         </div>
                     </div>
-
                     <!-- FAQ 3 -->
                     <div
                         class="border rounded-2xl overflow-hidden transition-all duration-300"
@@ -435,7 +411,6 @@ const truncate = (str, len = 120) => {
                 </div>
             </div>
         </section>
-
         <!-- ═══ CTA SECTION ═════════════════════════════════════════════ -->
         <section class="py-24 bg-slate-900 text-white text-center relative overflow-hidden border-t border-slate-800">
             <div class="container mx-auto px-4 relative z-10 space-y-8">

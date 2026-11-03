@@ -48,7 +48,6 @@ function submit() {
                         Editar Oferta Laboral
                     </h1>
                 </div>
-
                 <Link :href="route('admin.works.index')"
                       class="inline-flex items-center gap-2 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-xl transition-all">
                     <i class="bi bi-arrow-left"></i> Volver al Listado

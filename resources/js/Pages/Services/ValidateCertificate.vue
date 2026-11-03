@@ -104,6 +104,7 @@ if (!activeCertCode.value && defaultCertCode.value) {
 
 // Active Tab for summary tables
 const activeTab = ref('years');
+const showSummary = ref(false);
 
 // Copy link notification state
 const copiedLink = ref(false);
@@ -184,15 +185,16 @@ const sumPeriods = computed(() => {
 const isBasicEnglish = (cert) => {
     if (!cert) return false;
     const name = (cert.course?.name || cert.event_name || '').toLowerCase();
-    return name.includes('inglés') || name.includes('ingles') || cert.certificate_type === 'english' || (cert.english_modules_data && cert.english_modules_data.length > 0);
+    const type = (cert.certificate_type || cert.course?.certificate_type || '').toLowerCase();
+    return name.includes('inglés') || name.includes('ingles') || name.includes('english') || type === 'english' || type === 'ingles' || type === 'basic_english';
 };
 
 const isTraining = (cert) => {
     if (!cert) return false;
     if (isBasicEnglish(cert)) return false;
     const modality = (cert.modality || '').toLowerCase();
-    const certType = (cert.certificate_type || '').toLowerCase();
-    return certType === 'training' || modality === 'capacitación' || modality === 'capacitacion' || (cert.topics_list && cert.topics_list.length > 0 && (!cert.details || cert.details.length === 0));
+    const certType = (cert.certificate_type || cert.course?.certificate_type || '').toLowerCase();
+    return certType === 'training' || certType === 'capacitacion' || certType === 'capacitación' || modality === 'capacitación' || modality === 'capacitacion' || (cert.topics_list && cert.topics_list.length > 0 && (!cert.details || cert.details.length === 0));
 };
 
 const calculateAverage = (details) => {
@@ -219,7 +221,6 @@ const calculateAverage = (details) => {
             <meta property="og:title" :content="certificate ? `Validación Oficial: ${certificate.certificate_code} — IESTP FVC` : 'Validar Certificados Oficiales — IESTP FVC'" />
             <meta property="og:description" :content="certificate ? `Verificación digital del certificado ${certificate.certificate_code}` : 'Portal oficial de validación de certificados modulares'" />
         </Head>
-
         <!-- Page Styles for Print and Verified Certificate Badge -->
         <div class="validate-page-wrapper bg-slate-50 min-h-screen font-sans text-slate-800">
             <!-- ═══ HERO & SEARCH SECTION (HIDDEN IN PRINT) ════════════════ -->
@@ -231,7 +232,6 @@ const calculateAverage = (details) => {
                         <i class="bi bi-patch-check-fill text-emerald-400 text-base"></i>
                         <span>Sistema Oficial de Validación Digital por QR &amp; Código</span>
                     </div>
-
                     <!-- Main Heading -->
                     <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight font-display">
                         Validación de <span class="text-emerald-400">Certificados</span> Institucionales
@@ -241,7 +241,6 @@ const calculateAverage = (details) => {
                         <strong class="text-white font-semibold">{{ enterprise.trade_name || enterprise.company_name || 'IESTP Francisco Vigo Caballero' }}</strong>.
                         Ingrese el código impreso, escanee el código QR o busque por DNI.
                     </p>
-
                     <!-- Search Bar -->
                     <div class="max-w-2xl mx-auto pt-2">
                         <form @submit.prevent="handleSearch"
@@ -267,7 +266,6 @@ const calculateAverage = (details) => {
                     </div>
                 </div>
             </section>
-
             <!-- ═══ CERTIFICATE VALIDATION RESULT (IF SEARCHED) ═══════════════ -->
             <div v-if="searched" class="certificate-result-wrapper max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20 mb-12">
                 <!-- If matches found -->
@@ -300,7 +298,6 @@ const calculateAverage = (details) => {
                                 </span>
                             </div>
                         </div>
-
                         <div class="pt-4 space-y-3">
                             <p class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                                 <i class="bi bi-collection-fill text-indigo-500"></i> Certificados del estudiante — Seleccione para ver el detalle oficial:
@@ -328,7 +325,7 @@ const calculateAverage = (details) => {
                                             {{ item.course?.name || 'Curso Modular Institucional' }}
                                         </h4>
                                         <p class="text-[11px] text-slate-500">
-                                            {{ isBasicEnglish(item) ? 'Inglés a Nivel Básico' : (isTraining(item) ? 'Capacitación' : 'Formación Modular') }}
+                                            {{ isBasicEnglish(item) ? (item.course?.name || item.event_name || 'Inglés a Nivel Básico') : (isTraining(item) ? (item.course?.name || item.event_name || 'Capacitación') : (item.course?.name || 'Formación Modular')) }}
                                             • {{ item.modality || 'Presencial' }}
                                         </p>
                                     </div>
@@ -344,7 +341,6 @@ const calculateAverage = (details) => {
                             </div>
                         </div>
                     </div>
-
                     <!-- CERTIFICATE CARDS FOR EACH CERTIFICATE -->
                     <div v-for="cItem in certList" :key="cItem.certificate_code || cItem.id">
                         <div v-show="activeCertCode === cItem.certificate_code"
@@ -382,7 +378,6 @@ const calculateAverage = (details) => {
                                     </div>
                                 </div>
                             </div>
-
                             <!-- Status Banner -->
                             <div class="bg-emerald-700 text-white px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
                                 <div class="flex items-center gap-3">
@@ -407,7 +402,6 @@ const calculateAverage = (details) => {
                                     </span>
                                 </div>
                             </div>
-
                             <!-- Card Body -->
                             <div class="print-card-body p-6 sm:p-8 space-y-6 sm:space-y-8 bg-white">
                                 <!-- Main Certificate Header Data -->
@@ -418,13 +412,12 @@ const calculateAverage = (details) => {
                                             Código Oficial: <span class="font-mono font-black text-indigo-900">{{ cItem.certificate_code }}</span>
                                         </div>
                                         <h3 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 font-display">
-                                            {{ cItem.course?.name || 'CURSO MODULAR INSTITUCIONAL' }}
+                                            {{ cItem.course?.name || cItem.event_name || 'CURSO MODULAR INSTITUCIONAL' }}
                                         </h3>
                                         <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                                            {{ cItem.description || cItem.course?.description || 'Certificado emitido a favor del participante por haber completado satisfactoriamente los módulos de formación y evaluación modular.' }}
+                                            {{ cItem.description || cItem.course?.description || 'Certificado emitido a favor del participante por haber completado satisfactoriamente los módulos de formación y evaluación académica.' }}
                                         </p>
                                     </div>
-
                                     <!-- QR and Stamp Badge -->
                                     <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-xs">
                                         <a :href="cItem.validation_url || route('validar-certificado', { certificate_code: cItem.certificate_code })" target="_blank"
@@ -442,7 +435,6 @@ const calculateAverage = (details) => {
                                         </span>
                                     </div>
                                 </div>
-
                                 <!-- Beneficiary & Course Metadata Grid -->
                                 <div class="print-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                     <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
@@ -454,20 +446,18 @@ const calculateAverage = (details) => {
                                             DNI: {{ cItem.user?.dni || '—' }}
                                         </span>
                                     </div>
-
                                     <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
                                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                                             {{ isBasicEnglish(cItem) ? 'Curso & Duración' : (isTraining(cItem) ? 'Condición de Participación' : 'Modalidad & Horas') }}
                                         </span>
                                         <p class="text-xs sm:text-sm font-extrabold text-indigo-700 mt-0.5 flex items-center gap-1.5 leading-tight">
                                             <i class="bi" :class="isBasicEnglish(cItem) ? 'bi-translate' : (isTraining(cItem) ? 'bi-person-badge-fill' : (cItem.modality === 'Virtual' ? 'bi-laptop' : (cItem.modality === 'Semipresencial' ? 'bi-shuffle' : 'bi-building')))"></i>
-                                            {{ isBasicEnglish(cItem) ? 'Inglés a Nivel Básico' : (isTraining(cItem) ? (cItem.participation_type || 'ASISTENTE') : (cItem.modality || 'Presencial')) }}
+                                            {{ isBasicEnglish(cItem) ? (cItem.course?.name || cItem.event_name || 'Inglés a Nivel Básico') : (isTraining(cItem) ? (cItem.participation_type || 'ASISTENTE') : (cItem.modality || 'Presencial')) }}
                                         </p>
                                         <span class="text-[11px] text-slate-500 mt-0.5 block">
                                             Duración: <strong>{{ cItem.duration || (isBasicEnglish(cItem) ? '128 horas pedagógicas' : (isTraining(cItem) ? '90 horas pedagógicas' : '128 Horas')) }}</strong>
                                         </span>
                                     </div>
-
                                     <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
                                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Periodo &amp; Emisión</span>
                                         <p class="text-[11px] sm:text-xs font-bold text-slate-800 mt-0.5 leading-tight">
@@ -477,7 +467,6 @@ const calculateAverage = (details) => {
                                             Emisión: <strong>{{ formatDate(cItem.issue_date) }}</strong>
                                         </span>
                                     </div>
-
                                     <div class="print-meta-box bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs">
                                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Institución &amp; Sede</span>
                                         <p class="text-[11px] sm:text-xs font-bold text-slate-800 mt-0.5 leading-tight">
@@ -488,7 +477,6 @@ const calculateAverage = (details) => {
                                         </span>
                                     </div>
                                 </div>
-
                                 <!-- Details Section: English vs Training vs Modular Grades -->
                                 <!-- 1. Basic English Academic Record -->
                                 <div v-if="isBasicEnglish(cItem)" class="space-y-3">
@@ -501,7 +489,6 @@ const calculateAverage = (details) => {
                                             <i class="bi bi-check-circle-fill text-[9px] mr-1"></i> Aprobado Satisfactoriamente
                                         </span>
                                     </div>
-
                                     <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs bg-white">
                                         <div class="overflow-x-auto">
                                             <table class="w-full text-left border-collapse text-xs">
@@ -551,7 +538,6 @@ const calculateAverage = (details) => {
                                         </div>
                                     </div>
                                 </div>
-
                                 <!-- 2. Training Course Syllabus -->
                                 <div v-else-if="isTraining(cItem)" class="space-y-3">
                                     <div class="flex items-center justify-between">
@@ -563,7 +549,6 @@ const calculateAverage = (details) => {
                                             <i class="bi bi-check-circle-fill text-[9px] mr-1"></i> Curso de Capacitación Aprobado
                                         </span>
                                     </div>
-
                                     <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs bg-slate-50/50 p-4 sm:p-5">
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                             <div v-for="(topic, index) in (cItem.topics_list || [])" :key="index"
@@ -586,75 +571,89 @@ const calculateAverage = (details) => {
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- 3. Modular Course Evaluation Grades -->
-                                <div v-else class="space-y-2.5">
-                                    <div class="flex items-center justify-between">
-                                        <h4 class="text-xs sm:text-sm font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                                            <i class="bi bi-journal-check text-indigo-600"></i>
-                                            Detalle de Calificaciones Modulares
-                                        </h4>
-                                        <span class="text-[11px] text-slate-500">Escala vigesimal (0 a 20)</span>
-                                    </div>
-
-                                    <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs bg-white">
-                                        <table class="w-full text-left border-collapse text-xs">
-                                            <thead>
-                                                <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[10px] sm:text-[11px] tracking-wider">
-                                                    <th class="px-3.5 py-2.5 text-center w-10">#</th>
-                                                    <th class="px-3.5 py-2.5">Módulo / Unidad de Competencia</th>
-                                                    <th class="px-3.5 py-2.5 text-center">Créditos</th>
-                                                    <th class="px-3.5 py-2.5 text-center">Calificación</th>
-                                                    <th class="px-3.5 py-2.5 text-center">Estado</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
-                                                <tr v-for="(detail, index) in (cItem.details || [])" :key="detail.id || index" class="hover:bg-slate-50/80 transition-colors">
-                                                    <td class="px-3.5 py-2.5 text-center font-mono font-bold text-slate-400">
-                                                        {{ index + 1 }}
-                                                    </td>
-                                                    <td class="px-3.5 py-2.5 font-semibold text-slate-900">
-                                                        {{ detail.module?.name || `Módulo ${index + 1}` }}
-                                                    </td>
-                                                    <td class="px-3.5 py-2.5 text-center font-mono text-slate-600">
-                                                        {{ detail.module?.credits || 3 }}
-                                                    </td>
-                                                    <td class="px-3.5 py-2.5 text-center">
-                                                        <span class="inline-flex items-center justify-center font-mono font-bold px-2 py-0.5 rounded"
-                                                            :class="parseFloat(detail.score) >= 13 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'">
-                                                            {{ detail.score }}
-                                                        </span>
-                                                    </td>
-                                                    <td class="px-3.5 py-2.5 text-center">
-                                                        <span class="inline-flex items-center gap-1 text-[11px] font-bold"
-                                                            :class="parseFloat(detail.score) >= 13 ? 'text-emerald-700' : 'text-red-600'">
-                                                            <i class="bi bi-check-circle-fill"></i> Aprobado
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                                <tr v-if="!cItem.details || cItem.details.length === 0">
-                                                    <td colspan="5" class="px-4 py-5 text-center text-slate-400 italic">
-                                                        No se registran detalles individuales de notas para este certificado.
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                            <tfoot v-if="cItem.details && cItem.details.length > 0 && calculateAverage(cItem.details)">
-                                                <tr class="bg-indigo-50/50 border-t-2 border-indigo-100 font-bold text-slate-900">
-                                                    <td colspan="3" class="px-3.5 py-2.5 text-right uppercase text-[10px] sm:text-xs tracking-wider text-indigo-900">
-                                                        Promedio Modular Ponderado:
-                                                    </td>
-                                                    <td class="px-3.5 py-2.5 text-center font-mono font-black text-indigo-950 text-sm">
-                                                        {{ calculateAverage(cItem.details) }}
-                                                    </td>
-                                                    <td class="px-3.5 py-2.5 text-center text-[11px] font-extrabold text-emerald-700">
-                                                        APROBADO
-                                                    </td>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
-                                    </div>
-                                </div>
-
+                                 <!-- 3. Modular Course Evaluation Grades / Institutional Certification Confirmation -->
+                                 <div v-else class="space-y-2.5">
+                                     <template v-if="cItem.details && cItem.details.length > 0">
+                                         <div class="flex items-center justify-between">
+                                             <h4 class="text-xs sm:text-sm font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                                                 <i class="bi bi-journal-check text-indigo-600"></i>
+                                                 Detalle de Calificaciones Modulares
+                                             </h4>
+                                             <span class="text-[11px] text-slate-500">Escala vigesimal (0 a 20)</span>
+                                         </div>
+                                         <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs bg-white">
+                                             <table class="w-full text-left border-collapse text-xs">
+                                                 <thead>
+                                                     <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[10px] sm:text-[11px] tracking-wider">
+                                                         <th class="px-3.5 py-2.5 text-center w-10">#</th>
+                                                         <th class="px-3.5 py-2.5">Módulo / Unidad de Competencia</th>
+                                                         <th class="px-3.5 py-2.5 text-center">Créditos</th>
+                                                         <th class="px-3.5 py-2.5 text-center">Calificación</th>
+                                                         <th class="px-3.5 py-2.5 text-center">Estado</th>
+                                                     </tr>
+                                                 </thead>
+                                                 <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                                                     <tr v-for="(detail, index) in cItem.details" :key="detail.id || index" class="hover:bg-slate-50/80 transition-colors">
+                                                         <td class="px-3.5 py-2.5 text-center font-mono font-bold text-slate-400">
+                                                             {{ index + 1 }}
+                                                         </td>
+                                                         <td class="px-3.5 py-2.5 font-semibold text-slate-900">
+                                                             {{ detail.module?.name || `Módulo ${index + 1}` }}
+                                                         </td>
+                                                         <td class="px-3.5 py-2.5 text-center font-mono text-slate-600">
+                                                             {{ detail.module?.credits || 3 }}
+                                                         </td>
+                                                         <td class="px-3.5 py-2.5 text-center">
+                                                             <span class="inline-flex items-center justify-center font-mono font-bold px-2 py-0.5 rounded"
+                                                                 :class="parseFloat(detail.score) >= 13 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'">
+                                                                 {{ detail.score }}
+                                                             </span>
+                                                         </td>
+                                                         <td class="px-3.5 py-2.5 text-center">
+                                                             <span class="inline-flex items-center gap-1 text-[11px] font-bold"
+                                                                 :class="parseFloat(detail.score) >= 13 ? 'text-emerald-700' : 'text-red-600'">
+                                                                 <i class="bi bi-check-circle-fill"></i> Aprobado
+                                                             </span>
+                                                         </td>
+                                                     </tr>
+                                                 </tbody>
+                                                 <tfoot v-if="calculateAverage(cItem.details)">
+                                                     <tr class="bg-indigo-50/50 border-t-2 border-indigo-100 font-bold text-slate-900">
+                                                         <td colspan="3" class="px-3.5 py-2.5 text-right uppercase text-[10px] sm:text-xs tracking-wider text-indigo-900">
+                                                             Promedio Modular Ponderado:
+                                                         </td>
+                                                         <td class="px-3.5 py-2.5 text-center font-mono font-black text-indigo-950 text-sm">
+                                                             {{ calculateAverage(cItem.details) }}
+                                                         </td>
+                                                         <td class="px-3.5 py-2.5 text-center text-[11px] font-extrabold text-emerald-700">
+                                                             APROBADO
+                                                         </td>
+                                                     </tr>
+                                                 </tfoot>
+                                             </table>
+                                         </div>
+                                     </template>
+                                     <template v-else>
+                                         <div class="border border-slate-200 rounded-2xl bg-slate-50/70 p-5 sm:p-6 text-center space-y-2.5">
+                                             <div class="w-10 h-10 mx-auto rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl shadow-2xs">
+                                                 <i class="bi bi-shield-check"></i>
+                                             </div>
+                                             <h4 class="text-xs sm:text-sm font-extrabold text-slate-800 uppercase tracking-wider">
+                                                 Certificación Institucional Oficial Verificada
+                                             </h4>
+                                             <p class="text-xs text-slate-600 max-w-xl mx-auto leading-relaxed">
+                                                 El presente documento acredita la culminación y cumplimiento satisfactorio de los requerimientos formativos correspondientes a <strong>{{ cItem.course?.name || cItem.event_name || 'la actividad académica institucional' }}</strong> con validez y registro en los sistemas institucionales.
+                                             </p>
+                                             <div class="pt-2 flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-[11px] text-slate-500 font-medium">
+                                                 <span class="inline-flex items-center gap-1"><i class="bi bi-award text-indigo-600"></i> Código: <strong class="font-mono text-slate-800">{{ cItem.certificate_code }}</strong></span>
+                                                 <span>•</span>
+                                                 <span class="inline-flex items-center gap-1"><i class="bi bi-clock-history text-indigo-600"></i> Carga Horaria: <strong class="text-slate-800">{{ cItem.duration || '128 Horas' }}</strong></span>
+                                                 <span>•</span>
+                                                 <span class="inline-flex items-center gap-1"><i class="bi bi-calendar-check text-emerald-600"></i> Emisión: <strong class="text-slate-800">{{ formatDate(cItem.issue_date) }}</strong></span>
+                                             </div>
+                                         </div>
+                                     </template>
+                                 </div>
                                 <!-- Official Print Footer Notes (Visible in Print) -->
                                 <div class="print-only border-t border-slate-200 pt-3 text-[8.5pt] text-slate-500 space-y-1">
                                     <div class="flex justify-between items-center">
@@ -665,7 +664,6 @@ const calculateAverage = (details) => {
                                         * Constancia de verificación emitida electrónicamente por el IESTP Francisco Vigo Caballero de conformidad con la Ley General de Educación N° 28044 y normas del MINEDU.
                                     </p>
                                 </div>
-
                                 <!-- Action Buttons (No-print) -->
                                 <div class="no-print flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
                                     <div class="flex flex-wrap items-center gap-2">
@@ -695,7 +693,6 @@ const calculateAverage = (details) => {
                         </div>
                     </div>
                 </div>
-
                 <!-- Not Found Card -->
                 <div v-else class="bg-white rounded-3xl shadow-xl border border-red-200 p-8 text-center space-y-4">
                     <div class="w-16 h-16 mx-auto rounded-3xl bg-red-50 text-red-500 border border-red-100 flex items-center justify-center text-3xl shadow-inner">
@@ -725,9 +722,16 @@ const calculateAverage = (details) => {
                     </div>
                 </div>
             </div>
-
+            <!-- Toggle for summary tables when search was performed -->
+            <div v-if="searched" class="no-print text-center pt-1 pb-10">
+                <button type="button" @click="showSummary = !showSummary"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-200/80 hover:bg-slate-300 text-slate-700 text-xs font-bold transition-all shadow-2xs">
+                    <i class="bi" :class="showSummary ? 'bi-chevron-up' : 'bi-bar-chart-line-fill text-indigo-600'"></i>
+                    <span>{{ showSummary ? 'Ocultar Consolidado Estadístico Institucional' : 'Ver Consolidado Estadístico Institucional' }}</span>
+                </button>
+            </div>
             <!-- ═══ SECTION: SUMMARY TABLES BY YEAR, PERIODS, & STUDY PROGRAMS (HIDDEN IN PRINT) ════ -->
-            <section class="summary-tables-section no-print max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
+            <section v-if="!searched || showSummary" class="summary-tables-section no-print max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
                 <!-- Section Title -->
                 <div class="text-center max-w-3xl mx-auto space-y-3">
                     <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-wider">
@@ -741,7 +745,6 @@ const calculateAverage = (details) => {
                         Resúmenes tabulares oficiales de certificados emitidos, consolidados y agrupados por <strong>año de emisión</strong>, <strong>periodos académicos</strong> y <strong>programas de estudio</strong>.
                     </p>
                 </div>
-
                 <!-- KPI Stat Chips Grid -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
@@ -753,7 +756,6 @@ const calculateAverage = (details) => {
                             <h3 class="text-2xl font-black text-slate-900 font-display">{{ formatNumber(totalCertificates) }}</h3>
                         </div>
                     </div>
-
                     <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
                         <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl shrink-0">
                             <i class="bi bi-check2-circle"></i>
@@ -763,7 +765,6 @@ const calculateAverage = (details) => {
                             <h3 class="text-2xl font-black text-emerald-700 font-display">{{ formatNumber(validCertificates) }}</h3>
                         </div>
                     </div>
-
                     <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
                         <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl shrink-0">
                             <i class="bi bi-people-fill"></i>
@@ -773,7 +774,6 @@ const calculateAverage = (details) => {
                             <h3 class="text-2xl font-black text-blue-700 font-display">{{ formatNumber(totalStudents) }}</h3>
                         </div>
                     </div>
-
                     <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
                         <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-2xl shrink-0">
                             <i class="bi bi-journal-bookmark-fill"></i>
@@ -784,7 +784,6 @@ const calculateAverage = (details) => {
                         </div>
                     </div>
                 </div>
-
                 <!-- Tabbed Summary Tables Container -->
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                     <!-- Tab Navigation Bar -->
@@ -796,7 +795,6 @@ const calculateAverage = (details) => {
                             <span>1. Resumen por Años</span>
                             <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-200/70 text-slate-700 font-mono">{{ yearsSummary.length }}</span>
                         </button>
-
                         <button type="button" @click="activeTab = 'periods'"
                             :class="activeTab === 'periods' ? 'border-indigo-600 text-indigo-700 bg-white shadow-xs font-bold' : 'border-transparent text-slate-600 hover:text-slate-900 font-semibold'"
                             class="px-4 py-3 rounded-t-xl border-b-2 text-xs sm:text-sm transition-all flex items-center gap-2">
@@ -804,7 +802,6 @@ const calculateAverage = (details) => {
                             <span>2. Resumen por Periodos</span>
                             <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-200/70 text-slate-700 font-mono">{{ periodsSummary.length }}</span>
                         </button>
-
                         <button type="button" @click="activeTab = 'programs'"
                             :class="activeTab === 'programs' ? 'border-indigo-600 text-indigo-700 bg-white shadow-xs font-bold' : 'border-transparent text-slate-600 hover:text-slate-900 font-semibold'"
                             class="px-4 py-3 rounded-t-xl border-b-2 text-xs sm:text-sm transition-all flex items-center gap-2">
@@ -813,7 +810,6 @@ const calculateAverage = (details) => {
                             <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-200/70 text-slate-700 font-mono">{{ coursesSummary.length }}</span>
                         </button>
                     </div>
-
                     <!-- Tab 1: Resumen por Años -->
                     <div v-show="activeTab === 'years'" class="p-6 sm:p-8 space-y-4">
                         <div class="flex flex-wrap items-center justify-between gap-3">
@@ -822,7 +818,6 @@ const calculateAverage = (details) => {
                                 <p class="text-xs text-slate-500">Distribución de certificaciones emitidas agrupadas por año de emisión y modalidad académica.</p>
                             </div>
                         </div>
-
                         <div class="border border-slate-200 rounded-2xl overflow-hidden overflow-x-auto shadow-xs">
                             <table class="min-w-full text-left border-collapse text-xs sm:text-sm">
                                 <thead>
@@ -904,7 +899,6 @@ const calculateAverage = (details) => {
                             </table>
                         </div>
                     </div>
-
                     <!-- Tab 2: Resumen por Periodos Académicos -->
                     <div v-show="activeTab === 'periods'" class="p-6 sm:p-8 space-y-4">
                         <div class="flex flex-wrap items-center justify-between gap-3">
@@ -913,7 +907,6 @@ const calculateAverage = (details) => {
                                 <p class="text-xs text-slate-500">Agrupación semestral de certificados (Periodo I: Enero–Junio, Periodo II: Julio–Diciembre).</p>
                             </div>
                         </div>
-
                         <div class="border border-slate-200 rounded-2xl overflow-hidden overflow-x-auto shadow-xs">
                             <table class="min-w-full text-left border-collapse text-xs sm:text-sm">
                                 <thead>
@@ -990,7 +983,6 @@ const calculateAverage = (details) => {
                             </table>
                         </div>
                     </div>
-
                     <!-- Tab 3: Resumen por Programas de Estudio y Cursos -->
                     <div v-show="activeTab === 'programs'" class="p-6 sm:p-8 space-y-4">
                         <div class="flex flex-wrap items-center justify-between gap-3">
@@ -999,7 +991,6 @@ const calculateAverage = (details) => {
                                 <p class="text-xs text-slate-500">Métricas de desempeño académico, módulos evaluados y total de beneficiarios por curso.</p>
                             </div>
                         </div>
-
                         <div class="border border-slate-200 rounded-2xl overflow-hidden overflow-x-auto shadow-xs">
                             <table class="min-w-full text-left border-collapse text-xs sm:text-sm">
                                 <thead>
@@ -1059,7 +1050,6 @@ const calculateAverage = (details) => {
                                 </tbody>
                             </table>
                         </div>
-
                         <!-- Study Programs Reference Grid -->
                         <div class="pt-4 border-t border-slate-100">
                             <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
@@ -1081,7 +1071,6 @@ const calculateAverage = (details) => {
                         </div>
                     </div>
                 </div>
-
                 <!-- Institutional Legal & Security Notice Card -->
                 <div class="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-800 relative overflow-hidden">
                     <div class="absolute right-0 top-0 translate-x-8 -translate-y-8 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>

@@ -183,7 +183,6 @@ const jsonLd = computed(() => {
             <meta property="og:image" :content="enterprise?.logo_path ? `/${enterprise.logo_path}` : '/img/logo.png'" />
             <component :is="'script'" type="application/ld+json" v-text="jsonLd" />
         </Head>
-
         <!-- HERO SECTION -->
         <section aria-label="Portada Bolsa de Trabajo" class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
             <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
@@ -218,7 +217,6 @@ const jsonLd = computed(() => {
                             </button>
                         </div>
                     </div>
-
                     <!-- Right: Info Panel -->
                     <div class="lg:col-span-5 relative" aria-hidden="true">
                         <div class="relative bg-slate-800/90 border border-slate-700 p-8 rounded-3xl shadow-2xl space-y-5">
@@ -236,7 +234,6 @@ const jsonLd = computed(() => {
                                     {{ jobs.total || jobs.data?.length || 0 }} vacantes
                                 </span>
                             </div>
-
                             <div class="space-y-3">
                                 <div class="flex items-start gap-3 bg-white/5 p-3.5 rounded-2xl border border-white/10">
                                     <i class="bi bi-patch-check-fill text-emerald-400 text-lg mt-0.5 shrink-0"></i>
@@ -265,7 +262,6 @@ const jsonLd = computed(() => {
                 </div>
             </div>
         </section>
-
         <!-- TAB NAVIGATION -->
         <section aria-label="Navegación de pestañas laborales" class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -284,7 +280,6 @@ const jsonLd = computed(() => {
                             {{ jobs.total || jobs.data?.length || 0 }}
                         </span>
                     </button>
-
                     <button
                         type="button"
                         @click="activeTab = 'estudiantes'"
@@ -302,7 +297,6 @@ const jsonLd = computed(() => {
                 </nav>
             </div>
         </section>
-
         <!-- TAB CONTENT 1: OFERTAS LABORALES -->
         <div v-show="activeTab === 'ofertas'" id="ofertas">
             <!-- FILTERS SECTION -->
@@ -326,7 +320,6 @@ const jsonLd = computed(() => {
                                 Limpiar Filtros
                             </button>
                         </div>
-
                         <form @submit.prevent="submitJobSearch" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4">
                             <!-- Keyword Search -->
                             <div class="lg:col-span-5 relative">
@@ -343,7 +336,6 @@ const jsonLd = computed(() => {
                                     <i class="bi bi-search absolute left-3.5 top-3.5 text-slate-400 text-sm" aria-hidden="true"></i>
                                 </div>
                             </div>
-
                             <!-- Location Select -->
                             <div class="lg:col-span-3">
                                 <label for="job-location" class="block text-xs font-bold text-slate-700 mb-1.5">Ubicación</label>
@@ -356,7 +348,6 @@ const jsonLd = computed(() => {
                                     <option v-for="loc in locations" :key="loc" :value="loc">{{ loc }}</option>
                                 </select>
                             </div>
-
                             <!-- Source Select -->
                             <div class="lg:col-span-2">
                                 <label for="job-source" class="block text-xs font-bold text-slate-700 mb-1.5">Portal / Fuente</label>
@@ -369,7 +360,6 @@ const jsonLd = computed(() => {
                                     <option v-for="src in sources" :key="src" :value="src">{{ src }}</option>
                                 </select>
                             </div>
-
                             <!-- Submit Button -->
                             <div class="lg:col-span-2 flex flex-col justify-end">
                                 <button
@@ -384,7 +374,6 @@ const jsonLd = computed(() => {
                     </div>
                 </div>
             </section>
-
             <!-- JOBS LISTING GRID -->
             <section aria-label="Listado de ofertas laborales" class="py-12 bg-slate-50">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -398,7 +387,6 @@ const jsonLd = computed(() => {
                             </p>
                         </div>
                     </div>
-
                     <!-- Job Cards Grid -->
                     <div v-if="jobs.data && jobs.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <article
@@ -424,7 +412,6 @@ const jsonLd = computed(() => {
                                         {{ job.source }}
                                     </span>
                                 </div>
-
                                 <!-- Location and Details -->
                                 <div class="flex flex-wrap items-center gap-2 mb-4 text-xs font-semibold text-slate-600">
                                     <span class="inline-flex items-center gap-1 bg-slate-100 px-2.5 py-1 rounded-lg">
@@ -436,13 +423,11 @@ const jsonLd = computed(() => {
                                         {{ String(job.created_at).slice(0, 10) }}
                                     </span>
                                 </div>
-
                                 <!-- Description snippet -->
                                 <p class="text-xs sm:text-sm text-slate-600 line-clamp-3 mb-6 leading-relaxed">
                                     {{ (job.description || '').replace(/<[^>]*>?/gm, '') }}
                                 </p>
                             </div>
-
                             <!-- Card Bottom Action -->
                             <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
                                 <button
@@ -466,7 +451,6 @@ const jsonLd = computed(() => {
                             </div>
                         </article>
                     </div>
-
                     <!-- Empty State -->
                     <div v-else class="py-16 bg-white rounded-3xl border border-slate-200 text-center shadow-sm max-w-xl mx-auto">
                         <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-3xl mb-4">
@@ -485,7 +469,6 @@ const jsonLd = computed(() => {
                             <span>Restablecer Filtros</span>
                         </button>
                     </div>
-
                     <!-- Pagination -->
                     <div v-if="jobs.links && jobs.links.length > 3" class="mt-12 flex justify-center flex-wrap gap-1.5">
                         <template v-for="(link, idx) in jobs.links" :key="idx">
@@ -506,7 +489,6 @@ const jsonLd = computed(() => {
                 </div>
             </section>
         </div>
-
         <!-- TAB CONTENT 2: PERFILES ESTUDIANTILES (BOLSA DE TALENTO) -->
         <div v-show="activeTab === 'estudiantes'" id="estudiantes">
             <section aria-label="Bolsa de egresados y estudiantes" class="py-12 bg-slate-50">
@@ -524,7 +506,6 @@ const jsonLd = computed(() => {
                                 Encuentra técnicos profesionales capacitados listos para integrarse a tu organización con competencias certificadas en las especialidades del instituto.
                             </p>
                         </div>
-
                         <!-- Controls -->
                         <div class="mt-6 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
                             <div class="md:col-span-8 relative">
@@ -536,7 +517,6 @@ const jsonLd = computed(() => {
                                 />
                                 <i class="bi bi-search absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
                             </div>
-
                             <div class="md:col-span-4">
                                 <select
                                     v-model="selectedProgramFilter"
@@ -550,7 +530,6 @@ const jsonLd = computed(() => {
                             </div>
                         </div>
                     </div>
-
                     <!-- Students Grid -->
                     <div v-if="filteredGraduates.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         <article
@@ -578,7 +557,6 @@ const jsonLd = computed(() => {
                                         </span>
                                     </div>
                                 </div>
-
                                 <div class="space-y-2 mb-4 text-xs text-slate-600">
                                     <div class="flex items-center gap-2">
                                         <i class="bi bi-mortarboard text-emerald-600"></i>
@@ -592,7 +570,6 @@ const jsonLd = computed(() => {
                                     </div>
                                 </div>
                             </div>
-
                             <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
                                 <button
                                     type="button"
@@ -614,7 +591,6 @@ const jsonLd = computed(() => {
                             </div>
                         </article>
                     </div>
-
                     <!-- Empty Students -->
                     <div v-else class="py-16 bg-white rounded-3xl border border-slate-200 text-center shadow-sm max-w-xl mx-auto">
                         <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-3xl mb-4">
@@ -628,7 +604,6 @@ const jsonLd = computed(() => {
                 </div>
             </section>
         </div>
-
         <!-- JOB DETAIL MODAL -->
         <div v-if="selectedJob" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
             <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto relative">
@@ -639,7 +614,6 @@ const jsonLd = computed(() => {
                 >
                     <i class="bi bi-x-lg text-lg"></i>
                 </button>
-
                 <div class="flex items-center gap-4 mb-6">
                     <div class="w-16 h-16 rounded-2xl bg-blue-600 text-white font-black text-2xl flex items-center justify-center shadow-sm shrink-0">
                         {{ getCompanyInitial(selectedJob.company) }}
@@ -656,14 +630,12 @@ const jsonLd = computed(() => {
                         </p>
                     </div>
                 </div>
-
                 <div class="border-t border-slate-100 pt-4 mb-6">
                     <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-3">Descripción del Empleo</h4>
                     <div class="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
                         {{ (selectedJob.description || '').replace(/<[^>]*>?/gm, '') }}
                     </div>
                 </div>
-
                 <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                     <button
                         type="button"
@@ -685,7 +657,6 @@ const jsonLd = computed(() => {
                 </div>
             </div>
         </div>
-
         <!-- STUDENT DETAIL MODAL -->
         <div v-if="selectedStudent" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
             <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto relative">
@@ -696,7 +667,6 @@ const jsonLd = computed(() => {
                 >
                     <i class="bi bi-x-lg text-lg"></i>
                 </button>
-
                 <div class="text-center mb-6">
                     <img
                         v-if="selectedStudent.photo_profile_url"
@@ -715,7 +685,6 @@ const jsonLd = computed(() => {
                         {{ selectedStudent.role || 'Egresado' }}
                     </span>
                 </div>
-
                 <div class="bg-slate-50 rounded-2xl p-4 space-y-3 mb-6 text-xs text-slate-700">
                     <div v-if="selectedStudent.email" class="flex items-center gap-2">
                         <i class="bi bi-envelope-fill text-slate-400"></i>
@@ -730,7 +699,6 @@ const jsonLd = computed(() => {
                         <span>{{ selectedStudent.address }}</span>
                     </div>
                 </div>
-
                 <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                     <button
                         type="button"
@@ -751,7 +719,6 @@ const jsonLd = computed(() => {
                 </div>
             </div>
         </div>
-
         <!-- PUBLISH VACANCY MODAL FOR EMPLOYERS -->
         <div v-if="showPublishModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
             <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
@@ -762,7 +729,6 @@ const jsonLd = computed(() => {
                 >
                     <i class="bi bi-x-lg text-lg"></i>
                 </button>
-
                 <div class="w-14 h-14 bg-blue-100 text-blue-700 rounded-2xl flex items-center justify-center text-2xl mb-4">
                     <i class="bi bi-building-add"></i>
                 </div>
@@ -771,7 +737,6 @@ const jsonLd = computed(() => {
                 <p class="text-sm text-slate-600 mt-2 leading-relaxed">
                     ¿Representas a una empresa o institución y buscas profesionales técnicos de alto rendimiento? Envíanos el perfil de la vacante para su difusión institucional.
                 </p>
-
                 <div class="mt-6 space-y-3">
                     <a
                         v-if="enterprise?.whatsapp_link"

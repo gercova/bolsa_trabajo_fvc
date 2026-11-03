@@ -18,9 +18,9 @@ class UserPasswordUpdateTest extends TestCase
     {
         parent::setUp();
 
-        DocumentType::firstOrCreate(
-            ['id' => 1],
-            ['name' => 'DNI', 'abreviation' => 'DNI', 'is_active' => true]
+        $docType = DocumentType::firstOrCreate(
+            ['abreviation' => 'DNI'],
+            ['name' => 'DNI', 'is_active' => true]
         );
 
         Role::findOrCreate('Admin', 'web');
@@ -33,7 +33,7 @@ class UserPasswordUpdateTest extends TestCase
         ])->delete();
 
         $this->admin = User::create([
-            'document_type_id' => 1,
+            'document_type_id' => $docType->id,
             'dni' => '99881122',
             'names' => 'Admin Test Password',
             'email' => 'admin_pwd_test@iestp.edu.pe',
@@ -44,7 +44,7 @@ class UserPasswordUpdateTest extends TestCase
         $this->admin->assignRole('Admin');
 
         $this->targetUser = User::create([
-            'document_type_id' => 1,
+            'document_type_id' => $docType->id,
             'dni' => '99881133',
             'names' => 'Target User Test',
             'email' => 'target_pwd_test@iestp.edu.pe',

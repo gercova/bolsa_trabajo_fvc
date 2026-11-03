@@ -86,7 +86,6 @@ const matchesSearch = (text) => {
             <!-- ═══ HERO SECTION ═══════════════════════════════════════════ -->
             <section class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-20 border-b border-slate-800">
                 <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
-
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
                     <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-white max-w-5xl mx-auto">
                         Estadísticas <span class="text-sky-400">Institucionales</span>
@@ -182,7 +181,6 @@ const matchesSearch = (text) => {
                                     {{ formatNumber(totalAdmisiones) }}
                                 </span>
                             </button>
-
                             <button
                                 type="button"
                                 class="px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-all duration-200 flex items-center gap-2 cursor-pointer"
@@ -248,7 +246,6 @@ const matchesSearch = (text) => {
                                 </div>
                                 <span class="text-xs font-mono font-bold text-slate-700">{{ formatNumber(totalMatriculas) }} reg.</span>
                             </div>
-
                             <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
                                 <div class="bg-blue-600 h-full" :style="{ width: `${pctMalesMat}%` }" :title="`Varones: ${pctMalesMat}%`"></div>
                                 <div class="bg-pink-500 h-full" :style="{ width: `${pctFemalesMat}%` }" :title="`Mujeres: ${pctFemalesMat}%`"></div>
@@ -282,7 +279,6 @@ const matchesSearch = (text) => {
                                 </div>
                                 <span class="text-xs font-mono font-bold text-slate-700">{{ formatNumber(totalTitulos) }} reg.</span>
                             </div>
-
                             <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
                                 <div class="bg-blue-600 h-full" :style="{ width: `${pctMalesTit}%` }" :title="`Varones: ${pctMalesTit}%`"></div>
                                 <div class="bg-pink-500 h-full" :style="{ width: `${pctFemalesTit}%` }" :title="`Mujeres: ${pctFemalesTit}%`"></div>

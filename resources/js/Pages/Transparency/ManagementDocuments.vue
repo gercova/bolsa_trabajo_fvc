@@ -115,21 +115,17 @@ const filteredDocuments = computed(() => {
         <meta property="og:title" content="Documentos de Gestión Institucional — IESTP Francisco Vigo Caballero" />
         <meta property="og:description" content="Consulta los instrumentos normativos y de gestión oficiales que rigen el IESTP Francisco Vigo Caballero." />
     </Head>
-
     <PublicLayout title="Documentos de Gestión">
         <!-- ═══ HERO SECTION ═══════════════════════════════════════════ -->
         <section class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
             <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
-
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
                 <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-none text-white max-w-5xl mx-auto">
                     Documentos de <span class="text-sky-400">Gestión</span>
                 </h1>
-
                 <p class="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-normal">
                     Instrumentos normativos, planeamiento estratégico y marcos de regulación oficial que orientan el funcionamiento institucional y académico de nuestra casa de estudios.
                 </p>
-
                 <!-- Institutional Badges Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto mt-10 pt-8 border-t border-white/10">
                     <div class="bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center justify-center gap-3">
@@ -156,7 +152,6 @@ const filteredDocuments = computed(() => {
                 </div>
             </div>
         </section>
-
         <!-- ═══ MAIN CONTENT SECTION ═══════════════════════════════════ -->
         <section class="py-16 sm:py-24 bg-slate-50 min-h-[600px]">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -173,7 +168,6 @@ const filteredDocuments = computed(() => {
                             {{ filteredDocuments.length }} Documentos Disponibles
                         </div>
                     </div>
-
                     <!-- Search Input & Filter Options -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <!-- Search Input -->
@@ -194,7 +188,6 @@ const filteredDocuments = computed(() => {
                                 <i class="bi bi-x-circle-fill"></i>
                             </button>
                         </div>
-
                         <!-- Category Filter -->
                         <div>
                             <select
@@ -209,7 +202,6 @@ const filteredDocuments = computed(() => {
                         </div>
                     </div>
                 </div>
-
                 <!-- Documents Grid -->
                 <div v-if="filteredDocuments.length > 0" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div
@@ -240,7 +232,6 @@ const filteredDocuments = computed(() => {
                                         class="bi bi-file-earmark-pdf-fill text-2xl text-red-600 group-hover:text-white transition-colors"
                                     ></i>
                                 </div>
-
                                 <div class="flex flex-col items-end gap-1.5">
                                     <span
                                         v-if="doc.validity_period"
@@ -262,19 +253,16 @@ const filteredDocuments = computed(() => {
                                     </div>
                                 </div>
                             </div>
-
                             <!-- Title -->
                             <div>
                                 <h3 class="text-xl font-extrabold text-slate-900 leading-snug tracking-tight group-hover:text-blue-600 transition-colors">
                                     {{ doc.title }}
                                 </h3>
                             </div>
-
                             <!-- Description -->
                             <p v-if="doc.description" class="text-sm text-slate-600 leading-relaxed font-normal">
                                 {{ doc.description }}
                             </p>
-
                             <!-- Details Accordion Toggle -->
                             <div v-if="doc.details" class="pt-2">
                                 <button
@@ -290,7 +278,6 @@ const filteredDocuments = computed(() => {
                                         :class="{ 'rotate-180': openDetails[doc.id] }"
                                     ></i>
                                 </button>
-
                                 <div
                                     v-show="openDetails[doc.id]"
                                     class="mt-3 p-4 bg-slate-50/80 rounded-2xl border border-slate-200 text-xs text-slate-600 leading-relaxed space-y-2"
@@ -302,7 +289,6 @@ const filteredDocuments = computed(() => {
                                 </div>
                             </div>
                         </div>
-
                         <!-- Action Footer -->
                         <div class="p-6 bg-slate-50/60 border-t border-slate-100 space-y-3">
                             <div v-if="getDocFileUrl(doc)" class="flex items-center gap-2.5">
@@ -314,7 +300,6 @@ const filteredDocuments = computed(() => {
                                     <i class="bi bi-download text-sm"></i>
                                     <span>Descargar PDF</span>
                                 </a>
-
                                 <button
                                     type="button"
                                     class="py-3 px-4 bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
@@ -331,7 +316,6 @@ const filteredDocuments = computed(() => {
                                     Aprobado y Registrado en Secretaría
                                 </p>
                             </div>
-
                             <!-- Resolution Document Action Bar -->
                             <div
                                 v-if="getResolutionFileUrl(doc)"
@@ -346,7 +330,6 @@ const filteredDocuments = computed(() => {
                                         <p class="text-[10px] text-red-700 font-medium">Documento de sustento legal</p>
                                     </div>
                                 </div>
-
                                 <div class="flex items-center gap-1.5 flex-shrink-0">
                                     <button
                                         type="button"
@@ -371,7 +354,6 @@ const filteredDocuments = computed(() => {
                         </div>
                     </div>
                 </div>
-
                 <!-- Empty Search Results Notice -->
                 <div v-else class="py-16 text-center bg-white rounded-3xl border border-slate-200">
                     <div class="max-w-md mx-auto space-y-4">
@@ -391,7 +373,6 @@ const filteredDocuments = computed(() => {
                         </button>
                     </div>
                 </div>
-
                 <!-- Transparency Notice Banner -->
                 <div class="bg-slate-900 text-white rounded-3xl p-8 sm:p-10 shadow-xl border border-slate-800 relative overflow-hidden">
                     <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -415,7 +396,6 @@ const filteredDocuments = computed(() => {
                 </div>
             </div>
         </section>
-
         <!-- ═══ PDF READER MODAL ═══════════════════════════════════════ -->
         <teleport to="body">
             <div
@@ -449,7 +429,6 @@ const filteredDocuments = computed(() => {
                             </button>
                         </div>
                     </div>
-
                     <!-- Modal iFrame Body -->
                     <div class="flex-1 bg-slate-100 relative">
                         <iframe :src="pdfModalUrl" class="w-full h-full border-none"></iframe>

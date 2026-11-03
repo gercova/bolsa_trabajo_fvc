@@ -73,7 +73,6 @@ const getHeroImage = computed(() => {
         <meta property="og:title" content="Examen de Admisión — IESTP Francisco Vigo Caballero" />
         <meta property="og:description" content="Conoce las modalidades de ingreso ordinario y extraordinario, cronogramas y vacantes oficiales." />
     </Head>
-
     <PublicLayout title="Examen de Admisión">
         <!-- ═══ 1. HERO SECTION ═══════════════════════════════════════ -->
         <section class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
@@ -101,18 +100,16 @@ const getHeroImage = computed(() => {
                             </a>
                         </div>
                     </div>
-
                     <div class="lg:col-span-5 relative">
                         <div class="relative mx-auto max-w-md lg:max-w-none">
                             <img :src="getHeroImage"
-                                 alt="Examen de Admisión IESTP Francisco Vigo Caballero"
-                                 class="relative rounded-2xl shadow-xl border border-slate-700 w-full object-cover aspect-square sm:aspect-video lg:aspect-square" />
+                                alt="Examen de Admisión IESTP Francisco Vigo Caballero"
+                                class="relative rounded-2xl shadow-xl border border-slate-700 w-full object-cover aspect-square sm:aspect-video lg:aspect-square" />
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-
         <!-- ═══ 2. MODALIDADES DE INGRESO ═════════════════════════════ -->
         <section id="modalidades" class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -127,7 +124,6 @@ const getHeroImage = computed(() => {
                         Contamos con modalidades diferenciadas para brindarte oportunidades de acceso acordes a tu trayectoria académica y talento.
                     </p>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
                     <!-- 1. Extraordinario -->
                     <div class="bg-blue-50/50 hover:bg-blue-50 border border-blue-100 p-8 rounded-2xl transition shadow-sm hover:shadow-md relative overflow-hidden group">
@@ -143,7 +139,6 @@ const getHeroImage = computed(() => {
                             Exclusiva para los primeros puestos de nivel secundario, deportistas destacados acreditados, personas con discapacidad, personal de servicio militar voluntario y beneficiarios de programas sociales (PIR).
                         </p>
                     </div>
-
                     <!-- 2. Ordinario -->
                     <div class="bg-blue-50/50 hover:bg-blue-50 border border-blue-100 p-8 rounded-2xl transition shadow-sm hover:shadow-md relative overflow-hidden group">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-blue-200/30 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform"></div>
@@ -161,7 +156,6 @@ const getHeroImage = computed(() => {
                 </div>
             </div>
         </section>
-
         <!-- ═══ 3. CONVOCATORIAS Y BALANCE DE VACANTES ════════════════ -->
         <section id="active-processes" class="py-16 bg-blue-50/30 border-y border-blue-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -176,7 +170,6 @@ const getHeroImage = computed(() => {
                         Consulta el cronograma oficial del ciclo proyectado {{ projectedPeriod }}, fechas de inscripción, costos de derecho de examen y el cuadro general de vacantes disponibles.
                     </p>
                 </div>
-
                 <!-- Tarjetas Resumen de Vacantes con Descuento CEPRE -->
                 <div class="max-w-5xl mx-auto mb-14">
                     <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-blue-100">
@@ -194,7 +187,6 @@ const getHeroImage = computed(() => {
                                 Vacantes Netas Calculadas
                             </div>
                         </div>
-
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
                             <!-- 1. Vacantes Totales Brutas -->
                             <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
@@ -207,7 +199,6 @@ const getHeroImage = computed(() => {
                                 </div>
                                 <p class="text-[11px] text-slate-500 mt-2">Capacidad institucional en los exámenes de admisión convocados.</p>
                             </div>
-
                             <!-- 2. Vacantes Reservadas CEPRE -->
                             <div class="p-5 rounded-2xl bg-amber-50/70 border border-amber-200 flex flex-col justify-between">
                                 <span class="text-xs font-bold text-amber-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
@@ -219,7 +210,6 @@ const getHeroImage = computed(() => {
                                 </div>
                                 <p class="text-[11px] text-amber-800 mt-2">Vacantes asignadas para ingreso directo por orden de mérito CEPRE-FVC.</p>
                             </div>
-
                             <!-- 3. Vacantes Disponibles Netas -->
                             <div class="p-5 rounded-2xl bg-emerald-700 text-white shadow-md flex flex-col justify-between">
                                 <span class="text-xs font-bold text-emerald-100 uppercase tracking-wider mb-2 flex items-center gap-1.5">
@@ -234,12 +224,10 @@ const getHeroImage = computed(() => {
                         </div>
                     </div>
                 </div>
-
                 <!-- Exams List -->
                 <div v-if="exams && exams.length > 0" class="space-y-12">
                     <div v-for="exam in exams" :key="exam.id"
-                         class="bg-white rounded-3xl shadow-xl border border-blue-100 overflow-hidden">
-                        
+                        class="bg-white rounded-3xl shadow-xl border border-blue-100 overflow-hidden">
                         <!-- Card Header -->
                         <div :class="[exam.type === 'extraordinario' ? 'bg-indigo-800' : 'bg-blue-700', 'px-6 sm:px-8 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4']">
                             <div>
@@ -260,7 +248,6 @@ const getHeroImage = computed(() => {
                                 </span>
                             </div>
                         </div>
-
                         <!-- Card Body -->
                         <div class="p-6 sm:p-8">
                             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -277,7 +264,6 @@ const getHeroImage = computed(() => {
                                                 {{ Number(exam.price) > 0 ? 'S/ ' + formatCurrency(exam.price) : 'Gratuito' }}
                                             </span>
                                         </div>
-
                                         <!-- Fechas de Inscripción -->
                                         <div class="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 flex flex-col justify-center col-span-2">
                                             <div class="flex items-center gap-1 text-blue-700 mb-1">
@@ -294,7 +280,6 @@ const getHeroImage = computed(() => {
                                             </span>
                                         </div>
                                     </div>
-
                                     <!-- Día de la Evaluación -->
                                     <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
                                         <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
@@ -310,7 +295,6 @@ const getHeroImage = computed(() => {
                                             </template>
                                         </p>
                                     </div>
-
                                     <!-- Indicaciones para el Postulante -->
                                     <div v-if="exam.indications"
                                          class="p-5 bg-amber-50/70 border border-amber-200 rounded-2xl space-y-2">
@@ -322,7 +306,6 @@ const getHeroImage = computed(() => {
                                             {{ exam.indications }}
                                         </p>
                                     </div>
-
                                     <!-- Documentos Adjuntos -->
                                     <div class="pt-2 flex flex-wrap gap-3">
                                         <a v-if="getPdfUrl(exam)"
@@ -332,7 +315,6 @@ const getHeroImage = computed(() => {
                                             <i class="bi bi-file-earmark-pdf-fill mr-2 text-base text-red-500"></i>
                                             Descargar Prospecto / Bases (PDF)
                                         </a>
-
                                         <a v-if="getResultsPdfUrl(exam)"
                                            :href="getResultsPdfUrl(exam)"
                                            target="_blank"
@@ -342,7 +324,6 @@ const getHeroImage = computed(() => {
                                         </a>
                                     </div>
                                 </div>
-
                                 <!-- Col Right: Distribución de Vacantes por Programa -->
                                 <div class="lg:col-span-5 bg-blue-50/30 border border-blue-100 p-6 rounded-2xl flex flex-col justify-between">
                                     <div>
@@ -355,7 +336,6 @@ const getHeroImage = computed(() => {
                                                 Total: {{ exam.total_vacancies }}
                                             </span>
                                         </div>
-
                                         <div class="space-y-2.5">
                                             <template v-if="(exam.admission_detail || exam.admissionDetail || []).length > 0">
                                                 <div v-for="detail in (exam.admission_detail || exam.admissionDetail || [])" :key="detail.id"
@@ -371,7 +351,6 @@ const getHeroImage = computed(() => {
                                                             <i class="bi bi-info-circle"></i> Ofertadas: {{ detail.vacancies }} (-{{ cepreVacanciesByProgram[detail.program_id] }} CEPRE)
                                                         </span>
                                                     </div>
-
                                                     <!-- Vacancies Count -->
                                                     <div class="flex flex-col items-end flex-shrink-0">
                                                         <span class="bg-blue-100 text-blue-900 text-xs font-black px-3 py-1 rounded-lg border border-blue-200">
@@ -394,9 +373,8 @@ const getHeroImage = computed(() => {
                                             </p>
                                         </div>
                                     </div>
-
                                     <div v-if="exam.type === 'ordinario' && cepreTotalVacancies > 0"
-                                         class="mt-4 pt-3 border-t border-blue-100 text-[11px] text-gray-500 text-center">
+                                        class="mt-4 pt-3 border-t border-blue-100 text-[11px] text-gray-500 text-center">
                                         <i class="bi bi-shield-check text-blue-600 mr-1"></i>
                                         Vacantes netas con deducción de las plazas cubiertas por CEPRE-FVC
                                     </div>
@@ -405,7 +383,6 @@ const getHeroImage = computed(() => {
                         </div>
                     </div>
                 </div>
-
                 <!-- Empty State -->
                 <div v-else class="bg-white rounded-3xl border border-blue-100 shadow-lg p-12 text-center max-w-2xl mx-auto">
                     <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -423,7 +400,6 @@ const getHeroImage = computed(() => {
                 </div>
             </div>
         </section>
-
         <!-- ═══ 4. RESULTADOS ANTERIORES (ÚLTIMO EXAMEN) ═══════════════ -->
         <section id="past-results" class="py-16 bg-white border-b border-blue-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -438,7 +414,6 @@ const getHeroImage = computed(() => {
                         Consulta la relación oficial de ingresantes, puntajes y cuadro de méritos correspondiente a la última evaluación de admisión efectuada en la institución.
                     </p>
                 </div>
-
                 <div class="max-w-4xl mx-auto">
                     <div v-if="lastExamResults && getResultsPdfUrl(lastExamResults)"
                          class="bg-slate-900 text-white rounded-3xl p-8 sm:p-10 shadow-xl relative overflow-hidden border border-slate-800">
@@ -460,7 +435,6 @@ const getHeroImage = computed(() => {
                                     Documento oficial con el cuadro general de méritos, puntajes obtenidos y la nómina de ingresantes por programa de estudio del último proceso de admisión.
                                 </p>
                             </div>
-
                             <div class="flex flex-col sm:flex-row md:flex-col gap-3 w-full md:w-auto flex-shrink-0">
                                 <a :href="getResultsPdfUrl(lastExamResults)" target="_blank"
                                    class="inline-flex items-center justify-center px-6 py-3.5 bg-white hover:bg-blue-50 text-blue-950 font-extrabold text-sm rounded-xl transition shadow-lg hover:shadow-xl gap-2">
@@ -475,7 +449,6 @@ const getHeroImage = computed(() => {
                             </div>
                         </div>
                     </div>
-
                     <div v-else class="bg-slate-50 border border-slate-200 rounded-3xl p-8 sm:p-12 text-center space-y-4">
                         <div class="w-16 h-16 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center mx-auto text-2xl">
                             <i class="bi bi-file-earmark-text"></i>
@@ -494,7 +467,6 @@ const getHeroImage = computed(() => {
                 </div>
             </div>
         </section>
-
         <!-- ═══ 5. REQUISITOS DE INSCRIPCIÓN ══════════════════════════ -->
         <section id="requirements" class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -505,7 +477,6 @@ const getHeroImage = computed(() => {
                         Prepara tu expediente de postulación con los siguientes documentos exigidos por el Ministerio de Educación:
                     </p>
                 </div>
-
                 <div v-if="requirements && requirements.length > 0"
                      class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
                     <div v-for="req in requirements" :key="req.id"
@@ -520,7 +491,6 @@ const getHeroImage = computed(() => {
                         </div>
                     </div>
                 </div>
-
                 <div v-else class="bg-blue-50/50 p-8 rounded-2xl border border-blue-100 max-w-2xl mx-auto text-center">
                     <p class="text-lg text-blue-900 font-semibold">
                         Los requisitos detallados del proceso se especifican en el prospecto de admisión correspondiente.
@@ -528,7 +498,6 @@ const getHeroImage = computed(() => {
                 </div>
             </div>
         </section>
-
         <!-- ═══ 6. CTA CONTACTO ═══════════════════════════════════════ -->
         <section id="contact" class="py-16 bg-blue-900 text-white relative overflow-hidden">
             <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-8">
@@ -543,7 +512,6 @@ const getHeroImage = computed(() => {
                         <i class="bi bi-telephone-fill mr-2 text-xl text-blue-600"></i>
                         Llamar a Admisión: {{ ent.phone_number_1 }}
                     </a>
-
                     <a v-if="ent.whatsapp_link"
                        :href="ent.whatsapp_link"
                        target="_blank"

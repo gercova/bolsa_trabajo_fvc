@@ -180,7 +180,6 @@ const courseSchema = computed(() => ({
         <meta property="og:description" :content="prog.description ? prog.description.substring(0, 155) : prog.name" />
         <meta v-if="mainImage" property="og:image" :content="getImgUrl(mainImage)" />
     </Head>
-
     <PublicLayout :title="prog.name">
         <!-- ═══ HERO HEADER SECTION WITH CAROUSEL ═══════════════════════ -->
         <section
@@ -215,14 +214,12 @@ const courseSchema = computed(() => ({
                 ></div>
                 <div class="absolute inset-0 bg-slate-950/90"></div>
             </div>
-
             <!-- Foreground Content Container -->
             <div class="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
                 <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-12">
                     <!-- Text Column -->
                     <div class="lg:w-7/12 text-left space-y-5">
                         <div class="w-16 h-1 rounded-full" :class="color.bar || 'bg-blue-600'"></div>
-
                         <span
                             class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold px-4 py-2 rounded-full uppercase tracking-widest border"
                             :class="color.badge || 'bg-blue-100 text-blue-800 border-blue-200'"
@@ -230,18 +227,15 @@ const courseSchema = computed(() => ({
                             <i class="bi text-sm" :class="icon"></i>
                             {{ badge }}
                         </span>
-
                         <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-white font-sans">
                             {{ prog.name }}
                         </h1>
-
                         <p v-if="prog.carousel_alt_text" class="text-base sm:text-lg text-slate-200 leading-relaxed font-sans max-w-2xl">
                             {{ prog.carousel_alt_text }}
                         </p>
                         <p v-else class="text-base sm:text-lg text-slate-300 leading-relaxed font-sans max-w-2xl">
                             Prepárate para destacar en el campo laboral de manera rápida y efectiva con nuestro programa formativo integral, gratuito y con certificación oficial.
                         </p>
-
                         <!-- CTA Buttons -->
                         <div class="flex flex-wrap items-center gap-3 pt-2">
                             <Link
@@ -252,7 +246,6 @@ const courseSchema = computed(() => ({
                                 <i class="bi bi-pencil-square text-base group-hover:scale-110 transition-transform"></i>
                                 <span>Postular a Admisión</span>
                             </Link>
-
                             <a
                                 href="#plan-estudios"
                                 class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white font-bold rounded-xl transition-colors text-xs sm:text-sm"
@@ -261,7 +254,6 @@ const courseSchema = computed(() => ({
                                 <span>Plan de Estudios</span>
                             </a>
                         </div>
-
                         <!-- Metadata Grid -->
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-6 border-t border-white/10 max-w-xl">
                             <div>
@@ -281,7 +273,6 @@ const courseSchema = computed(() => ({
                             </div>
                         </div>
                     </div>
-
                     <!-- Visual Column: Logo / Main Image -->
                     <div class="lg:w-5/12 w-full flex justify-center lg:justify-end">
                         <div
@@ -308,7 +299,6 @@ const courseSchema = computed(() => ({
                     </div>
                 </div>
             </div>
-
             <!-- Carousel Controls -->
             <template v-if="useCarousel && carouselImages.length > 1">
                 <button
@@ -319,7 +309,6 @@ const courseSchema = computed(() => ({
                 >
                     <i class="bi bi-chevron-left text-xl sm:text-2xl"></i>
                 </button>
-
                 <button
                     type="button"
                     class="hidden sm:flex absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white items-center justify-center transition-all duration-200 shadow-xl hover:scale-105 focus:outline-none cursor-pointer"
@@ -328,7 +317,6 @@ const courseSchema = computed(() => ({
                 >
                     <i class="bi bi-chevron-right text-xl sm:text-2xl"></i>
                 </button>
-
                 <!-- Indicator Bar -->
                 <div class="absolute bottom-4 sm:bottom-6 left-0 right-0 z-30 pointer-events-none">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
@@ -343,7 +331,6 @@ const courseSchema = computed(() => ({
                                 @click="goToSlide(index)"
                             ></button>
                         </div>
-
                         <div class="hidden md:flex items-center gap-3 bg-slate-900/90 border border-slate-800 px-4 py-1.5 rounded-full text-xs font-semibold text-slate-300 pointer-events-auto shadow-lg">
                             <button
                                 type="button"
@@ -359,7 +346,6 @@ const courseSchema = computed(() => ({
                 </div>
             </template>
         </section>
-
         <!-- ═══ MAIN LAYOUT GRID ═══════════════════════════════════════ -->
         <section class="py-16 bg-gray-50/50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -378,7 +364,6 @@ const courseSchema = computed(() => ({
                                 </p>
                             </div>
                         </div>
-
                         <!-- Competencies -->
                         <div v-if="prog.competencies && prog.competencies.length > 0" class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
                             <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 flex items-center gap-3">
@@ -388,7 +373,6 @@ const courseSchema = computed(() => ({
                             <p class="text-gray-600 mb-8 text-base">
                                 A lo largo de los 3 años de formación práctica, el estudiante del programa desarrollará capacidades técnicas en las siguientes áreas de especialización:
                             </p>
-
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div
                                     v-for="(comp, cIdx) in prog.competencies"
@@ -406,7 +390,6 @@ const courseSchema = computed(() => ({
                                 </div>
                             </div>
                         </div>
-
                         <!-- Curriculum & Modular certifications / Itinerario Formativo -->
                         <div
                             v-if="(prog.modules && prog.modules.length > 0) || prog.training_itinerary_path"
@@ -422,7 +405,6 @@ const courseSchema = computed(() => ({
                                     Nuestro plan curricular está estructurado modularmente para permitir una rápida inserción laboral. Cada año académico completado te acredita con un certificado oficial del Ministerio de Educación:
                                 </p>
                             </div>
-
                             <!-- Modules list -->
                             <div v-if="prog.modules && prog.modules.length > 0" class="space-y-6">
                                 <div
@@ -454,7 +436,6 @@ const courseSchema = computed(() => ({
                                     </div>
                                 </div>
                             </div>
-
                             <!-- Itinerario Formativo PDF Download Card -->
                             <div
                                 v-if="prog.training_itinerary_path"
@@ -477,7 +458,6 @@ const courseSchema = computed(() => ({
                                             </p>
                                         </div>
                                     </div>
-
                                     <div class="flex items-center gap-3 w-full lg:w-auto shrink-0 flex-wrap sm:flex-nowrap">
                                         <a
                                             :href="prog.training_itinerary_url || `/storage/${prog.training_itinerary_path.replace(/^\//, '')}`"
@@ -488,7 +468,6 @@ const courseSchema = computed(() => ({
                                             <i class="bi bi-box-arrow-up-right text-sm"></i>
                                             <span>Ver Documento</span>
                                         </a>
-
                                         <a
                                             :href="prog.training_itinerary_url || `/storage/${prog.training_itinerary_path.replace(/^\//, '')}`"
                                             :download="`${prog.slug}-itinerario-formativo.pdf`"
@@ -501,7 +480,6 @@ const courseSchema = computed(() => ({
                                 </div>
                             </div>
                         </div>
-
                         <!-- PHOTO ALBUM / GALLERY -->
                         <div v-if="imagesList.length > 0" class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
                             <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 flex items-center gap-3">
@@ -511,7 +489,6 @@ const courseSchema = computed(() => ({
                             <p class="text-gray-600 mb-8 text-base">
                                 Explora las actividades prácticas, laboratorios, talleres y el trabajo de campo que realizan nuestros estudiantes.
                             </p>
-
                             <!-- Grid layout -->
                             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 <div
@@ -530,7 +507,6 @@ const courseSchema = computed(() => ({
                             </div>
                         </div>
                     </div>
-
                     <!-- RIGHT/SIDEBAR COLUMN (1 span) -->
                     <div class="space-y-8">
                         <!-- Technical sheet -->
@@ -539,7 +515,6 @@ const courseSchema = computed(() => ({
                                 <i class="bi bi-info-square text-lg" :class="sidebarIconClass"></i>
                                 Ficha Técnica
                             </h3>
-
                             <div class="space-y-4">
                                 <div class="flex items-start gap-3.5">
                                     <div class="w-9 h-9 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center shrink-0 border border-gray-100">
@@ -552,7 +527,6 @@ const courseSchema = computed(() => ({
                                         </p>
                                     </div>
                                 </div>
-
                                 <div class="flex items-start gap-3.5">
                                     <div class="w-9 h-9 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center shrink-0 border border-gray-100">
                                         <i class="bi bi-hourglass-split text-base"></i>
@@ -562,7 +536,6 @@ const courseSchema = computed(() => ({
                                         <p class="text-sm text-gray-700 font-semibold mt-0.5">3 Años (6 Semestres)</p>
                                     </div>
                                 </div>
-
                                 <div class="flex items-start gap-3.5">
                                     <div class="w-9 h-9 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center shrink-0 border border-gray-100">
                                         <i class="bi bi-clock text-base"></i>
@@ -572,7 +545,6 @@ const courseSchema = computed(() => ({
                                         <p class="text-sm text-gray-700 font-semibold mt-0.5">Lunes a Viernes 7:30 am – 1:30 pm</p>
                                     </div>
                                 </div>
-
                                 <div class="flex items-start gap-3.5">
                                     <div class="w-9 h-9 rounded-lg bg-gray-50 text-gray-500 flex items-center justify-center shrink-0 border border-gray-100">
                                         <i class="bi bi-cash-coin text-base"></i>
@@ -584,7 +556,6 @@ const courseSchema = computed(() => ({
                                 </div>
                             </div>
                         </div>
-
                         <!-- Career Prospects / Campo Laboral -->
                         <div v-if="prog.jobFields && prog.jobFields.length > 0" class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
                             <h3 class="text-lg font-extrabold text-gray-900 mb-5 pb-3 border-b border-gray-100 flex items-center gap-2.5">
@@ -605,7 +576,6 @@ const courseSchema = computed(() => ({
                                 </li>
                             </ul>
                         </div>
-
                         <!-- Admission Requirements -->
                         <div v-if="prog.requirements && prog.requirements.length > 0" class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
                             <h3 class="text-lg font-extrabold text-gray-900 mb-5 pb-3 border-b border-gray-100 flex items-center gap-2.5">
@@ -626,7 +596,6 @@ const courseSchema = computed(() => ({
                                 </li>
                             </ul>
                         </div>
-
                         <!-- CTA Box -->
                         <div
                             class="rounded-3xl p-6 text-white text-center shadow-lg relative overflow-hidden"
@@ -649,7 +618,6 @@ const courseSchema = computed(() => ({
                 </div>
             </div>
         </section>
-
         <!-- ═══ LIGHTBOX MODAL ═════════════════════════════════════════ -->
         <teleport to="body">
             <div
@@ -657,14 +625,12 @@ const courseSchema = computed(() => ({
                 class="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/95 backdrop-blur-sm p-4 select-none"
             >
                 <div class="absolute inset-0" @click="closeLightbox"></div>
-
                 <div class="relative max-w-5xl w-full flex flex-col items-center justify-center z-10" @click.stop>
                     <div class="relative max-h-[80vh] w-full flex items-center justify-center overflow-hidden rounded-2xl">
                         <img
                             :src="getImgUrl(imagesList[activePhotoIndex])"
                             class="max-h-[80vh] max-w-full object-contain rounded-xl shadow-2xl transition-all duration-300"
                         />
-
                         <!-- Prev / Next buttons -->
                         <button
                             type="button"
@@ -681,7 +647,6 @@ const courseSchema = computed(() => ({
                             <i class="bi bi-chevron-right text-xl"></i>
                         </button>
                     </div>
-
                     <!-- Footer -->
                     <div class="w-full flex items-center justify-between text-white mt-6 px-2">
                         <span class="text-base font-semibold tracking-wide">
@@ -695,7 +660,6 @@ const courseSchema = computed(() => ({
                             <i class="bi bi-x-lg"></i> Cerrar
                         </button>
                     </div>
-
                     <!-- Thumbnail dots -->
                     <div class="flex items-center justify-center gap-2 mt-4 flex-wrap">
                         <button

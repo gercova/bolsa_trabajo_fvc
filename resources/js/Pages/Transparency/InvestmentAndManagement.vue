@@ -218,23 +218,19 @@ onMounted(async () => {
             <!-- ═══ HERO SECTION ═══════════════════════════════════════════ -->
             <section class="bg-slate-900 relative text-white overflow-hidden py-16 lg:py-20 border-b border-slate-800">
                 <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
-
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
                     <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-sky-400 text-xs font-bold uppercase tracking-widest">
                         <i class="bi bi-shield-check"></i>
                         Portal de Transparencia
                     </div>
-
                     <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
                         Inversión y <span class="text-sky-400">Gestión Institucional</span>
                     </h1>
-
                     <p class="max-w-2xl mx-auto text-slate-300 text-base sm:text-lg leading-relaxed">
                         Registros de desembolsos e inversión de recursos del
                         <strong class="text-white">{{ ent.company_name || 'IESTP Francisco Vigo Caballero' }}</strong>,
                         organizados por mes, categoría y programa de estudios en cumplimiento de la normativa de transparencia.
                     </p>
-
                     <!-- Breadcrumb -->
                     <nav aria-label="Miga de pan" class="flex items-center justify-center gap-2 text-xs text-slate-400">
                         <Link href="/" class="hover:text-white transition-colors">Inicio</Link>
@@ -245,7 +241,6 @@ onMounted(async () => {
                     </nav>
                 </div>
             </section>
-
             <!-- ═══ MAIN BODY ═══════════════════════════════════════════════ -->
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14 space-y-10">
                 <!-- YEAR FILTER BAR -->
@@ -254,7 +249,6 @@ onMounted(async () => {
                         <span class="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-1.5 mr-1">
                             <i class="bi bi-calendar3 text-blue-600 text-sm"></i> Período anual:
                         </span>
-
                         <!-- All years pill -->
                         <Link
                             href="/transparencia/inversion-y-gestion"
@@ -264,7 +258,6 @@ onMounted(async () => {
                             <i class="bi bi-collection-fill text-xs" :class="!selectedYear ? 'text-white' : 'text-slate-400'"></i>
                             <span>Todos los Años</span>
                         </Link>
-
                         <!-- Year pills -->
                         <Link
                             v-for="yr in availableYears"
@@ -276,13 +269,11 @@ onMounted(async () => {
                             <i class="bi bi-calendar-check-fill text-xs" :class="String(selectedYear) === String(yr) ? 'text-white' : 'text-blue-500'"></i>
                             <span>Año {{ yr }}</span>
                         </Link>
-
                         <span v-if="availableYears.length === 0" class="text-xs text-slate-400 italic">
                             Sin datos disponibles aún
                         </span>
                     </div>
                 </section>
-
                 <!-- EMPTY STATE -->
                 <div v-if="totalRecords === 0" class="flex flex-col items-center justify-center py-24 gap-5">
                     <div class="w-20 h-20 rounded-3xl bg-indigo-50 text-indigo-400 flex items-center justify-center text-4xl shadow-inner">
@@ -303,7 +294,6 @@ onMounted(async () => {
                         </p>
                     </div>
                 </div>
-
                 <!-- MAIN DATA WHEN RECORDS EXIST -->
                 <template v-else>
                     <!-- KPI SUMMARY CARDS -->
@@ -319,7 +309,6 @@ onMounted(async () => {
                                 <p class="text-xs text-slate-400 mt-0.5">{{ selectedYear ? `año ${selectedYear}` : 'todos los períodos' }}</p>
                             </div>
                         </div>
-
                         <!-- Total Desembolsado -->
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex items-center gap-5 hover:-translate-y-1 transition-transform">
                             <div class="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-2xl shadow-sm shrink-0">
@@ -331,7 +320,6 @@ onMounted(async () => {
                                 <p class="text-xs text-slate-400 mt-0.5">{{ selectedYear ? `año ${selectedYear}` : 'histórico acumulado' }}</p>
                             </div>
                         </div>
-
                         <!-- Categorías -->
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex items-center gap-5 sm:col-span-2 lg:col-span-1 hover:-translate-y-1 transition-transform">
                             <div class="w-14 h-14 rounded-2xl bg-emerald-600 flex items-center justify-center text-white text-2xl shadow-sm shrink-0">
@@ -344,7 +332,6 @@ onMounted(async () => {
                             </div>
                         </div>
                     </section>
-
                     <!-- CHARTS SECTION -->
                     <section
                         v-if="Object.keys(monthlyTotals).length > 0 || Object.keys(categoryTotals).length > 0"
@@ -366,7 +353,6 @@ onMounted(async () => {
                                 <canvas ref="monthlyChartCanvas" aria-label="Gráfico de barras con desembolsos mensuales"></canvas>
                             </div>
                         </div>
-
                         <!-- Doughnut chart: category distribution -->
                         <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                             <div class="flex items-center justify-between mb-5">
@@ -381,7 +367,6 @@ onMounted(async () => {
                             <div class="relative" style="height: 200px;">
                                 <canvas ref="categoryChartCanvas" aria-label="Gráfico de dona con distribución por categoría"></canvas>
                             </div>
-
                             <!-- Legend -->
                             <div class="mt-4 space-y-1.5 max-h-40 overflow-y-auto pr-1">
                                 <div
@@ -401,7 +386,6 @@ onMounted(async () => {
                             </div>
                         </div>
                     </section>
-
                     <!-- DATA TABLE GROUPED BY CATEGORY -->
                     <section aria-label="Tabla de registros de inversión agrupados por categoría">
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -421,7 +405,6 @@ onMounted(async () => {
                                         <template v-if="selectedYear">para el año <strong>{{ selectedYear }}</strong></template>.
                                     </p>
                                 </div>
-
                                 <!-- Toolbar: Search, View Mode, Expand/Collapse -->
                                 <div class="flex flex-wrap items-center gap-2.5">
                                     <div class="relative">
@@ -433,7 +416,6 @@ onMounted(async () => {
                                         />
                                         <i class="bi bi-search absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                                     </div>
-
                                     <div class="inline-flex rounded-xl shadow-xs border border-slate-200 overflow-hidden bg-white">
                                         <button
                                             type="button"
@@ -452,7 +434,6 @@ onMounted(async () => {
                                             <i class="bi bi-arrows-collapse mr-1"></i> Colapsar
                                         </button>
                                     </div>
-
                                     <!-- View Mode Toggle -->
                                     <div class="inline-flex rounded-xl p-0.5 bg-slate-100 border border-slate-200 text-xs font-bold">
                                         <button
@@ -474,7 +455,6 @@ onMounted(async () => {
                                     </div>
                                 </div>
                             </div>
-
                             <!-- ══ GROUPED BY CATEGORY VIEW ═════════════════════════════ -->
                             <div v-show="viewMode === 'grouped'" class="divide-y divide-slate-100">
                                 <template v-for="catGroup in categoryGroups" :key="catGroup.category">
@@ -502,7 +482,6 @@ onMounted(async () => {
                                                             {{ catGroup.count }} {{ catGroup.count === 1 ? 'registro' : 'registros' }}
                                                         </span>
                                                     </div>
-
                                                     <!-- Programs preview -->
                                                     <div
                                                         v-if="getCategoryPrograms(recordsByCategory[catGroup.category]).length > 0"
@@ -519,7 +498,6 @@ onMounted(async () => {
                                                     </div>
                                                 </div>
                                             </div>
-
                                             <!-- Right: Amount, Progress & Action -->
                                             <div class="flex items-center justify-between lg:justify-end gap-5 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100">
                                                 <!-- Percent of Total -->
@@ -537,7 +515,6 @@ onMounted(async () => {
                                                         ></div>
                                                     </div>
                                                 </div>
-
                                                 <!-- Total Amount -->
                                                 <div class="text-left sm:text-right">
                                                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Recaudado</span>
@@ -545,7 +522,6 @@ onMounted(async () => {
                                                         S/ {{ formatCurrency(catGroup.total_amount) }}
                                                     </span>
                                                 </div>
-
                                                 <!-- Toggle Button -->
                                                 <button
                                                     type="button"
@@ -557,7 +533,6 @@ onMounted(async () => {
                                                 </button>
                                             </div>
                                         </div>
-
                                         <!-- Detail Drawer Table -->
                                         <div
                                             v-show="isCatOpen(catGroup.category)"
@@ -644,7 +619,6 @@ onMounted(async () => {
                                     </div>
                                 </template>
                             </div>
-
                             <!-- ══ FLAT RAW LIST VIEW ═══════════════════════════════════ -->
                             <div v-show="viewMode === 'flat'" class="overflow-x-auto">
                                 <table class="min-w-full text-sm">
@@ -694,7 +668,6 @@ onMounted(async () => {
                                         </tr>
                                     </tbody>
                                 </table>
-
                                 <!-- Pagination Links -->
                                 <div v-if="records.links && records.links.length > 3" class="px-6 py-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
                                     <p class="text-xs text-slate-500">
@@ -722,7 +695,6 @@ onMounted(async () => {
                             </div>
                         </div>
                     </section>
-
                     <!-- TRANSPARENCY NOTE -->
                     <aside class="bg-indigo-50 border border-indigo-200 rounded-2xl p-5 flex items-start gap-4">
                         <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl shrink-0">

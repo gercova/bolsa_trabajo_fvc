@@ -97,12 +97,10 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
             <meta name="twitter:title" :content="pageTitle" />
             <meta name="twitter:description" :content="pageDescription" />
         </Head>
-
         <div class="min-h-screen bg-slate-50">
             <!-- HERO SECTION -->
             <section class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
                 <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
-
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div class="text-center space-y-6 max-w-4xl mx-auto">
                         <!-- Badge -->
@@ -113,16 +111,13 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                             </span>
                             Proceso Oficial MINEDU — Ley N° 30512 &amp; RVM N° 276-2019-MINEDU
                         </div>
-
                         <!-- Hero Heading -->
                         <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-tight text-white">
                             Licenciamiento <span class="text-sky-400">Institucional</span>
                         </h1>
-
                         <p class="text-base sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-normal">
                             Monitoreo en tiempo real de las <strong class="text-white font-semibold">5 fases oficiales</strong> del procedimiento de licenciamiento y la adecuación de las <strong class="text-white font-semibold">7 Condiciones Básicas de Calidad (CBC)</strong> del IESTP "Francisco Vigo Caballero".
                         </p>
-
                         <!-- Key Stats Row -->
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-6 max-w-4xl mx-auto text-left">
                             <!-- Stat 1: Etapa Actual -->
@@ -136,7 +131,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                                 </p>
                                 <p class="text-[11px] text-amber-300/90 truncate mt-0.5">En Proceso Activo</p>
                             </div>
-
                             <!-- Stat 2: Avance Global -->
                             <div class="bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10 hover:border-sky-400/40 transition-colors">
                                 <div class="flex items-center justify-between">
@@ -150,7 +144,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                                     <div class="bg-sky-500 h-full rounded-full transition-all duration-1000" :style="{ width: `${globalProgress}%` }"></div>
                                 </div>
                             </div>
-
                             <!-- Stat 3: Total Fases -->
                             <div class="bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10 hover:border-indigo-400/40 transition-colors">
                                 <div class="flex items-center justify-between">
@@ -162,7 +155,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                                 </p>
                                 <p class="text-[11px] text-slate-300 mt-0.5">{{ completedPhases }} Culminadas &bull; {{ (totalPhases || 5) - completedPhases }} Restantes</p>
                             </div>
-
                             <!-- Stat 4: Matriz CBC -->
                             <div class="bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10 hover:border-emerald-400/40 transition-colors">
                                 <div class="flex items-center justify-between">
@@ -178,7 +170,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                     </div>
                 </div>
             </section>
-
             <!-- SECTION 1: 5-PHASE ROADMAP STEPPER -->
             <section class="py-14 sm:py-20 bg-white border-b border-slate-200">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
@@ -193,14 +184,12 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                             El proceso de licenciamiento institucional consta de 5 etapas consecutivas evaluadas por el Ministerio de Educación. Haz clic en una fase para visualizar sus detalles:
                         </p>
                     </div>
-
                     <!-- Stepper Timeline -->
                     <div class="relative">
                         <!-- Desktop Connecting Line -->
                         <div class="hidden lg:block absolute top-1/2 -translate-y-6 left-12 right-12 h-1 bg-slate-200 z-0">
                             <div class="h-full bg-emerald-500 transition-all duration-700" :style="{ width: `${stepperWidth}%` }"></div>
                         </div>
-
                         <!-- Steps Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 relative z-10">
                             <div
@@ -261,7 +250,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                                         </span>
                                     </div>
                                 </div>
-
                                 <!-- Phase Title & Subtitle -->
                                 <div class="mt-4 space-y-1.5 flex-1">
                                     <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">
@@ -274,7 +262,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                                         {{ phase.subtitle }}
                                     </p>
                                 </div>
-
                                 <!-- Mini Progress & Indicator -->
                                 <div class="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs">
                                     <span class="text-slate-500 font-medium">Avance</span>
@@ -290,7 +277,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                     </div>
                 </div>
             </section>
-
             <!-- SECTION 2: SELECTED / CURRENT STAGE SPOTLIGHT CARD -->
             <section class="py-12 sm:py-16 bg-slate-50">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -298,7 +284,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                         <div class="absolute top-0 right-0 p-8 opacity-10">
                             <i class="bi bi-patch-check-fill text-9xl text-amber-400"></i>
                         </div>
-
                         <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                             <!-- Left Column: Phase Details -->
                             <div class="lg:col-span-8 space-y-5">
@@ -307,15 +292,12 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                                     Detalle de la Fase {{ selectedPhase.phase_number }}: {{ selectedPhase.code || 'ETAPA' }}
                                     <span v-if="selectedPhase.is_current" class="text-amber-200">(Etapa en Ejecución Actual)</span>
                                 </div>
-
                                 <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-snug">
                                     {{ selectedPhase.title }}
                                 </h2>
-
                                 <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
                                     {{ selectedPhase.description || selectedPhase.subtitle }}
                                 </p>
-
                                 <!-- Metadata Grid -->
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-white/10">
                                     <div v-if="selectedPhase.resolution_number" class="flex items-start gap-2.5">
@@ -325,7 +307,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                                             <p class="text-xs sm:text-sm font-bold text-white">{{ selectedPhase.resolution_number }}</p>
                                         </div>
                                     </div>
-
                                     <div v-if="selectedPhase.legal_basis" class="flex items-start gap-2.5">
                                         <i class="bi bi-journal-bookmark text-sky-400 text-lg mt-0.5"></i>
                                         <div>
@@ -335,7 +316,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                                             </p>
                                         </div>
                                     </div>
-
                                     <div v-if="selectedPhase.estimated_date" class="flex items-start gap-2.5">
                                         <i class="bi bi-calendar-event text-emerald-400 text-lg mt-0.5"></i>
                                         <div>
@@ -345,7 +325,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                                     </div>
                                 </div>
                             </div>
-
                             <!-- Right Column: Circular Progress Gauge & Evidence -->
                             <div class="lg:col-span-4 bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 flex flex-col items-center justify-center text-center space-y-4">
                                 <div class="relative flex items-center justify-center">
@@ -369,12 +348,10 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                                         <span class="text-[10px] uppercase font-bold text-amber-300">Avance</span>
                                     </div>
                                 </div>
-
                                 <div class="text-center space-y-1">
                                     <p class="text-xs font-bold text-white">Estado de la Fase</p>
                                     <p class="text-xs text-slate-400">Avance consolidado de los medios de verificación y matrices CBC.</p>
                                 </div>
-
                                 <a
                                     v-if="selectedPhase.file_url"
                                     :href="selectedPhase.file_url"
@@ -397,7 +374,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                     </div>
                 </div>
             </section>
-
             <!-- SECTION 3: 7 CONDICIONES BÁSICAS DE CALIDAD (CBC) MATRIX -->
             <section class="py-16 sm:py-24 bg-white border-y border-slate-200">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -417,7 +393,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                             <i class="bi bi-shield-fill-check text-emerald-600 text-base"></i> RVM N° 276-2019-MINEDU
                         </div>
                     </div>
-
                     <!-- CBCs Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div
@@ -438,16 +413,13 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                                         {{ cbc.status === 'completed' || (cbc.progress ?? 100) >= 100 ? 'Cumplido' : 'En Adecuación' }}
                                     </span>
                                 </div>
-
                                 <h3 class="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors leading-snug">
                                     {{ cbc.name }}
                                 </h3>
-
                                 <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
                                     {{ cbc.description }}
                                 </p>
                             </div>
-
                             <div class="mt-6 pt-4 border-t border-slate-200/80 space-y-1.5">
                                 <div class="flex justify-between items-center text-xs">
                                     <span class="text-slate-500 font-medium">Nivel de Adecuación</span>
@@ -467,7 +439,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                     </div>
                 </div>
             </section>
-
             <!-- SECTION 4: TABLE OF LICENSING PHASES -->
             <section class="py-16 sm:py-24 bg-slate-50">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
@@ -482,7 +453,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                             Consulte el detalle completo, estado de avance, periodos y marco legal de cada una de las 5 etapas del procedimiento:
                         </p>
                     </div>
-
                     <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
@@ -515,13 +485,11 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                                                 <span class="text-xs text-slate-500 font-mono">{{ p.code || `FASE-0${p.phase_number}` }}</span>
                                             </div>
                                         </td>
-
                                         <!-- Title & Subtitle -->
                                         <td class="py-4 px-6">
                                             <p class="font-bold text-slate-900">{{ p.title }}</p>
                                             <p v-if="p.subtitle" class="text-xs text-slate-500 mt-0.5 line-clamp-1">{{ p.subtitle }}</p>
                                         </td>
-
                                         <!-- Status Tag -->
                                         <td class="py-4 px-6 whitespace-nowrap">
                                             <span
@@ -549,7 +517,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                                                 (PTE) Pendiente
                                             </span>
                                         </td>
-
                                         <!-- Progress Bar -->
                                         <td class="py-4 px-6 whitespace-nowrap">
                                             <div class="flex items-center gap-3">
@@ -563,12 +530,10 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                                                 <span class="text-xs font-bold text-slate-700">{{ p.progress_percentage }}%</span>
                                             </div>
                                         </td>
-
                                         <!-- Estimated Date -->
                                         <td class="py-4 px-6 whitespace-nowrap text-xs text-slate-600">
                                             {{ p.estimated_date || 'Por definir' }}
                                         </td>
-
                                         <!-- Actions -->
                                         <td class="py-4 px-6 whitespace-nowrap text-right">
                                             <a
@@ -597,7 +562,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                     </div>
                 </div>
             </section>
-
             <!-- SECTION 5: INSTITUTIONAL FAQ -->
             <section class="py-16 sm:py-20 bg-white border-t border-slate-200">
                 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
@@ -612,7 +576,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                             Aspectos clave sobre el proceso de licenciamiento que lidera el IESTP Francisco Vigo Caballero.
                         </p>
                     </div>
-
                     <div class="space-y-4">
                         <!-- FAQ 1 -->
                         <div class="border border-slate-200 rounded-2xl overflow-hidden transition-colors">
@@ -634,7 +597,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                                 </p>
                             </div>
                         </div>
-
                         <!-- FAQ 2 -->
                         <div class="border border-slate-200 rounded-2xl overflow-hidden transition-colors">
                             <button
@@ -652,7 +614,6 @@ const pageDescription = 'Conoce las 5 fases del proceso de Licenciamiento Instit
                                 </p>
                             </div>
                         </div>
-
                         <!-- FAQ 3 -->
                         <div class="border border-slate-200 rounded-2xl overflow-hidden transition-colors">
                             <button

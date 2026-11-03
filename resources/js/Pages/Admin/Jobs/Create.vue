@@ -41,7 +41,6 @@ function submit() {
                     <i class="bi bi-arrow-left"></i> Volver al Listado
                 </Link>
             </div>
-
             <!-- Form Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
                 <form @submit.prevent="submit" class="space-y-6">

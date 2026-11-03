@@ -430,7 +430,7 @@ class CertificateController extends Controller
             $ids = $request->input('ids', []);
 
             if (empty($ids) || ! is_array($ids)) {
-                if ($request->expectsJson() || $request->ajax()) {
+                if ($this->wantsJson($request)) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Debe seleccionar al menos un certificado para eliminar.',
@@ -442,7 +442,7 @@ class CertificateController extends Controller
 
             $validIds = array_values(array_filter(array_map('intval', $ids)));
             if (empty($validIds)) {
-                if ($request->expectsJson() || $request->ajax()) {
+                if ($this->wantsJson($request)) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Identificadores de certificados no válidos.',
@@ -459,7 +459,7 @@ class CertificateController extends Controller
             });
 
             if ($count === 0) {
-                if ($request->expectsJson() || $request->ajax()) {
+                if ($this->wantsJson($request)) {
                     return response()->json([
                         'success' => false,
                         'message' => 'No se encontraron los certificados seleccionados para eliminar.',
@@ -473,7 +473,7 @@ class CertificateController extends Controller
                 ? 'Se ha eliminado 1 certificado seleccionado correctamente.'
                 : "Se han eliminado exitosamente {$count} certificados seleccionados.";
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => true,
                     'message' => $message,
@@ -486,7 +486,7 @@ class CertificateController extends Controller
         } catch (\Exception $e) {
             Log::error('Error en eliminación masiva de certificados: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Ocurrió un error al eliminar los certificados: '.$e->getMessage(),
@@ -506,7 +506,7 @@ class CertificateController extends Controller
             $total = Certificate::count();
 
             if ($total === 0) {
-                if ($request->expectsJson() || $request->ajax()) {
+                if ($this->wantsJson($request)) {
                     return response()->json([
                         'success' => false,
                         'message' => 'No hay certificados registrados para eliminar.',
@@ -523,7 +523,7 @@ class CertificateController extends Controller
 
             $message = "Se han eliminado exitosamente todos los certificados ({$total} registros).";
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => true,
                     'message' => $message,
@@ -536,7 +536,7 @@ class CertificateController extends Controller
         } catch (\Exception $e) {
             Log::error('Error eliminando todos los certificados: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Ocurrió un error al eliminar todos los certificados: '.$e->getMessage(),
@@ -554,7 +554,7 @@ class CertificateController extends Controller
     {
         $req = $request ?: request();
 
-        return ($req->expectsJson() || $req->ajax()) && ! $req->header('X-Inertia');
+        return ($req->expectsJson() || $req->wantsJson()) && ! $req->header('X-Inertia');
     }
 
     /**
@@ -610,7 +610,7 @@ class CertificateController extends Controller
                 ]
             );
 
-            if ($request->expectsJson() || request()->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Detalle de módulo registrado correctamente.',
@@ -623,7 +623,7 @@ class CertificateController extends Controller
         } catch (\Exception $e) {
             Log::error('Error registrando detalle de certificado: '.$e->getMessage());
 
-            if ($request->expectsJson() || request()->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Error al registrar el módulo: '.$e->getMessage(),
@@ -642,7 +642,7 @@ class CertificateController extends Controller
         try {
             $detail->delete();
 
-            if (request()->expectsJson() || request()->ajax()) {
+            if ($this->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Módulo eliminado del certificado.',
@@ -654,7 +654,7 @@ class CertificateController extends Controller
         } catch (\Exception $e) {
             Log::error('Error eliminando detalle de certificado: '.$e->getMessage());
 
-            if (request()->expectsJson() || request()->ajax()) {
+            if ($this->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No se pudo eliminar el detalle.',

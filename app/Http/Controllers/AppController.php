@@ -801,12 +801,18 @@ class AppController extends Controller
      * Validates certificates issued by the institution via QR code or certificate_code / DNI.
      * Presents consolidated summary tables grouped by Year, Academic Period, and Study Programs / Courses.
      */
-    public function validateCertificate(?string $certificate_code = null, ?Request $request = null): Response
+    public function validateCertificate(Request|string|null $certificate_code = null, ?Request $request = null): Response
     {
+        if ($certificate_code instanceof Request) {
+            $request = $certificate_code;
+            $certificate_code = null;
+        }
+
         $enterprise = Enterprise::first() ?? Enterprise::getDefault();
         $request = $request ?? request();
         // 1. Search code resolution (from URL route parameter or query string)
         $searchCode = trim((string) ($certificate_code
+            ?: $request->query('code')
             ?: $request->input('code')
             ?: $request->input('search')
             ?: $request->input('dni') ?: ''));
@@ -864,16 +870,7 @@ class AppController extends Controller
                 if ($certByCode) {
                     $certificate = $certByCode;
                     $searchedUser = $certByCode->user;
-                    if ($certByCode->user_id) {
-                        $certificates = Certificate::with($withRelations)
-                            ->where('user_id', $certByCode->user_id)
-                            ->where('is_active', true)
-                            ->orderByDesc('issue_date')
-                            ->orderByDesc('id')
-                            ->get();
-                    } else {
-                        $certificates = collect([$certByCode]);
-                    }
+                    $certificates = collect([$certByCode]);
                 } else {
                     // 1.3 Fallback partial match
                     $fallbackCerts = Certificate::with($withRelations)

@@ -224,6 +224,7 @@ class Certificate extends Model
         $eventName = mb_strtolower($this->event_name ?? '', 'UTF-8');
         $desc = mb_strtolower($this->description ?? '', 'UTF-8');
         $certType = mb_strtolower($this->certificate_type ?? '', 'UTF-8');
+        $courseCertType = mb_strtolower($this->course?->certificate_type ?? '', 'UTF-8');
 
         foreach ($searchTerms as $term) {
             if (str_contains($courseName, $term) || str_contains($eventName, $term) || str_contains($desc, $term)) {
@@ -231,7 +232,8 @@ class Certificate extends Model
             }
         }
 
-        return $certType === 'ingles' || $certType === 'basic_english';
+        return in_array($certType, ['ingles', 'basic_english', 'english'], true)
+            || in_array($courseCertType, ['ingles', 'basic_english', 'english'], true);
     }
 
     /**
@@ -466,6 +468,9 @@ class Certificate extends Model
      */
     public function getEnglishModulesDataAttribute(): array
     {
+        if (! $this->isBasicEnglish()) {
+            return [];
+        }
         $defaultModules = [
             [
                 'name' => 'MODULO: I',

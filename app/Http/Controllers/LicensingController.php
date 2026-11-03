@@ -197,6 +197,16 @@ class LicensingController extends Controller
     }
 
     /**
+     * Determine if the request explicitly wants a JSON response (excluding Inertia requests).
+     */
+    protected function wantsJson(?Request $request = null): bool
+    {
+        $req = $request ?: request();
+
+        return ($req->expectsJson() || $req->wantsJson()) && ! $req->header('X-Inertia');
+    }
+
+    /**
      * Toggle active status of the specified phase.
      */
     public function toggleStatus(Request $request, LicensingPhase $licensing): RedirectResponse|JsonResponse
@@ -205,7 +215,7 @@ class LicensingController extends Controller
             'is_active' => ! $licensing->is_active,
         ]);
 
-        if ($request->expectsJson() || $request->ajax()) {
+        if ($this->wantsJson($request)) {
             return response()->json([
                 'success' => true,
                 'is_active' => $licensing->is_active,
@@ -230,7 +240,7 @@ class LicensingController extends Controller
             'stage_tag' => 'P',
         ]);
 
-        if ($request->expectsJson() || $request->ajax()) {
+        if ($this->wantsJson($request)) {
             return response()->json([
                 'success' => true,
                 'message' => "La fase {$licensing->phase_number} ha sido establecida como la Etapa Actual (P).",

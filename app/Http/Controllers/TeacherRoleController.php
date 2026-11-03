@@ -58,6 +58,16 @@ class TeacherRoleController extends Controller
     }
 
     /**
+     * Determine if the request explicitly wants a JSON response (excluding Inertia requests).
+     */
+    protected function wantsJson(?Request $request = null): bool
+    {
+        $req = $request ?: request();
+
+        return ($req->expectsJson() || $req->wantsJson()) && ! $req->header('X-Inertia');
+    }
+
+    /**
      * Store a new teacher-role detail record.
      */
     public function store(Request $request): RedirectResponse|JsonResponse
@@ -81,7 +91,7 @@ class TeacherRoleController extends Controller
 
         if ($exists) {
             $msg = 'Este docente ya está asignado a ese programa.';
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json(['success' => false, 'message' => $msg], 422);
             }
 
@@ -97,7 +107,7 @@ class TeacherRoleController extends Controller
                 'is_active' => $request->boolean('is_active', true),
             ]);
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json(['success' => true, 'message' => 'Asignación creada correctamente.'], 201);
             }
 
@@ -107,7 +117,7 @@ class TeacherRoleController extends Controller
         } catch (\Exception $e) {
             Log::error('Error creando asignación de docente: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
             }
 
@@ -140,7 +150,7 @@ class TeacherRoleController extends Controller
 
             if ($exists) {
                 $msg = 'Este docente ya está asignado a ese programa.';
-                if ($request->expectsJson() || $request->ajax()) {
+                if ($this->wantsJson($request)) {
                     return response()->json(['success' => false, 'message' => $msg], 422);
                 }
 
@@ -157,7 +167,7 @@ class TeacherRoleController extends Controller
                 'is_active' => $request->boolean('is_active', true),
             ]);
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json(['success' => true, 'message' => 'Asignación actualizada correctamente.']);
             }
 
@@ -167,7 +177,7 @@ class TeacherRoleController extends Controller
         } catch (\Exception $e) {
             Log::error('Error actualizando asignación de docente: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
             }
 
@@ -183,7 +193,7 @@ class TeacherRoleController extends Controller
         try {
             $teacherRole->update(['is_active' => ! $teacherRole->is_active]);
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Estado actualizado.',
@@ -201,7 +211,7 @@ class TeacherRoleController extends Controller
         } catch (\Exception $e) {
             Log::error('Error alternando estado de asignación de docente: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Error al actualizar el estado.',
@@ -220,7 +230,7 @@ class TeacherRoleController extends Controller
         try {
             $teacherRole->delete();
 
-            if (request()->expectsJson() || request()->ajax()) {
+            if ($this->wantsJson()) {
                 return response()->json(['success' => true, 'message' => 'Asignación eliminada correctamente.']);
             }
 
@@ -230,7 +240,7 @@ class TeacherRoleController extends Controller
         } catch (\Exception $e) {
             Log::error('Error eliminando asignación: '.$e->getMessage());
 
-            if (request()->expectsJson() || request()->ajax()) {
+            if ($this->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'No se pudo eliminar la asignación.'], 500);
             }
 

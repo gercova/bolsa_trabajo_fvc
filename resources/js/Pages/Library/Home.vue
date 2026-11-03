@@ -60,10 +60,8 @@ const toggleFavorite = async (bookId) => {
 
 <template>
     <Head title="Biblioteca Virtual - Inicio" />
-
     <ReaderLayout pageTitle="Inicio">
         <div class="space-y-10">
-
             <!-- Greeting Header -->
             <div>
                 <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
@@ -71,7 +69,6 @@ const toggleFavorite = async (bookId) => {
                 </h1>
                 <p class="text-xs text-slate-500 mt-0.5">Bienvenido a la biblioteca digital institucional del IESTP Francisco Vigo Caballero.</p>
             </div>
-
             <!-- SECTION 1: Mi biblioteca (Favorites) -->
             <div class="space-y-4">
                 <div class="flex items-center justify-between">
@@ -89,7 +86,6 @@ const toggleFavorite = async (bookId) => {
                         Ver más
                     </Link>
                 </div>
-
                 <div v-if="favoriteBooks.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
                     <div
                         v-for="book in favoriteBooks"
@@ -118,24 +114,20 @@ const toggleFavorite = async (bookId) => {
                                 </div>
                             </div>
                         </Link>
-
                         <!-- Metadata -->
                         <div class="space-y-1">
                             <div class="flex items-center gap-0.5 text-amber-400 text-xs">
                                 <i v-for="s in 5" :key="s" class="bi bi-star-fill text-[11px]"></i>
                             </div>
-
                             <Link :href="route('biblioteca.read', book.slug)" class="block">
                                 <h3 class="text-xs font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600 transition" :title="book.title">
                                     {{ book.title }}
                                 </h3>
                             </Link>
-
                             <p class="text-[11px] text-slate-500 line-clamp-1" :title="book.author">
                                 {{ book.author }}
                             </p>
                         </div>
-
                         <!-- Action Strip -->
                         <div class="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between text-xs">
                             <Link
@@ -155,12 +147,10 @@ const toggleFavorite = async (bookId) => {
                         </div>
                     </div>
                 </div>
-
                 <div v-else class="py-10 text-center text-slate-400 text-xs font-medium bg-slate-50/60 rounded-2xl border border-dashed border-slate-200">
                     Aún no has agregado libros a tu biblioteca
                 </div>
             </div>
-
             <!-- SECTION 2: Leídos últimamente -->
             <div class="space-y-4 pt-4 border-t border-slate-100">
                 <div class="flex items-center justify-between">
@@ -178,7 +168,6 @@ const toggleFavorite = async (bookId) => {
                         Ver más
                     </Link>
                 </div>
-
                 <div v-if="recentlyReadBooks.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
                     <div
                         v-for="book in recentlyReadBooks"
@@ -207,24 +196,20 @@ const toggleFavorite = async (bookId) => {
                                 </div>
                             </div>
                         </Link>
-
                         <!-- Metadata -->
                         <div class="space-y-1">
                             <div class="flex items-center gap-0.5 text-amber-400 text-xs">
                                 <i v-for="s in 5" :key="s" class="bi bi-star-fill text-[11px]"></i>
                             </div>
-
                             <Link :href="route('biblioteca.read', book.slug)" class="block">
                                 <h3 class="text-xs font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600 transition" :title="book.title">
                                     {{ book.title }}
                                 </h3>
                             </Link>
-
                             <p class="text-[11px] text-slate-500 line-clamp-1" :title="book.author">
                                 {{ book.author }}
                             </p>
                         </div>
-
                         <!-- Action Strip -->
                         <div class="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between text-xs">
                             <Link
@@ -245,13 +230,11 @@ const toggleFavorite = async (bookId) => {
                         </div>
                     </div>
                 </div>
-
                 <div v-else class="py-10 text-center text-slate-400 text-xs font-medium bg-slate-50/60 rounded-2xl border border-dashed border-slate-200">
                     No has leído libros recientemente. Explora nuestro catálogo en la sección
                     <Link :href="route('biblioteca.search')" class="text-blue-600 font-bold underline ml-1">Buscar</Link>.
                 </div>
             </div>
-
             <!-- SECTION 3: Materiales Destacados -->
             <div v-if="featuredBooks.length > 0" class="space-y-4 pt-4 border-t border-slate-100">
                 <div class="flex items-center justify-between">
@@ -268,7 +251,6 @@ const toggleFavorite = async (bookId) => {
                         Ver todo el catálogo
                     </Link>
                 </div>
-
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                     <div
                         v-for="book in featuredBooks"
@@ -290,7 +272,6 @@ const toggleFavorite = async (bookId) => {
                                 </div>
                             </div>
                         </Link>
-
                         <div class="space-y-0.5">
                             <Link :href="route('biblioteca.read', book.slug)" class="block">
                                 <h4 class="text-[11px] font-bold text-slate-900 line-clamp-1 hover:text-blue-600 transition" :title="book.title">
@@ -299,7 +280,6 @@ const toggleFavorite = async (bookId) => {
                             </Link>
                             <p class="text-[10px] text-slate-400 line-clamp-1">{{ book.author }}</p>
                         </div>
-
                         <div class="pt-1.5 mt-1.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
                             <span class="text-[10px] text-slate-400 font-semibold flex items-center gap-1">
                                 <i class="bi bi-eye"></i> {{ Number(book.views_count || 0).toLocaleString() }}
@@ -316,7 +296,6 @@ const toggleFavorite = async (bookId) => {
                     </div>
                 </div>
             </div>
-
         </div>
     </ReaderLayout>
 </template>

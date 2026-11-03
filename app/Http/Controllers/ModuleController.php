@@ -65,7 +65,7 @@ class ModuleController extends Controller
     /**
      * Store a newly created module.
      */
-    public function store(ModuleRequest $request): RedirectResponse|JsonResponse
+    public function store(ModuleRequest $request): RedirectResponse
     {
         try {
             $data = $request->validated();
@@ -73,35 +73,20 @@ class ModuleController extends Controller
 
             $module = Module::create($data);
 
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => "El módulo '{$module->name}' ha sido registrado exitosamente.",
-                    'module' => $module->load('course'),
-                ], 201);
-            }
-
             return redirect()->route('admin.modules.index')
                 ->with('success', "El módulo '{$module->name}' ha sido registrado exitosamente.");
 
         } catch (\Exception $e) {
             Log::error('Error registrando módulo: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Ocurrió un error al registrar el módulo: '.$e->getMessage(),
-                ], 500);
-            }
-
-            return back()->withInput()->with('error', 'Error al registrar el módulo.');
+            return back()->withInput()->with('error', 'Error al registrar el módulo: '.$e->getMessage());
         }
     }
 
     /**
      * Update the specified module.
      */
-    public function update(ModuleRequest $request, Module $module): RedirectResponse|JsonResponse
+    public function update(ModuleRequest $request, Module $module): RedirectResponse
     {
         try {
             $data = $request->validated();
@@ -109,59 +94,30 @@ class ModuleController extends Controller
 
             $module->update($data);
 
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => "El módulo '{$module->name}' ha sido actualizado exitosamente.",
-                    'module' => $module->load('course'),
-                ], 200);
-            }
-
             return redirect()->route('admin.modules.index')
                 ->with('success', "El módulo '{$module->name}' ha sido actualizado exitosamente.");
 
         } catch (\Exception $e) {
             Log::error('Error actualizando módulo: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Ocurrió un error al actualizar el módulo: '.$e->getMessage(),
-                ], 500);
-            }
-
-            return back()->withInput()->with('error', 'Error al actualizar el módulo.');
+            return back()->withInput()->with('error', 'Error al actualizar el módulo: '.$e->getMessage());
         }
     }
 
     /**
      * Remove the specified module.
      */
-    public function destroy(Module $module): RedirectResponse|JsonResponse
+    public function destroy(Module $module): RedirectResponse
     {
         try {
             $name = $module->name;
             $module->delete();
-
-            if (request()->expectsJson() || request()->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => "El módulo '{$name}' ha sido eliminado correctamente.",
-                ], 200);
-            }
 
             return redirect()->route('admin.modules.index')
                 ->with('success', "El módulo '{$name}' ha sido eliminado correctamente.");
 
         } catch (\Exception $e) {
             Log::error('Error eliminando módulo: '.$e->getMessage());
-
-            if (request()->expectsJson() || request()->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No se pudo eliminar el módulo.',
-                ], 500);
-            }
 
             return back()->with('error', 'No se pudo eliminar el módulo.');
         }
@@ -170,18 +126,10 @@ class ModuleController extends Controller
     /**
      * Toggle the active status of a module.
      */
-    public function toggleStatus(Module $module): JsonResponse|RedirectResponse
+    public function toggleStatus(Module $module): RedirectResponse
     {
         $module->is_active = ! $module->is_active;
         $module->save();
-
-        if (request()->expectsJson() || request()->ajax()) {
-            return response()->json([
-                'success' => true,
-                'is_active' => $module->is_active,
-                'message' => 'Estado actualizado correctamente.',
-            ]);
-        }
 
         return back()->with('success', 'Estado del módulo actualizado.');
     }

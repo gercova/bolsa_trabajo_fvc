@@ -86,10 +86,8 @@ const categoriesList = [
 
 <template>
     <Head title="Buscar en la Biblioteca Virtual" />
-
     <ReaderLayout pageTitle="Buscar">
         <div class="space-y-6">
-
             <!-- Search and Filter Toolbar -->
             <div class="space-y-4">
                 <div>
@@ -107,7 +105,6 @@ const categoriesList = [
                         @keydown.enter="applyFilter('q', queryText)"
                         class="w-full pl-11 pr-28 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm font-medium focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition text-slate-900"
                     />
-
                     <div class="absolute right-2 flex items-center gap-1">
                         <button
                             v-if="queryText.length > 0"
@@ -127,7 +124,6 @@ const categoriesList = [
                         </button>
                     </div>
                 </div>
-
                 <!-- Career Filter Chips -->
                 <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
                     <button
@@ -157,7 +153,6 @@ const categoriesList = [
                         {{ prog.name }}
                     </button>
                 </div>
-
                 <!-- Category Filter Pills -->
                 <div class="flex items-center gap-2 flex-wrap text-xs">
                     <span class="text-slate-400 font-bold uppercase text-[10px] mr-1">Tipo:</span>
@@ -226,7 +221,6 @@ const categoriesList = [
                             </span>
                         </div>
                     </Link>
-
                     <!-- Metadata -->
                     <div class="space-y-1">
                         <div class="flex items-center justify-between text-xs">
@@ -242,18 +236,15 @@ const categoriesList = [
                                 {{ book.publication_year }}
                             </span>
                         </div>
-
                         <Link :href="route('biblioteca.read', book.slug)" class="block">
                             <h3 class="text-xs font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-blue-600 transition" :title="book.title">
                                 {{ book.title }}
                             </h3>
                         </Link>
-
                         <p class="text-[11px] text-slate-500 line-clamp-1" :title="book.author">
                             {{ book.author }}
                         </p>
                     </div>
-
                     <!-- Actions -->
                     <div class="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between text-xs">
                         <Link
@@ -274,7 +265,6 @@ const categoriesList = [
                     </div>
                 </div>
             </div>
-
             <!-- Empty State -->
             <div v-else class="py-16 text-center text-slate-400 space-y-3 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
                 <i class="bi bi-search text-3xl block text-slate-300"></i>
@@ -290,7 +280,6 @@ const categoriesList = [
                     </button>
                 </div>
             </div>
-
             <!-- Pagination -->
             <div v-if="books.links && books.links.length > 3" class="pt-4 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
                 <span class="text-xs text-slate-500">
@@ -310,7 +299,6 @@ const categoriesList = [
                     />
                 </div>
             </div>
-
         </div>
     </ReaderLayout>
 </template>

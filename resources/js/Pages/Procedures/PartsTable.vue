@@ -145,7 +145,6 @@ const jsonLd = JSON.stringify({
             <meta property="og:image" :content="enterprise?.logo_path ? `/${enterprise.logo_path}` : '/img/logo.png'" />
             <component :is="'script'" type="application/ld+json" v-text="jsonLd" />
         </Head>
-
         <!-- HERO SECTION -->
         <section class="relative bg-slate-900 text-white py-16 lg:py-20 overflow-hidden border-b border-slate-800">
             <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
@@ -162,12 +161,10 @@ const jsonLd = JSON.stringify({
                 </p>
             </div>
         </section>
-
         <!-- MAIN GRID SECTION -->
         <section class="py-16 bg-slate-50/50">
             <div class="container mx-auto px-6">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 max-w-7xl mx-auto">
-
                     <!-- LEFT COLUMN: THE CONTACT FORM -->
                     <div class="lg:col-span-2 space-y-8">
                         <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-sm">
@@ -177,14 +174,12 @@ const jsonLd = JSON.stringify({
                                     Formulario de Envío Digital
                                 </h2>
                             </div>
-
                             <form @submit.prevent="submitForm" class="space-y-8">
                                 <!-- Step 1: Applicant Data -->
                                 <div class="space-y-4">
                                     <label class="block text-sm font-bold uppercase tracking-wider text-slate-500">
                                         1. Datos del Solicitante
                                     </label>
-
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div class="space-y-1.5">
                                             <label class="block text-sm font-bold text-slate-700">Nombres y Apellidos <span class="text-rose-500">*</span></label>
@@ -196,7 +191,6 @@ const jsonLd = JSON.stringify({
                                                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-600 transition"
                                             />
                                         </div>
-
                                         <div class="grid grid-cols-3 gap-3">
                                             <div class="col-span-1 space-y-1.5">
                                                 <label class="block text-sm font-bold text-slate-700">Doc.</label>
@@ -219,7 +213,6 @@ const jsonLd = JSON.stringify({
                                                 />
                                             </div>
                                         </div>
-
                                         <div class="space-y-1.5">
                                             <label class="block text-sm font-bold text-slate-700">Correo Electrónico <span class="text-rose-500">*</span></label>
                                             <input
@@ -230,7 +223,6 @@ const jsonLd = JSON.stringify({
                                                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-600 transition"
                                             />
                                         </div>
-
                                         <div class="space-y-1.5">
                                             <label class="block text-sm font-bold text-slate-700">Número de Teléfono / Celular <span class="text-rose-500">*</span></label>
                                             <input
@@ -243,13 +235,11 @@ const jsonLd = JSON.stringify({
                                         </div>
                                     </div>
                                 </div>
-
                                 <!-- Step 2: Request details -->
                                 <div class="pt-6 border-t border-slate-100 space-y-6">
                                     <label class="block text-sm font-bold uppercase tracking-wider text-slate-500">
                                         2. Detalles de la Solicitud
                                     </label>
-
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         <div class="md:col-span-1 space-y-1.5">
                                             <label class="block text-sm font-bold text-slate-700">Tipo de Trámite <span class="text-rose-500">*</span></label>
@@ -266,7 +256,6 @@ const jsonLd = JSON.stringify({
                                                 <option value="Otro">Otro Trámite</option>
                                             </select>
                                         </div>
-
                                         <div class="md:col-span-2 space-y-1.5">
                                             <label class="block text-sm font-bold text-slate-700">Asunto / Resumen <span class="text-rose-500">*</span></label>
                                             <input
@@ -278,7 +267,6 @@ const jsonLd = JSON.stringify({
                                             />
                                         </div>
                                     </div>
-
                                     <div class="space-y-1.5">
                                         <label class="block text-sm font-bold text-slate-700">Descripción de la Solicitud / Mensaje <span class="text-rose-500">*</span></label>
                                         <textarea
@@ -289,7 +277,6 @@ const jsonLd = JSON.stringify({
                                             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-600 transition"
                                         ></textarea>
                                     </div>
-
                                     <div class="space-y-1.5">
                                         <label class="block text-sm font-bold text-slate-700">Adjuntar Documentos (FUT o Solicitud en PDF / Word)</label>
                                         <div
@@ -313,7 +300,6 @@ const jsonLd = JSON.stringify({
                                                 <p class="text-xs text-slate-400">Formatos permitidos: PDF o Word (Máx. 10MB)</p>
                                             </div>
                                         </div>
-
                                         <div v-if="uploadedFile" class="mt-3 p-4 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between">
                                             <div class="flex items-center gap-3">
                                                 <i class="bi bi-file-earmark-pdf-fill text-rose-500 text-2xl"></i>
@@ -332,7 +318,6 @@ const jsonLd = JSON.stringify({
                                         </div>
                                     </div>
                                 </div>
-
                                 <!-- Action buttons -->
                                 <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-4 justify-end">
                                     <button
@@ -343,7 +328,6 @@ const jsonLd = JSON.stringify({
                                         <i class="bi bi-envelope-at text-blue-600 text-base"></i>
                                         Redirigir por Correo
                                     </button>
-
                                     <button
                                         type="button"
                                         @click="redirectToWhatsApp"
@@ -352,7 +336,6 @@ const jsonLd = JSON.stringify({
                                         <i class="bi bi-whatsapp text-emerald-600 text-base"></i>
                                         Redirigir por WhatsApp
                                     </button>
-
                                     <button
                                         type="submit"
                                         class="px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
@@ -364,7 +347,6 @@ const jsonLd = JSON.stringify({
                             </form>
                         </div>
                     </div>
-
                     <!-- RIGHT COLUMN: SIDEBAR DETAILS -->
                     <div class="space-y-8">
                         <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-5">
@@ -374,7 +356,6 @@ const jsonLd = JSON.stringify({
                                     Recepción Documentaria
                                 </h3>
                             </div>
-
                             <div class="space-y-4">
                                 <div class="p-4 bg-blue-50/60 rounded-2xl border border-blue-100 flex items-center gap-3.5">
                                     <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-sm shrink-0">
@@ -385,13 +366,11 @@ const jsonLd = JSON.stringify({
                                         <p class="text-xs text-slate-500 font-medium">Recepción y Trámite Documentario</p>
                                     </div>
                                 </div>
-
                                 <div class="space-y-3 pt-1 text-sm">
                                     <div class="flex justify-between py-2 border-b border-slate-100">
                                         <span class="text-slate-500 text-xs font-semibold uppercase">Oficina Central</span>
                                         <span class="font-bold text-slate-800 text-right text-xs">Secretaría General</span>
                                     </div>
-
                                     <div class="flex flex-col gap-1 py-2 border-b border-slate-100">
                                         <span class="text-slate-500 text-xs font-semibold uppercase">Correo de Recepción</span>
                                         <a
@@ -402,19 +381,16 @@ const jsonLd = JSON.stringify({
                                             {{ receptionEmail }}
                                         </a>
                                     </div>
-
                                     <div class="flex justify-between py-2 border-b border-slate-100">
                                         <span class="text-slate-500 text-xs font-semibold uppercase">Teléfono / WhatsApp</span>
                                         <a :href="`tel:${rawPhone}`" class="font-bold text-slate-800 text-xs hover:text-blue-600 transition">
                                             +51 {{ displayPhone }}
                                         </a>
                                     </div>
-
                                     <div class="flex justify-between py-2 border-b border-slate-100">
                                         <span class="text-slate-500 text-xs font-semibold uppercase">Horario de Atención</span>
                                         <span class="font-bold text-slate-800 text-xs text-right">Lun a Vie: 7:30 am – 1:30 pm</span>
                                     </div>
-
                                     <div class="flex flex-col gap-1 py-2">
                                         <span class="text-slate-500 text-xs font-semibold uppercase">Sede Institucional</span>
                                         <span class="font-medium text-slate-700 text-xs leading-relaxed">
@@ -424,14 +400,12 @@ const jsonLd = JSON.stringify({
                                 </div>
                             </div>
                         </div>
-
                         <!-- General Instructions -->
                         <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
                             <h3 class="text-lg font-extrabold text-slate-900 mb-4 flex items-center gap-2.5">
                                 <i class="bi bi-info-circle text-blue-600 text-xl"></i>
                                 Pautas Generales
                             </h3>
-
                             <ul class="space-y-4 text-sm text-slate-600">
                                 <li class="flex items-start gap-2.5">
                                     <i class="bi bi-1-circle-fill text-blue-600 text-base mt-0.5 shrink-0"></i>
@@ -448,10 +422,8 @@ const jsonLd = JSON.stringify({
                             </ul>
                         </div>
                     </div>
-
                 </div>
             </div>
-
             <!-- SUCCESS MODAL -->
             <div
                 v-if="showSuccessModal"
@@ -461,14 +433,12 @@ const jsonLd = JSON.stringify({
                     <div class="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto text-emerald-500">
                         <i class="bi bi-check-lg text-3xl"></i>
                     </div>
-
                     <div>
                         <h3 class="text-2xl font-black text-slate-900 mb-2">Trámite Registrado Exitosamente</h3>
                         <p class="text-slate-500 text-sm leading-relaxed">
                             Tu solicitud ha sido remitida a la <strong class="text-slate-700">Oficina de Mesa de Partes y Recepción Documentaria</strong> para su respectivo trámite y seguimiento institucional.
                         </p>
                     </div>
-
                     <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-left space-y-2.5 text-sm text-slate-600">
                         <div class="flex justify-between">
                             <span class="font-bold">Trámite:</span>
@@ -483,7 +453,6 @@ const jsonLd = JSON.stringify({
                             <span class="text-slate-800 font-semibold">Mesa de Partes — Recepción Documentaria</span>
                         </div>
                     </div>
-
                     <button
                         type="button"
                         @click="showSuccessModal = false"

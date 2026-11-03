@@ -50,10 +50,8 @@ const removeFavorite = async (bookId) => {
 
 <template>
     <Head title="Mi Biblioteca - Biblioteca Virtual" />
-
     <ReaderLayout pageTitle="Mi Biblioteca">
         <div class="space-y-6">
-
             <!-- Header -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                 <div>
@@ -62,7 +60,6 @@ const removeFavorite = async (bookId) => {
                     </h1>
                     <p class="text-xs text-slate-500">Tus libros y documentos favoritos guardados para consulta y lectura rápida.</p>
                 </div>
-
                 <!-- Career Filter -->
                 <div>
                     <select
@@ -77,7 +74,6 @@ const removeFavorite = async (bookId) => {
                     </select>
                 </div>
             </div>
-
             <!-- Books Grid -->
             <div v-if="books.data && books.data.some((b) => !removedBookIds.includes(b.id))" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
                 <template v-for="book in books.data" :key="book.id">
@@ -99,31 +95,26 @@ const removeFavorite = async (bookId) => {
                                     <i class="bi bi-book text-3xl mb-1 text-slate-300"></i>
                                     <span class="text-[10px] font-bold text-slate-500 line-clamp-2">{{ book.title }}</span>
                                 </div>
-
                                 <!-- Career tag -->
                                 <span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-900/80 text-white backdrop-blur-xs">
                                     {{ book.study_program ? book.study_program.name.substring(0, 12) : 'General' }}
                                 </span>
                             </div>
                         </Link>
-
                         <!-- Metadata -->
                         <div class="space-y-1">
                             <div class="flex items-center gap-0.5 text-amber-400 text-xs">
                                 <i v-for="s in 5" :key="s" class="bi bi-star-fill text-[11px]"></i>
                             </div>
-
                             <Link :href="route('biblioteca.read', book.slug)" class="block">
                                 <h3 class="text-xs font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-blue-600 transition" :title="book.title">
                                     {{ book.title }}
                                 </h3>
                             </Link>
-
                             <p class="text-[11px] text-slate-500 line-clamp-1" :title="book.author">
                                 {{ book.author }}
                             </p>
                         </div>
-
                         <!-- Actions -->
                         <div class="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between text-xs">
                             <Link
@@ -144,7 +135,6 @@ const removeFavorite = async (bookId) => {
                     </div>
                 </template>
             </div>
-
             <!-- Empty State -->
             <div v-else class="py-16 text-center text-slate-400 space-y-3 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
                 <div class="w-12 h-12 mx-auto rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center text-2xl">
@@ -161,7 +151,6 @@ const removeFavorite = async (bookId) => {
                     </Link>
                 </div>
             </div>
-
             <!-- Pagination -->
             <div v-if="books.links && books.links.length > 3" class="pt-4 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
                 <span class="text-xs text-slate-500">
@@ -181,7 +170,6 @@ const removeFavorite = async (bookId) => {
                     />
                 </div>
             </div>
-
         </div>
     </ReaderLayout>
 </template>

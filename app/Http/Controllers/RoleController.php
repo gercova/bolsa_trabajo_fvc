@@ -14,6 +14,16 @@ use Spatie\Permission\Models\Role;
 class RoleController extends Controller
 {
     /**
+     * Determine if the request explicitly wants a JSON response (excluding Inertia requests).
+     */
+    protected function wantsJson(?Request $request = null): bool
+    {
+        $req = $request ?: request();
+
+        return ($req->expectsJson() || $req->wantsJson()) && ! $req->header('X-Inertia');
+    }
+
+    /**
      * Listar todos los roles del sistema (Index)
      */
     public function index(Request $request): Response
@@ -72,7 +82,7 @@ class RoleController extends Controller
                 $role->syncPermissions($request->permissions);
             }
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => true,
                     'message' => "Rol '{$role->name}' creado con éxito.",
@@ -87,7 +97,7 @@ class RoleController extends Controller
         } catch (\Exception $e) {
             Log::error('Error creando rol: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Ocurrió un error al crear el rol: '.$e->getMessage(),
@@ -135,7 +145,7 @@ class RoleController extends Controller
 
             $role->syncPermissions($request->permissions ?? []);
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => true,
                     'message' => "Rol '{$role->name}' actualizado correctamente.",
@@ -149,7 +159,7 @@ class RoleController extends Controller
         } catch (\Exception $e) {
             Log::error('Error actualizando rol: '.$e->getMessage());
 
-            if ($request->expectsJson() || $request->ajax()) {
+            if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Ocurrió un error al actualizar el rol: '.$e->getMessage(),
@@ -169,7 +179,7 @@ class RoleController extends Controller
         $systemRoles = ['Administrador', 'Director', 'Admin'];
         if (in_array($role->name, $systemRoles)) {
             $msg = "El rol '{$role->name}' es un rol del sistema y no puede ser eliminado.";
-            if (request()->expectsJson() || request()->ajax()) {
+            if ($this->wantsJson()) {
                 return response()->json(['success' => false, 'message' => $msg], 403);
             }
 
@@ -181,7 +191,7 @@ class RoleController extends Controller
             $role->syncPermissions([]);
             $role->delete();
 
-            if (request()->expectsJson() || request()->ajax()) {
+            if ($this->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => "El rol '{$roleName}' ha sido eliminado correctamente.",
@@ -194,7 +204,7 @@ class RoleController extends Controller
         } catch (\Exception $e) {
             Log::error('Error eliminando rol: '.$e->getMessage());
 
-            if (request()->expectsJson() || request()->ajax()) {
+            if ($this->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No se pudo eliminar el rol.',

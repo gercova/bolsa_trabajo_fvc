@@ -177,7 +177,6 @@ const valueColorStyles = {
                  @mouseleave="resumeTimer"
                  @touchstart="onTouchStart"
                  @touchend="onTouchEnd">
-
             <!-- Container Slides -->
             <div class="relative w-full min-h-[580px] h-[640px] sm:h-[580px] md:h-[620px] lg:h-[660px] xl:h-[700px] overflow-hidden">
                 <template v-if="carousels && carousels.length > 0">
@@ -190,17 +189,14 @@ const valueColorStyles = {
                              :class="currentSlide === index ? 'scale-105' : 'scale-100'"
                              :style="{ backgroundImage: `url('${slide.image_url ?? slide.image?.url ?? '/images/slider_admision.jpg'}')` }">
                         </div>
-
                         <!-- Solid High-Contrast Scrim -->
                         <div class="absolute inset-0 bg-slate-950/85"></div>
-
                         <!-- Slide Content -->
                         <div class="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center pt-8 pb-24 sm:pt-10 sm:pb-24 lg:py-0">
                             <div class="max-w-3xl space-y-4 sm:space-y-6">
                                 <!-- Solid Program Color Accent Bar -->
                                 <div class="w-16 h-1 rounded-full"
                                      :class="slide.theme_styles?.solid_accent_bar ?? 'bg-amber-500'"></div>
-
                                 <!-- Slide Tag Badge -->
                                 <div v-if="slide.tag"
                                      class="inline-flex items-center gap-2 px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full border text-xs sm:text-sm font-bold tracking-wide"
@@ -212,7 +208,6 @@ const valueColorStyles = {
                                     <i :class="['bi', slide.tag_icon ?? 'bi-mortarboard-fill', slide.theme_styles?.badge_icon ?? 'text-amber-400']"></i>
                                     <span>{{ slide.tag }}</span>
                                 </div>
-
                                 <!-- Slide Title & Highlight -->
                                 <component :is="index === 0 ? 'h1' : 'h2'"
                                            class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] text-white font-sans">
@@ -225,13 +220,11 @@ const valueColorStyles = {
                                         </span>
                                     </template>
                                 </component>
-
                                 <!-- Slide Description -->
                                 <p v-if="slide.description"
                                    class="text-xs sm:text-base lg:text-lg text-slate-200 leading-relaxed font-sans max-w-2xl line-clamp-3 sm:line-clamp-none">
                                     {{ slide.description }}
                                 </p>
-
                                 <!-- Slide Action Buttons -->
                                 <div v-if="slide.primary_button_text || slide.secondary_button_text"
                                      class="flex flex-col sm:flex-row gap-2.5 sm:gap-3.5 pt-1 sm:pt-2">
@@ -254,7 +247,6 @@ const valueColorStyles = {
                         </div>
                     </div>
                 </template>
-
                 <!-- Fallback Slide if carousels is empty -->
                 <div v-else class="absolute inset-0 flex items-center justify-center bg-slate-900 text-white">
                     <div class="text-center space-y-4 max-w-xl px-4">
@@ -274,7 +266,6 @@ const valueColorStyles = {
                     </div>
                 </div>
             </div>
-
             <!-- Carousel Controls -->
             <template v-if="totalSlides > 1">
                 <button type="button" @click="prevSlide"
@@ -282,13 +273,11 @@ const valueColorStyles = {
                         aria-label="Diapositiva anterior">
                     <i class="bi bi-chevron-left text-xl sm:text-2xl"></i>
                 </button>
-
                 <button type="button" @click="nextSlide"
                         class="hidden sm:flex absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white items-center justify-center transition-all duration-200 shadow-xl hover:scale-105 focus:outline-none cursor-pointer"
                         aria-label="Siguiente diapositiva">
                     <i class="bi bi-chevron-right text-xl sm:text-2xl"></i>
                 </button>
-
                 <!-- Bottom Slide Indicator Bar -->
                 <div class="absolute bottom-4 sm:bottom-8 left-0 right-0 z-30 pointer-events-none">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
@@ -304,7 +293,6 @@ const valueColorStyles = {
                                 <span class="sm:hidden">{{ idx + 1 }}</span>
                             </button>
                         </div>
-
                         <!-- Play/Pause & Counter indicator -->
                         <div class="hidden md:flex items-center gap-3 bg-slate-900/90 border border-slate-800 px-4 py-1.5 rounded-full text-xs font-semibold text-slate-300 pointer-events-auto shadow-lg">
                             <button type="button" @click="isPaused = !isPaused"
@@ -318,7 +306,6 @@ const valueColorStyles = {
                 </div>
             </template>
         </section>
-
         <!-- ═══ 2. QUICK ACCESS BAR ════════════════════════════════ -->
         <section class="bg-slate-900 text-white border-y border-slate-800 py-4 shadow-sm relative z-30">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -333,7 +320,6 @@ const valueColorStyles = {
                             <p class="text-xs sm:text-sm font-bold text-white group-hover:text-sky-200 transition-colors">Admisión Ordinaria</p>
                         </div>
                     </Link>
-
                     <Link href="/tramites/mesa-de-partes"
                           class="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 transition-all group">
                         <div class="w-10 h-10 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform">
@@ -344,7 +330,6 @@ const valueColorStyles = {
                             <p class="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-200 transition-colors">Mesa de Partes</p>
                         </div>
                     </Link>
-
                     <Link href="/servicios/bolsa-de-trabajo"
                           class="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 transition-all group">
                         <div class="w-10 h-10 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform">
@@ -355,7 +340,6 @@ const valueColorStyles = {
                             <p class="text-xs sm:text-sm font-bold text-white group-hover:text-indigo-200 transition-colors">Bolsa de Trabajo</p>
                         </div>
                     </Link>
-
                     <Link href="/transparencia/documentos-de-gestion"
                           class="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 transition-all group">
                         <div class="w-10 h-10 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-400/30 flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform">
@@ -369,7 +353,6 @@ const valueColorStyles = {
                 </div>
             </div>
         </section>
-
         <!-- ═══ 3. PROGRAMAS DE ESTUDIO ═════════════════════════════ -->
         <section v-if="programs && programs.length > 0" class="py-20 bg-white" aria-label="Programas de estudio">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -383,7 +366,6 @@ const valueColorStyles = {
                         Formación técnica de calidad orientada al mundo laboral. Elige la carrera que impulsará tu desarrollo profesional.
                     </p>
                 </div>
-
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
                     <Link v-for="program in programs" :key="program.id"
                           :href="`/programas-de-estudios/${program.slug}`"
@@ -409,7 +391,6 @@ const valueColorStyles = {
                                 </span>
                             </div>
                         </div>
-
                         <!-- Card Body -->
                         <div class="p-5 flex flex-col flex-grow">
                             <h3 class="font-bold text-slate-900 text-base leading-snug mb-2 group-hover:text-blue-700 transition-colors">
@@ -417,14 +398,12 @@ const valueColorStyles = {
                             </h3>
                             <div class="w-12 h-1 rounded-full mb-3"
                                  :class="program.color_config?.bar ?? 'bg-sky-600'"></div>
-                            
                             <p v-if="program.description" class="text-gray-600 text-sm line-clamp-3 flex-grow">
                                 {{ program.description }}
                             </p>
                             <p v-else class="text-gray-400 text-sm italic flex-grow">
                                 Sin descripción disponible.
                             </p>
-
                             <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
                                 <span class="text-xs font-bold uppercase tracking-wide"
                                       :class="program.color_config?.text ?? 'text-sky-700'">
@@ -435,7 +414,6 @@ const valueColorStyles = {
                         </div>
                     </Link>
                 </div>
-
                 <div class="text-center mt-12">
                     <Link href="/programas-de-estudios"
                           class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/25 hover:shadow-xl">
@@ -445,7 +423,6 @@ const valueColorStyles = {
                 </div>
             </div>
         </section>
-
         <!-- ═══ 4. ACCESOS RÁPIDOS A SECCIONES ═════════════════════ -->
         <section class="bg-slate-50 py-20" aria-label="Accesos rápidos a secciones">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -456,7 +433,6 @@ const valueColorStyles = {
                     <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-900 mt-2">Todo lo que necesitas, en un solo lugar</h2>
                     <p class="text-gray-500 mt-3 max-w-2xl mx-auto">Accede rápidamente a cualquier sección del portal institucional.</p>
                 </div>
-
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     <Link v-for="(qa, i) in quickAccess" :key="i"
                           :href="qa.href"
@@ -568,7 +544,6 @@ const valueColorStyles = {
                 </div>
             </div>
         </section>
-
         <!-- ═══ 7. ALIADOS / PARTNERS ═══════════════════════════════ -->
         <section class="py-16 bg-white border-t border-sky-100 overflow-hidden" aria-label="Empresas e instituciones aliadas">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 text-center">
@@ -582,7 +557,6 @@ const valueColorStyles = {
                     Aliados estratégicos en la formación y el empleo de nuestros estudiantes.
                 </p>
             </div>
-
             <div v-if="partners && partners.length > 0" class="relative w-full max-w-[1400px] mx-auto overflow-hidden flex items-center">
                 <div class="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
                 <div class="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
@@ -604,12 +578,10 @@ const valueColorStyles = {
                     </template>
                 </div>
             </div>
-
             <div v-else class="text-center text-gray-400 py-8 text-sm">
                 Próximamente estaremos añadiendo a nuestros aliados estratégicos.
             </div>
         </section>
-
         <!-- ═══ 8. CTA FINAL ═══════════════════════════════════════ -->
         <section class="relative py-24 bg-blue-800 overflow-hidden text-white" aria-label="Llamada a la acción">
             <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -637,7 +609,6 @@ const valueColorStyles = {
                 </div>
             </div>
         </section>
-
         <!-- ═══ 9. CONTADOR DE VISITAS ══════════════════════════════ -->
         <section class="relative py-16 bg-slate-950 text-white overflow-hidden border-t border-slate-800"
                  aria-label="Contador de visitas al portal institucional">
@@ -648,14 +619,12 @@ const valueColorStyles = {
                 <p class="text-slate-300 text-sm sm:text-base mt-2.5 max-w-xl mx-auto leading-relaxed">
                     Monitoreo permanente de consultas y accesos a nuestra plataforma educativa institucional.
                 </p>
-
                 <!-- Board contador digital -->
                 <div class="mt-8 bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 md:p-10 shadow-xl relative overflow-hidden">
                     <p class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-sky-400 mb-4 flex items-center justify-center gap-2">
                         <i class="bi bi-eye-fill text-sky-400"></i>
                         <span>Total Acumulado de Visitas</span>
                     </p>
-
                     <!-- Dígitos estilo Odometer / Flip plate -->
                     <div class="flex items-center justify-center gap-1.5 sm:gap-2.5 md:gap-3 flex-wrap py-2">
                         <div v-for="(digit, idx) in displayDigits" :key="idx"
@@ -666,7 +635,6 @@ const valueColorStyles = {
                             </span>
                         </div>
                     </div>
-
                     <div class="mt-5 flex items-center justify-center gap-2 text-slate-300 text-xs sm:text-sm font-medium">
                         <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
                         <span>
@@ -678,7 +646,6 @@ const valueColorStyles = {
         </section>
     </PublicLayout>
 </template>
-
 <style scoped>
 /* ── Quick-access icon ring ─────────────────────────────── */
 .qa-icon {

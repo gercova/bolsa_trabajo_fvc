@@ -182,7 +182,6 @@ const jsonLd = computed(() => {
             <meta property="og:image" :content="enterprise?.logo_path ? `/${enterprise.logo_path}` : '/img/logo.png'" />
             <component :is="'script'" type="application/ld+json" v-text="jsonLd" />
         </Head>
-
         <!-- HERO SECTION -->
         <section aria-label="Portada Enlaces Institucionales" class="relative bg-slate-900 text-white overflow-hidden py-16 lg:py-24 border-b border-slate-800">
             <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
@@ -278,7 +277,6 @@ const jsonLd = computed(() => {
                 </div>
             </div>
         </section>
-
         <!-- PLATAFORMAS OFICIALES GRID -->
         <section id="plataformas" aria-label="Portales institucionales de MINEDU" class="py-16 bg-slate-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -294,7 +292,6 @@ const jsonLd = computed(() => {
                         Haga clic en cualquiera de las tarjetas para acceder directamente al sitio oficial del MINEDU correspondiente a su trámite o consulta.
                     </p>
                 </div>
-
                 <!-- Dynamic Links Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <article
@@ -304,7 +301,6 @@ const jsonLd = computed(() => {
                     >
                         <!-- Accent Bar -->
                         <div class="h-1.5 transition-all duration-300 group-hover:h-2" :class="link.barColor" role="presentation"></div>
-
                         <div class="p-7 sm:p-8 space-y-5 flex-1">
                             <!-- Top Badges -->
                             <div class="flex items-center justify-between gap-2">
@@ -315,7 +311,6 @@ const jsonLd = computed(() => {
                                     <i class="bi bi-shield-lock-fill text-emerald-600"></i> Portal Seguro
                                 </span>
                             </div>
-
                             <!-- Main Title & Avatar -->
                             <div class="flex items-start gap-4">
                                 <div class="w-14 h-14 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-sm shrink-0 transition-transform duration-300 group-hover:scale-110" :class="link.avatarColor">
@@ -330,12 +325,10 @@ const jsonLd = computed(() => {
                                     </p>
                                 </div>
                             </div>
-
                             <!-- Description -->
                             <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
                                 {{ link.description }}
                             </p>
-
                             <!-- Metadata Pills -->
                             <div class="pt-1 flex flex-wrap items-center gap-2">
                                 <span class="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-xl border border-slate-200/70">
@@ -346,7 +339,6 @@ const jsonLd = computed(() => {
                                 </span>
                             </div>
                         </div>
-
                         <!-- Card Footer Action -->
                         <div class="px-7 sm:px-8 py-4 bg-slate-50/90 border-t border-slate-100 flex items-center justify-between gap-4">
                             <span class="text-xs text-slate-500 font-medium hidden sm:inline-flex items-center gap-1">
@@ -367,7 +359,6 @@ const jsonLd = computed(() => {
                 </div>
             </div>
         </section>
-
         <!-- MÁS SERVICIOS DIGITALES -->
         <section aria-label="Servicios digitales institucionales" class="py-16 bg-white border-t border-slate-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -383,7 +374,6 @@ const jsonLd = computed(() => {
                         Complemente sus trámites accediendo a las herramientas virtuales del propio instituto.
                     </p>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <!-- Card 1 -->
                     <div class="bg-slate-50/60 hover:bg-white border border-slate-200/80 hover:border-blue-200 p-8 rounded-3xl transition-all duration-300 shadow-sm hover:shadow-md group flex flex-col justify-between">
@@ -400,7 +390,6 @@ const jsonLd = computed(() => {
                             Ingresar a Mesa de Partes <i class="bi bi-arrow-right ml-1"></i>
                         </Link>
                     </div>
-
                     <!-- Card 2 -->
                     <div class="bg-slate-50/60 hover:bg-white border border-slate-200/80 hover:border-blue-200 p-8 rounded-3xl transition-all duration-300 shadow-sm hover:shadow-md group flex flex-col justify-between">
                         <div>
@@ -416,7 +405,6 @@ const jsonLd = computed(() => {
                             Acceder a Biblioteca <i class="bi bi-box-arrow-up-right ml-1 text-[10px]"></i>
                         </a>
                     </div>
-
                     <!-- Card 3 -->
                     <div class="bg-slate-50/60 hover:bg-white border border-slate-200/80 hover:border-blue-200 p-8 rounded-3xl transition-all duration-300 shadow-sm hover:shadow-md group flex flex-col justify-between">
                         <div>
@@ -435,7 +423,6 @@ const jsonLd = computed(() => {
                 </div>
             </div>
         </section>
-
         <!-- PREGUNTAS FRECUENTES (FAQ) -->
         <section aria-label="Preguntas frecuentes sobre portales MINEDU" class="py-16 bg-slate-50 border-t border-slate-100">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -447,7 +434,6 @@ const jsonLd = computed(() => {
                         Preguntas Frecuentes
                     </h2>
                 </div>
-
                 <div class="space-y-4">
                     <!-- FAQ 1 -->
                     <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
@@ -466,7 +452,6 @@ const jsonLd = computed(() => {
                             Al ingresar al portal Titula MINEDU, puedes ingresar tu número de DNI o apellido paterno. El sistema mostrará la constancia de inscripción de tu título profesional técnico o certificación emitida por el instituto a Nombre de la Nación.
                         </div>
                     </div>
-
                     <!-- FAQ 2 -->
                     <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
                         <button
@@ -484,7 +469,6 @@ const jsonLd = computed(() => {
                             La Secretaría Académica del IESTP Francisco Vigo Caballero realiza la carga de las nóminas oficiales de matriculados y registros modulares. Los estudiantes pueden consultar y validar la conformidad de sus registros según los periodos académicos.
                         </div>
                     </div>
-
                     <!-- FAQ 3 -->
                     <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm">
                         <button
@@ -505,7 +489,6 @@ const jsonLd = computed(() => {
                 </div>
             </div>
         </section>
-
         <!-- CTA DE SOPORTE INSTITUCIONAL -->
         <section aria-label="Soporte y contacto" class="py-16 bg-slate-950 text-white relative overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

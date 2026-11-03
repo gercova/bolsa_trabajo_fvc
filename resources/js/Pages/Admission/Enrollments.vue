@@ -55,12 +55,10 @@ const extFee = computed(() => {
         <meta property="og:title" content="Matrículas — IESTP Francisco Vigo Caballero" />
         <meta property="og:description" content="Cronogramas oficiales, costos reglamentarios y guías paso a paso del proceso de matrícula." />
     </Head>
-
     <PublicLayout title="Matrículas">
         <!-- ═══ 1. HERO SECTION ═══════════════════════════════════════ -->
         <section class="relative bg-slate-900 text-white overflow-hidden py-20 lg:py-28 border-b border-slate-800">
             <div class="h-1.5 w-full bg-blue-700 absolute top-0 left-0"></div>
-
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-8">
                 <div class="inline-flex items-center gap-2 bg-slate-800 border border-slate-700 text-sky-400 text-sm font-bold px-5 py-2 rounded-full">
                     <i class="bi bi-mortarboard-fill"></i>
@@ -87,11 +85,9 @@ const extFee = computed(() => {
                 </div>
             </div>
         </section>
-
         <!-- ═══ 2. TIPOS DE MATRÍCULA + STEPS ═════════════════════════ -->
         <section id="tipos-matricula" class="py-20 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                
                 <!-- Section Header -->
                 <div class="text-center max-w-3xl mx-auto mb-14">
                     <span class="text-blue-600 text-sm font-extrabold uppercase tracking-widest">¿Qué tipo de matrícula necesitas?</span>
@@ -101,7 +97,6 @@ const extFee = computed(() => {
                         Selecciona el tipo de matrícula que corresponde a tu situación y sigue los pasos indicados.
                     </p>
                 </div>
-
                 <!-- Type Selector Pills -->
                 <div class="flex flex-col sm:flex-row justify-center gap-4 mb-14">
                     <button type="button"
@@ -115,7 +110,6 @@ const extFee = computed(() => {
                         <i class="bi bi-calendar2-check-fill text-xl"></i>
                         Matrícula Ordinaria
                     </button>
-
                     <button type="button"
                             @click="activeType = 'extraordinaria'"
                             :class="[
@@ -128,7 +122,6 @@ const extFee = computed(() => {
                         Matrícula Extraordinaria
                     </button>
                 </div>
-
                 <!-- ── ORDINARIA PANEL ── -->
                 <div v-show="activeType === 'ordinaria'" class="transition-all duration-300">
                     <div class="max-w-5xl mx-auto">
@@ -142,7 +135,6 @@ const extFee = computed(() => {
                                     <p class="text-blue-600 font-semibold mt-1">Dentro del período regular establecido por el calendario académico.</p>
                                 </div>
                             </div>
-
                             <!-- Steps -->
                             <div class="space-y-8 pl-0 sm:pl-2">
                                 <!-- Step 1 -->
@@ -169,7 +161,6 @@ const extFee = computed(() => {
                                         </div>
                                     </div>
                                 </div>
-
                                 <!-- Step 2 -->
                                 <div class="step-card flex gap-4 sm:gap-5">
                                     <div class="shrink-0 w-14 h-14 rounded-full bg-blue-600 text-white font-black text-lg flex items-center justify-center shadow-md z-10">02</div>
@@ -192,7 +183,6 @@ const extFee = computed(() => {
                                         </div>
                                     </div>
                                 </div>
-
                                 <!-- Step 3 -->
                                 <div class="step-card flex gap-4 sm:gap-5">
                                     <div class="shrink-0 w-14 h-14 rounded-full bg-emerald-500 text-white font-black text-lg flex items-center justify-center shadow-md z-10">
@@ -212,7 +202,6 @@ const extFee = computed(() => {
                         </div>
                     </div>
                 </div>
-
                 <!-- ── EXTRAORDINARIA PANEL ── -->
                 <div v-show="activeType === 'extraordinaria'" class="transition-all duration-300">
                     <div class="max-w-5xl mx-auto">
@@ -226,7 +215,6 @@ const extFee = computed(() => {
                                     <p class="text-violet-600 font-semibold mt-1">Fuera del período regular. Requiere presentación de FUT y documentación adicional.</p>
                                 </div>
                             </div>
-
                             <!-- Discount Alerts -->
                             <div class="mb-8 bg-amber-50 border border-amber-200 rounded-2xl p-5 flex gap-4">
                                 <div class="shrink-0 w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
@@ -247,7 +235,6 @@ const extFee = computed(() => {
                                     <p class="text-xs text-amber-700 mt-2 font-medium">Los descuentos aplican sobre el derecho de matrícula y requieren documentación sustentatoria.</p>
                                 </div>
                             </div>
-
                             <!-- Steps -->
                             <div class="space-y-8 pl-0 sm:pl-2">
                                 <!-- Step 1 -->
@@ -274,7 +261,6 @@ const extFee = computed(() => {
                                         </div>
                                     </div>
                                 </div>
-
                                 <!-- Step 2 -->
                                 <div class="step-card step-card-extra flex gap-4 sm:gap-5">
                                     <div class="shrink-0 w-14 h-14 rounded-full bg-violet-700 text-white font-black text-lg flex items-center justify-center shadow-md z-10">02</div>
@@ -298,7 +284,6 @@ const extFee = computed(() => {
                                         </div>
                                     </div>
                                 </div>
-
                                 <!-- Step 3 -->
                                 <div class="step-card step-card-extra flex gap-4 sm:gap-5">
                                     <div class="shrink-0 w-14 h-14 rounded-full bg-violet-700 text-white font-black text-lg flex items-center justify-center shadow-md z-10">03</div>
@@ -320,7 +305,6 @@ const extFee = computed(() => {
                                         </div>
                                     </div>
                                 </div>
-
                                 <!-- Step 4 -->
                                 <div class="step-card step-card-extra flex gap-4 sm:gap-5">
                                     <div class="shrink-0 w-14 h-14 rounded-full bg-emerald-500 text-white font-black text-lg flex items-center justify-center shadow-md z-10">
@@ -340,10 +324,8 @@ const extFee = computed(() => {
                         </div>
                     </div>
                 </div>
-
             </div>
         </section>
-
         <!-- ═══ 3. CRONOGRAMAS VIGENTES ═══════════════════════════════ -->
         <section id="cronogramas" class="py-20 bg-slate-50 border-y border-slate-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -355,15 +337,14 @@ const extFee = computed(() => {
                         Cronogramas oficiales vigentes establecidos por la Secretaría Académica para el período en curso.
                     </p>
                 </div>
-
                 <!-- If new schedules exist -->
                 <div v-if="schedules && schedules.length > 0"
                      class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
                     <div v-for="schedule in schedules" :key="schedule.id"
-                         :class="[
-                             'schedule-card bg-white rounded-3xl border shadow-md overflow-hidden',
-                             schedule.enrollment_type === 'ordinaria' ? 'border-blue-100' : 'border-violet-100'
-                         ]">
+                        :class="[
+                            'schedule-card bg-white rounded-3xl border shadow-md overflow-hidden',
+                            schedule.enrollment_type === 'ordinaria' ? 'border-blue-100' : 'border-violet-100'
+                        ]">
                         
                         <!-- Card Header -->
                         <div :class="[
@@ -379,19 +360,17 @@ const extFee = computed(() => {
                                 </span>
                                 <span class="text-white/80 text-sm font-bold">{{ schedule.academic_period }}</span>
                             </div>
-                            
                             <span v-if="schedule.is_open"
-                                  class="flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-400/30 text-emerald-200 text-xs font-extrabold px-3 py-1 rounded-full self-start sm:self-auto">
+                                class="flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-400/30 text-emerald-200 text-xs font-extrabold px-3 py-1 rounded-full self-start sm:self-auto">
                                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                                 Abierto Ahora
                             </span>
                             <span v-else
-                                  class="flex items-center gap-1.5 bg-white/10 border border-white/20 text-white/60 text-xs font-extrabold px-3 py-1 rounded-full self-start sm:self-auto">
+                                class="flex items-center gap-1.5 bg-white/10 border border-white/20 text-white/60 text-xs font-extrabold px-3 py-1 rounded-full self-start sm:self-auto">
                                 <span class="w-2 h-2 rounded-full bg-white/40"></span>
                                 Próximo / Cerrado
                             </span>
                         </div>
-
                         <!-- Card Body -->
                         <div class="p-7 space-y-5">
                             <!-- Dates Grid -->
@@ -406,7 +385,6 @@ const extFee = computed(() => {
                                         <span class="text-slate-800 font-extrabold text-base">{{ formatDate(schedule.start_date) }}</span>
                                     </div>
                                 </div>
-
                                 <div :class="[
                                     'border p-4 rounded-2xl flex items-center gap-3',
                                     schedule.enrollment_type === 'ordinaria' ? 'bg-blue-50/60 border-blue-100' : 'bg-violet-50/60 border-violet-100'
@@ -418,7 +396,6 @@ const extFee = computed(() => {
                                     </div>
                                 </div>
                             </div>
-
                             <!-- Fee -->
                             <div v-if="schedule.enrollment_fee && Number(schedule.enrollment_fee) > 0"
                                  class="flex items-center gap-3 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3">
@@ -428,26 +405,23 @@ const extFee = computed(() => {
                                     <span class="font-extrabold text-slate-800 text-lg">S/ {{ formatCurrency(schedule.enrollment_fee) }}</span>
                                 </div>
                             </div>
-
                             <!-- Program Slots -->
                             <div v-if="schedule.details && schedule.details.length > 0">
                                 <span class="text-slate-500 text-xs font-extrabold uppercase tracking-wider block mb-2">Cupos por Programa</span>
                                 <div class="flex flex-wrap gap-2">
                                     <span v-for="detail in schedule.details" :key="detail.id"
-                                          class="bg-slate-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                                        class="bg-slate-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5">
                                         <span :class="['w-1.5 h-1.5 rounded-full', schedule.enrollment_type === 'ordinaria' ? 'bg-blue-500' : 'bg-violet-500']"></span>
                                         {{ detail.program?.name }}: <strong class="ml-1">{{ detail.available_slots }}</strong>
                                     </span>
                                 </div>
                             </div>
-
                             <!-- Observations -->
                             <p v-if="schedule.observations"
                                class="text-sm text-slate-500 leading-relaxed bg-slate-50 border border-slate-100 rounded-xl p-3">
                                 <i class="bi bi-info-circle mr-1 text-slate-400"></i>
                                 {{ schedule.observations }}
                             </p>
-
                             <!-- WhatsApp CTA -->
                             <a v-if="ent.whatsapp_link"
                                :href="ent.whatsapp_link"
@@ -459,7 +433,6 @@ const extFee = computed(() => {
                         </div>
                     </div>
                 </div>
-
                 <!-- Fallback: legacy admission records -->
                 <div v-else-if="enrollments && enrollments.length > 0"
                      class="relative border-l-4 border-blue-200 ml-4 md:ml-32 space-y-12">
@@ -503,7 +476,6 @@ const extFee = computed(() => {
                         </div>
                     </div>
                 </div>
-
                 <!-- Empty State -->
                 <div v-else class="bg-white rounded-3xl border border-blue-100 shadow-lg p-12 text-center max-w-2xl mx-auto">
                     <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -524,7 +496,6 @@ const extFee = computed(() => {
                 </div>
             </div>
         </section>
-
         <!-- ═══ 4. REQUISITOS DE MATRÍCULA ════════════════════════════ -->
         <section v-if="requirements && requirements.length > 0" id="requirements" class="py-20 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -550,7 +521,6 @@ const extFee = computed(() => {
                 </div>
             </div>
         </section>
-
         <!-- ═══ 5. CTA CONTACTO ═══════════════════════════════════════ -->
         <section id="contact" class="py-20 bg-slate-900 text-white relative overflow-hidden border-t border-slate-800">
             <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-8">

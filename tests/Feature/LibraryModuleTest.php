@@ -354,7 +354,7 @@ class LibraryModuleTest extends TestCase
         $response->assertHeader('X-Frame-Options', 'SAMEORIGIN');
         $response->assertSee('Repositorio Externo Protegido');
         $response->assertSee('Abrir en Visor Oficial');
-        $response->assertSee('https://europepmc.org/articles/PMC13553628?pdf=render');
+        $response->assertSee('https://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC13553628&blobtype=pdf');
     }
 
     public function test_stream_redirects_when_download_requested_for_external_book(): void
@@ -372,6 +372,6 @@ class LibraryModuleTest extends TestCase
         $response = $this->actingAs($this->estudiante)->get(route('biblioteca.stream', ['book' => $book, 'download' => 1]));
 
         $response->assertStatus(302);
-        $response->assertRedirect('https://europepmc.org/articles/PMC13553628?pdf=render');
+        $response->assertRedirect('https://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC13553628&blobtype=pdf');
     }
 }

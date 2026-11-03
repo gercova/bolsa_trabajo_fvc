@@ -32,7 +32,6 @@ class LibraryReaderController extends Controller
         $selectedCareer = $request->query('career', 'all');
         $searchQuery = trim((string) $request->query('q', ''));
         $userId = auth()->id();
-
         $baseQuery = Book::with('studyProgram')
             ->where('is_active', true)
             ->career($selectedCareer)
@@ -60,7 +59,6 @@ class LibraryReaderController extends Controller
 
         $recentlyReadBookIds = $user
             ? LibraryAccessLog::where('user_id', $user->id)
-                ->where('access_type', 'view')
                 ->recent()
                 ->pluck('book_id')
                 ->unique()
@@ -97,7 +95,6 @@ class LibraryReaderController extends Controller
         $selectedCategory = $request->query('category', 'all');
         $searchQuery = trim((string) $request->query('q', ''));
         $userId = auth()->id();
-
         $query = Book::with('studyProgram')
             ->where('is_active', true)
             ->career($selectedCareer)
@@ -198,40 +195,36 @@ class LibraryReaderController extends Controller
     {
         $user = $request->user();
 
-        // 1. Verificar que el documento esté activo (salvo administradores/docentes/bibliotecarios)
         if (! $book->is_active && (! $user || ! in_array($user->role, ['Admin', 'Administrador', 'Director', 'Docente', 'Bibliotecario']))) {
             abort(404, 'El documento solicitado no se encuentra disponible actualmente.');
         }
 
         $book->loadMissing('studyProgram');
 
-        // 2. Auto-reparación en caliente: si es un recurso externo y su URL aún apunta a una página web entera,
-        // resolvemos y actualizamos en la BD el enlace directo al PDF antes de renderizar el lector.
+        // Auto-reparación en caliente si aún no tiene copia local
         if (empty($book->file_path) && ! empty($book->external_url)) {
             $currentUrl = trim((string) $book->external_url);
+            $normalizedBinary = $this->toDirectBinaryPdfUrl($currentUrl, $academicService);
 
-            if (! $academicService->isDirectDocumentOrPdfUrl($currentUrl, false)) {
+            if (! $academicService->isDirectDocumentOrPdfUrl($normalizedBinary, false)) {
                 $resolvedUrl = $academicService->resolveDirectDocumentLink($currentUrl);
-
-                if ($resolvedUrl !== '' && $resolvedUrl !== $currentUrl && $academicService->isDirectDocumentOrPdfUrl($resolvedUrl, true)) {
-                    $book->update(['external_url' => Str::limit($resolvedUrl, 495)]);
-                    $book->refresh();
+                if ($resolvedUrl !== '' && $resolvedUrl !== $currentUrl) {
+                    $normalizedBinary = $this->toDirectBinaryPdfUrl($resolvedUrl, $academicService);
                 }
+            }
+
+            if ($normalizedBinary !== '' && $normalizedBinary !== $currentUrl) {
+                $book->update(['external_url' => Str::limit($normalizedBinary, 495)]);
+                $book->refresh();
             }
         }
 
-        // 3. Registrar visualización y trazabilidad en LibraryAccessLog (con ventana anti-spam de 15 min)
+        // Registrar visualización en LibraryAccessLog
         $this->recordReaderAccess($request, $book);
 
-        // 4. Construir las URLs para el visor embebido
+        // Todas las URLs apuntan al stream interno para que el usuario nunca tenga que salir de la app
         $streamUrl = route('biblioteca.stream', $book->slug);
 
-        // URL directa de respaldo al binario PDF para abrir en pestaña nueva
-        $directPdfUrl = ! empty($book->file_path)
-            ? $streamUrl
-            : $this->toDirectBinaryPdfUrl((string) $book->external_url, $academicService);
-
-        // 5. Libros o documentos relacionados de la misma carrera
         $relatedBooks = Book::with('studyProgram')
             ->where('is_active', true)
             ->where('id', '!=', $book->id)
@@ -251,7 +244,7 @@ class LibraryReaderController extends Controller
         return Inertia::render('Library/Reader', [
             'book' => $book,
             'streamUrl' => $streamUrl,
-            'directPdfUrl' => $directPdfUrl,
+            'directPdfUrl' => $streamUrl, // Siempre interno para evitar bloqueos y salidas de la app
             'relatedBooks' => $relatedBooks,
             'isFavorite' => $isFavorite,
         ]);
@@ -262,6 +255,142 @@ class LibraryReaderController extends Controller
      * Serves local files or proxies external repository PDFs stripping X-Frame-Options
      * and converting HTML galley wrappers into raw PDF streams.
      */
+    // public function stream(Request $request, Book $book, AcademicLibraryService $academicService): BinaryFileResponse|StreamedResponse|RedirectResponse|Response {
+    //     $user = $request->user();
+
+    //     if (! $book->is_active && (! $user || ! in_array($user->role, ['Admin', 'Administrador', 'Director', 'Docente', 'Bibliotecario']))) {
+    //         abort(404);
+    //     }
+
+    //     $safeFilename = Str::slug($book->title ?: 'documento-academico').'.pdf';
+    //     $dispositionType = $request->boolean('download') ? 'attachment' : 'inline';
+
+    //     // ── CASO 1: Archivo PDF almacenado localmente en el servidor ──
+    //     if (! empty($book->file_path) && Storage::disk('public')->exists($book->file_path)) {
+    //         $fullPath = Storage::disk('public')->path($book->file_path);
+
+    //         return response()->file($fullPath, [
+    //             'Content-Type' => 'application/pdf',
+    //             'Content-Disposition' => $dispositionType.'; filename="'.$safeFilename.'"',
+    //             'Accept-Ranges' => 'bytes',
+    //             'Cache-Control' => 'public, max-age=86400',
+    //             'X-Content-Type-Options' => 'nosniff',
+    //         ]);
+    //     }
+
+    //     // ── CASO 2: Recurso Académico Externo (SciELO, Redalyc, Google Scholar, DOAJ, DSpace, OJS) ──
+    //     if (empty($book->external_url)) {
+    //         abort(404, 'El documento no cuenta con un archivo o enlace asociado.');
+    //     }
+
+    //     $targetUrl = trim((string) $book->external_url);
+
+    //     // Si aún no es un enlace directo, resolverlo con AcademicLibraryService
+    //     if (! $academicService->isDirectDocumentOrPdfUrl($targetUrl, false)) {
+    //         $resolved = $academicService->resolveDirectDocumentLink($targetUrl);
+    //         if ($resolved !== '' && $resolved !== $targetUrl) {
+    //             $targetUrl = $resolved;
+    //             if ($academicService->isDirectDocumentOrPdfUrl($resolved, false)) {
+    //                 $book->update(['external_url' => Str::limit($resolved, 495)]);
+    //             }
+    //         }
+    //     }
+
+    //     // Transformar rutas de visor HTML de OJS (/article/view/ID/GALLEY) a descarga binaria (/article/download/ID/GALLEY)
+    //     $binaryCandidateUrl = $this->toDirectBinaryPdfUrl($targetUrl, $academicService);
+
+    //     try {
+    //         $upstreamResponse = $this->fetchUpstreamPdfResponse($binaryCandidateUrl, $request);
+
+    //         if ($upstreamResponse && ($upstreamResponse->successful() || $upstreamResponse->status() === 206)) {
+    //             $psrResponse = $upstreamResponse->toPsrResponse();
+    //             $psrBody = $psrResponse->getBody();
+    //             $firstBytes = $psrBody->read(5);
+    //             $contentType = strtolower((string) $upstreamResponse->header('Content-Type'));
+
+    //             // Si los primeros bytes NO son %PDF- (ej. es una página HTML intermedia de OJS, SciELO o DSpace),
+    //             // leemos el HTML, extraemos la URL real del binario PDF y ejecutamos un segundo salto.
+    //             if ($firstBytes !== '%PDF-' && (str_contains($contentType, 'text/html') || str_starts_with(ltrim($firstBytes), '<'))) {
+    //                 $htmlSnippet = $firstBytes.$psrBody->getContents();
+    //                 $psrBody->close();
+
+    //                 $effectiveUri = (string) ($upstreamResponse->effectiveUri() ?: $binaryCandidateUrl);
+    //                 $extractedPdf = $academicService->extractDirectDocumentLinkFromHtml($htmlSnippet, $effectiveUri);
+
+    //                 if ($extractedPdf) {
+    //                     if ($academicService->isMoreDirectDocumentUrl($extractedPdf, $book->external_url)) {
+    //                         $book->update(['external_url' => Str::limit($extractedPdf, 495)]);
+    //                     }
+
+    //                     $secondHopUrl = $this->toDirectBinaryPdfUrl($extractedPdf, $academicService);
+    //                     if ($secondHopUrl !== $binaryCandidateUrl) {
+    //                         $upstreamResponse = $this->fetchUpstreamPdfResponse($secondHopUrl, $request);
+    //                         if ($upstreamResponse && ($upstreamResponse->successful() || $upstreamResponse->status() === 206)) {
+    //                             $psrResponse = $upstreamResponse->toPsrResponse();
+    //                             $psrBody = $psrResponse->getBody();
+    //                             $firstBytes = $psrBody->read(5);
+    //                             $contentType = strtolower((string) $upstreamResponse->header('Content-Type'));
+    //                         }
+    //                     }
+    //                 }
+    //             }
+
+    //             $isPdfBinary = ($firstBytes === '%PDF-') || (str_contains($contentType, 'application/pdf') && ! str_starts_with(ltrim($firstBytes), '<'));
+
+    //             if ($isPdfBinary) {
+    //                 $headers = [
+    //                     'Content-Type' => 'application/pdf',
+    //                     'Content-Disposition' => $dispositionType.'; filename="'.$safeFilename.'"',
+    //                     'Cache-Control' => 'public, max-age=3600',
+    //                     'X-Content-Type-Options' => 'nosniff',
+    //                     'X-Frame-Options' => 'SAMEORIGIN',
+    //                 ];
+
+    //                 if ($contentLength = $upstreamResponse->header('Content-Length')) {
+    //                     $headers['Content-Length'] = $contentLength;
+    //                 }
+    //                 if ($contentRange = $upstreamResponse->header('Content-Range')) {
+    //                     $headers['Content-Range'] = $contentRange;
+    //                 }
+    //                 if ($acceptRanges = $upstreamResponse->header('Accept-Ranges')) {
+    //                     $headers['Accept-Ranges'] = $acceptRanges;
+    //                 }
+
+    //                 $statusCode = $upstreamResponse->status() === 206 ? 206 : 200;
+
+    //                 return response()->stream(function () use ($firstBytes, $psrBody): void {
+    //                     if ($firstBytes !== '') {
+    //                         echo $firstBytes;
+    //                     }
+    //                     while (! $psrBody->eof()) {
+    //                         echo $psrBody->read(65536); // Chunks de 64 KB
+    //                         if (ob_get_level() > 0) {
+    //                             ob_flush();
+    //                         }
+    //                         flush();
+    //                     }
+    //                     $psrBody->close();
+    //                 }, $statusCode, $headers);
+    //             }
+    //         }
+    //     } catch (\Throwable $e) {
+    //         Log::info("Stream proxy fallback note for book [{$book->id} - {$binaryCandidateUrl}]: ".$e->getMessage());
+    //     }
+
+    //     // ── FALLBACK SEGURO: Si el repositorio remoto bloquea conexiones proxy o no es un PDF binario ──
+    //     if ($dispositionType === 'attachment') {
+    //         return redirect()->away($binaryCandidateUrl);
+    //     }
+
+    //     return response()->view('library.external-fallback', [
+    //         'book' => $book,
+    //         'targetUrl' => $binaryCandidateUrl,
+    //     ], 200, [
+    //         'Content-Type' => 'text/html; charset=UTF-8',
+    //         'X-Frame-Options' => 'SAMEORIGIN',
+    //         'Cache-Control' => 'no-cache, private',
+    //     ]);
+    // }
     public function stream(Request $request, Book $book, AcademicLibraryService $academicService): BinaryFileResponse|StreamedResponse|RedirectResponse|Response
     {
         $user = $request->user();
@@ -270,10 +399,10 @@ class LibraryReaderController extends Controller
             abort(404);
         }
 
-        $safeFilename = Str::slug($book->title ?: 'documento-academico').'.pdf';
+        $safeFilename = (Str::slug(Str::limit($book->title, 80)) ?: 'documento-academico-'.$book->id).'.pdf';
         $dispositionType = $request->boolean('download') ? 'attachment' : 'inline';
 
-        // ── CASO 1: Archivo PDF almacenado localmente en el servidor ──
+        // ── CASO 1: Archivo PDF ya disponible en el disco local ──
         if (! empty($book->file_path) && Storage::disk('public')->exists($book->file_path)) {
             $fullPath = Storage::disk('public')->path($book->file_path);
 
@@ -283,42 +412,57 @@ class LibraryReaderController extends Controller
                 'Accept-Ranges' => 'bytes',
                 'Cache-Control' => 'public, max-age=86400',
                 'X-Content-Type-Options' => 'nosniff',
+                'X-Frame-Options' => 'SAMEORIGIN',
             ]);
         }
 
-        // ── CASO 2: Recurso Académico Externo (SciELO, Redalyc, Google Scholar, DOAJ, DSpace, OJS) ──
+        // ── CASO 2: Recurso Académico Externo ──
         if (empty($book->external_url)) {
             abort(404, 'El documento no cuenta con un archivo o enlace asociado.');
         }
 
         $targetUrl = trim((string) $book->external_url);
 
-        // Si aún no es un enlace directo, resolverlo con AcademicLibraryService
         if (! $academicService->isDirectDocumentOrPdfUrl($targetUrl, false)) {
             $resolved = $academicService->resolveDirectDocumentLink($targetUrl);
             if ($resolved !== '' && $resolved !== $targetUrl) {
                 $targetUrl = $resolved;
-                if ($academicService->isDirectDocumentOrPdfUrl($resolved, false)) {
-                    $book->update(['external_url' => Str::limit($resolved, 495)]);
-                }
+                $book->update(['external_url' => Str::limit($resolved, 495)]);
             }
         }
 
-        // Transformar rutas de visor HTML de OJS (/article/view/ID/GALLEY) a descarga binaria (/article/download/ID/GALLEY)
         $binaryCandidateUrl = $this->toDirectBinaryPdfUrl($targetUrl, $academicService);
 
+        // Si el cliente no pide un Range específico, intentamos descargar y cachear en disco local (hasta 45 MB)
+        // para que el visor PDF de Chrome/Brave tenga soporte completo de Range/Byte-Serving local inmediato.
+        if (! $request->hasHeader('Range')) {
+            $cachedPath = $this->downloadAndPersistLocalPdf($book, $binaryCandidateUrl, $academicService);
+            if ($cachedPath && Storage::disk('public')->exists($cachedPath)) {
+                $fullPath = Storage::disk('public')->path($cachedPath);
+
+                return response()->file($fullPath, [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => $dispositionType.'; filename="'.$safeFilename.'"',
+                    'Accept-Ranges' => 'bytes',
+                    'Cache-Control' => 'public, max-age=86400',
+                    'X-Content-Type-Options' => 'nosniff',
+                    'X-Frame-Options' => 'SAMEORIGIN',
+                ]);
+            }
+        }
+
+        // ── CASO 3: Streaming Proxy en vivo (si es petición Range o archivo muy grande) ──
         try {
             $upstreamResponse = $this->fetchUpstreamPdfResponse($binaryCandidateUrl, $request);
 
             if ($upstreamResponse && ($upstreamResponse->successful() || $upstreamResponse->status() === 206)) {
                 $psrResponse = $upstreamResponse->toPsrResponse();
                 $psrBody = $psrResponse->getBody();
-                $firstBytes = $psrBody->read(5);
+                $firstBytes = $psrBody->read(1024);
                 $contentType = strtolower((string) $upstreamResponse->header('Content-Type'));
 
-                // Si los primeros bytes NO son %PDF- (ej. es una página HTML intermedia de OJS, SciELO o DSpace),
-                // leemos el HTML, extraemos la URL real del binario PDF y ejecutamos un segundo salto.
-                if ($firstBytes !== '%PDF-' && (str_contains($contentType, 'text/html') || str_starts_with(ltrim($firstBytes), '<'))) {
+                // Si devuelve un contenedor HTML en lugar de %PDF-, extraer el enlace interno al PDF y hacer un segundo salto
+                if (! str_contains($firstBytes, '%PDF-') && (str_contains($contentType, 'text/html') || str_starts_with(ltrim($firstBytes), '<'))) {
                     $htmlSnippet = $firstBytes.$psrBody->getContents();
                     $psrBody->close();
 
@@ -326,26 +470,28 @@ class LibraryReaderController extends Controller
                     $extractedPdf = $academicService->extractDirectDocumentLinkFromHtml($htmlSnippet, $effectiveUri);
 
                     if ($extractedPdf) {
-                        if ($academicService->isMoreDirectDocumentUrl($extractedPdf, $book->external_url)) {
-                            $book->update(['external_url' => Str::limit($extractedPdf, 495)]);
-                        }
-
                         $secondHopUrl = $this->toDirectBinaryPdfUrl($extractedPdf, $academicService);
                         if ($secondHopUrl !== $binaryCandidateUrl) {
+                            $book->update(['external_url' => Str::limit($secondHopUrl, 495)]);
                             $upstreamResponse = $this->fetchUpstreamPdfResponse($secondHopUrl, $request);
                             if ($upstreamResponse && ($upstreamResponse->successful() || $upstreamResponse->status() === 206)) {
                                 $psrResponse = $upstreamResponse->toPsrResponse();
                                 $psrBody = $psrResponse->getBody();
-                                $firstBytes = $psrBody->read(5);
+                                $firstBytes = $psrBody->read(1024);
                                 $contentType = strtolower((string) $upstreamResponse->header('Content-Type'));
                             }
                         }
                     }
                 }
 
-                $isPdfBinary = ($firstBytes === '%PDF-') || (str_contains($contentType, 'application/pdf') && ! str_starts_with(ltrim($firstBytes), '<'));
+                $pdfPos = strpos($firstBytes, '%PDF-');
+                $isPdfBinary = ($pdfPos !== false) || (str_contains($contentType, 'application/pdf') && ! str_starts_with(ltrim($firstBytes), '<'));
 
                 if ($isPdfBinary) {
+                    if ($pdfPos !== false && $pdfPos > 0) {
+                        $firstBytes = substr($firstBytes, $pdfPos);
+                    }
+
                     $headers = [
                         'Content-Type' => 'application/pdf',
                         'Content-Disposition' => $dispositionType.'; filename="'.$safeFilename.'"',
@@ -371,7 +517,7 @@ class LibraryReaderController extends Controller
                             echo $firstBytes;
                         }
                         while (! $psrBody->eof()) {
-                            echo $psrBody->read(65536); // Chunks de 64 KB
+                            echo $psrBody->read(65536);
                             if (ob_get_level() > 0) {
                                 ob_flush();
                             }
@@ -385,7 +531,6 @@ class LibraryReaderController extends Controller
             Log::info("Stream proxy fallback note for book [{$book->id} - {$binaryCandidateUrl}]: ".$e->getMessage());
         }
 
-        // ── FALLBACK SEGURO: Si el repositorio remoto bloquea conexiones proxy o no es un PDF binario ──
         if ($dispositionType === 'attachment') {
             return redirect()->away($binaryCandidateUrl);
         }
@@ -401,6 +546,89 @@ class LibraryReaderController extends Controller
     }
 
     /**
+     * Descarga y almacena localmente el PDF remoto en el primer acceso para garantizar
+     * lectura instantánea in-app sin bloqueos ni dependencia futura del servidor externo.
+     */
+    private function downloadAndPersistLocalPdf(Book $book, string $candidateUrl, AcademicLibraryService $academicService): ?string
+    {
+        try {
+            $parsed = parse_url($candidateUrl);
+            $referer = isset($parsed['scheme'], $parsed['host'])
+                ? "{$parsed['scheme']}://{$parsed['host']}/"
+                : 'https://scholar.google.com/';
+
+            $response = Http::connectTimeout(6)
+                ->timeout(25)
+                ->withHeaders(array_merge(AcademicLibraryService::SCRAPE_HEADERS, [
+                    'Accept' => 'application/pdf,application/octet-stream;q=0.9,*/*;q=0.8',
+                    'Referer' => $referer,
+                ]))
+                ->withOptions([
+                    'verify' => false,
+                    'allow_redirects' => ['max' => 8, 'referer' => true],
+                ])
+                ->get($candidateUrl);
+
+            if (! $response->successful()) {
+                return null;
+            }
+
+            $body = $response->body();
+            $contentType = strtolower((string) $response->header('Content-Type'));
+
+            // Si el primer salto devolvió una página puente HTML (SciELO / OJS / PMC), extraer el PDF real
+            if (! str_contains(substr($body, 0, 1024), '%PDF-') && (str_contains($contentType, 'text/html') || str_starts_with(ltrim($body), '<'))) {
+                $effectiveUri = (string) ($response->effectiveUri() ?: $candidateUrl);
+                $extracted = $academicService->extractDirectDocumentLinkFromHtml($body, $effectiveUri);
+
+                if ($extracted) {
+                    $secondHop = $this->toDirectBinaryPdfUrl($extracted, $academicService);
+                    if ($secondHop !== $candidateUrl) {
+                        $response = Http::connectTimeout(6)
+                            ->timeout(25)
+                            ->withHeaders(array_merge(AcademicLibraryService::SCRAPE_HEADERS, [
+                                'Accept' => 'application/pdf,application/octet-stream;q=0.9,*/*;q=0.8',
+                                'Referer' => $effectiveUri,
+                            ]))
+                            ->withOptions(['verify' => false, 'allow_redirects' => ['max' => 8]])
+                            ->get($secondHop);
+
+                        if (! $response->successful()) {
+                            return null;
+                        }
+                        $body = $response->body();
+                    }
+                }
+            }
+
+            $pdfPos = strpos($body, '%PDF-');
+            if ($pdfPos === false || strlen($body) < 1024) {
+                return null;
+            }
+
+            if ($pdfPos > 0 && $pdfPos < 1024) {
+                $body = substr($body, $pdfPos);
+            }
+
+            $safeSlug = Str::slug(Str::limit($book->slug ?: $book->title, 80)) ?: 'book-'.$book->id;
+            $relativePath = 'library/books/book_'.$safeSlug.'_'.$book->id.'.pdf';
+
+            Storage::disk('public')->put($relativePath, $body);
+
+            $book->update([
+                'file_path' => $relativePath,
+                'file_size' => strlen($body),
+            ]);
+
+            return $relativePath;
+        } catch (\Throwable $e) {
+            Log::info("Auto-cache local omitido para libro [{$book->id}]: ".$e->getMessage());
+
+            return null;
+        }
+    }
+
+    /**
      * Convert viewer wrapper URLs (like OJS /article/view/ID/GALLEY, PDF.js viewers, or Google Drive view)
      * into raw binary stream URLs (/article/download/ID/GALLEY) so the proxy fetches pure %PDF- bytes.
      */
@@ -408,22 +636,45 @@ class LibraryReaderController extends Controller
     {
         $url = trim($url);
 
-        // Desempaquetar visores PDF.js (?file=...)
+        // 1. Desempaquetar visores PDF.js (?file=...)
         if ($academicService && preg_match('/[?&](?:file|pdf|doc|url)=(https?%3A%2F%2F[^&#]+|https?:\/\/[^&#]+|%2F[^&#]+\.pdf)/i', $url, $viewerMatch)) {
             $url = $academicService->makeAbsoluteUrl(rawurldecode($viewerMatch[1]), $url);
         }
 
-        // Europe PMC: convertir URL backend fcgi a visor web oficial del artículo
-        if (preg_match('~europepmc\.org/backend/ptpmcrender\.fcgi\?accid=(PMC\d+)~i', $url, $epmc)) {
-            return "https://europepmc.org/articles/{$epmc[1]}?pdf=render";
+        // 2. Europe PMC: ASEGURAR que SIEMPRE apunte al renderizador binario fcgi (NUNCA a /articles/PMC...?pdf=render que es HTML)
+        if (preg_match('~europepmc\.org/(?:articles|article/PMC)/?(PMC\d+|\d+)~i', $url, $epmc)) {
+            $pmcId = str_starts_with(strtoupper($epmc[1]), 'PMC') ? strtoupper($epmc[1]) : 'PMC'.$epmc[1];
+
+            return "https://europepmc.org/backend/ptpmcrender.fcgi?accid={$pmcId}&blobtype=pdf";
+        }
+        if (preg_match('~europepmc\.org/backend/ptpmcrender\.fcgi\?accid=(PMC\d+)~i', $url, $epmcBackend)) {
+            return "https://europepmc.org/backend/ptpmcrender.fcgi?accid={$epmcBackend[1]}&blobtype=pdf";
         }
 
-        // OJS: /article/view/{articleId}/{galleyId} -> /article/download/{articleId}/{galleyId}
+        // 3. NCBI PMC -> usar mirror binario directo de Europe PMC (evita el challenge PoW en JS de ncbi.nlm.nih.gov)
+        if (preg_match('~ncbi\.nlm\.nih\.gov/pmc/articles/(PMC\d+)~i', $url, $ncbiMatch)) {
+            return "https://europepmc.org/backend/ptpmcrender.fcgi?accid={$ncbiMatch[1]}&blobtype=pdf";
+        }
+
+        // 4. OJS: /article/view/{articleId}/{galleyId} -> /article/download/{articleId}/{galleyId}
         if (preg_match('~(/article/)(?:view|viewFile)/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', $url)) {
             return (string) preg_replace('~(/article/)(?:view|viewFile)/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', '$1download/$2', $url);
         }
 
-        // Google Drive sharing link -> direct binary download
+        // 5. Redalyc visor /html/ o articulo.oa -> PDF directo
+        if (preg_match('/redalyc\.org\/articulo\.oa\?id=(\d{7,})/i', $url, $rMatch)) {
+            $oaId = $rMatch[1];
+            $journalPrefix = substr($oaId, 0, -3);
+
+            return "https://www.redalyc.org/pdf/{$journalPrefix}/{$oaId}.pdf";
+        }
+
+        // 6. Dialnet servlet -> descarga directa PDF
+        if (preg_match('/dialnet\.unirioja\.es\/servlet\/(articulo|tesis|libro)\?codigo=(\d+)/i', $url, $dMatch)) {
+            return "https://dialnet.unirioja.es/descarga/{$dMatch[1]}/{$dMatch[2]}.pdf";
+        }
+
+        // 7. Google Drive sharing link -> descarga binaria
         if (preg_match('~drive\.google\.com/file/d/([a-zA-Z0-9_-]+)~i', $url, $gdMatch)) {
             return "https://drive.google.com/uc?export=download&id={$gdMatch[1]}";
         }
@@ -450,7 +701,7 @@ class LibraryReaderController extends Controller
             $headers['Range'] = $request->header('Range');
         }
 
-        return Http::timeout(25)
+        return Http::timeout(30)
             ->connectTimeout(8)
             ->withHeaders($headers)
             ->withOptions([
@@ -501,6 +752,7 @@ class LibraryReaderController extends Controller
                 LibraryAccessLog::create([
                     'user_id' => $userId,
                     'book_id' => $book->id,
+                    'access_type' => 'view',
                     'ip_address' => $request->ip(),
                     'user_agent' => Str::limit((string) $request->userAgent(), 250),
                     'accessed_at' => now(),

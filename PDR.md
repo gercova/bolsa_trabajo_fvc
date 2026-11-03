@@ -10,12 +10,12 @@
 | :--- | :--- |
 | **Documento** | Product Definition Report (PDR) / Technical Architecture Document |
 | **Proyecto** | Plataforma Integral IESTP Francisco Vigo Caballero (Bolsa FVC) |
-| **Versión** | 2.6.0-PROD |
-| **Entorno de Referencia** | PHP 8.3 / Laravel 11.31 / MySQL 8.0+ / Tailwind CSS 3.4 / Alpine.js |
+| **Versión** | 3.0.0-PROD (SPA Híbrida Reactiva) |
+| **Entorno de Referencia** | PHP 8.3 / Laravel 11.31 / Inertia.js 3.5 / Vue 3.5 / Tailwind CSS 3.4 / Vite 8.3 / MySQL 8.0+ |
 | **URL Oficial de Producción** | `https://iestpfranciscovigocaballero.edu.pe/` |
-| **Estado** | Aprobado para Producción y Auditoría Técnica |
-| **Última Actualización** | Octubre 2026 |
-| **Inventario Técnico** | 45 Modelos • 44 Controladores • 42 FormRequests • 55 Migraciones • 30 Seeders • 318 Rutas • 147 Vistas Blade • 33 Tests |
+| **Estado** | Aprobado para Producción, Homologación y Auditoría Técnica |
+| **Última Actualización** | Noviembre 2026 |
+| **Inventario Técnico Exhaustivo** | 45 Modelos • 44 Controladores • 42 FormRequests • 2 Servicios de Dominio • 319 Rutas • 116 Vistas Vue SPA • 2 Layouts Vue • 17 Plantillas Blade Esenciales • 55 Migraciones • 30 Seeders • 33 Tests • 2 Comandos CLI • 5 Imports • 6 Exports |
 
 ---
 
@@ -24,34 +24,35 @@
 ### 1.1. Contexto Institucional
 El **Instituto de Educación Superior Tecnológico Público "Francisco Vigo Caballero"** (IESTP FVC), ubicado en el distrito de Uchiza, provincia de Tocache, departamento de San Martín, Perú, es una institución pública de educación superior licenciada por el Ministerio de Educación (MINEDU) que brinda formación técnica profesional a Nombre de la Nación.
 
-### 1.2. Propósito del Sistema
-El presente sistema unifica y digitaliza los procesos clave de la institución a través de una arquitectura web modular y resiliente:
-1. **Presencia Institucional y Transparencia Activa:** Cumplimiento de la Ley de Transparencia y Acceso a la Información Pública, publicación de documentos de gestión, estadísticas de admisión y matrícula, balances contables y avance de licenciamiento (Condiciones Básicas de Calidad - CBC).
-2. **Promoción de Carreras Profesionales:** Difusión de los 5 programas de estudio oficiales, mallas curriculares, competencias técnicas, perfiles laborales y cabecera interactiva con carrusel multimedia.
-3. **Admisión y Matrícula Predictiva:** Gestión integral de ciclos formativos ordinarios, extraordinarios y CEPRE, con proyección dinámica de periodos futuros y deducción de vacantes.
-4. **Intermediación Laboral (Bolsa de Trabajo):** Conexión entre estudiantes/egresados y empresas del sector productivo local, regional y nacional, complementada con un motor automatizado de scraping de empleo con filtros geográficos peruanos.
-5. **Certificación Digital Soberana con QR:** Emisión y validación instantánea de certificados (capacitación modular y talleres) mediante códigos QR generados directamente en el servidor sin dependencias externas, con exportación masiva a PDF.
-6. **Biblioteca Virtual e Investigación Abierta:** Repositorio digital con lector integrado, streaming protegido de PDFs y sincronización masiva con 10 índices científicos mundiales (Europe PMC, Open Library/Internet Archive, SciELO, Redalyc, DOAJ, OpenAlex, Crossref, Semantic Scholar, Scopus, Google Scholar).
-7. **Trámites y TUPA Virtual:** Digitalización de requisitos, aranceles en S/. y % UIT, plazos y ventanilla de Mesa de Partes.
+### 1.2. Propósito y Transformación Digital del Sistema
+El presente sistema unifica y digitaliza los procesos misionales y de soporte de la institución a través de una arquitectura web reactiva **Single-Page Application (SPA)** impulsada por el protocolo **Inertia.js**, el motor frontend **Vue 3** y el backend **Laravel 11**:
+1. **Presencia Institucional y Transparencia Activa:** Cumplimiento de la Ley de Transparencia y Acceso a la Información Pública, publicación de documentos de gestión (PEI, PAT, PCI, RI), padrón histórico de egresados titulados, estadísticas de admisión y matrícula por género/carrera, balances contables mensuales y seguimiento público de las Condiciones Básicas de Calidad (CBC) para el licenciamiento institucional.
+2. **Promoción de Carreras Profesionales:** Difusión de los 5 programas de estudio oficiales (*Producción Agropecuaria, Enfermería Técnica, Administración de Redes y Comunicaciones, Asistencia Administrativa, Manejo Forestal*), perfiles de egreso, competencias técnicas de empleabilidad, mallas curriculares, galerías fotográficas y cabecera interactiva con carrusel multimedia dinámico.
+3. **Admisión y Matrícula con Proyección Predictiva:** Gestión integral de convocatorias de examen ordinario, extraordinario y ciclo CEPRE FVC, con cálculo automático de periodos lectivos futuros y deducción inteligente de vacantes reservadas.
+4. **Intermediación Laboral (Bolsa de Trabajo):** Ecosistema de empleabilidad para postulaciones de egresados con CV, publicación de convocatorias internas y motor de extracción automatizada (*scraping*) de ofertas laborales peruanas con filtro geográfico estricto.
+5. **Certificación Digital Soberana con Código QR:** Emisión, consulta y validación instantánea de certificados de capacitación y modulares mediante códigos QR generados directamente en el servidor sin dependencias de APIs externas, complementado con calificación vigesimal y exportación masiva a PDF.
+6. **Biblioteca Virtual e Investigación Abierta:** Repositorio institucional con estante de favoritos, lector inmersivo integrado, streaming seguro de PDFs binarios y sincronización multi-índice con 10 repositorios científicos mundiales (*Europe PMC, Open Library/Internet Archive, SciELO, Redalyc, DOAJ, OpenAlex, Crossref, Semantic Scholar, Scopus, Google Scholar*).
+7. **Trámites y TUPA Virtual:** Digitalización de procedimientos administrativos, cálculo dinámico de aranceles en Soles (S/.) y porcentaje de la UIT vigente, plazos de atención y guía de recepción documental para Mesa de Partes.
+8. **Libro de Reclamaciones Virtual:** Plataforma de registro de quejas y reclamos conforme a la normativa de Indecopi, asignación de código correlativo y limitación estricta de tráfico (*rate limiting*).
 
 ---
 
 ## 2. Actores del Sistema y Matriz de Control de Acceso (RBAC)
 
-El sistema implementa control de acceso basado en roles (Role-Based Access Control) mediante el paquete oficial `spatie/laravel-permission` y autorización granular a través de `Gate::before` en `AppServiceProvider`.
+El sistema implementa control de acceso basado en roles (*Role-Based Access Control*) mediante el paquete oficial `spatie/laravel-permission`, autorización granular mediante directivas de `Gate` y el interceptor global `HandleInertiaRequests` que distribuye el estado de permisos a todos los componentes Vue.
 
-### 2.1. Definición de Roles
-- **Director General:** Máxima autoridad institucional. Posee supervisión y permisos globales sobre todos los módulos, incluyendo la autorización de vaciado y reseteo de balances financieros (`can:gestionar-inversiones`).
-- **Administrador (Admin):** Gestión operativa técnica, mantenimiento de usuarios, seguridad, reseteo de credenciales, auditoría y parametrización institucional.
-- **Docente:** Gestión de asignaturas, módulos de capacitación, participación en comités curriculares y acceso al catálogo de biblioteca.
-- **Coordinador de Área:** Jefaturas de programas de estudio con facultades para editar competencias, requisitos, metadatos y certificaciones modulares de su especialidad.
-- **Coordinador de Calidad:** Supervisión del TUPA, Libro de Reclamaciones y auditoría de etapas de licenciamiento institucional (CBC).
-- **Coordinador de Empleabilidad:** Gestión de ofertas laborales, convenios con empresas (Partners), scraping laboral y seguimiento a graduados.
-- **Coordinador de Educación Continua:** Programación de cursos extracurriculares y emisión de certificados institucionales de capacitación.
-- **Coordinador de Investigación:** Repositorio institucional y publicaciones científicas.
-- **Personal Administrativo:** Gestión de trámites documentarios, estadísticas de transparencia y atención de reclamos.
-- **Lector (Estudiante / Egresado):** Acceso al portal de Biblioteca Virtual, favoritos, visor de PDFs y postulación a vacantes de empleo con carga de CV. Dispone de campo para correo personal (`personal_email`) para comunicaciones de egresado.
-- **Público General / Visitante:** Acceso no autenticado al portal informativo, consulta de carreras, verificación pública de certificados por QR/código/DNI y registro en Libro de Reclamaciones.
+### 2.1. Definición de Roles del Sistema
+- **Director General:** Máxima autoridad institucional. Posee supervisión global sobre todos los módulos, incluyendo la autorización exclusiva de vaciado y reseteo de balances financieros (`can:gestionar-inversiones`).
+- **Administrador (Admin):** Gestión operativa integral, mantenimiento de usuarios, seguridad, auditoría, parametrización institucional y configuración de módulos.
+- **Docente:** Gestión de asignaturas, módulos de capacitación, participación en comités curriculares y consulta del catálogo de biblioteca.
+- **Coordinador de Área:** Jefatura de programa de estudio con facultades para editar competencias, requisitos, metadatos, itinerarios y certificaciones modulares de su especialidad.
+- **Coordinador de Calidad:** Supervisión del TUPA, Libro de Reclamaciones y auditoría de etapas de licenciamiento institucional (Condiciones Básicas de Calidad - CBC).
+- **Coordinador de Empleabilidad:** Gestión de ofertas laborales, convenios con empresas aliadas (*Partners*), scraping de empleo y bolsa de trabajo.
+- **Coordinador de Educación Continua:** Programación de cursos extracurriculares y emisión de certificados institucionales de capacitación y talleres.
+- **Coordinador de Investigación:** Repositorio digital institucional y publicación de artículos académicos.
+- **Personal Administrativo:** Gestión de trámites documentarios, estadísticas de transparencia y atención de reclamos de mesa de partes.
+- **Lector (Estudiante / Egresado):** Acceso al portal de Biblioteca Virtual, favoritos, visor inmersivo de lectura, descarga de material y postulación a vacantes con carga de CV. Cuenta con soporte de correo personal (`personal_email`) para comunicaciones de graduados.
+- **Público General / Visitante:** Acceso sin autenticación al portal informativo, consulta de carreras, verificación pública de certificados por código/DNI y registro en el Libro de Reclamaciones.
 
 ### 2.2. Matriz de Permisos del Sistema
 
@@ -73,305 +74,275 @@ El sistema implementa control de acceso basado en roles (Role-Based Access Contr
 
 ---
 
-## 3. Diccionario de Datos y Catálogo de Modelos Eloquent
+## 3. Diccionario de Datos y Catálogo Exhaustivo de Modelos Eloquent
 
-La aplicación cuenta con **45 Modelos Eloquent** activos. A continuación se agrupan por dominio de negocio con sus atributos clave y relaciones:
+La plataforma cuenta con **45 Modelos Eloquent** activos. A continuación se documenta su arquitectura de tablas, claves, atributos, relaciones y scopes:
 
 ### 3.1. Núcleo Institucional y Parametría
-1. **`Enterprise`**
-   - *Tabla:* `enterprise`
+1. **`Enterprise`** (`app/Models/Enterprise.php`)
+   - *Tabla:* `enterprise` (Clave primaria: `id`)
    - *Campos:* `ruc`, `company_name`, `trade_name`, `legal_representative_dni`, `legal_representative`, `email`, `phone_number_1`, `whatsapp_link`, `address`, `city`, `phrase`, `description`, `mission`, `vision`, `principles`, `values`, `logo_path`, `favicon_path`, `facebook_link`, `instagram_link`, `linkedin_link`.
-   - *Métodos:* `getDefault()` (provee datos predeterminados en caso de tabla vacía para uso en View Composers globales).
-2. **`Area`**
+   - *Métodos:* `getDefault()`: Provee un objeto DTO institucional predeterminado en caso de tabla vacía para uso en el middleware global `HandleInertiaRequests`.
+2. **`Area`** (`app/Models/Area.php`)
    - *Tabla:* `area`
    - *Campos:* `name`, `code`, `user_id`.
    - *Relaciones:* `belongsTo(User::class)`.
-3. **`Charge`**
+3. **`Charge`** (`app/Models/Charge.php`)
    - *Tabla:* `charges`
    - *Campos:* `name`, `is_active`.
-4. **`DocumentType`**
+4. **`DocumentType`** (`app/Models/DocumentType.php`)
    - *Tabla:* `document_type`
    - *Campos:* `name`, `short_name`.
    - *Relaciones:* `hasMany(User::class)`.
-5. **`HistoricalReview`**
+5. **`HistoricalReview`** (`app/Models/HistoricalReview.php`)
    - *Tabla:* `historical_reviews`
    - *Campos:* `year`, `title`, `description`, `image_path`, `order`, `is_active`.
-6. **`InstitutionalCarousel`**
+6. **`InstitutionalCarousel`** (`app/Models/InstitutionalCarousel.php`)
    - *Tabla:* `institutional_carousels`
    - *Campos:* `title`, `subtitle`, `cta_text`, `cta_link`, `order`, `is_active`.
    - *Relaciones:* `morphOne(Image::class, 'imageable')`.
-7. **`Partner`**
+7. **`Partner`** (`app/Models/Partner.php`)
    - *Tabla:* `partners`
    - *Campos:* `name`, `logo_path`, `website_link`, `is_active`.
-8. **`ExternalInstitutionalLink`**
+8. **`ExternalInstitutionalLink`** (`app/Models/ExternalInstitutionalLink.php`)
    - *Tabla:* `external_institutional_links`
    - *Campos:* `title`, `url`, `logo_path`, `category`, `is_active`.
-9. **`VisitorCounter`**
+9. **`VisitorCounter`** (`app/Models/VisitorCounter.php`)
    - *Tabla:* `visitor_counters`
    - *Campos:* `ip_address`, `visited_date`, `visits_count`.
-   - *Métodos:* `getTotalVisits()`, `getPaddedDigits($total, $length)`.
+   - *Métodos:* `getTotalVisits()`, `getPaddedDigits($total, $length)`, `incrementViews($metricKey)`.
 
 ### 3.2. Programas de Estudio y Currícula
-10. **`StudyProgram`**
+10. **`StudyProgram`** (`app/Models/StudyProgram.php`)
     - *Tabla:* `study_programs`
     - *Campos:* `name`, `slug`, `description`, `details`, `order`, `is_active`, `enable_carousel` (boolean), `carousel_alt_text` (text).
     - *Relaciones:* `hasOne(ProgramMeta::class)`, `hasMany(ProgramCompetency::class)`, `hasMany(ProgramJobField::class)`, `hasMany(ProgramRequirement::class)`, `hasMany(Module::class)`, `hasMany(Course::class)`, `morphMany(Image::class, 'imageable')`.
-11. **`ProgramMeta`**
+11. **`ProgramMeta`** (`app/Models/ProgramMeta.php`)
     - *Tabla:* `program_metas`
     - *Campos:* `study_program_id`, `icon`, `accent`, `bg_badge`, `tag`, `color_bar`, `glow_class`, `badge_class`, `accent_text`, `bullet_class`, `icon_bg_class`, `border_hover_class`, `badge_module_class`, `sidebar_icon_class`, `cta_bg_class`, `bar_color_class`.
-12. **`ProgramCompetency`**
+    - *Relaciones:* `belongsTo(StudyProgram::class)`.
+12. **`ProgramCompetency`** (`app/Models/ProgramCompetency.php`)
     - *Tabla:* `program_competencies`
     - *Campos:* `study_program_id`, `title`, `description`, `icon`, `order`, `is_active`.
-13. **`ProgramJobField`**
+    - *Relaciones:* `belongsTo(StudyProgram::class)`.
+13. **`ProgramJobField`** (`app/Models/ProgramJobField.php`)
     - *Tabla:* `program_job_fields`
     - *Campos:* `study_program_id`, `description`, `order`, `is_active`.
-14. **`ProgramRequirement`**
+    - *Relaciones:* `belongsTo(StudyProgram::class)`.
+14. **`ProgramRequirement`** (`app/Models/ProgramRequirement.php`)
     - *Tabla:* `program_requirements`
     - *Campos:* `study_program_id`, `description`, `order`, `is_active`.
-15. **`ModularCertification`**
+    - *Relaciones:* `belongsTo(StudyProgram::class)`.
+15. **`ModularCertification`** (`app/Models/ModularCertification.php`)
     - *Tabla:* `modular_certification`
     - *Campos:* `model_type`, `model_id`, `code`, `name`, `description`, `is_active`.
-16. **`Course`**
+16. **`Course`** (`app/Models/Course.php`)
     - *Tabla:* `courses`
-    - *Campos:* `study_program_id`, `name`, `description`, `code`, `certificate_type` (`capacitacion` o `modular`), `event_name` (evento u ocasión), `is_active`.
+    - *Campos:* `study_program_id`, `name`, `description`, `code`, `certificate_type` (`capacitacion` o `modular`), `event_name`, `is_active`.
     - *Relaciones:* `belongsTo(StudyProgram::class)`, `hasMany(Module::class)`, `hasMany(Itinerary::class)`, `hasMany(Certificate::class)`.
-17. **`Module`**
+17. **`Module`** (`app/Models/Module.php`)
     - *Tabla:* `modules`
     - *Campos:* `course_id`, `name`, `hours`, `credits`, `order`, `is_active`.
     - *Relaciones:* `belongsTo(Course::class)`, `hasMany(Itinerary::class)`.
-18. **`Itinerary`**
+18. **`Itinerary`** (`app/Models/Itinerary.php`)
     - *Tabla:* `itineraries`
     - *Campos:* `course_id`, `module_id`, `code`, `name`, `is_active`.
     - *Relaciones:* `belongsTo(Course::class)`, `belongsTo(Module::class)`.
 
 ### 3.3. Certificación Digital y Notas
-19. **`Certificate`**
+19. **`Certificate`** (`app/Models/Certificate.php`)
     - *Tabla:* `certificates`
-    - *Campos:* `code` (identificador único estandarizado), `certificate_code` (código de diploma), `user_id`, `course_id`, `study_program_id`, `certificate_type` (`capacitacion` o `modular`), `participation_type` (`ASISTENTE`, `PONENTE`, etc.), `event_name`, `institution_name`, `city`, `issue_date`, `start_date`, `end_date`, `duration`, `modality`, `qr_code_path`, `download_count`, `is_active`.
+    - *Campos:* `code` (UUID/código alfanumérico único para validación pública QR), `certificate_code` (código de folio interno), `user_id`, `course_id`, `study_program_id`, `certificate_type` (`capacitacion` o `modular`), `participation_type` (`ASISTENTE`, `PONENTE`, `ORGANIZADOR`), `event_name`, `institution_name`, `city`, `issue_date`, `start_date`, `end_date`, `duration`, `modality`, `qr_code_path`, `download_count`, `is_active`.
     - *Relaciones:* `belongsTo(User::class)`, `belongsTo(Course::class)`, `belongsTo(StudyProgram::class)`, `hasMany(CertificateDetail::class)`.
-20. **`CertificateDetail`**
+20. **`CertificateDetail`** (`app/Models/CertificateDetail.php`)
     - *Tabla:* `certificate_details`
-    - *Campos:* `certificate_id`, `module_id` (nullable para capacitación), `topic_name` (tema de temario), `score` (nota vigesimal opcional), `observations`, `order`, `is_active`.
+    - *Campos:* `certificate_id`, `module_id` (nullable), `topic_name` (tema específico del temario), `score` (calificación vigesimal opcional 00-20), `observations`, `order`, `is_active`.
     - *Relaciones:* `belongsTo(Certificate::class)`, `belongsTo(Module::class)`.
 
 ### 3.4. Admisión, Matrícula y Becas
-21. **`Admission`**
+21. **`Admission`** (`app/Models/Admission.php`)
     - *Tabla:* `cepre`
-    - *Campos:* `period`, `activity`, `process` (cepre/admisión/matrícula), `type` (ordinario/extraordinario), `exam_date`, `start_date`, `end_date`, `total_vacancies`, `price`, `results_url_pdf`, `is_active`.
+    - *Campos:* `period`, `activity`, `process` (`cepre`, `admision`, `matricula`), `type` (`ordinario`, `extraordinario`), `exam_date`, `start_date`, `end_date`, `total_vacancies`, `price`, `results_url_pdf`, `is_active`.
     - *Relaciones:* `hasMany(AdmissionDetail::class, 'admission_id')`.
-22. **`AdmissionDetail`**
+22. **`AdmissionDetail`** (`app/Models/AdmissionDetail.php`)
     - *Tabla:* `cepre_details`
     - *Campos:* `admission_id`, `program_id`, `vacancies`.
     - *Relaciones:* `belongsTo(Admission::class)`, `belongsTo(StudyProgram::class, 'program_id')`.
-23. **`AdmissionRequirement`**
+23. **`AdmissionRequirement`** (`app/Models/AdmissionRequirement.php`)
     - *Tabla:* `admission_requirements`
     - *Campos:* `description`, `is_active`.
-24. **`EnrollmentSchedule`**
+24. **`EnrollmentSchedule`** (`app/Models/EnrollmentSchedule.php`)
     - *Tabla:* `enrollment_schedules`
-    - *Campos:* `enrollment_type` (ordinaria/extraordinaria), `start_date`, `end_date`, `description`, `is_active`.
+    - *Campos:* `enrollment_type` (`ordinaria`, `extraordinaria`), `start_date`, `end_date`, `description`, `is_active`.
     - *Relaciones:* `hasMany(EnrollmentScheduleDetail::class)`.
-25. **`EnrollmentScheduleDetail`**
+25. **`EnrollmentScheduleDetail`** (`app/Models/EnrollmentScheduleDetail.php`)
     - *Tabla:* `enrollment_schedule_details`
     - *Campos:* `enrollment_schedule_id`, `study_program_id`, `requirements`, `notes`.
-26. **`Scholarship`**
+    - *Relaciones:* `belongsTo(EnrollmentSchedule::class)`, `belongsTo(StudyProgram::class)`.
+26. **`Scholarship`** (`app/Models/Scholarship.php`)
     - *Tabla:* `scholarships`
     - *Campos:* `name`, `type`, `description`, `vacancies`, `requirements`, `order`, `is_active`.
     - *Relaciones:* `hasMany(ScholarshipBeneficiary::class)`.
-27. **`ScholarshipBeneficiary`**
+27. **`ScholarshipBeneficiary`** (`app/Models/ScholarshipBeneficiary.php`)
     - *Tabla:* `scholarship_beneficiaries`
     - *Campos:* `scholarship_id`, `academic_period`, `title`, `document_pdf_path`, `beneficiaries_count`, `order`, `is_active`.
+    - *Relaciones:* `belongsTo(Scholarship::class)`.
 
 ### 3.5. Transparencia, Indicadores y Finanzas
-28. **`StudentRecord`**
+28. **`StudentRecord`** (`app/Models/StudentRecord.php`)
     - *Tabla:* `student_records`
-    - *Campos:* `document_type_id`, `document`, `names`, `last_name_father`, `last_name_mother`, `gender`, `email`, `phone`, `record_type` (MATRICULA/ADMISION), `academic_period`, `study_program`, `cycle` (I al VI), `institution_name_ie`.
-29. **`DegreeRecord`**
+    - *Campos:* `document_type_id`, `document`, `names`, `last_name_father`, `last_name_mother`, `gender`, `email`, `phone`, `record_type` (`MATRICULA`, `ADMISION`), `academic_period`, `study_program`, `cycle` (I al VI), `institution_name_ie`.
+29. **`DegreeRecord`** (`app/Models/DegreeRecord.php`)
     - *Tabla:* `degree_records`
     - *Campos:* `full_names`, `document_number`, `gender`, `study_program`, `formative_level`, `productive_family`, `diploma_issue_date`, `file_number`, `generated_title_code`, `department`.
-30. **`AccountBalance`**
+30. **`AccountBalance`** (`app/Models/AccountBalance.php`)
     - *Tabla:* `account_balances`
     - *Campos:* `date`, `concept`, `category`, `amount`, `document_reference`, `period_year`, `period_month`.
     - *Scopes:* `filterByYear()`, `filterByMonth()`, `filterByCategory()`, `search()`.
-31. **`ManagementDocument`**
+31. **`ManagementDocument`** (`app/Models/ManagementDocument.php`)
     - *Tabla:* `management_documents`
     - *Campos:* `title`, `description`, `file_path`, `type`, `is_active`.
-32. **`LicensingPhase`**
+32. **`LicensingPhase`** (`app/Models/LicensingPhase.php`)
     - *Tabla:* `licensing_phases`
-    - *Campos:* `phase_number`, `title`, `description`, `status` (completed/in_progress/pending), `progress_percentage`, `is_current`, `order`, `is_active`.
-33. **`Claim`**
+    - *Campos:* `phase_number`, `title`, `description`, `status` (`completed`, `in_progress`, `pending`), `progress_percentage`, `is_current`, `order`, `is_active`.
+33. **`Claim`** (`app/Models/Claim.php`)
     - *Tabla:* `claims`
-    - *Campos:* `code`, `names`, `dni`, `phone`, `email`, `address`, `service_type`, `claimed_amount`, `description`, `claim_type` (queja/reclamo), `status` (pendiente/en_proceso/atendido), `file_path`.
+    - *Campos:* `code`, `names`, `dni`, `phone`, `email`, `address`, `service_type`, `claimed_amount`, `description`, `claim_type` (`queja`, `reclamo`), `status` (`pendiente`, `en_proceso`, `atendido`), `file_path`.
 
 ### 3.6. Trámites y TUPA
-34. **`Tupa`**
+34. **`Tupa`** (`app/Models/Tupa.php`)
     - *Tabla:* `tupa`
     - *Campos:* `title`, `description`, `normative_base`, `effective_start_date`, `file_path`, `is_active`.
     - *Relaciones:* `hasMany(TupaProcedure::class)`.
-35. **`TupaCategory`**
+35. **`TupaCategory`** (`app/Models/TupaCategory.php`)
     - *Tabla:* `tupa_categories`
     - *Campos:* `name`, `description`, `icon`, `order`, `is_active`.
     - *Relaciones:* `hasMany(TupaProcedure::class)`.
-36. **`TupaProcedure`**
+36. **`TupaProcedure`** (`app/Models/TupaProcedure.php`)
     - *Tabla:* `tupa_procedures`
-    - *Campos:* `tupa_id`, `tupa_category_id`, `code`, `name`, `description`, `requirements` (JSON), `cost`, `uit_percent`, `qualification` (automática/evaluación previa), `duration`, `office`, `is_active`.
+    - *Campos:* `tupa_id`, `tupa_category_id`, `code`, `name`, `description`, `requirements` (JSON), `cost`, `uit_percent`, `qualification` (`automatica`, `evaluacion_previa`), `duration`, `office`, `is_active`.
+    - *Relaciones:* `belongsTo(Tupa::class)`, `belongsTo(TupaCategory::class)`.
 
 ### 3.7. Empleo y Bolsa de Trabajo
-37. **`JobOffer`**
+37. **`JobOffer`** (`app/Models/JobOffer.php`)
     - *Tabla:* `jobs`
     - *Campos:* `title`, `company`, `location`, `description`, `requirements`, `salary`, `source`, `source_url`, `deadline`, `is_active`.
 
 ### 3.8. Biblioteca Virtual
-38. **`Book`**
+38. **`Book`** (`app/Models/Book.php`)
     - *Tabla:* `books`
-    - *Campos:* `study_program_id`, `title`, `slug`, `author`, `publisher`, `publication_year`, `isbn`, `edition`, `summary`, `cover_image`, `file_path`, `external_url`, `category` (Libro, Revista, Paper, Tesis, etc.), `source_type` (local/external/academic), `doi`, `views_count`, `downloads_count`, `rating`, `created_by`, `is_active`.
+    - *Campos:* `study_program_id`, `title`, `slug`, `author`, `publisher`, `publication_year`, `isbn`, `edition`, `summary`, `cover_image`, `file_path`, `external_url`, `category` (Libro, Revista, Paper, Tesis), `source_type` (`local`, `external`, `academic`), `doi`, `views_count`, `downloads_count`, `rating`, `created_by`, `is_active`.
     - *Relaciones:* `belongsTo(StudyProgram::class)`, `belongsTo(User::class, 'created_by')`, `hasMany(BookFavorite::class)`, `hasMany(LibraryAccessLog::class)`.
     - *Scopes:* `career()`, `category()`, `search()`.
-39. **`BookFavorite`**
+39. **`BookFavorite`** (`app/Models/BookFavorite.php`)
     - *Tabla:* `book_favorites`
     - *Campos:* `user_id`, `book_id`.
-40. **`LibraryAccessLog`**
+    - *Relaciones:* `belongsTo(User::class)`, `belongsTo(Book::class)`.
+40. **`LibraryAccessLog`** (`app/Models/LibraryAccessLog.php`)
     - *Tabla:* `library_access_logs`
-    - *Campos:* `user_id`, `book_id`, `ip_address`, `access_type` (view/stream/download).
+    - *Campos:* `user_id`, `book_id`, `ip_address`, `access_type` (`view`, `stream`, `download`).
+    - *Relaciones:* `belongsTo(User::class)`, `belongsTo(Book::class)`.
 
 ### 3.9. Usuarios, Roles y Seguridad
-41. **`User`**
+41. **`User`** (`app/Models/User.php`)
     - *Tabla:* `users`
     - *Campos:* `dni`, `personal_email` (correo personal único), `email` (correo institucional), `names`, `birthdate`, `mother_tongue`, `phone`, `address`, `sex`, `ubigeo`, `photo_profile`, `cv_file`, `role`, `job_position`, `password`, `is_active`.
     - *Relaciones:* `hasMany(UserRoleDetail::class)`, `hasOne(UserRoleDetail::class, 'primaryRoleDetail')`, `hasMany(Certificate::class)`, `belongsToMany(Book::class, 'book_favorites')`.
-42. **`UserRoleDetail`**
+    - *Métodos:* `isStudent()`, `getPhotoProfileUrlAttribute()`.
+42. **`UserRoleDetail`** (`app/Models/UserRoleDetail.php`)
     - *Tabla:* `user_roles_details`
     - *Campos:* `user_id`, `program_id`, `role_name`, `is_coordinator`, `academic_degree`, `specialty`, `is_active`.
-43. **`StudentCouncil`**
+    - *Relaciones:* `belongsTo(User::class)`, `belongsTo(StudyProgram::class, 'program_id')`.
+43. **`StudentCouncil`** (`app/Models/StudentCouncil.php`)
     - *Tabla:* `student_councils`
     - *Campos:* `user_id`, `study_program_id`, `academic_period`, `position`, `is_active`.
-44. **`Image`**
+    - *Relaciones:* `belongsTo(User::class)`, `belongsTo(StudyProgram::class)`.
+44. **`Image`** (`app/Models/Image.php`)
     - *Tabla:* `images`
     - *Campos:* `imageable_type`, `imageable_id`, `path`, `is_main`.
-45. **`Blog`**
+    - *Relaciones:* `morphTo()`.
+45. **`Blog`** (`app/Models/Blog.php`)
     - *Tabla:* `blogs`
     - *Campos:* `title`, `slug`, `content`, `details`, `is_published`.
 
 ---
 
-## 4. Catálogo Completo de Rutas y Endpoints
+## 4. Arquitectura de Controladores y Métodos (44 Controladores)
 
-La aplicación cuenta con **318 rutas registradas** que abarcan navegación pública, portal de lectores de biblioteca, flujos de autenticación y panel de control administrativo.
+El sistema organiza toda la lógica de presentación y orquestación de servicios en **44 Controladores** estructurados por dominios de negocio:
 
-### 4.1. Rutas Públicas e Institucionales (Canónicas)
-| Método | URI | Nombre de Ruta | Controlador@Método | Finalidad |
-| :--- | :--- | :--- | :--- | :--- |
-| `GET` | `/` | `inicio` | `AppController@index` | Portada institucional, hero carousel, accesos rápidos y métricas. |
-| `GET` | `/admision-y-matricula/cepre-fvc` | `cepre-fvc` | `AppController@ceprefvc` | Vacantes, costos y cronograma del ciclo CEPRE proyectado. |
-| `GET` | `/admision-y-matricula/examen-de-admision` | `examen-de-admision` | `AppController@admissionExam` | Convocatoria Ordinaria/Extraordinaria y vacantes netas. |
-| `GET` | `/admision-y-matricula/matriculas` | `matriculas` | `AppController@enrollments` | Cronogramas de matrícula ordinaria y extraordinaria. |
-| `GET` | `/admision-y-matriculas/becas-y-creditos`| `becas-y-creditos` | `AppController@scholarshipsAndCredits` | Catálogo de becas y resoluciones de beneficiarios. |
-| `ANY` | `/becas-y-creditos` | *(Redirect)* | `RedirectController` | Redirección canónica a `/admision-y-matriculas/becas-y-creditos`. |
-| `GET` | `/programas-de-estudios` | `programas-de-estudio` | `AppController@studyPrograms` | Catálogo general de los 5 programas de estudio. |
-| `GET` | `/programas-de-estudios/{program:slug}` | `programas-de-estudio.detalle` | `AppController@program` | Malla, competencias, campo laboral, carrusel multimedia y fotos. |
-| `ANY` | `/study-programs` | *(Redirect)* | `RedirectController` | Redirección canónica a `/programas-de-estudios`. |
-| `GET` | `/transparencia/documentos-de-gestion` | `documentos-de-gestion` | `AppController@documentsManagement` | Documentos oficiales normativos (PEI, PAT, PCI). |
-| `GET` | `/transparencia/estadisticas` | `estadisticas` | `AppController@statistics` | Dashboards consolidados de matrícula, admisión y género. |
-| `GET` | `/transparencia/inversion-y-gestion` | `inversion-y-gestion` | `AppController@managementReports` | Balances financieros mensuales y ejecución presupuestal. |
-| `GET` | `/transparencia/licenciamiento` | `licenciamiento` | `AppController@licensment` | Progreso de las Condiciones Básicas de Calidad (CBC). |
-| `GET` | `/transparencia/libro-de-reclamaciones` | `libro-de-reclamaciones` | `AppController@complaintsBook` | Formulario virtual de atención a quejas y reclamos. |
-| `POST`| `/transparencia/libro-de-reclamaciones` | `libro-de-reclamaciones.store` | `AppController@storeClaim` | Registro seguro de reclamos (rate limit `throttle:5,1`). |
-| `GET` | `/tramites/mesa-de-partes` | `mesa-de-partes` | `AppController@partsTable` | Guía de recepción de expedientes y horarios. |
-| `GET` | `/tramites/tupa` | `tupa` | `AppController@tupa` | Catálogo interactivo de procedimientos y aranceles en S/. y % UIT. |
-| `GET` | `/nosotros/quienes-somos` | `quienes-somos` | `AppController@whoWeAre` | Misión, visión, valores y reseña institucional. |
-| `GET` | `/nosotros/historia` | `historia` | `AppController@history` | Línea de tiempo y evolución del instituto. |
-| `GET` | `/nosotros/organigrama-institucional` | `organigrama-institucional` | `AppController@institutionalOrganizationChart` | Estructura jerárquica y áreas de la institución. |
-| `GET` | `/nosotros/plana-jerarquica` | `plana-jerarquica` | `AppController@hierarchicalStaff` | Dirección y jefaturas de unidades de gestión. |
-| `GET` | `/nosotros/plana-de-docentes` | `plana-de-docentes` | `AppController@teachersStaff` | Plana docente clasificada por carreras y formación general. |
-| `GET` | `/nosotros/plana-administrativa` | `plana-administrativa` | `AppController@administrativeStaff` | Personal de soporte administrativo y operativo. |
-| `GET` | `/nosotros/consejo-de-estudiantes` | `consejo-de-estudiantes` | `AppController@studentCouncil` | Representantes estudiantiles por periodo lectivo. |
-| `GET` | `/nosotros/locales` | `locales` | `AppController@locales` | Sedes, talleres, campos agrícolas y laboratorios. |
-| `GET` | `/servicios/bolsa-de-trabajo` | `bolsa-de-trabajo` | `AppController@offers` | Portal de convocatorias laborales y directorio de CVs. |
-| `GET` | `/servicios/enlaces-institucionales` | `enlaces-institucionales` | `AppController@institutionalLinks` | Accesos rápidos a MINEDU, SUNEDU, PRONABEC. |
-| `GET` | `/validar-certificado/{certificate_code?}` | `validar-certificado` | `AppController@validateCertificate` | Portal de verificación pública de certificados por QR/código/DNI. |
-| `GET` | `/validar-certificado/{certificate_code}/imprimir`| `validar-certificado.print` | `AppController@printCertificate` | Hoja oficial de certificación membretada con QR y notas. |
-| `GET` | `/verificar-certificado/{certificate_code?}`| `verificar.certificado` | `Closure (Redirect)` | Alias de redirección canónica hacia `/validar-certificado`. |
-| `GET` | `/verify-certificate/{certificate_code?}`| `verify.certificate` | `Closure (Redirect)` | Alias internacional hacia `/validar-certificado`. |
-| `GET` | `/sitemap.xml` | `sitemap` | `SitemapController@index` | Generación y entrega del mapa XML canónico para Google. |
-| `ANY` | `/robot.txt` | *(Redirect)* | `RedirectController` | Redirección canónica a `/robots.txt`. |
-| `GET` | `/storage/{path}` | `storage.fallback` | `Closure` | Servidor seguro de archivos multimedia con detección MIME. |
-
-### 4.2. Portal de Biblioteca Virtual (Autenticado: `auth`)
-| Método | URI | Nombre de Ruta | Controlador@Método | Finalidad |
-| :--- | :--- | :--- | :--- | :--- |
-| `GET` | `/biblioteca` | `biblioteca.index` | `LibraryReaderController@index` | Portada de la biblioteca virtual con libros y revistas destacadas. |
-| `GET` | `/biblioteca/buscar` | `biblioteca.search` | `LibraryReaderController@search` | Búsqueda facetada por palabras clave, DOI y filtros de carrera. |
-| `GET` | `/biblioteca/mi-biblioteca` | `biblioteca.favorites` | `LibraryReaderController@myLibrary` | Estante personal de libros favoritos del usuario. |
-| `GET` | `/biblioteca/leer/{book:slug}` | `biblioteca.read` | `LibraryReaderController@read` | Visor inmersivo de lectura dentro del navegador. |
-| `GET` | `/biblioteca/stream/{book:slug}` | `biblioteca.stream` | `LibraryReaderController@stream` | Transmisión segura por bloques del flujo binario PDF sin CORS. |
-| `POST`| `/biblioteca/favorito/{book}` | `biblioteca.favorite.toggle` | `LibraryReaderController@toggleFavorite` | Alternar inclusión/exclusión de favoritos. |
-
-### 4.3. Panel de Gestión Administrativa (`auth`)
-| Prefijo de URI | Nombre Base | Controlador Principal | Módulos y Acciones Clave |
-| :--- | :--- | :--- | :--- |
-| `/admin-dashboard` | `admin.dashboard.*` | `DashboardController` | KPIs globales, estadísticas consolidadas y accesos directos. |
-| `/admin-perfil` | `admin.profile.*` | `ProfileController` | Edición de perfil de usuario, datos de contacto, avatar y password. |
-| `/admin-blogs` | `admin.blogs.*` | `BlogController` | CRUD de noticias, galerías y estado de publicación institucional. |
-| `/admin-exams` | `admin.exams.*` | `AdmissionsController` | Convocatorias de admisión, vacantes, cronogramas e imágenes CEPRE. |
-| `/admin-scholarships` | `admin.scholarships.*` | `ScholarshipController` | Becas y resoluciones de beneficiarios (`ScholarshipBeneficiaryController`). |
-| `/admin-biblioteca` | `admin.library.*` | `Admin\LibraryController` | Catálogo de libros, repositorio CRUD, importación masiva académica (`/importar-academicos`), gestión de lectores, administradores y reportes. |
-| `/admin-tupa` | `admin.tupa.*` | `TupaController` | Documento matriz TUPA, categorías temáticas y procedimientos con cálculo de costos en S/. y % UIT. |
-| `/admin-documentos` | `admin.documents.*` | `ManagementDocumentController` | Carga y actualización de documentos de gestión pública (PEI, PAT, PCI, RI). |
-| `/admin-reglamento-interno`| `admin.regulations.*`| `ManagementDocumentController` | Vista y descarga oficial del Reglamento Interno Institucional. |
-| `/admin-areas` | `admin.areas.*` | `AreaController` | Catálogo de unidades y dependencias funcionales institucionales. |
-| `/admin-programas` | `admin.programs.*` | `StudyProgramsController` | Carreras, certificaciones modulares, competencias, campo laboral, metadatos UI, carrusel multimedia y selección de imagen principal. |
-| `/admin-cursos` | `admin.courses.*` | `CourseController` | Cursos y talleres formativos con tipo de certificación (`capacitacion` o `modular`), programa y evento. |
-| `/admin-modulos` | `admin.modules.*` | `ModuleController` | Módulos formativos, horas y créditos académicos asociados a cursos. |
-| `/admin-certificados` | `admin.certificates.*` | `CertificateController` | Emisión, búsqueda de estudiantes (`/buscar-estudiantes`), descarga de plantilla (`/plantilla`), importación masiva Excel (`/importar`), exportación masiva PDF (`/exportar-pdf`) y borrado masivo (`/eliminar-masivo`, `/eliminar-todos`). |
-| `/admin-itinerarios` | `admin.itineraries.*` | `ItineraryController` | Asignación de itinerarios formativos curriculares. |
-| `/admin-trabajos` | `admin.works.*` | `JobsController` | Empleos, convocatorias internas (`/convocatorias-internas`), scraping automático (`/buscar-automatico`), borrado masivo y vaciado total (`/vaciar-tabla`). |
-| `/admin-usuarios` | `admin.users.*` | `UsersController` | Directorio de usuarios, descarga de plantilla (`/plantilla`), importación masiva Excel (`/importar`), reseteo de contraseñas (`/password`), borrado masivo y modal de conteo (`/conteo-masivo`). |
-| `/admin-docentes-roles`| `admin.teacher-roles.*`| `TeacherRoleController` | Asignación de docentes a carreras, especialidad y coordinación académica. |
-| `/admin-consejo-estudiantil`| `admin.student-council.*`| `StudentCouncilController` | Registro de junta directiva estudiantil por periodos lectivos. |
-| `/admin-enlaces` | `admin.links.*` | `ExternalInstitutionalLinkController` | Enlaces externos de interés gubernamental y académico (Minedu, Sunedu). |
-| `/admin-roles` | `admin.roles.*` | `RoleController` | Administración de roles y permisos Spatie a nivel administrativo. |
-| `/admin-reclamos` | `admin.claims.*` | `ClaimsController` | Seguimiento, resolución y estado de reclamos Indecopi. |
-| `/admin-estadisticas` | `admin.statistics.*` | `StadisticController` | Carga masiva Excel y gestión de registros de matrícula/admisión para gráficos. |
-| `/admin-titulos` | `admin.degree-records.*` | `DegreeRecordsController` | Padrón histórico de egresados titulados con importación Excel. |
-| `/admin-licenciamiento`| `admin.licensing.*` | `LicensingController` | Fases de licenciamiento y designación de etapa vigente (CBC). |
-| `/admin-socios` | `admin.partners.*` | `PartnersController` | Directorio de empresas aliadas y logotipos de convenios laborales. |
-| `/admin-empresa` | `admin.enterprise.*` | `EnterpriseController` | Datos institucionales, RUC, redes, representantes y directivos. |
-| `/admin-matriculas` | `admin.enrollments.*` | `EnrollmentScheduleController` | Fechas límite y requisitos de matrícula ordinaria/extraordinaria. |
-| `/admin-historia` | `admin.history.*` | `HistoricalReviewController` | Hitos históricos y cronología institucional con fotografías. |
-| `/admin-carrusel` | `admin.carousel.*` | `CarouselController` | Banners promocionales de la portada con orden interactivo. |
-| `/admin-inversiones` | `admin.account-balances.*`| `AccountBalanceController` | Carga de balances contables, importación Excel y borrado controlado por periodos/tabla con permiso `can:gestionar-inversiones`. |
-
-### 4.4. Rutas de Autenticación (`routes/auth.php`)
-- `register` / `register.verify-dni` (`throttle:6,1`): Registro público con verificación instantánea de DNI.
-- `login` (`throttle:login`): Autenticación segura con limitador por IP y cuenta.
-- `forgot-password` / `reset-password` (`throttle:5,1`): Flujo de restablecimiento de contraseña.
-- `verify-email` (`signed`, `throttle:6,1`): Validación de dirección electrónica.
-- `password.confirm` / `password.update` / `logout`: Operaciones de sesión activa.
+| # | Controlador | Namespace | Tipo de Respuesta Principal | Responsabilidad Funcional y Métodos Clave |
+|---|---|---|---|---|
+| 1 | `Controller` | `App\Http\Controllers` | Base Abstract | Clase abstracta base de controladores de Laravel 11. |
+| 2 | `AppController` | `App\Http\Controllers` | Inertia / BinaryFile | Portal público institucional: `index`, `whoWeAre`, `history`, `organizationChart`, `hierarchicalStaff`, `teachersStaff`, `administrativeStaff`, `studentCouncil`, `locales`, `studyPrograms`, `program`, `ceprefvc`, `admissionExam`, `enrollments`, `scholarshipsAndCredits`, `documentsManagement`, `statistics`, `managementReports`, `licensment`, `complaintsBook`, `storeClaim`, `partsTable`, `tupa`, `offers`, `institutionalLinks`, `validateCertificate`, `printCertificate`. |
+| 3 | `DashboardController` | `App\Http\Controllers` | Inertia | Tablero administrativo central: `index` (cálculo de KPIs de usuarios, libros, certificados, ofertas y balances). |
+| 4 | `ProfileController` | `App\Http\Controllers` | Inertia / Redirect | Gestión del perfil de usuario autenticado: `edit`, `update`, `destroy`. |
+| 5 | `EnterpriseController` | `App\Http\Controllers` | Inertia / Redirect | Datos institucionales y parámetros de la organización: `edit`, `update`. |
+| 6 | `SitemapController` | `App\Http\Controllers` | XML Response | Generador dinámico en tiempo de ejecución del mapa canónico XML del sitio (`index`). |
+| 7 | `LibraryReaderController` | `App\Http\Controllers` | Inertia / Stream / JSON | Experiencia de lectura en biblioteca virtual: `index`, `search`, `myLibrary`, `read`, `stream`, `toggleFavorite`. |
+| 8 | `JobsController` | `App\Http\Controllers` | Inertia / Redirect | Gestión de bolsa de trabajo y scraping: `index`, `create`, `store`, `edit`, `update`, `destroy`, `toggleStatus`, `internalCalls`, `autoScrape`, `bulkDelete`, `clearAll`. |
+| 9 | `CertificateController` | `App\Http\Controllers` | Inertia / PDF / Excel | Emisión y gestión de certificados: `index`, `store`, `update`, `destroy`, `searchStudents`, `downloadTemplate`, `import`, `bulkExportPdf`, `bulkDelete`, `clearAll`. |
+| 10 | `StudyProgramsController` | `App\Http\Controllers` | Inertia / Redirect | Gestión de carreras profesionales: `index`, `create`, `store`, `edit`, `update`, `destroy`, `uploadImage`, `deleteImage`, `setMainImage`, `toggleStatus`. |
+| 11 | `UsersController` | `App\Http\Controllers` | Inertia / Excel / Redirect | Administración de usuarios: `index`, `create`, `store`, `edit`, `update`, `destroy`, `toggleStatus`, `downloadTemplate`, `import`, `updatePassword`, `bulkDelete`, `countBulkDelete`. |
+| 12 | `AccountBalanceController` | `App\Http\Controllers` | Inertia / Excel / Redirect | Balances contables y reportes de gestión: `index`, `store`, `import`, `destroy`, `truncateYear`, `truncateTable` (protegido con `can:gestionar-inversiones`). |
+| 13 | `AdmissionsController` | `App\Http\Controllers` | Inertia / Redirect | Convocatorias de admisión y CEPRE: `index`, `create`, `store`, `edit`, `update`, `destroy`, `toggleStatus`. |
+| 14 | `TupaController` | `App\Http\Controllers` | Inertia / Redirect | Matriz TUPA, categorías y procedimientos: `index`, `create`, `store`, `edit`, `update`, `destroy`, `toggleStatus`, `categories*`, `procedures*`. |
+| 15 | `DegreeRecordsController` | `App\Http\Controllers` | Inertia / Excel / Redirect | Padrón de grados y títulos: `index`, `create`, `store`, `edit`, `update`, `destroy`, `import`. |
+| 16 | `StadisticController` | `App\Http\Controllers` | Inertia / Excel / Redirect | Registros de estudiantes y estadísticas: `index`, `create`, `store`, `edit`, `update`, `destroy`, `import`. |
+| 17 | `LicensingController` | `App\Http\Controllers` | Inertia / Redirect | Fases y progreso de licenciamiento institucional: `index`, `create`, `store`, `edit`, `update`, `destroy`, `setCurrentPhase`. |
+| 18 | `BlogController` | `App\Http\Controllers` | Inertia / Redirect | Publicación de noticias y blogs: `index`, `create`, `store`, `edit`, `update`, `destroy`, `togglePublish`. |
+| 19 | `ClaimsController` | `App\Http\Controllers` | Inertia / Redirect | Libro de reclamaciones administrativo: `index`, `updateStatus`, `destroy`. |
+| 20 | `CourseController` | `App\Http\Controllers` | Inertia / Redirect | Cursos y talleres formativos: `index`, `store`, `update`, `destroy`, `toggleStatus`. |
+| 21 | `ModuleController` | `App\Http\Controllers` | Inertia / Redirect | Módulos formativos curriculares: `index`, `store`, `update`, `destroy`, `toggleStatus`. |
+| 22 | `ItineraryController` | `App\Http\Controllers` | Inertia / Redirect | Itinerarios formativos: `index`, `store`, `update`, `destroy`, `toggleStatus`. |
+| 23 | `ScholarshipController` | `App\Http\Controllers` | Inertia / Redirect | Programas de becas: `index`, `create`, `store`, `edit`, `update`, `destroy`, `toggleStatus`. |
+| 24 | `ScholarshipBeneficiaryController` | `App\Http\Controllers` | Inertia / Redirect | Nómina de beneficiarios y resoluciones: `store`, `update`, `destroy`. |
+| 25 | `EnrollmentScheduleController` | `App\Http\Controllers` | Inertia / Redirect | Cronogramas de matrícula ordinaria y extraordinaria: `index`, `create`, `store`, `edit`, `update`, `destroy`. |
+| 26 | `TeacherRoleController` | `App\Http\Controllers` | Inertia / Redirect | Asignación de docentes a especialidades: `index`, `store`, `update`, `destroy`. |
+| 27 | `StudentCouncilController` | `App\Http\Controllers` | Inertia / Redirect | Representantes estudiantiles por periodo: `index`, `store`, `update`, `destroy`. |
+| 28 | `PartnersController` | `App\Http\Controllers` | Inertia / Redirect | Directorio de empresas aliadas y convenios: `index`, `create`, `store`, `edit`, `update`, `destroy`, `toggleStatus`. |
+| 29 | `ExternalInstitutionalLinkController` | `App\Http\Controllers` | Inertia / Redirect | Enlaces externos de interés gubernamental: `index`, `create`, `store`, `edit`, `update`, `destroy`, `toggleStatus`. |
+| 30 | `HistoricalReviewController` | `App\Http\Controllers` | Inertia / Redirect | Reseña cronológica institucional: `index`, `create`, `store`, `edit`, `update`, `destroy`, `toggleStatus`. |
+| 31 | `CarouselController` | `App\Http\Controllers` | Inertia / Redirect | Banners promocionales de la portada: `index`, `create`, `store`, `edit`, `update`, `destroy`, `toggleStatus`. |
+| 32 | `AreaController` | `App\Http\Controllers` | Inertia / Redirect | Áreas y departamentos institucionales: `index`, `create`, `store`, `edit`, `update`, `destroy`. |
+| 33 | `RoleController` | `App\Http\Controllers` | Inertia / Redirect | Administración de roles y permisos Spatie: `index`, `create`, `store`, `edit`, `update`, `destroy`. |
+| 34 | `ManagementDocumentController` | `App\Http\Controllers` | Inertia / BinaryFile | Documentos normativos y reglamento interno: `index`, `create`, `store`, `edit`, `update`, `destroy`, `regulations`. |
+| 35 | `Admin\LibraryController` | `App\Http\Controllers\Admin` | Inertia / JSON / Redirect | Repositorio central de biblioteca: `index`, `create`, `store`, `edit`, `update`, `destroy`, `fetchAcademicResources`, `administrators`, `readers`, `reports`, `assignedBooks`. |
+| 36 | `Auth\AuthenticatedSessionController` | `App\Http\Controllers\Auth` | Inertia / Redirect | Autenticación de usuarios con rate limiting (`create`, `store`, `destroy`). |
+| 37 | `Auth\ConfirmablePasswordController` | `App\Http\Controllers\Auth` | Inertia / Redirect | Confirmación de clave para operaciones sensibles (`show`, `store`). |
+| 38 | `Auth\EmailVerificationNotificationController` | `App\Http\Controllers\Auth` | Redirect | Reenvío de enlace de verificación por correo (`store`). |
+| 39 | `Auth\EmailVerificationPromptController` | `App\Http\Controllers\Auth` | Inertia / Redirect | Aviso de verificación de correo electrónico requerida (`__invoke`). |
+| 40 | `Auth\NewPasswordController` | `App\Http\Controllers\Auth` | Inertia / Redirect | Registro de nueva contraseña tras reset por token (`create`, `store`). |
+| 41 | `Auth\PasswordController` | `App\Http\Controllers\Auth` | Redirect | Actualización de contraseña por usuario autenticado (`update`). |
+| 42 | `Auth\PasswordResetLinkController` | `App\Http\Controllers\Auth` | Inertia / Redirect | Envío de token de recuperación de contraseña (`create`, `store`). |
+| 43 | `Auth\RegisteredUserController` | `App\Http\Controllers\Auth` | Inertia / JSON / Redirect | Registro público de lectores con verificación de DNI (`create`, `store`, `verifyDni`). |
+| 44 | `Auth\VerifyEmailController` | `App\Http\Controllers\Auth` | Redirect | Verificación de firma criptográfica de correo (`__invoke`). |
 
 ---
 
-## 5. Especificación de Subsistemas Críticos
+## 5. Servicios Especializados de Dominio (`app/Services/`)
 
 ### 5.1. Motor de Certificación Digital Soberana y Código QR Autónomo (`QrCodeService`)
-- **Problema Abordado:** Las dependencias de servicios externos (APIs de Google Charts, servicios SaaS) exponen datos personales de estudiantes y colapsan si el servidor no tiene salida a internet o experimenta latencias de red.
-- **Implementación Arquitectural:**
-  - El servicio `App\Services\QrCodeService` implementa el estándar ISO/IEC 18004 en PHP puro mediante matrices de Galois GF(256) y corrección de errores Reed-Solomon (Nivel M: 15% de recuperación).
-  - Emite códigos vectoriales **SVG puros** o mapas de bits **PNG nativos** incrustando la URL canónica de verificación:
+- **Problema de Arquitectura Resuelto:** Las soluciones tradicionales que dependen de APIs externas (Google Chart API, servicios SaaS en la nube) fallan si la infraestructura pierde conexión a internet y vulneran la privacidad de los datos personales de estudiantes y graduados.
+- **Implementación Técnica:**
+  - El servicio `App\Services\QrCodeService` implementa el estándar oficial **ISO/IEC 18004** en PHP 8.3 puro.
+  - Utiliza aritmética de matrices en el campo finito de Galois **GF(256)** y corrección de errores polinómica **Reed-Solomon** (Nivel M: 15% de capacidad de restauración).
+  - Genera códigos vectoriales **SVG puros** y mapas de bits **PNG nativos en Data URIs Base64** incrustando la URL canónica de validación:
     `https://iestpfranciscovigocaballero.edu.pe/validar-certificado?code={CODIGO_UNICO}`
-- **Dualidad de Formatos de Certificados:**
-  - **Certificados de Capacitación:** Emitidos para talleres, seminarios y cursos libres. Incorporan `participation_type` (ASISTENTE, PONENTE, etc.), `event_name` (evento u ocasión) y temario desagregado (`topic_name`) sin requerir notas.
-  - **Certificados Modulares:** Emitidos para itinerarios formativos oficiales. Incorporan notas vigesimales por módulo aprobado, desglose de horas, créditos y firmas digitales.
+- **Dualidad de Formatos Oficiales:**
+  - **Certificados de Capacitación:** Emitidos para talleres, eventos y cursos libres. Incorporan `participation_type` (`ASISTENTE`, `PONENTE`, `ORGANIZADOR`), `event_name` (ocasión o evento) y temario desagregado (`topic_name`) sin requerir notas.
+  - **Certificados Modulares:** Emitidos para itinerarios formativos oficiales. Incorporan notas vigesimales (00-20) por módulo aprobado, desglose de horas académicas, créditos y firmas institucionales.
 - **Identificador Único (`code`):** Código alfanumérico estandarizado generado de forma única, indexado y validado en base de datos.
-- **Exportación Masiva a PDF:** Implementada en `CertificateController@bulkExportPdf`, compilando múltiples certificados seleccionados en una sola tirada imprimible con marcas de agua, logos institucionales y códigos QR.
 
 ### 5.2. Motor de Búsqueda Académica Multifuente y Streaming de PDFs (`AcademicLibraryService`)
-- **Integración Multifuente (10 Repositorios Abiertos):**
-  - **SciELO & Redalyc:** Publicaciones científicas iberoamericanas revisadas por pares.
+- **Integración Multifuente (10 Repositorios Científicos Mundiales):**
+  - **SciELO & Redalyc:** Publicaciones científicas iberoamericanas de acceso abierto revisadas por pares.
   - **Europe PMC:** Artículos biomédicos y de salud clínica con resolución algorítmica de PMC IDs a PDFs directos (`https://europepmc.org/backend/ptpmcrender.fcgi?accid={PMC_ID}&blobtype=pdf`).
   - **Open Library & Internet Archive:** Libros digitalizados completos con enlace de descarga directa en PDF (`https://archive.org/download/{id}/{id}.pdf`).
   - **DOAJ (Directory of Open Access Journals):** Revistas arbitradas de acceso libre y texto completo.
   - **Crossref REST API & OpenAlex API:** Indexación por DOI, metadatos, citas académicas y tópicos.
   - **Semantic Scholar & Google Scholar:** Búsqueda académica avanzada y extracción semántica.
-- **Resolución Inteligente y Fallback Multi-Nivel de DOIs:**
+- **Cascada de Resolución Inteligente de DOIs:**
   - Si un recurso cuenta con DOI, el servicio ejecuta una cascada de resolución Open Access:
     `Unpaywall API → Crossref Works REST API → OpenAlex API`.
 - **Sanitización de Consultas:** Función `sanitizeSearchTerm` que depura caracteres especiales reservados de la sintaxis Lucene (`[`, `]`, `{`, `}`, `^`, `~`, `*`, `:`, `\`, `/`).
@@ -380,213 +351,316 @@ La aplicación cuenta con **318 rutas registradas** que abarcan navegación púb
   - Neutraliza restricciones de CORS de servidores remotos sin descargar el archivo físicamente al disco local ni saturar la memoria RAM.
   - Entrega cabeceras `Content-Type: application/pdf` y `Content-Disposition: inline`.
 
-### 5.3. Motor de Intermediación Laboral y Web Scraping Heurístico (`JobsController` / `ScrapeJobBoard`)
-- **Mapeo Heurístico por Programa de Estudios:**
-  - *Redes y TI:* "tecnico redes comunicaciones", "soporte tecnico", "administrador redes", "tecnico informatico".
-  - *Asistencia Administrativa:* "asistente administrativo", "auxiliar administrativo", "secretaria asistente".
-  - *Enfermería Técnica:* "tecnico enfermeria", "auxiliar enfermeria", "enfermero tecnico".
-  - *Manejo Forestal:* "tecnico forestal", "manejo forestal", "recursos naturales".
-  - *Producción Agropecuaria:* "tecnico agropecuario", "produccion agricola", "tecnico pecuario".
-- **Filtro Geográfico Peruano:** Validación obligatoria contra las 24 regiones del Perú y ciudades principales, con exclusión terminológica de países del extranjero (Colombia, México, Chile, Argentina, etc.).
-- **Comando Artisan:** `php artisan scrape:jobs {source_url} {source_name}` utilizando `Symfony\Component\DomCrawler\Crawler`.
+---
 
-### 5.4. Motor de Admisión con Proyección Dinámica de Ciclos
-- **Cálculo Predictivo:**
-  - `AppController@ceprefvc` y `AppController@admissionExam` proyectan dinámicamente el siguiente ciclo lectivo:
-    ```php
-    $projectedYear = now()->year + 1;
-    $projectedPeriod = $projectedYear . '-I';
-    ```
-- **Deducción Automática de Vacantes CEPRE:** Las vacantes cubiertas por el ciclo CEPRE se descuentan automáticamente del cupo total de admisión ordinaria.
+## 6. Pipeline HTTP, Middleware y Manejo Global de Excepciones
 
-### 5.5. Arquitectura SEO e Indexación para Google Search Console
-- **`robots.txt` / `robot.txt`:** Reglas en `public/robots.txt` y redirección en `routes/web.php` que protegen rutas de administración y autenticación mientras exponen recursos públicos y assets.
-- **`sitemap.xml` Canónico:** Generado en `public/sitemap.xml` con 23 rutas públicas oficiales, prioridades y frecuencias W3C mediante `php artisan sitemap:generate`.
-- **Verificación Google:** Metaetiqueta oficial en el layout maestro:
-  ```html
-  <meta name="google-site-verification" content="n-kFDeVvGTkr1sar6qNZRP1l5kFEqJzI-4PDgCCTC2s" />
-  ```
+### 6.1. Pipeline Web (`bootstrap/app.php`)
+1. **`App\Http\Middleware\HandleInertiaRequests`:**
+   - Define `inertia-app` como vista raíz de montaje.
+   - Distribuye props globales a toda la SPA:
+     - `enterprise`: Datos institucionales cargados en caché.
+     - `headerPrograms`: Listado activo de los 5 programas de estudio para el menú de navegación.
+     - `auth.user`: Objeto del usuario autenticado con DNI, nombres, email, rol, avatar y flag `is_student`.
+     - `flash.success` / `flash.error`: Mensajes de notificación de sesión.
+2. **`App\Http\Middleware\CountWebsiteVisits`:**
+   - Contabiliza visitas reales agrupadas por IP y fecha en la tabla `visitor_counters`.
+   - Ignora automáticamente peticiones AJAX, prefetchings de Inertia, endpoints API, consola, debugbar y todas las rutas administrativas `/admin*`.
 
-### 5.6. Capa de Validación Estricta (42 Form Requests)
-El sistema encapsula la validación de entrada mediante 42 clases `FormRequest` en `app/Http/Requests`:
-- **Usuarios y Seguridad:** `UserValidate`, `UserImportRequest`, `LoginValidate`, `RegisterValidate`, `PasswordValidate`, `ProfileUpdateRequest`.
-- **Certificación:** `CertificateRequest`, `CertificateDetailRequest`, `CertificateImportRequest`, `CourseRequest`, `ModuleRequest`, `ItineraryRequest`.
-- **Biblioteca:** `BookRequest`.
+### 6.2. Alias de Middleware Registrados
+- `role` ➔ `Spatie\Permission\Middleware\RoleMiddleware`
+- `permission` ➔ `Spatie\Permission\Middleware\PermissionMiddleware`
+- `role_or_permission` ➔ `Spatie\Permission\Middleware\RoleOrPermissionMiddleware`
+
+### 6.3. Políticas de Rate Limiting (Limitación de Tasa)
+- `throttle:login`: 5 intentos por minuto por combinación de email e IP con bloqueo temporal progresivo.
+- `throttle:6,1`: Máximo 6 peticiones por minuto en registro público de usuarios y verificación censal de DNI.
+- `throttle:5,1`: Máximo 5 peticiones por minuto en el Libro de Reclamaciones y en las solicitudes de restablecimiento de contraseña.
+
+### 6.4. Manejo Global de Excepciones SPA
+Configurado declarativamente en `bootstrap/app.php`:
+- Intercepta los códigos de estado HTTP **400, 401, 402, 403, 404, 419, 429, 500 y 503**.
+- En lugar de devolver pantallas planas HTML o páginas en blanco, fija la vista raíz en `inertia-app` y renderiza el componente reactivo `resources/js/Pages/Error.vue` con el código de error y mensaje amigable de recuperación.
+
+---
+
+## 7. Catálogo Completo de Rutas y Endpoints (319 Rutas)
+
+El enrutamiento está centralizado en `routes/web.php` y `routes/auth.php`. A continuación se detallan los bloques estructurales:
+
+### 7.1. Portal Público Institucional (Canónicas)
+- `GET /` (`inicio`): Portada institucional, hero carousel, accesos rápidos y estadísticas.
+- `GET /nosotros/quienes-somos` (`quienes-somos`): Misión, visión, principios y reseña.
+- `GET /nosotros/historia` (`historia`): Cronología e hitos históricos del instituto.
+- `GET /nosotros/organigrama-institucional` (`organigrama-institucional`): Estructura funcional.
+- `GET /nosotros/plana-jerarquica` (`plana-jerarquica`): Dirección y jefaturas.
+- `GET /nosotros/plana-de-docentes` (`plana-de-docentes`): Docentes clasificados por carrera.
+- `GET /nosotros/plana-administrativa` (`plana-administrativa`): Personal administrativo.
+- `GET /nosotros/consejo-de-estudiantes` (`consejo-de-estudiantes`): Junta directiva estudiantil.
+- `GET /nosotros/locales` (`locales`): Sedes, talleres, campos de práctica y laboratorios.
+- `GET /programas-de-estudios` (`programas-de-estudio`): Catálogo general de carreras.
+- `GET /programas-de-estudios/{program:slug}` (`programas-de-estudio.detalle`): Malla, competencias, campo laboral y fotos.
+- `GET /admision-y-matricula/cepre-fvc` (`cepre-fvc`): Convocatoria CEPRE, vacantes y costos.
+- `GET /admision-y-matricula/examen-de-admision` (`examen-de-admision`): Examen ordinario y extraordinario.
+- `GET /admision-y-matricula/matriculas` (`matriculas`): Cronograma de matrícula ordinaria y extraordinaria.
+- `GET /admision-y-matriculas/becas-y-creditos` (`becas-y-creditos`): Programas de becas y beneficiarios.
+- `GET /transparencia/documentos-de-gestion` (`documentos-de-gestion`): Documentos oficiales normativos.
+- `GET /transparencia/estadisticas` (`estadisticas`): Métricas de matrícula y admisión por género.
+- `GET /transparencia/inversion-y-gestion` (`inversion-y-gestion`): Balances financieros mensuales.
+- `GET /transparencia/licenciamiento` (`licenciamiento`): Progreso de Condiciones Básicas de Calidad (CBC).
+- `GET /transparencia/libro-de-reclamaciones` (`libro-de-reclamaciones`): Libro de reclamaciones virtual.
+- `POST /transparencia/libro-de-reclamaciones` (`libro-de-reclamaciones.store`): Registro de reclamo (`throttle:5,1`).
+- `GET /tramites/mesa-de-partes` (`mesa-de-partes`): Guía de recepción de expedientes y horarios.
+- `GET /tramites/tupa` (`tupa`): Catálogo interactivo de procedimientos y aranceles.
+- `GET /servicios/bolsa-de-trabajo` (`bolsa-de-trabajo`): Ofertas de empleo y postulación.
+- `GET /servicios/enlaces-institucionales` (`enlaces-institucionales`): Enlaces gubernamentales oficiales.
+- `GET /validar-certificado/{certificate_code?}` (`validar-certificado`): Validación pública QR/DNI.
+- `GET /validar-certificado/{certificate_code}/imprimir` (`validar-certificado.print`): Hoja membretada oficial.
+- `GET /sitemap.xml` (`sitemap`): Entrega del sitemap canónico indexable.
+- `GET /storage/{path}` (`storage.fallback`): Servidor protegido de archivos multimedia.
+- *Redirecciones Canónicas:* `/study-programs`, `/becas-y-creditos`, `/robot.txt`, `/verificar-certificado`, `/verify-certificate`.
+
+### 7.2. Portal de Biblioteca Virtual (`auth`)
+- `GET /biblioteca` (`biblioteca.index`): Portada con libros y revistas destacadas.
+- `GET /biblioteca/buscar` (`biblioteca.search`): Búsqueda facetada por palabras clave, DOI y filtros de carrera.
+- `GET /biblioteca/mi-biblioteca` (`biblioteca.favorites`): Estante de libros favoritos del estudiante.
+- `GET /biblioteca/leer/{book:slug}` (`biblioteca.read`): Visor inmersivo de lectura dentro del navegador.
+- `GET /biblioteca/stream/{book:slug}` (`biblioteca.stream`): Transmisión segura por bloques de PDF sin CORS.
+- `POST /biblioteca/favorito/{book}` (`biblioteca.favorite.toggle`): Alternar inclusión en favoritos.
+
+### 7.3. Flujo de Autenticación (`routes/auth.php`)
+- `GET|POST /register`: Registro de nuevos usuarios lectores.
+- `GET|POST /register/verify-dni` (`throttle:6,1`): Verificación instantánea censal de DNI.
+- `GET|POST /login` (`throttle:login`): Autenticación con limitador estricto.
+- `POST /logout`: Cierre seguro de sesión.
+- `GET|POST /forgot-password` (`throttle:5,1`): Solicitud de restablecimiento de contraseña.
+- `GET|POST /reset-password` (`throttle:5,1`): Confirmación de cambio de contraseña por token.
+- `GET|POST /confirm-password`: Confirmación de contraseña para operaciones administrativas.
+- `GET|POST /verify-email`: Notificación y verificación de correo electrónico.
+- `PUT /password`: Actualización de contraseña autenticada.
+
+### 7.4. Panel de Gestión Administrativa (`/admin-*`)
+Más de 270 rutas operativas protegidas con autenticación y permisos Spatie:
+- **Tablero y Perfil:** `/admin-dashboard`, `/admin-perfil`.
+- **Contenido y Difusión:** `/admin-blogs` (CRUD, publicación), `/admin-carrusel` (CRUD, orden), `/admin-historia` (CRUD, años), `/admin-socios` (CRUD, logos), `/admin-enlaces` (CRUD, categorías).
+- **Gestión Académica:** `/admin-programas` (CRUD, competencias, campo laboral, metadatos UI, carrusel, imagen principal), `/admin-cursos` (CRUD, tipo de certificación), `/admin-modulos` (CRUD, horas, créditos), `/admin-itinerarios` (CRUD), `/admin-docentes-roles` (asignación docente y coordinación).
+- **Estudiantes y Matrícula:** `/admin-exams` (CRUD admisión y CEPRE), `/admin-matriculas` (cronogramas y requisitos), `/admin-scholarships` (becas y beneficiarios), `/admin-consejo-estudiantil` (junta directiva).
+- **Certificación Digital:** `/admin-certificados` (búsqueda de alumnos, calificación modular, exportación masiva PDF, borrado masivo, vaciado e importación Excel).
+- **Biblioteca Admin:** `/admin-biblioteca` (repositorio, libros asignados, monitoreo de lectores, reportes de uso, sincronización e importación masiva académica `/importar-academicos`).
+- **Transparencia y Normatividad:** `/admin-inversiones` (balances contables, importación Excel, truncate de tabla/año), `/admin-estadisticas` (alumnos matriculados e ingresantes para gráficos), `/admin-titulos` (padrón oficial de graduados y titulados), `/admin-licenciamiento` (fases CBC y fase vigente), `/admin-reclamos` (atención Indecopi), `/admin-documentos` (PEI, PAT, PCI, RI), `/admin-reglamento-interno` (visor de reglamento).
+- **Trámites y TUPA:** `/admin-tupa` (matriz, `/categorias` y `/procedimientos` con cálculo en S/. y % UIT).
+- **Bolsa de Trabajo:** `/admin-trabajos` (ofertas, convocatorias internas, scraping automático, borrado masivo y vaciado total).
+- **Seguridad y Control:** `/admin-usuarios` (CRUD, importación masiva Excel, reseteo de claves, borrado masivo, conteo de bajas), `/admin-roles` (roles y permisos Spatie), `/admin-areas` (departamentos), `/admin-empresa` (ficha institucional).
+
+---
+
+## 8. Arquitectura Frontend, Páginas Vue SPA y Plantillas Blade
+
+### 8.1. Páginas Vue SPA (`resources/js/Pages/` — 116 Componentes)
+
+#### A. Portal Público e Institucional (18 Componentes)
+- `Home.vue`: Portada principal, hero carousel, accesos rápidos y estadísticas.
+- `Error.vue`: Componente maestro de gestión de errores HTTP (400, 401, 403, 404, 419, 429, 500, 503).
+- `Errors/Index.vue`: Panel de errores alternativo.
+- `AboutUs/WhoWeAre.vue`: Misión, visión, valores y reseña institucional.
+- `AboutUs/History.vue`: Línea de tiempo y reseña cronológica.
+- `AboutUs/OrganizationChart.vue`: Estructura orgánica jerárquica.
+- `AboutUs/HierarchicalStaff.vue`: Plana directiva y jefaturas.
+- `AboutUs/TeachersStaff.vue`: Plana docente por carreras y formación general.
+- `AboutUs/AdministrativeStaff.vue`: Personal de soporte administrativo.
+- `AboutUs/StudentCouncil.vue`: Representantes de la junta directiva estudiantil.
+- `AboutUs/Locals.vue`: Sedes, talleres, campos de práctica y laboratorios.
+- `StudyPrograms/Index.vue`: Directorio general de los 5 programas de estudio.
+- `StudyPrograms/Show.vue`: Detalle de carrera con carrusel multimedia, competencias y campo laboral.
+- `Admission/CepreFvc.vue`: Vacantes, costos y cronograma del ciclo CEPRE.
+- `Admission/AdmissionExam.vue`: Convocatoria ordinaria/extraordinaria y deducción de vacantes.
+- `Admission/Enrollments.vue`: Cronogramas de matrícula ordinaria y extraordinaria.
+- `Admission/ScholarshipsAndCredits.vue`: Catálogo de becas y beneficiarios.
+- `Certificates/PrintCertificate.vue`: Visor web de certificado digital para impresión.
+
+#### B. Transparencia, Trámites y Servicios (9 Componentes)
+- `Transparency/ManagementDocuments.vue`: Repositorio de documentos de gestión pública.
+- `Transparency/Statistics.vue`: Cuadros estadísticos consolidados de matrícula y admisión.
+- `Transparency/InvestmentAndManagement.vue`: Balances contables y ejecución presupuestal.
+- `Transparency/Licensment.vue`: Progreso de las Condiciones Básicas de Calidad (CBC).
+- `Transparency/ComplaintsBook.vue`: Formulario virtual de Libro de Reclamaciones Indecopi.
+- `Procedures/PartsTable.vue`: Mesa de partes virtual y guía de expedientes.
+- `Procedures/Tupa.vue`: Catálogo interactivo de procedimientos y aranceles TUPA.
+- `Services/JobBoard.vue`: Portal de convocatorias laborales con filtros de especialidad.
+- `Services/InstitutionalLinks.vue`: Accesos rápidos a portales del Estado (Minedu, Sunedu).
+- `Services/ValidateCertificate.vue`: Portal de validación pública de certificados por código o DNI.
+
+#### C. Biblioteca Virtual (5 Componentes)
+- `Library/Home.vue`: Portada de la biblioteca virtual con libros y revistas destacadas.
+- `Library/Search.vue`: Búsqueda facetada por palabras clave, DOI y filtros de carrera.
+- `Library/Favorites.vue`: Estante de libros favoritos del usuario.
+- `Library/Reader.vue`: Visor inmersivo de lectura dentro del navegador con soporte multi-fuente.
+- `Library/Layout.vue`: Sub-layout de navegación interna de la biblioteca virtual.
+
+#### D. Autenticación (2 Componentes)
+- `Auth/Login.vue`: Formulario de inicio de sesión reactivo con limitación de intentos.
+- `Auth/Register.vue`: Formulario de registro público de lectores con verificación de DNI.
+
+#### E. Módulo de Administración (`resources/js/Pages/Admin/` — 76 Componentes)
+- `Dashboard.vue`: Panel central de control con métricas consolidadas.
+- `Profile/Edit.vue`: Edición de datos de usuario, contraseña y foto de perfil.
+- `Enterprise/Edit.vue`: Configuración de razón social, logotipos y redes institucionales.
+- `AccountBalances/Index.vue`: Balances contables, importación Excel y reseteo de ejercicios.
+- `Admission/Index.vue`, `Create.vue`, `Edit.vue`: Convocatorias de admisión y CEPRE.
+- `Areas/Index.vue`, `Create.vue`, `Edit.vue`: Áreas funcionales y departamentos.
+- `Blogs/Index.vue`, `Create.vue`, `Edit.vue`: Noticias, comunicados y publicación.
+- `Carousel/Index.vue`, `Create.vue`, `Edit.vue`: Banners publicitarios de la portada.
+- `Certificates/Index.vue`: Emisión, calificación modular, exportación masiva PDF y borrado.
+- `Claims/Index.vue`: Seguimiento y atención de hojas de reclamación.
+- `Courses/Index.vue`: Cursos y talleres formativos.
+- `DegreeRecords/Index.vue`, `Create.vue`, `Edit.vue`: Padrón histórico de egresados titulados.
+- `Documents/Index.vue`, `Create.vue`, `Edit.vue`: Documentos normativos de gestión institucional.
+- `EnrollmentSchedules/Index.vue`, `Create.vue`, `Edit.vue`: Cronogramas y requisitos de matrícula.
+- `History/Index.vue`, `Create.vue`, `Edit.vue`: Hitos cronológicos con fotografías.
+- `Itineraries/Index.vue`: Asignación de itinerarios formativos curriculares.
+- `Jobs/Index.vue`, `Create.vue`, `Edit.vue`: Bolsa de trabajo, convocatorias y scraping.
+- `Library/Repository.vue`, `AssignedBooks.vue`, `Readers.vue`, `Reports.vue`, `Administrators.vue`, `Layout.vue`: Repositorio digital, monitoreo e importación académica masiva.
+- `Licensing/Index.vue`, `Create.vue`, `Edit.vue`: Fases de licenciamiento CBC.
+- `Links/Index.vue`, `Create.vue`, `Edit.vue`: Enlaces institucionales externos.
+- `Modules/Index.vue`: Módulos formativos, horas y créditos.
+- `Partners/Index.vue`, `Create.vue`, `Edit.vue`: Empresas aliadas y convenios vigentes.
+- `Programs/Index.vue`, `Create.vue`, `Edit.vue`: Gestión de carreras técnicas.
+  - `Programs/Competencies/Create.vue`, `Edit.vue`: Competencias técnicas.
+  - `Programs/JobFields/Create.vue`, `Edit.vue`: Campo laboral y perfil ocupacional.
+  - `Programs/Meta/Create.vue`, `Edit.vue`: Metadatos visuales, colores y banners.
+  - `Programs/Modules/Create.vue`, `Edit.vue`: Módulos curriculares asignados.
+  - `Programs/Requirements/Create.vue`, `Edit.vue`: Requisitos de ingreso específicos.
+- `Roles/Index.vue`, `Create.vue`, `Edit.vue`: Gestión de roles y permisos Spatie.
+- `Scholarships/Index.vue`, `Create.vue`, `Edit.vue`: Becas estudiantiles y resoluciones.
+- `Statistics/Index.vue`, `Create.vue`, `Edit.vue`: Estadísticas históricas de admisión y matrícula.
+- `StudentCouncil/Index.vue`: Junta directiva del consejo estudiantil.
+- `TeacherRoles/Index.vue`: Asignación de especialidades a docentes.
+- `Tupa/Index.vue`, `Create.vue`, `Edit.vue`: Matriz TUPA institucional.
+- `Users/Index.vue`, `Create.vue`, `Edit.vue`: Directorio de usuarios, importación Excel y reseteo de claves.
+
+### 8.2. Layouts Vue (`resources/js/Layouts/` — 2 Componentes)
+1. **`PublicLayout.vue`:**
+   - Barra superior institucional con accesos rápidos, teléfono, correo y redes sociales.
+   - Navegación principal con menú desplegable e interactivo para Nosotros, Programas de Estudio, Admisión, Transparencia, Trámites y Servicios.
+   - Mega-menú dinámico alimentado por el prop global `headerPrograms`.
+   - Menú de perfil de usuario autenticado con avatar y enlace a biblioteca/panel de control.
+   - Pie de página institucional estructurado con datos del RUC, ubicación, enlaces normativos y créditos.
+2. **`AdminLayout.vue`:**
+   - Menú lateral (*Sidebar*) colapsable con clasificación temática por grupos operativos (Académico, Estudiantes, Contenido, Transparencia, Gestión, Seguridad).
+   - Control contextual de visibilidad de ítems basado en la matriz de permisos Spatie (`$page.props.auth.user`).
+   - Barra superior con botón de alternancia móvil, atajos directos al portal público y menú de cierre de sesión.
+
+### 8.3. Plantillas Blade Remanentes (`resources/views/` — 17 Archivos Esenciales)
+
+| Archivo Blade | Justificación de Retención Arquitectural |
+|---|---|
+| `resources/views/inertia-app.blade.php` | **Vista raíz de montaje obligatoria:** Punto de entrada para Inertia.js, directivas `@inertiaHead`, `@inertia` y carga de bundles compilados de Vite. |
+| `resources/views/library/external-fallback.blade.php` | **Vista de contingencia institucional en iframe:** Se despliega cuando un repositorio científico externo (Europe PMC, SciELO, PubMed) rechaza la conexión embebida por cabeceras `X-Frame-Options: SAMEORIGIN`. Proporciona botón de apertura segura en nueva pestaña, visor de metadatos y aviso amigable. |
+| `resources/views/admin/certificates/print.blade.php` | **Maqueta de impresión individual de alta resolución:** Estilos CSS `@page` y `@media print` milimétricamente calibrados para generar el diploma en PDF con código QR y firmas. |
+| `resources/views/admin/certificates/bulk-print.blade.php` | **Maqueta de exportación masiva:** Compilador continuo en PDF para imprimir múltiples diplomas de estudiantes en una sola corrida sin cortes de página. |
+| `resources/views/admin/certificates/student-index.blade.php` | Portal específico de consulta y descarga de certificados para el rol estudiante. |
+| `resources/views/admin/documents/student-regulations.blade.php` | Visor institucional del Reglamento Interno para consulta directa del estudiante. |
+| `resources/views/admin/tupa/categories/create.blade.php`, `edit.blade.php` | Formularios auxiliares tradicionales de soporte para categorías TUPA. |
+| `resources/views/admin/tupa/procedures/create.blade.php`, `edit.blade.php` | Formularios auxiliares tradicionales de soporte para procedimientos TUPA. |
+| `resources/views/layouts/app.blade.php` | Layout maestro tradicional de soporte para maquetas de impresión y descargas. |
+| `resources/views/admin/components/nav-header.blade.php`, `aside.blade.php` | Componentes parciales de soporte para las vistas tradicionales remanentes. |
+| `resources/views/auth/forgot-password.blade.php`, `reset-password.blade.php`, `confirm-password.blade.php`, `verify-email.blade.php` | Vistas tradicionales de soporte para flujos auxiliares de notificación y restablecimiento de contraseña vía email. |
+
+---
+
+## 9. Comandos de Consola, Validadores (FormRequests) y Procesamiento Masivo (ETL)
+
+### 9.1. Comandos de Consola Artisan (`app/Console/Commands/`)
+1. **`scrape:jobs` (`App\Console\Commands\ScrapeJobBoard`):**
+   - Extrae automáticamente convocatorias laborales desde bolsas de trabajo públicas utilizando `Symfony\Component\DomCrawler\Crawler`.
+   - Aplica filtros heurísticos clasificados por los 5 programas de estudio y garantiza coincidencia geográfica estricta con las 24 regiones del Perú.
+2. **`sitemap:generate` (`App\Console\Commands\GenerateSitemap`):**
+   - Recorre las 28 rutas públicas oficiales canónicas y genera físicamente el archivo `public/sitemap.xml` con estándares de fecha W3C, frecuencias y prioridades de rastreo para Google Search Console.
+
+### 9.2. Capa de Validación Estricta (42 FormRequests)
+Ubicadas en `app/Http/Requests/`, garantizan la integridad de los datos antes de alcanzar los controladores:
+- **Seguridad y Usuarios:** `LoginRequest`, `LoginValidate`, `RegisterValidate`, `PasswordValidate`, `ProfileUpdateRequest`, `UserValidate`, `UserImportRequest`.
+- **Certificación y Cursos:** `CertificateRequest`, `CertificateDetailRequest`, `CertificateImportRequest`, `CourseRequest`, `ModuleRequest`, `ItineraryRequest`.
+- **Biblioteca Virtual:** `BookRequest`.
 - **Admisión y Matrícula:** `AdmissionRequest`, `EnrollmentScheduleRequest`, `ScholarshipRequest`, `ScholarshipBeneficiaryRequest`.
-- **Transparencia y Finanzas:** `AccountBalanceImportRequest`, `ClaimValidate`, `DegreeRecordImportRequest`, `StudentRecordRequest`, `StudentRecordImportRequest`, `LicensingPhaseRequest`, `ManagementDocumentRequest`.
-- **Programas de Estudio y UI:** `StudyProgramValidate`, `ProgramCompetencyRequest`, `ProgramJobFieldRequest`, `ProgramMetaRequest`, `ProgramRequirementRequest`, `ModularCertificationRequest`.
+- **Transparencia y Gestión Pública:** `AccountBalanceImportRequest`, `ClaimValidate`, `DegreeRecordImportRequest`, `StudentRecordRequest`, `StudentRecordImportRequest`, `LicensingPhaseRequest`, `ManagementDocumentRequest`.
+- **Programas de Estudio:** `StudyProgramValidate`, `ProgramCompetencyRequest`, `ProgramJobFieldRequest`, `ProgramMetaRequest`, `ProgramRequirementRequest`, `ModularCertificationRequest`.
 - **TUPA y Procedimientos:** `TupaRequest`, `TupaCategoryRequest`, `TupaProcedureRequest`.
 - **Institucional:** `EnterpriseValidate`, `AreaRequest`, `BlogValidate`, `InstitutionalCarouselRequest`, `HistoricalReviewRequest`, `PartnerValidate`, `ExternalInstitutionalLinkValidate`, `JobValidate`, `StudentCouncilRequest`.
 
-### 5.7. Motor de Importación y Exportación Masiva en Hojas de Cálculo
-Basado en `maatwebsite/excel`:
-- **5 Imports:** `AccountBalanceImport`, `CertificateImport`, `DegreeRecordImport`, `StudentRecordImport`, `UserImport`.
-- **6 Exports:** `CertificateDataSheetExport`, `CertificateInstructionsSheetExport`, `CertificateTemplateExport`, `UserDataSheetExport`, `UserInstructionsSheetExport`, `UserTemplateExport`.
-
-### 5.8. Middleware Institucional y Gestión de Tráfico
-- **`CountWebsiteVisits`:** Middleware registrado en el pipeline `web` que contabiliza visitas por IP y fecha, ignorando llamadas asíncronas y rutas administrativas.
-- **Políticas de Limitación de Tasa (Rate Limiting):**
-  - `throttle:login`: 5 intentos por minuto por usuario/IP con bloqueo temporal progresivo.
-  - `throttle:6,1`: Registro de nuevos usuarios y envío de notificaciones de correo.
-  - `throttle:5,1`: Registro de reclamos virtuales y solicitudes de recuperación de contraseña.
-
----
-
-## 6. Arquitectura de Controladores y Métodos
-
-El sistema organiza su lógica en **44 Controladores** (33 Feature Controllers, 1 Base Controller, 1 Admin Controller y 9 Auth Controllers):
-
-| Controlador | Namespace | Responsabilidad Primaria |
-| :--- | :--- | :--- |
-| `Controller` | `App\Http\Controllers` | Clase base abstracta de controladores de Laravel 11. |
-| `AppController` | `App\Http\Controllers` | Despacho de las 27 acciones del portal público (carreras, admisión, transparencia, validación QR, impresión). |
-| `SitemapController` | `App\Http\Controllers` | Construcción de XML estándar para Google Search Console y despacho dinámico. |
-| `LibraryReaderController`| `App\Http\Controllers` | Experiencia de lectura en biblioteca virtual, visor inmersivo, favoritos y streaming protegido. |
-| `JobsController` | `App\Http\Controllers` | Bolsa de trabajo, convocatorias internas, scraping heurístico y vaciado masivo. |
-| `CertificateController` | `App\Http\Controllers` | Emisión, búsqueda de estudiantes, descarga de plantilla, importación Excel y exportación masiva PDF. |
-| `StudyProgramsController`| `App\Http\Controllers`| Administración de carreras, certificaciones modulares, competencias, carrusel multimedia e imágenes. |
-| `UsersController` | `App\Http\Controllers` | Directorio de usuarios, importación masiva Excel, reseteo de contraseñas y borrado masivo. |
-| `AccountBalanceController`| `App\Http\Controllers`| Balances contables, reportes de inversión y reseteo/truncate con permiso `can:gestionar-inversiones`. |
-| `AdmissionsController` | `App\Http\Controllers` | Convocatorias de admisión ordinaria, extraordinaria y CEPRE FVC. |
-| `TupaController` | `App\Http\Controllers` | Documento matriz TUPA, categorías temáticas y procedimientos con cálculo de costos. |
-| `DegreeRecordsController`| `App\Http\Controllers`| Padrón histórico de grados y títulos oficiales con importación Excel. |
-| `StadisticController` | `App\Http\Controllers` | Registro masivo de estudiantes matriculados e ingresantes para estadísticas de transparencia. |
-| `LicensingController` | `App\Http\Controllers` | Monitoreo del avance de las Condiciones Básicas de Calidad (CBC). |
-| `BlogController` | `App\Http\Controllers` | Publicación de notas de prensa, noticias institucionales y comunicados. |
-| `ClaimsController` | `App\Http\Controllers` | Gestión del Libro de Reclamaciones virtual y cambio de estado de atención Indecopi. |
-| `CourseController` | `App\Http\Controllers` | Cursos y talleres formativos con tipo de certificación (`capacitacion` o `modular`). |
-| `ModuleController` | `App\Http\Controllers` | Módulos formativos y distribución de horas y créditos. |
-| `ItineraryController` | `App\Http\Controllers` | Itinerarios formativos curriculares. |
-| `ScholarshipController` | `App\Http\Controllers` | Programas de becas estudiantiles y vacantes. |
-| `ScholarshipBeneficiaryController`| `App\Http\Controllers` | Nómina de estudiantes beneficiarios de becas y resoluciones oficiales en PDF. |
-| `EnrollmentScheduleController`| `App\Http\Controllers`| Cronogramas de matrícula ordinaria y extraordinaria por programa. |
-| `TeacherRoleController` | `App\Http\Controllers` | Designación de docentes a carreras y cargos de coordinación académica. |
-| `StudentCouncilController`| `App\Http\Controllers`| Registro de la junta directiva estudiantil por periodos lectivos. |
-| `EnterpriseController` | `App\Http\Controllers` | Edición de la ficha institucional, misión, visión, logotipos y directivos. |
-| `PartnersController` | `App\Http\Controllers` | Alianzas y convenios laborales con instituciones y empresas del sector productivo. |
-| `ExternalInstitutionalLinkController`| `App\Http\Controllers`| Enlaces a plataformas externas del Estado (Minedu, Sunedu, Pronabec). |
-| `HistoricalReviewController`| `App\Http\Controllers`| Hitos históricos para la línea de tiempo institucional. |
-| `CarouselController` | `App\Http\Controllers` | Imágenes y llamadas a la acción del carrusel de la portada. |
-| `AreaController` | `App\Http\Controllers` | Áreas funcionales y departamentos de la institución. |
-| `RoleController` | `App\Http\Controllers` | Asignación de roles y permisos Spatie a nivel administrativo. |
-| `DashboardController` | `App\Http\Controllers` | Panel central de administración con métricas consolidadas. |
-| `ProfileController` | `App\Http\Controllers` | Edición del perfil de usuario y cambio de contraseña. |
-| `Admin\LibraryController`| `App\Http\Controllers\Admin`| Repositorio central de biblioteca, importación masiva académica (`fetchAcademicResources`), lectores y reportes. |
-| `Auth\AuthenticatedSessionController`| `App\Http\Controllers\Auth` | Inicio y cierre de sesión con rate limiting estricto (`throttle:login`). |
-| `Auth\ConfirmablePasswordController`| `App\Http\Controllers\Auth` | Confirmación de contraseña para operaciones críticas. |
-| `Auth\EmailVerificationNotificationController`| `App\Http\Controllers\Auth` | Emisión de notificaciones de verificación de correo. |
-| `Auth\EmailVerificationPromptController`| `App\Http\Controllers\Auth` | Pantalla de aviso de verificación de correo. |
-| `Auth\NewPasswordController`| `App\Http\Controllers\Auth` | Registro de nueva contraseña tras restablecimiento por token. |
-| `Auth\PasswordController` | `App\Http\Controllers\Auth` | Actualización de contraseña autenticada. |
-| `Auth\PasswordResetLinkController`| `App\Http\Controllers\Auth` | Envío de enlace de recuperación de contraseña con limitador. |
-| `Auth\RegisteredUserController`| `App\Http\Controllers\Auth` | Registro de usuarios con validación de DNI en tiempo real (`register/verify-dni`). |
-| `Auth\VerifyEmailController`| `App\Http\Controllers\Auth` | Verificación de firma criptográfica de correo. |
+### 9.3. Procesamiento Masivo de Datos en Hojas de Cálculo (Maatwebsite Excel)
+- **5 Clases de Importación (`app/Imports/`):**
+  - `AccountBalanceImport`: Carga masiva de asientos financieros, validando campos de fecha, concepto y montos en moneda nacional.
+  - `CertificateImport`: Carga de nóminas de egresados para emisión masiva de diplomas con código alfanumérico correlativo.
+  - `DegreeRecordImport`: Padrón histórico de grados y títulos con códigos MINEDU.
+  - `StudentRecordImport`: Padrón de ingresantes y matriculados para el observatorio de transparencia.
+  - `UserImport`: Alta masiva de cuentas de usuario con validación de DNI y hashing automático de contraseñas seguras.
+- **6 Clases de Exportación (`app/Exports/`):**
+  - `CertificateTemplateExport`, `CertificateDataSheetExport`, `CertificateInstructionsSheetExport`: Plantillas oficiales normalizadas con instrucciones de llenado y validaciones de datos para certificados.
+  - `UserTemplateExport`, `UserDataSheetExport`, `UserInstructionsSheetExport`: Plantillas oficiales normalizadas con manual operativo para importación de usuarios.
 
 ---
 
-## 7. Frontend, Vistas Blade y Sistema de Diseño
+## 10. Configuraciones del Sistema, Variables de Entorno y Despliegue
 
-El sistema contiene **147 plantillas Blade** organizadas en 36 directorios temáticos:
+### 10.1. Matriz de Configuración del Framework (`config/`)
+- **`config/app.php`:** Configuración de zona horaria (`America/Lima`), idioma base español (`es`), nombre institucional y proveedores de servicio.
+- **`config/database.php`:** Conexión por defecto `mysql` con codificación `utf8mb4_unicode_ci`, soporte estricto de transacciones ACID y pool de conexiones.
+- **`config/filesystems.php`:** Configuración de discos `local` y `public`, almacenamiento de certificados en `app/public/certificates` y fallback dinámico en `/storage/{path}`.
+- **`config/inertia.php`:** Configuración del protocolo Inertia.js y vista raíz `inertia-app`.
+- **`config/permission.php`:** Configuración de tablas Spatie (`roles`, `permissions`, `model_has_roles`), expiración de caché de permisos y asignación a modelo `App\Models\User`.
+- **`config/session.php`:** Driver de sesión `database` o `file` con tiempo de expiración de 120 minutos, cifrado y cookie segura en producción (`SameSite=Lax`).
+- **`config/cache.php`:** Almacenamiento en `database` o `file` con prefijo institucional para optimizar el rendimiento de consultas a `Enterprise` y menús.
+- **`config/mail.php`:** Configuración SMTP para notificaciones de verificación de cuenta y recuperación de contraseñas.
 
-### 7.1. Estructura de Directorios de Vistas
-- **Vistas Raíz (4):** `home.blade.php`, `aboutus.blade.php`, `dashboard.blade.php`, `study-program.blade.php`.
-- **`aboutus/` (8):** Misión, historia, organigrama, plana jerárquica, plana docente, plana administrativa, consejo estudiantil y locales.
-- **`admin/` (98 vistas en 25 subdirectorios):** Módulos administrativos de admisiones, áreas, blogs, carrusel, certificados, reclamos, cursos, títulos, documentos normativos, matrículas, ficha institucional, enlaces, historia, itinerarios, empleos, biblioteca (10 vistas), licenciamiento, módulos, partners, programas (con 5 subcarpetas de metadatos, competencias, campo laboral, módulos y requisitos), roles, becas, estadísticas, consejo estudiantil, TUPA y usuarios.
-- **`admission/` (4):** CEPRE, examen de admisión, matrículas, becas y créditos.
-- **`auth/` (6):** Login, registro con verificación de DNI, olvido de contraseña, reset, verificación de email y confirmación.
-- **`errors/` (10):** Plantillas de error HTTP estilizadas (401, 402, 403, 404, 419, 429, 500, 503, layout e ilustraciones).
-- **`job-board/` (1):** Portal público de convocatorias laborales.
-- **`layouts/` (1):** Layout maestro institucional accesible con Schema.org y metadatos SEO.
-- **`library/` (5):** Portada, catálogo/buscador, favoritos, lector inmersivo y layout de biblioteca.
-- **`procedures/` (2):** Mesa de partes virtual y catálogo interactivo del TUPA.
-- **`profile/` (4):** Perfil de usuario y formularios parciales de actualización.
-- **`services/` (2):** Convocatorias laborales y enlaces institucionales.
-- **`transparency/` (5):** Documentos de gestión, estadísticas, balances contables, licenciamiento CBC y Libro de Reclamaciones.
+### 10.2. Diccionario de Variables de Entorno Clave (`.env`)
 
-### 7.2. Principios de Interfaz y Estilos
-- **Tipografía:** Familia tipográfica *Inter* cargada mediante `<link rel="preconnect">` para optimizar el Largest Contentful Paint (LCP).
-- **Hero Header Multimedia en Programas de Estudio:** Soporte de carrusel fotográfico dinámico controlado por Alpine.js (`programHeroCarousel`) en `resources/views/study-program.blade.php`, activable mediante el atributo `enable_carousel` y texto descriptivo `carousel_alt_text`.
-- **Paleta Cromática Institucional:** Azul Marino (`#0f172a`), Azul Cielo (`#38bdf8`), Blanco y temas por especialidad (Esmeralda para Agropecuaria, Rosa para Enfermería, Azul para Redes, Índigo para Administración, Verde Bosque para Forestal).
-- **Marcado Estructurado JSON-LD:** Metadatos Schema.org para `EducationalOrganization` en la portada y `Course` en las páginas de carreras técnicas.
+```ini
+APP_NAME="IESTP Francisco Vigo Caballero"
+APP_ENV=production
+APP_KEY=base64:...
+APP_DEBUG=false
+APP_URL=https://iestpfranciscovigocaballero.edu.pe
 
----
+BCRYPT_ROUNDS=12
 
-## 8. Seguridad, Integridad y Políticas de Red
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=bolsa_fvc
+DB_USERNAME=usuario_seguro
+DB_PASSWORD=clave_robusta
 
-### 8.1. Protección Contra Ataques Web
-- **Inyección SQL:** Mitigada al 100% mediante PDO bindings parametrizados en Eloquent ORM.
-- **Cross-Site Scripting (XSS):** Todas las salidas en vistas Blade utilizan escape automático `{{ ... }}`.
-- **Cross-Site Request Forgery (CSRF):** Middleware `VerifyCsrfToken` activo en todas las mutaciones POST, PUT, PATCH y DELETE.
-- **Protección de Almacenamiento Fallback (`/storage/{path}`):** Validación estricta mediante `str_starts_with($realTarget, $realPublicDisk)` y `is_file()` para evitar vulnerabilidades de Directory Traversal.
-- **Rate Limiting:**
-  - Registro de usuarios: `throttle:6,1`.
-  - Inicio de sesión: `throttle:login` (RateLimiter en `AppServiceProvider`).
-  - Envío de reclamos al Libro de Reclamaciones: `throttle:5,1`.
-  - Recuperación de contraseña: `throttle:5,1`.
+SESSION_DRIVER=database
+SESSION_LIFETIME=120
+FILESYSTEM_DISK=public
+QUEUE_CONNECTION=database
+CACHE_STORE=database
 
-### 8.2. Almacenamiento y Cifrado
-- Contraseñas procesadas mediante el algoritmo Bcrypt con factor de costo `rounds = 12`.
-- Archivos de CVs, documentos normativos y fotos almacenados en disco `public` o `private` según el nivel de sensibilidad.
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailgun.org
+MAIL_PORT=587
+MAIL_USERNAME=postmaster@iestpfranciscovigocaballero.edu.pe
+MAIL_PASSWORD=...
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="no-reply@iestpfranciscovigocaballero.edu.pe"
+MAIL_FROM_NAME="${APP_NAME}"
 
----
-
-## 9. Estrategia de Pruebas y Aseguramiento de Calidad (QA)
-
-### 9.1. Catálogo de Pruebas Automatizadas (33 Suites)
-Ubicadas en `tests/Feature/` (31 pruebas) y `tests/Unit/` (2 pruebas), ejecutadas sobre PHPUnit 11:
-
-1. **Biblioteca y Servicio Académico:**
-   - `tests/Feature/LibraryAcademicBulkImportTest.php`: Verifica autorización por roles en importación académica, vista de modal con iframe visor, almacenamiento de libros externos, deduplicación y registro en `library_access_logs`.
-   - `tests/Feature/LibraryModuleTest.php`: Pruebas de CRUD de libros, asignación a programas y streaming.
-   - `tests/Unit/AcademicLibraryServiceTest.php`: Pruebas unitarias de conexión con Europe PMC, Open Library/Internet Archive, SciELO, Redalyc, DOAJ, OpenAlex, Crossref, sanitización de sintaxis Lucene y resolución multi-tier de DOIs.
-2. **Certificación Digital y Validación QR:**
-   - `tests/Feature/CertificateFormatAndValidationTest.php`: Verifica el formato de certificados (capacitación y modular), generación de códigos QR, endpoint público de validación y generación de PDF.
-3. **Bolsa de Trabajo y Scraping:**
-   - `tests/Feature/AdminJobsBulkActionsTest.php`: Pruebas de borrado masivo de empleos, vaciado de tabla y filtros heurísticos.
-4. **SEO e Indexación:**
-   - `tests/Feature/SeoIndexingTest.php`: Verifica sintaxis de `robots.txt`, redirección 301 de `robot.txt`, validez XML de `sitemap.xml`, inclusión de las 5 carreras y comando `php artisan sitemap:generate`.
-5. **Transparencia, Balances y Licenciamiento:**
-   - `tests/Feature/AccountBalanceManagementTest.php`: Balances financieros, importación Excel y permiso restrictivo `can:gestionar-inversiones`.
-   - `tests/Feature/TransparencyPublicTest.php`: Visualización pública de estadísticas, grados, documentos y balances.
-   - `tests/Feature/LicensingPublicTest.php` y `tests/Feature/AdminLicensingTest.php`: Fases de licenciamiento y fijación de etapa actual.
-6. **Programas de Estudio y UI:**
-   - `tests/Feature/StudyProgramPublicTest.php`: Renderizado de carreras técnicas, competencias y perfiles.
-   - `tests/Feature/StudyProgramImagesTest.php` y `tests/Feature/AdminStudyProgramTest.php`: Gestión de carrusel fotográfico, orden e imagen principal.
-7. **Admisión, CEPRE y Becas:**
-   - `tests/Feature/CeprePublicTest.php` y `tests/Feature/AdminAdmissionTest.php`: Cálculo proyectado de ciclos y convocatorias.
-   - `tests/Feature/ScholarshipBeneficiariesFeatureTest.php`: Gestión de becas y padrón de beneficiarios con PDFs.
-8. **Usuarios, Roles y Autenticación:**
-   - `tests/Feature/UserCreateTest.php`, `tests/Feature/UserBulkImportTest.php`, `tests/Feature/UserBulkDeleteTest.php`, `tests/Feature/UserPasswordUpdateTest.php`: Ciclo de vida completo del usuario.
-   - `tests/Feature/StudentLoginTest.php`, `tests/Feature/StudentSidebarTest.php`, `tests/Feature/ProfileTest.php`, `tests/Feature/AdminTeacherRoleTest.php`: Autenticación, perfiles y permisos docentes.
-9. **Institucional y Trámites:**
-   - `tests/Feature/AboutUsPublicTest.php`, `tests/Feature/HistoryPublicTest.php`, `tests/Feature/AdminHistoryTest.php`: Identidad institucional.
-   - `tests/Feature/ProceduresPublicTest.php`: Procedimientos TUPA y mesa de partes.
-   - `tests/Feature/ClaimTest.php` y `tests/Feature/AdminClaimTest.php`: Libro de Reclamaciones virtual y atención.
-   - `tests/Feature/EnterpriseTest.php`: Ficha institucional.
-   - `tests/Feature/ExampleTest.php` y `tests/Unit/ExampleTest.php`: Pruebas base de humo.
-
-### 9.2. Estándar de Código (Laravel Pint)
-El proyecto cuenta con configuración para el linter/formateador oficial de Laravel:
-```bash
-vendor/bin/pint --dirty --format agent
+VITE_APP_NAME="${APP_NAME}"
 ```
-Garantiza el cumplimiento uniforme de las convenciones de la comunidad Laravel.
 
----
-
-## 10. Procedimiento de Puesta en Producción
-
-1. **Compilación de Dependencias:**
+### 10.3. Pipeline de Despliegue en Servidores de Producción
+1. **Instalación y Compilación de Assets:**
    ```bash
    composer install --no-dev --optimize-autoloader
    npm ci && npm run build
    ```
-2. **Migración y Estructuración de Datos:**
+2. **Estructura de Base de Datos y Almacenamiento:**
    ```bash
    php artisan migrate --force
    php artisan storage:link
    ```
-3. **Optimización de Rendimiento en Caché:**
+3. **Optimización de Cachés:**
    ```bash
    php artisan config:cache
    php artisan route:cache
@@ -598,3 +672,40 @@ Garantiza el cumplimiento uniforme de las convenciones de la comunidad Laravel.
    ```
 5. **Configuración del Servidor Web:**
    Apuntar el `DocumentRoot` exclusivamente a la carpeta `public/` del proyecto, habilitando `mod_rewrite` en Apache o la directiva `try_files $uri $uri/ /index.php?$query_string;` en Nginx.
+
+---
+
+## 11. Seguridad, Integridad y Aseguramiento de Calidad (QA)
+
+### 11.1. Mitigación de Vulnerabilidades Web (OWASP Top 10)
+- **Inyección SQL:** Mitigada al 100% mediante el uso de sentencias preparadas y enlaces PDO parametrizados en Eloquent ORM.
+- **Cross-Site Scripting (XSS):** Todos los componentes Vue escapan automáticamente la salida de datos. Los contenidos HTML enriquecidos solo se procesan tras rigurosa sanitización.
+- **Cross-Site Request Forgery (CSRF):** Middleware `VerifyCsrfToken` activo en todas las mutaciones POST, PUT, PATCH y DELETE vía cabecera `X-XSRF-TOKEN` gestionada automáticamente por Axios e Inertia.js.
+- **Protección contra Directory Traversal:** Validación estricta en el controlador de streaming y fallback `/storage/{path}` mediante `realpath` y comprobación de límites de disco `str_starts_with($realTarget, $realPublicDisk)`.
+- **Protección contra Clickjacking:** Bloqueo de redirecciones cruzadas en iframes y cabeceras de respuesta `X-Frame-Options: SAMEORIGIN`.
+
+### 11.2. Catálogo de Pruebas Automatizadas (33 Suites PHPUnit)
+Ubicadas en `tests/Feature/` (31 pruebas) y `tests/Unit/` (2 pruebas), ejecutadas sobre PHPUnit 11:
+1. **Biblioteca y Servicio Académico:** `LibraryAcademicBulkImportTest`, `LibraryModuleTest`, `AcademicLibraryServiceTest` (conexión a 10 repositorios, sanitización Lucene, resolución DOI).
+2. **Certificación Digital y Validación QR:** `CertificateFormatAndValidationTest` (capacitación vs modular, generación QR GF-256 nativo, validación pública, PDF).
+3. **Bolsa de Trabajo y Scraping:** `AdminJobsBulkActionsTest` (borrado masivo, vaciado, filtros heurísticos).
+4. **SEO e Indexación:** `SeoIndexingTest` (sintaxis robots.txt, redirección robot.txt, sitemap XML).
+5. **Transparencia, Balances y Licenciamiento:** `AccountBalanceManagementTest`, `TransparencyPublicTest`, `LicensingPublicTest`, `AdminLicensingTest`.
+6. **Programas de Estudio y UI:** `StudyProgramPublicTest`, `StudyProgramImagesTest`, `AdminStudyProgramTest`.
+7. **Admisión, CEPRE y Becas:** `CeprePublicTest`, `AdminAdmissionTest`, `ScholarshipBeneficiariesFeatureTest`.
+8. **Usuarios, Roles y Autenticación:** `UserCreateTest`, `UserBulkImportTest`, `UserBulkDeleteTest`, `UserPasswordUpdateTest`, `StudentLoginTest`, `StudentSidebarTest`, `ProfileTest`, `AdminTeacherRoleTest`.
+9. **Institucional y Trámites:** `AboutUsPublicTest`, `HistoryPublicTest`, `AdminHistoryTest`, `ProceduresPublicTest`, `ClaimTest`, `AdminClaimTest`, `EnterpriseTest`, `ExampleTest`.
+
+### 11.3. Estándar de Código (Laravel Pint)
+El proyecto se formatea y valida continuamente con el estándar oficial de la comunidad Laravel:
+```bash
+vendor/bin/pint --dirty --format agent
+```
+
+---
+
+<p align="center">
+  <strong>Instituto de Educación Superior Tecnológico Público "Francisco Vigo Caballero"</strong><br>
+  <em>Sistema Integral Institucional — Documento Técnico de Arquitectura de Software</em><br>
+  <strong>Aprobado para Producción y Auditoría Técnica Gubernamental</strong>
+</p>

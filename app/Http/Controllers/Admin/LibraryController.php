@@ -13,38 +13,39 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class LibraryController extends Controller
 {
     /**
      * Display the "Libros Asignados" view.
      */
-    public function index(Request $request): Response
-    {
+    public function index(Request $request): Response {
         $selectedCareer = $request->query('career', 'all');
-        $searchQuery = $request->query('q', '');
-        $viewMode = $request->query('view', 'grid');
-        $query = Book::with('studyProgram')
+        $searchQuery    = $request->query('q', '');
+        $viewMode       = $request->query('view', 'grid');
+        $query          = Book::with('studyProgram')
             ->career($selectedCareer)
             ->search($searchQuery)
             ->latest('id');
 
-        $totalCount = (clone $query)->count();
-        $books = $query->paginate(24)->withQueryString();
-        $studyPrograms = StudyProgram::select('id', 'name')->orderBy('name')->get();
+        $totalCount     = (clone $query)->count();
+        $books          = $query->paginate(24)->withQueryString();
+        $studyPrograms  = StudyProgram::select('id', 'name')->orderBy('name')->get();
 
         return Inertia::render('Admin/Library/AssignedBooks', [
-            'books' => $books,
-            'studyPrograms' => $studyPrograms,
-            'selectedCareer' => $selectedCareer,
-            'searchQuery' => $searchQuery,
-            'viewMode' => $viewMode,
-            'totalCount' => $totalCount,
+            'books'             => $books,
+            'studyPrograms'     => $studyPrograms,
+            'selectedCareer'    => $selectedCareer,
+            'searchQuery'       => $searchQuery,
+            'viewMode'          => $viewMode,
+            'totalCount'        => $totalCount,
         ]);
     }
 
@@ -131,7 +132,6 @@ class LibraryController extends Controller
         $validated['is_active'] = $request->has('is_active');
         $validated['rating'] = $validated['rating'] ?? 5.0;
 
-        // Si se ingresó una URL externa manualmente, resolverla a su enlace PDF directo
         if (! empty($validated['external_url'])) {
             $validated['external_url'] = Str::limit(
                 $academicService->resolveDirectDocumentLink((string) $validated['external_url']),
@@ -147,13 +147,19 @@ class LibraryController extends Controller
             $validated['cover_image'] = $coverPath;
         }
 
-        // PDF file upload
+        // PDF file upload manual O descarga automática desde external_url
         if ($request->hasFile('file')) {
             $pdfFile = $request->file('file');
             $pdfName = 'book_'.Str::slug($validated['title']).'_'.time().'.'.$pdfFile->getClientOriginalExtension();
             $pdfPath = $pdfFile->storeAs('library/books', $pdfName, 'public');
             $validated['file_path'] = $pdfPath;
             $validated['file_size'] = $pdfFile->getSize();
+        } elseif (! empty($validated['external_url'])) {
+            $cached = $academicService->downloadAndCachePdf($validated['external_url'], $validated['title']);
+            if ($cached) {
+                $validated['file_path'] = $cached['file_path'];
+                $validated['file_size'] = $cached['file_size'];
+            }
         }
 
         $book = Book::create($validated);
@@ -209,14 +215,14 @@ class LibraryController extends Controller
         $validated = $request->validated();
         $validated['is_active'] = $request->has('is_active');
 
-        if (! empty($validated['external_url']) && $validated['external_url'] !== $book->external_url) {
+        $urlChanged = ! empty($validated['external_url']) && $validated['external_url'] !== $book->external_url;
+        if ($urlChanged) {
             $validated['external_url'] = Str::limit(
                 $academicService->resolveDirectDocumentLink((string) $validated['external_url']),
                 495
             );
         }
 
-        // New cover image
         if ($request->hasFile('cover')) {
             if ($book->cover_image && Storage::disk('public')->exists($book->cover_image)) {
                 Storage::disk('public')->delete($book->cover_image);
@@ -227,7 +233,6 @@ class LibraryController extends Controller
             $validated['cover_image'] = $coverPath;
         }
 
-        // New PDF file replacement
         if ($request->hasFile('file')) {
             if ($book->file_path && Storage::disk('public')->exists($book->file_path)) {
                 Storage::disk('public')->delete($book->file_path);
@@ -237,6 +242,12 @@ class LibraryController extends Controller
             $pdfPath = $pdfFile->storeAs('library/books', $pdfName, 'public');
             $validated['file_path'] = $pdfPath;
             $validated['file_size'] = $pdfFile->getSize();
+        } elseif (! empty($validated['external_url']) && ($urlChanged || empty($book->file_path) || ! Storage::disk('public')->exists($book->file_path))) {
+            $cached = $academicService->downloadAndCachePdf($validated['external_url'], $validated['title']);
+            if ($cached) {
+                $validated['file_path'] = $cached['file_path'];
+                $validated['file_size'] = $cached['file_size'];
+            }
         }
 
         $book->update($validated);
@@ -250,6 +261,94 @@ class LibraryController extends Controller
         }
 
         return redirect()->back()->with('success', 'La información del documento fue actualizada exitosamente.');
+    }
+
+    public function streamDocument(Request $request, Book $book, AcademicLibraryService $academicService): SymfonyResponse
+    {
+        $isDownload = $request->boolean('download', false);
+        $dispositionType = $isDownload ? 'attachment' : 'inline';
+        $safeFilename = (Str::slug(Str::limit($book->title, 80)) ?: 'documento-'.$book->id).'.pdf';
+
+        // 1. Si el PDF ya existe en el almacenamiento local, servirlo inmediatamente (soporta byte-range nativo)
+        if ($book->file_path && Storage::disk('public')->exists($book->file_path)) {
+            $fullPath = Storage::disk('public')->path($book->file_path);
+
+            return response()->file($fullPath, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => "{$dispositionType}; filename=\"{$safeFilename}\"",
+                'X-Frame-Options' => 'SAMEORIGIN',
+                'Cache-Control' => 'public, max-age=86400',
+            ]);
+        }
+
+        if (empty($book->external_url)) {
+            abort(404, 'El documento no cuenta con un archivo o enlace asociado.');
+        }
+
+        // 2. Intentar descargar y cachear en disco automáticamente (Auto-Healing para libros ya importados)
+        $cached = $academicService->downloadAndCachePdf($book->external_url, $book->slug ?: $book->title);
+        if ($cached && Storage::disk('public')->exists($cached['file_path'])) {
+            $book->update([
+                'file_path' => $cached['file_path'],
+                'file_size' => $cached['file_size'],
+            ]);
+
+            $fullPath = Storage::disk('public')->path($cached['file_path']);
+
+            return response()->file($fullPath, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => "{$dispositionType}; filename=\"{$safeFilename}\"",
+                'X-Frame-Options' => 'SAMEORIGIN',
+                'Cache-Control' => 'public, max-age=86400',
+            ]);
+        }
+
+        // 3. Fallback de Streaming Proxy en vivo (si el archivo no se pudo guardar en disco)
+        $resolvedUrl = $academicService->resolveDirectDocumentLink($book->external_url);
+        if ($resolvedUrl !== $book->external_url) {
+            $book->update(['external_url' => Str::limit($resolvedUrl, 495)]);
+        }
+
+        try {
+            $parsedHost = parse_url($resolvedUrl, PHP_URL_HOST) ?: '';
+            $parsedScheme = parse_url($resolvedUrl, PHP_URL_SCHEME) ?: 'https';
+
+            $upstream = Http::connectTimeout(8)
+                ->timeout(45)
+                ->withHeaders(array_merge(AcademicLibraryService::SCRAPE_HEADERS, [
+                    'Accept' => 'application/pdf,application/octet-stream;q=0.9,*/*;q=0.8',
+                    'Referer' => $parsedHost ? "{$parsedScheme}://{$parsedHost}/" : 'https://scholar.google.com/',
+                ]))
+                ->withOptions([
+                    'stream' => true,
+                    'allow_redirects' => ['max' => 8, 'referer' => true],
+                    'verify' => false,
+                ])
+                ->get($resolvedUrl);
+
+            if ($upstream->successful()) {
+                $psrStream = $upstream->toPsrResponse()->getBody();
+
+                return response()->stream(function () use ($psrStream) {
+                    while (! $psrStream->eof()) {
+                        echo $psrStream->read(65536);
+                        if (ob_get_level() > 0) {
+                            ob_flush();
+                        }
+                        flush();
+                    }
+                }, 200, [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => "{$dispositionType}; filename=\"{$safeFilename}\"",
+                    'X-Frame-Options' => 'SAMEORIGIN',
+                    'Access-Control-Allow-Origin' => '*',
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning("Error en streamDocument proxy para libro ID {$book->id}: ".$e->getMessage());
+        }
+
+        abort(502, 'No fue posible obtener el flujo del documento desde el servidor académico de origen.');
     }
 
     /**

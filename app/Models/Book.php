@@ -7,14 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Book extends Model
 {
     use HasFactory;
-
-    protected $table = 'books';
-
+    protected $table    = 'books';
     protected $fillable = [
         'title',
         'slug',
@@ -40,13 +39,13 @@ class Book extends Model
     ];
 
     protected $casts = [
-        'publication_year' => 'integer',
-        'pages' => 'integer',
-        'file_size' => 'integer',
-        'rating' => 'float',
-        'views_count' => 'integer',
-        'downloads_count' => 'integer',
-        'is_active' => 'boolean',
+        'publication_year'  => 'integer',
+        'pages'             => 'integer',
+        'file_size'         => 'integer',
+        'rating'            => 'float',
+        'views_count'       => 'integer',
+        'downloads_count'   => 'integer',
+        'is_active'         => 'boolean',
     ];
 
     protected $appends = [
@@ -59,17 +58,16 @@ class Book extends Model
     /**
      * Boot logic for automatically generating slug.
      */
-    protected static function boot()
-    {
+    protected static function boot() {
         parent::boot();
 
         static::creating(function (Book $book) {
             if (empty($book->slug)) {
-                $baseSlug = Str::slug($book->title);
-                $slug = $baseSlug;
-                $counter = 1;
+                $baseSlug   = Str::slug($book->title);
+                $slug       = $baseSlug;
+                $counter    = 1;
                 while (static::where('slug', $slug)->exists()) {
-                    $slug = "{$baseSlug}-{$counter}";
+                    $slug   = "{$baseSlug}-{$counter}";
                     $counter++;
                 }
                 $book->slug = $slug;
@@ -80,48 +78,42 @@ class Book extends Model
     /**
      * Study program relation (can be null for General / all programs).
      */
-    public function studyProgram(): BelongsTo
-    {
+    public function studyProgram(): BelongsTo {
         return $this->belongsTo(StudyProgram::class, 'study_program_id');
     }
 
     /**
      * User who created / uploaded the book.
      */
-    public function creator(): BelongsTo
-    {
+    public function creator(): BelongsTo {
         return $this->belongsTo(User::class, 'created_by');
     }
 
     /**
      * Favorites relationship.
      */
-    public function favorites(): HasMany
-    {
+    public function favorites(): HasMany {
         return $this->hasMany(BookFavorite::class, 'book_id');
     }
 
     /**
      * Users who have favorited this book.
      */
-    public function favoritedBy(): BelongsToMany
-    {
+    public function favoritedBy(): BelongsToMany {
         return $this->belongsToMany(User::class, 'book_favorites', 'book_id', 'user_id')->withTimestamps();
     }
 
     /**
      * Reader access logs.
      */
-    public function accessLogs(): HasMany
-    {
+    public function accessLogs(): HasMany {
         return $this->hasMany(LibraryAccessLog::class, 'book_id');
     }
 
     /**
      * Accessor: Cover image URL.
      */
-    public function getCoverUrlAttribute(): string
-    {
+    public function getCoverUrlAttribute(): string {
         if ($this->cover_image) {
             if (str_starts_with($this->cover_image, 'http://') || str_starts_with($this->cover_image, 'https://')) {
                 return $this->cover_image;
@@ -136,20 +128,24 @@ class Book extends Model
     /**
      * Accessor: Direct or streaming PDF file URL.
      */
-    public function getFileUrlAttribute(): string
-    {
-        if ($this->file_path) {
-            return '/storage/'.ltrim($this->file_path, '/');
+    public function getFileUrlAttribute(): ?string {
+        // Si tiene archivo local subido o cacheado, usar Storage o la ruta de stream interna
+        if (! empty($this->file_path) && Storage::disk('public')->exists($this->file_path)) {
+            return route('biblioteca.stream', ['book' => $this->slug ?: $this->id]);
         }
 
-        return $this->external_url ?? '';
+        // Si tiene URL externa, devolver SIEMPRE el proxy interno para evitar bloqueos de iframe
+        if (! empty($this->external_url)) {
+            return route('biblioteca.stream', ['book' => $this->slug ?: $this->id]);
+        }
+
+        return null;
     }
 
     /**
      * Accessor: Formatted file size string.
      */
-    public function getFormattedFileSizeAttribute(): string
-    {
+    public function getFormattedFileSizeAttribute(): string {
         if ($this->external_url && ! $this->file_size) {
             return 'Enlace Web';
         }
@@ -170,24 +166,21 @@ class Book extends Model
     /**
      * Accessor: Check if document is external resource.
      */
-    public function getIsExternalAttribute(): bool
-    {
+    public function getIsExternalAttribute(): bool {
         return ! empty($this->external_url) && empty($this->file_path);
     }
 
     /**
      * Scope: Only active documents.
      */
-    public function scopeActive($query)
-    {
+    public function scopeActive($query) {
         return $query->where('is_active', true);
     }
 
     /**
      * Scope: Filter by career / study program.
      */
-    public function scopeCareer($query, $careerId)
-    {
+    public function scopeCareer($query, $careerId) {
         if ($careerId && $careerId !== 'all') {
             return $query->where('study_program_id', $careerId);
         }
@@ -198,8 +191,7 @@ class Book extends Model
     /**
      * Scope: Filter by category (Libro, Revista, etc.).
      */
-    public function scopeCategory($query, $category)
-    {
+    public function scopeCategory($query, $category) {
         if ($category && $category !== 'all') {
             return $query->where('category', $category);
         }
@@ -210,8 +202,7 @@ class Book extends Model
     /**
      * Scope: Search term in title, author, or description.
      */
-    public function scopeSearch($query, ?string $term)
-    {
+    public function scopeSearch($query, ?string $term) {
         if (empty($term)) {
             return $query;
         }

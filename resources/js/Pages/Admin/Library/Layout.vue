@@ -28,10 +28,8 @@ const isNavActive = (path) => {
     return url.startsWith(path);
 };
 </script>
-
 <template>
     <Head :title="title" />
-
     <div class="flex w-full min-h-screen bg-slate-50 font-sans text-slate-800 antialiased relative">
         <!-- Mobile Drawer Overlay -->
         <div

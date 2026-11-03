@@ -282,6 +282,7 @@ const previewData = reactive({
     publisher: '',
     program_name: '',
     url: '',
+    slug: '',
 });
 
 const openIframePreviewModal = (data) => {
@@ -290,7 +291,8 @@ const openIframePreviewModal = (data) => {
     previewData.category = data.category || 'Documento';
     previewData.publisher = data.publisher || '';
     previewData.program_name = data.program_name || 'General';
-    previewData.url = data.url || '';
+    previewData.slug = data.slug || '';
+    previewData.url = data.slug ? route('biblioteca.stream', data.slug) : (data.url || '');
     showIframeModal.value = true;
 };
 
@@ -346,9 +348,7 @@ const toggleStatus = (book) => {
         <Head title="Libros Asignados - Biblioteca Virtual" />
 
         <div class="p-4 sm:p-6 lg:p-7 space-y-6">
-            <!-- ══════════════════════════════════════════════════════════════════ -->
-            <!-- TOPBAR & SEARCH FILTERS                                            -->
-            <!-- ══════════════════════════════════════════════════════════════════ -->
+            <!-- TOPBAR & SEARCH FILTERS -->
             <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-xs border border-slate-200/80 space-y-4">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
@@ -485,10 +485,7 @@ const toggleStatus = (book) => {
                     </button>
                 </div>
             </transition>
-
-            <!-- ══════════════════════════════════════════════════════════════════ -->
-            <!-- CONTENT: GRID VIEW                                                 -->
-            <!-- ══════════════════════════════════════════════════════════════════ -->
+            <!-- CONTENT: GRID VIEW -->
             <div v-show="currentView === 'grid'">
                 <div
                     v-if="books.data && books.data.length > 0"
@@ -568,7 +565,8 @@ const toggleStatus = (book) => {
                                         category: book.category,
                                         publisher: book.publisher,
                                         program_name: book.study_program ? book.study_program.name : 'General',
-                                        url: book.is_external && book.external_url ? book.external_url : route('biblioteca.read', book.slug)
+                                        slug: book.slug,
+                                        url: route('biblioteca.stream', book.slug)
                                     })"
                                     class="text-teal-700 hover:text-teal-900 font-bold text-[11px] inline-flex items-center gap-1"
                                     title="Visor Integrado (Iframe)"
@@ -640,10 +638,7 @@ const toggleStatus = (book) => {
                     </button>
                 </div>
             </div>
-
-            <!-- ══════════════════════════════════════════════════════════════════ -->
-            <!-- CONTENT: LIST VIEW                                                 -->
-            <!-- ══════════════════════════════════════════════════════════════════ -->
+            <!-- CONTENT: LIST VIEW -->
             <div v-show="currentView === 'list'">
                 <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
                     <div class="overflow-x-auto">
@@ -712,7 +707,8 @@ const toggleStatus = (book) => {
                                                 category: book.category,
                                                 publisher: book.publisher,
                                                 program_name: book.study_program ? book.study_program.name : 'General',
-                                                url: book.is_external && book.external_url ? book.external_url : route('biblioteca.read', book.slug)
+                                                slug: book.slug,
+                                                url: route('biblioteca.stream', book.slug)
                                             })"
                                             class="p-1.5 text-teal-700 hover:bg-teal-50 rounded-lg inline-block"
                                             title="Visor Integrado (Iframe)"
@@ -751,10 +747,7 @@ const toggleStatus = (book) => {
                     </div>
                 </div>
             </div>
-
-            <!-- ══════════════════════════════════════════════════════════════════ -->
-            <!-- PAGINATION                                                         -->
-            <!-- ══════════════════════════════════════════════════════════════════ -->
+            <!-- PAGINATION -->
             <div v-if="books.links && books.links.length > 3" class="pt-4 flex items-center justify-center gap-1 flex-wrap">
                 <template v-for="(link, idx) in books.links" :key="idx">
                     <span
@@ -775,10 +768,7 @@ const toggleStatus = (book) => {
                 </template>
             </div>
         </div>
-
-        <!-- ══════════════════════════════════════════════════════════════════════ -->
-        <!-- MODAL 1: SUBIR / CREAR NUEVO CONTENIDO DE BIBLIOTECA                   -->
-        <!-- ══════════════════════════════════════════════════════════════════════ -->
+        <!-- MODAL 1: SUBIR / CREAR NUEVO CONTENIDO DE BIBLIOTECA -->
         <div
             v-if="showCreateModal"
             class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
@@ -1051,9 +1041,7 @@ const toggleStatus = (book) => {
             </div>
         </div>
 
-        <!-- ══════════════════════════════════════════════════════════════════════ -->
-        <!-- MODAL 2: EDITAR CONTENIDO DE BIBLIOTECA                                -->
-        <!-- ══════════════════════════════════════════════════════════════════════ -->
+        <!-- MODAL 2: EDITAR CONTENIDO DE BIBLIOTECA -->
         <div
             v-if="showEditModal"
             class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
@@ -1249,10 +1237,7 @@ const toggleStatus = (book) => {
                 </form>
             </div>
         </div>
-
-        <!-- ══════════════════════════════════════════════════════════════════════ -->
-        <!-- MODAL 3: BÚSQUEDA Y CARGA MASIVA ACADÉMICA                             -->
-        <!-- ══════════════════════════════════════════════════════════════════════ -->
+        <!-- MODAL 3: BÚSQUEDA Y CARGA MASIVA ACADÉMICA -->
         <div
             v-if="showAcademicModal"
             class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
@@ -1410,7 +1395,6 @@ const toggleStatus = (book) => {
                             >
                         </div>
                     </div>
-
                     <!-- Loading Banner -->
                     <div v-if="importingAcademic" class="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl flex items-center gap-3 animate-pulse">
                         <div class="animate-spin text-indigo-600 text-xl flex-shrink-0">
@@ -1449,7 +1433,6 @@ const toggleStatus = (book) => {
                         </button>
                     </div>
                 </form>
-
                 <!-- Results Summary -->
                 <div v-else class="space-y-4">
                     <div
@@ -1482,7 +1465,6 @@ const toggleStatus = (book) => {
                             </div>
                         </div>
                     </div>
-
                     <!-- Errors if any -->
                     <div v-if="importResults.errors && importResults.errors.length > 0" class="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 space-y-1">
                         <p class="font-bold">Observaciones:</p>
@@ -1490,7 +1472,6 @@ const toggleStatus = (book) => {
                             <li v-for="(err, i) in importResults.errors" :key="i">{{ err }}</li>
                         </ul>
                     </div>
-
                     <div class="flex justify-end gap-2 pt-2">
                         <button
                             type="button"
@@ -1510,10 +1491,7 @@ const toggleStatus = (book) => {
                 </div>
             </div>
         </div>
-
-        <!-- ══════════════════════════════════════════════════════════════════════ -->
-        <!-- MODAL 4: VISOR DE LIBRO / IFRAME PREVIEW                               -->
-        <!-- ══════════════════════════════════════════════════════════════════════ -->
+        <!-- MODAL 4: VISOR DE LIBRO / IFRAME PREVIEW -->
         <div
             v-if="showIframeModal"
             class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center p-2 sm:p-4"
@@ -1576,20 +1554,16 @@ const toggleStatus = (book) => {
                 <!-- Iframe Container -->
                 <main class="flex-1 w-full h-full bg-slate-900 relative overflow-hidden">
                     <iframe
-                        :src="previewData.url"
-                        class="w-full h-full border-0 bg-white"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowfullscreen
-                        loading="lazy"
-                        :title="previewData.title"
+                        v-if="previewData.url"
+                        :src="`${previewData.url}#toolbar=1&navpanes=0&view=FitH`"
+                        class="w-full h-full border-0 bg-slate-900"
+                        allow="fullscreen"
+                        title="Visor Integrado Institucional"
                     ></iframe>
                 </main>
             </div>
         </div>
-
-        <!-- ══════════════════════════════════════════════════════════════════════ -->
-        <!-- MODAL 5: CONFIRMAR ELIMINACIÓN                                         -->
-        <!-- ══════════════════════════════════════════════════════════════════════ -->
+        <!-- MODAL 5: CONFIRMAR ELIMINACIÓN -->
         <div
             v-if="showDeleteConfirm"
             class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"

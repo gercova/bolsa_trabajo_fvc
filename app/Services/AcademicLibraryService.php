@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Models\Book;
 use App\Models\StudyProgram;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -144,9 +146,10 @@ class AcademicLibraryService
         'Sec-Ch-Ua-Platform' => '"Windows"',
         'Sec-Fetch-Dest' => 'document',
         'Sec-Fetch-Mode' => 'navigate',
-        'Sec-Fetch-Site' => 'none',
+        'Sec-Fetch-Site' => 'same-origin',
         'Sec-Fetch-User' => '?1',
         'Upgrade-Insecure-Requests' => '1',
+        'Cache-Control' => 'max-age=0',
     ];
 
     /**
@@ -155,8 +158,23 @@ class AcademicLibraryService
      * @var array<string, string>
      */
     public const API_HEADERS = [
-        'User-Agent' => 'IESTP-Francisco-Vigo-Caballero/VirtualLibrary (contacto@iestpfvc.edu.pe; academic-integration)',
+        'User-Agent' => 'IESTP-Francisco-Vigo-Caballero/VirtualLibrary/2.0 (contacto@iestpfvc.edu.pe; academic-integration; https://iestpfvc.edu.pe)',
         'Accept' => 'application/json',
+        'Accept-Language' => 'es,en;q=0.9',
+    ];
+
+    /**
+     * Rotating Referer headers to make scraping requests appear organic.
+     * A random entry is chosen per scraping request.
+     *
+     * @var array<int, string>
+     */
+    private const SCRAPE_REFERERS = [
+        'https://www.google.com/search?q=articulo+cientifico+pdf',
+        'https://scholar.google.com/',
+        'https://www.google.es/',
+        'https://www.bing.com/search?q=articulo+pdf+acceso+abierto',
+        'https://duckduckgo.com/?q=paper+pdf+open+access',
     ];
 
     /**
@@ -625,8 +643,12 @@ class AcademicLibraryService
         $scholarQuery = $cleanTerm.$categoryModifier;
 
         try {
-            $response = Http::timeout(8)
-                ->withHeaders(self::SCRAPE_HEADERS)
+            $response = Http::connectTimeout(4)
+                ->timeout(10)
+                ->retry(2, fn (int $attempt) => $attempt * 600, fn (\Throwable $e) => $e instanceof ConnectionException)
+                ->withHeaders(array_merge(self::SCRAPE_HEADERS, [
+                    'Referer' => self::SCRAPE_REFERERS[array_rand(self::SCRAPE_REFERERS)],
+                ]))
                 ->get('https://scholar.google.com/scholar', [
                     'q' => $scholarQuery,
                     'hl' => 'es',
@@ -909,7 +931,9 @@ class AcademicLibraryService
         }
 
         try {
-            $response = Http::timeout(10)
+            $response = Http::connectTimeout(4)
+                ->timeout(12)
+                ->retry(3, fn (int $attempt) => $attempt * 800, fn (\Throwable $e) => $e instanceof ConnectionException)
                 ->withHeaders(self::API_HEADERS)
                 ->get('https://doaj.org/api/search/articles/'.rawurlencode($cleanTerm), [
                     'pageSize' => $pageSize,
@@ -1047,7 +1071,9 @@ class AcademicLibraryService
         }
 
         try {
-            $response = Http::timeout(10)
+            $response = Http::connectTimeout(4)
+                ->timeout(14)
+                ->retry(3, fn (int $attempt) => $attempt * 1000, fn (\Throwable $e) => $e instanceof ConnectionException)
                 ->withHeaders(self::API_HEADERS)
                 ->get('https://www.ebi.ac.uk/europepmc/webservices/rest/search', [
                     'query' => $query,
@@ -1168,7 +1194,9 @@ class AcademicLibraryService
         }
 
         try {
-            $response = Http::timeout(10)
+            $response = Http::connectTimeout(4)
+                ->timeout(12)
+                ->retry(3, fn (int $attempt) => $attempt * 700, fn (\Throwable $e) => $e instanceof ConnectionException)
                 ->withHeaders(self::API_HEADERS)
                 ->get('https://openlibrary.org/search.json', [
                     'q' => $cleanTerm,
@@ -1293,16 +1321,21 @@ class AcademicLibraryService
             $enhancedSearch .= ' scielo';
         }
 
-        $response = Http::timeout(12)
-            ->withHeaders(self::API_HEADERS)
-            ->get('https://api.openalex.org/works', [
-                'search' => $enhancedSearch,
-                'filter' => implode(',', $filters),
-                'per_page' => $perPage,
-            ]);
+        $baseHttp = Http::connectTimeout(4)
+            ->timeout(14)
+            ->retry(3, fn (int $attempt) => $attempt * 900, fn (\Throwable $e) => $e instanceof ConnectionException)
+            ->withHeaders(self::API_HEADERS);
+
+        $response = $baseHttp->get('https://api.openalex.org/works', [
+            'search' => $enhancedSearch,
+            'filter' => implode(',', $filters),
+            'per_page' => $perPage,
+        ]);
 
         if (! $response->successful() && $categoryFilter === 'Libro') {
-            $response = Http::timeout(12)
+            $response = Http::connectTimeout(4)
+                ->timeout(14)
+                ->retry(3, fn (int $attempt) => $attempt * 900, fn (\Throwable $e) => $e instanceof ConnectionException)
                 ->withHeaders(self::API_HEADERS)
                 ->get('https://api.openalex.org/works', [
                     'search' => $enhancedSearch,
@@ -1441,12 +1474,15 @@ class AcademicLibraryService
         $cleanTerm = $this->sanitizeSearchTerm($term);
 
         try {
-            $response = Http::timeout(12)
+            $response = Http::connectTimeout(4)
+                ->timeout(14)
+                ->retry(3, fn (int $attempt) => $attempt * 1000, fn (\Throwable $e) => $e instanceof ConnectionException)
                 ->withHeaders(self::API_HEADERS)
                 ->get('https://api.crossref.org/works', [
                     'query' => $cleanTerm,
                     'rows' => $rows,
                     'filter' => 'has-full-text:true',
+                    'mailto' => 'contacto@iestpfvc.edu.pe',
                 ]);
 
             if (! $response->successful()) {
@@ -1563,7 +1599,9 @@ class AcademicLibraryService
         }
 
         try {
-            $response = Http::timeout(8)
+            $response = Http::connectTimeout(4)
+                ->timeout(10)
+                ->retry(3, fn (int $attempt) => $attempt * 800, fn (\Throwable $e) => $e instanceof ConnectionException)
                 ->withHeaders(self::API_HEADERS)
                 ->get('https://api.semanticscholar.org/graph/v1/paper/search', [
                     'query' => $cleanTerm,
@@ -1678,7 +1716,9 @@ class AcademicLibraryService
 
         // Tier 1: Unpaywall API
         try {
-            $response = Http::timeout(6)
+            $response = Http::connectTimeout(3)
+                ->timeout(8)
+                ->retry(2, fn (int $attempt) => $attempt * 500, fn (\Throwable $e) => $e instanceof ConnectionException)
                 ->withHeaders(self::API_HEADERS)
                 ->get('https://api.unpaywall.org/v2/'.rawurlencode($doi), [
                     'email' => 'contacto@iestpfvc.edu.pe',
@@ -1709,9 +1749,11 @@ class AcademicLibraryService
 
         // Tier 2: Crossref API link negotiation
         try {
-            $crResponse = Http::timeout(6)
+            $crResponse = Http::connectTimeout(3)
+                ->timeout(8)
+                ->retry(2, fn (int $attempt) => $attempt * 500, fn (\Throwable $e) => $e instanceof ConnectionException)
                 ->withHeaders(self::API_HEADERS)
-                ->get('https://api.crossref.org/works/'.rawurlencode($doi));
+                ->get('https://api.crossref.org/works/'.rawurlencode($doi).'?mailto=contacto@iestpfvc.edu.pe');
 
             if ($crResponse->successful()) {
                 $links = $crResponse->json('message.link') ?? [];
@@ -1732,7 +1774,9 @@ class AcademicLibraryService
 
         // Tier 3: OpenAlex Works API
         try {
-            $oaResponse = Http::timeout(6)
+            $oaResponse = Http::connectTimeout(3)
+                ->timeout(8)
+                ->retry(2, fn (int $attempt) => $attempt * 500, fn (\Throwable $e) => $e instanceof ConnectionException)
                 ->withHeaders(self::API_HEADERS)
                 ->get('https://api.openalex.org/works/https://doi.org/'.rawurlencode($doi));
 
@@ -1765,12 +1809,8 @@ class AcademicLibraryService
     {
         $url = trim($url);
 
-        if (preg_match('~(/article/)download/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', $url)) {
-            $url = (string) preg_replace('~(/article/)download/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', '$1view/$2', $url);
-        }
-
-        if (preg_match('~(/article/)viewFile/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', $url)) {
-            $url = (string) preg_replace('~(/article/)viewFile/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', '$1view/$2', $url);
+        if (preg_match('~(/article/)(?:view|viewFile)/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', $url)) {
+            $url = (string) preg_replace('~(/article/)(?:view|viewFile)/([^/?#]+/[^/?#]+)(?:/[^/?#]+)?~i', '$1download/$2', $url);
         }
 
         return $url;
@@ -1794,25 +1834,25 @@ class AcademicLibraryService
             return $this->resolvedUrlCache[$url];
         }
 
-        // Unwrap PDF.js or generic viewer URLs that embed the PDF path in ?file= or ?url=
+        // Desempaquetar visores PDF.js que embeben ?file= o ?url=
         if (preg_match('/[?&](?:file|pdf|doc|url)=(https?%3A%2F%2F[^&#]+|https?:\/\/[^&#]+|%2F[^&#]+\.pdf)/i', $url, $viewerMatch)) {
             $url = $this->makeAbsoluteUrl(rawurldecode($viewerMatch[1]), $url);
         }
 
-        // Normalize OJS download URLs to direct viewer URLs (/article/view/ID/GALLEY)
+        // Normalizar OJS hacia /article/download/ID/GALLEY (binario directo)
         $url = $this->normalizeOjsUrl($url);
 
-        // Fast check 1: already ends in .pdf or contains direct PDF asset
+        // Fast check 1: termina en .pdf
         if (preg_match('/\.pdf($|\?)/i', $url) && ! $this->isExcludedPdfUrl($url)) {
             return $this->resolvedUrlCache[$url] = $url;
         }
 
-        // Fast check 2: OJS Galley already present (e.g. /article/view/350/394)
-        if (preg_match('/\/article\/view\/\d+\/\d+/i', $url)) {
+        // Fast check 2: OJS Galley download directo (/article/download/350/394)
+        if (preg_match('/\/article\/download\/\d+\/\d+/i', $url)) {
             return $this->resolvedUrlCache[$url] = $url;
         }
 
-        // Fast check 3: Dialnet article, thesis & book landing pages -> direct PDF download link
+        // Fast check 3: Dialnet
         if (preg_match('/dialnet\.unirioja\.es\/servlet\/articulo\?codigo=(\d+)/i', $url, $dMatch)) {
             return $this->resolvedUrlCache[$url] = "https://dialnet.unirioja.es/descarga/articulo/{$dMatch[1]}.pdf";
         }
@@ -1823,7 +1863,7 @@ class AcademicLibraryService
             return $this->resolvedUrlCache[$url] = "https://dialnet.unirioja.es/descarga/libro/{$lMatch[1]}.pdf";
         }
 
-        // Fast check 4: Redalyc article landing pages -> direct PDF link
+        // Fast check 4: Redalyc
         if (preg_match('/redalyc\.org\/articulo\.oa\?id=(\d{7,})/i', $url, $rMatch)) {
             $oaId = $rMatch[1];
             $journalPrefix = substr($oaId, 0, -3);
@@ -1834,57 +1874,44 @@ class AcademicLibraryService
             return $this->resolvedUrlCache[$url] = "https://www.redalyc.org/journal/{$rjMatch[1]}/{$rjMatch[2]}/{$rjMatch[2]}.pdf";
         }
 
-        // Fast check 5: SciELO arttext -> try direct PDF scraping or sci_pdf transformation
-        if (str_contains($url, 'scielo.php') && str_contains($url, 'script=sci_arttext')) {
-            $pdfCandidate = str_replace('script=sci_arttext', 'script=sci_pdf', $url);
+        // Fast check 5: SciELO arttext / sci_pdf
+        if (str_contains($url, 'scielo.php') && (str_contains($url, 'script=sci_arttext') || str_contains($url, 'script=sci_pdf'))) {
             $scraped = $this->scrapeDirectDocumentLink($url);
             if ($scraped && ! str_starts_with($scraped, 'javascript:')) {
                 return $this->resolvedUrlCache[$url] = $this->normalizeOjsUrl($scraped);
             }
 
-            return $this->resolvedUrlCache[$url] = $pdfCandidate;
+            return $this->resolvedUrlCache[$url] = str_replace('script=sci_arttext', 'script=sci_pdf', $url);
         }
 
-        // Fast check 6: SciELO modern URL without format=pdf
-        if (preg_match('#scielo\.[a-z.]+/j/[^/]+/a/[^/?]+#i', $url) && ! str_contains($url, 'format=pdf')) {
-            $scraped = $this->scrapeDirectDocumentLink($url);
-            if ($scraped && ! str_starts_with($scraped, 'javascript:')) {
-                return $this->resolvedUrlCache[$url] = $this->normalizeOjsUrl($scraped);
-            }
+        // Fast check 6: SciELO moderno
+        if (preg_match('#scielo\.[a-z.]+/j/[^/]+/a/[^/?]+#i', $url)) {
+            $baseScielo = preg_replace('#/\?format=pdf.*$#i', '', $url);
 
-            $sep = str_contains($url, '?') ? '&' : '?';
-
-            return $this->resolvedUrlCache[$url] = $url.$sep.'format=pdf';
+            return $this->resolvedUrlCache[$url] = rtrim($baseScielo, '/').'/?format=pdf';
         }
 
-        // Fast check 7: arXiv abstract URL -> convert to direct PDF URL
+        // Fast check 7: arXiv
         if (preg_match('#arxiv\.org/abs/([\w.]+)#i', $url, $arxivMatch)) {
             return $this->resolvedUrlCache[$url] = 'https://arxiv.org/pdf/'.$arxivMatch[1].'.pdf';
         }
 
-        // Fast check 8: PubMed Central / Europe PMC article -> scrape or convert to direct PMC PDF
+        // Fast check 8: PubMed Central / Europe PMC
         if (preg_match('#(?:pubmedcentral|ncbi\.nlm\.nih\.gov/pmc/articles)/PMC(\d+)#i', $url, $pmcMatch)) {
-            $pmcId = $pmcMatch[1];
-            $directPmc = "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC{$pmcId}/pdf/";
-            $scraped = $this->scrapeDirectDocumentLink($url);
-            if ($scraped && ! str_starts_with($scraped, 'javascript:')) {
-                return $this->resolvedUrlCache[$url] = $this->normalizeOjsUrl($scraped);
-            }
-
-            return $this->resolvedUrlCache[$url] = $directPmc;
+            return $this->resolvedUrlCache[$url] = "https://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC{$pmcMatch[1]}&blobtype=pdf";
         }
         if (preg_match('#europepmc\.org/article/PMC/(\d+)#i', $url, $epmcMatch)) {
             return $this->resolvedUrlCache[$url] = 'https://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC'.$epmcMatch[1].'&blobtype=pdf';
         }
 
-        // Fast check 9: Internet Archive Details URL -> direct PDF download
+        // Fast check 9: Internet Archive
         if (preg_match('~archive\.org/details/([^/?#]+)~i', $url, $iaMatch)) {
             $iaId = $iaMatch[1];
 
             return $this->resolvedUrlCache[$url] = "https://archive.org/download/{$iaId}/{$iaId}.pdf";
         }
 
-        // Fast check 10: DOI URL -> multi-tier resolver for direct open-access PDF
+        // Fast check 10: DOI
         if (preg_match('#^https?://(?:dx\.)?doi\.org/(10\.\d{4,9}/.+)$#i', $url, $doiMatch)) {
             $resolvedPdf = $this->resolveDoiToOpenAccessPdf($doiMatch[1]);
             if ($resolvedPdf) {
@@ -1892,19 +1919,107 @@ class AcademicLibraryService
             }
         }
 
-        // Active DOM scraping: Fetch HTML and parse meta tags, OJS galley, bitstreams, and PDF anchors
+        // Scraping DOM activo
         $scrapedLink = $this->scrapeDirectDocumentLink($url);
         if ($scrapedLink && ! str_starts_with($scrapedLink, 'javascript:')) {
             return $this->resolvedUrlCache[$url] = $this->normalizeOjsUrl($scrapedLink);
         }
 
-        // OJS Galley Fallback: If scraping failed or was blocked, attempt OJS OAI / Crossref resolution
+        // Fallback OJS OAI
         $ojsResolved = $this->resolveOjsGalleyUrl($url);
         if ($ojsResolved && ! str_starts_with($ojsResolved, 'javascript:')) {
-            return $this->resolvedUrlCache[$url] = $ojsResolved;
+            return $this->resolvedUrlCache[$url] = $this->normalizeOjsUrl($ojsResolved);
         }
 
         return $this->resolvedUrlCache[$url] = ($fallback ?? $url);
+    }
+
+    /**
+     * Descarga el PDF remoto al almacenamiento local (storage/app/public/library/books)
+     * verificando los magic bytes (%PDF-) para que el libro se abra desde el propio servidor
+     * sin bloqueos de CORS, X-Frame-Options ni caídas del repositorio externo.
+     *
+     * @return array{file_path: string, file_size: int}|null
+     */
+    public function downloadAndCachePdf(string $externalUrl, ?string $slugOrTitle = null): ?array
+    {
+        $targetUrl = $this->resolveDirectDocumentLink($externalUrl);
+        if ($targetUrl === '' || str_starts_with($targetUrl, 'javascript:')) {
+            return null;
+        }
+
+        try {
+            $parsedHost = parse_url($targetUrl, PHP_URL_HOST) ?: '';
+            $parsedScheme = parse_url($targetUrl, PHP_URL_SCHEME) ?: 'https';
+            $originReferer = $parsedHost ? "{$parsedScheme}://{$parsedHost}/" : self::SCRAPE_REFERERS[0];
+
+            $response = Http::connectTimeout(6)
+                ->timeout(25)
+                ->withHeaders(array_merge(self::SCRAPE_HEADERS, [
+                    'Accept' => 'application/pdf,application/octet-stream;q=0.9,*/*;q=0.8',
+                    'Referer' => $originReferer,
+                ]))
+                ->withOptions([
+                    'allow_redirects' => ['max' => 8, 'referer' => true],
+                    'verify' => false, // Evita fallos con certificados SSL intermedios de universidades
+                ])
+                ->get($targetUrl);
+
+            if (! $response->successful()) {
+                return null;
+            }
+
+            $body = $response->body();
+
+            // Si la respuesta es un contenedor HTML (ej. sci_pdf de SciELO o página puente OJS), extraer el PDF real y reintentar
+            if (! str_starts_with($body, '%PDF-') && str_contains(strtolower($response->header('Content-Type')), 'text/html')) {
+                $effectiveUri = (string) ($response->effectiveUri() ?: $targetUrl);
+                $innerPdfUrl = $this->extractWithDomCrawler($body, $effectiveUri);
+
+                if ($innerPdfUrl && $innerPdfUrl !== $targetUrl) {
+                    $innerPdfUrl = $this->normalizeOjsUrl($innerPdfUrl);
+                    $response = Http::connectTimeout(6)
+                        ->timeout(25)
+                        ->withHeaders(array_merge(self::SCRAPE_HEADERS, [
+                            'Accept' => 'application/pdf,application/octet-stream;q=0.9,*/*;q=0.8',
+                            'Referer' => $effectiveUri,
+                        ]))
+                        ->withOptions(['allow_redirects' => ['max' => 8], 'verify' => false])
+                        ->get($innerPdfUrl);
+
+                    if (! $response->successful()) {
+                        return null;
+                    }
+                    $body = $response->body();
+                }
+            }
+
+            // Verificar que el contenido sea auténticamente un archivo PDF (%PDF-) y pese al menos 1 KB
+            $pdfPos = strpos($body, '%PDF-');
+            if ($pdfPos === false || strlen($body) < 1024) {
+                return null;
+            }
+
+            // Limpiar posibles bytes basura previos a la cabecera %PDF-
+            if ($pdfPos > 0 && $pdfPos < 1024) {
+                $body = substr($body, $pdfPos);
+            }
+
+            $safeName = Str::slug(Str::limit($slugOrTitle ?: 'doc', 80)) ?: 'documento';
+            $fileName = 'book_'.$safeName.'_'.substr(md5($targetUrl), 0, 10).'.pdf';
+            $relativePath = 'library/books/'.$fileName;
+
+            Storage::disk('public')->put($relativePath, $body);
+
+            return [
+                'file_path' => $relativePath,
+                'file_size' => strlen($body),
+            ];
+        } catch (\Throwable $e) {
+            Log::info("Descarga en caché local omitida para [{$targetUrl}]: ".$e->getMessage());
+
+            return null;
+        }
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -1922,8 +2037,12 @@ class AcademicLibraryService
         }
 
         try {
-            $response = Http::timeout(8)
-                ->withHeaders(self::SCRAPE_HEADERS)
+            $response = Http::connectTimeout(4)
+                ->timeout(10)
+                ->retry(2, fn (int $attempt) => $attempt * 400, fn (\Throwable $e) => $e instanceof ConnectionException)
+                ->withHeaders(array_merge(self::SCRAPE_HEADERS, [
+                    'Referer' => self::SCRAPE_REFERERS[array_rand(self::SCRAPE_REFERERS)],
+                ]))
                 ->withOptions([
                     'allow_redirects' => [
                         'max' => 6,
@@ -2269,8 +2388,10 @@ class AcademicLibraryService
             ];
 
             foreach ($oaiUrls as $oaiUrl) {
-                $response = Http::timeout(6)
-                    ->withHeaders(['User-Agent' => 'IESTP-Francisco-Vigo-Caballero/VirtualLibrary'])
+                $response = Http::connectTimeout(3)
+                    ->timeout(8)
+                    ->retry(2, fn (int $attempt) => $attempt * 400, fn (\Throwable $e) => $e instanceof ConnectionException)
+                    ->withHeaders(['User-Agent' => 'IESTP-Francisco-Vigo-Caballero/VirtualLibrary/2.0 (contacto@iestpfvc.edu.pe)'])
                     ->get($oaiUrl);
 
                 if ($response->successful()) {
@@ -2282,9 +2403,11 @@ class AcademicLibraryService
 
                     if (preg_match('#<dc:identifier>(10\.\d{4,9}/[^<]+)</dc:identifier>#i', $xml, $doiMatch)) {
                         $doi = trim($doiMatch[1]);
-                        $crResponse = Http::timeout(6)
-                            ->withHeaders(['User-Agent' => 'IESTP-Francisco-Vigo-Caballero/VirtualLibrary'])
-                            ->get('https://api.crossref.org/works/'.urlencode($doi));
+                        $crResponse = Http::connectTimeout(3)
+                            ->timeout(8)
+                            ->retry(2, fn (int $attempt) => $attempt * 400, fn (\Throwable $e) => $e instanceof ConnectionException)
+                            ->withHeaders(['User-Agent' => 'IESTP-Francisco-Vigo-Caballero/VirtualLibrary/2.0 (contacto@iestpfvc.edu.pe)'])
+                            ->get('https://api.crossref.org/works/'.urlencode($doi).'?mailto=contacto@iestpfvc.edu.pe');
 
                         if ($crResponse->successful()) {
                             $links = $crResponse->json('message.link') ?? [];
@@ -2371,8 +2494,13 @@ class AcademicLibraryService
 
         // Lightweight Range probe (first 512 bytes) to verify if the URL streams a binary %PDF- file
         try {
-            $response = Http::timeout(5)
-                ->withHeaders(array_merge(self::SCRAPE_HEADERS, ['Range' => 'bytes=0-512']))
+            $response = Http::connectTimeout(3)
+                ->timeout(6)
+                ->retry(2, fn (int $attempt) => $attempt * 300, fn (\Throwable $e) => $e instanceof ConnectionException)
+                ->withHeaders(array_merge(self::SCRAPE_HEADERS, [
+                    'Range' => 'bytes=0-512',
+                    'Referer' => self::SCRAPE_REFERERS[array_rand(self::SCRAPE_REFERERS)],
+                ]))
                 ->withOptions(['allow_redirects' => ['max' => 5]])
                 ->get($url);
 
@@ -2584,17 +2712,6 @@ class AcademicLibraryService
 
         $existing = Book::where('external_url', $item['external_url'])->first();
 
-        if (! $existing) {
-            $existing = Book::where('title', $item['title'])->first();
-        }
-
-        if (! $existing && preg_match('#(/article/(?:view|download)/\d+)#i', $item['external_url'], $baseOjsMatch)) {
-            $baseOjs = $baseOjsMatch[1];
-            $existing = Book::where('external_url', 'like', '%'.$baseOjs)
-                ->orWhere('external_url', 'like', '%'.$baseOjs.'/%')
-                ->first();
-        }
-
         if ($existing) {
             $updates = [
                 'author' => $existing->author ?: ($item['author'] ?? null),
@@ -2609,6 +2726,15 @@ class AcademicLibraryService
                 $updates['external_url'] = $item['external_url'];
             }
 
+            // Si el libro existente no tiene archivo PDF local, intentar cachearlo ahora
+            if (empty($existing->file_path) || ! Storage::disk('public')->exists($existing->file_path)) {
+                $cached = $this->downloadAndCachePdf($updates['external_url'] ?? $existing->external_url, $existing->slug);
+                if ($cached) {
+                    $updates['file_path'] = $cached['file_path'];
+                    $updates['file_size'] = $cached['file_size'];
+                }
+            }
+
             $existing->update($updates);
 
             return ['updated', $existing];
@@ -2620,6 +2746,9 @@ class AcademicLibraryService
         while (Book::where('slug', $slug)->exists()) {
             $slug = $baseSlug.'-'.$counter++;
         }
+
+        // Descargar copia local del PDF durante la importación para lectura in-app instantánea
+        $cachedPdf = $this->downloadAndCachePdf($item['external_url'], $slug);
 
         $bookData = [
             'title' => $item['title'],
@@ -2635,6 +2764,8 @@ class AcademicLibraryService
             'isbn' => isset($item['isbn']) ? Str::limit($item['isbn'], 45) : null,
             'language' => $item['language'] ?? 'Español',
             'external_url' => $item['external_url'],
+            'file_path' => $cachedPdf['file_path'] ?? null,
+            'file_size' => $cachedPdf['file_size'] ?? null,
             'rating' => 5.0,
             'is_active' => true,
             'created_by' => $item['created_by'] ?? auth()->id(),

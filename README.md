@@ -64,8 +64,10 @@ La plataforma abarca desde la difusión de las **5 carreras profesionales técni
                             └─────────────────┘         └─────────────────┘
 ```
 
-- **SPA Fluida sin Recargas:** Navegación ultra-rápida cliente-servidor mediante `@inertiajs/vue3` sin re-cargar la página ni perder el estado.
-- **Manejo Centralizado de Errores SPA:** Códigos 400, 401, 402, 403, 404, 419, 429, 500 y 503 interceptados globalmente en `bootstrap/app.php` y renderizados mediante el componente SPA `resources/js/Pages/Error.vue`.
+- **Arquitectura 100% SPA (Single-Page Application):** Navegación ultra-rápida cliente-servidor mediante `@inertiajs/vue3` sin re-cargar la página ni perder el estado, con registro global de componentes `<Link>` y `<Head>`, indicador visual de progreso (`#2563eb`) y gestor dinámico de títulos institucionales.
+- **Navegación e Interacción Pura en Cliente:** Enrutamiento reactivo sin enlaces que provoquen recargas de página completas (`<Link>` en lugar de `<a>`), envío de formularios mediante `@submit.prevent` e Inertia Forms, y modales integrados en memoria con desenfoque envolvente de pantalla completa (`backdrop-blur-md`).
+- **Manejo Centralizado de Errores SPA:** Códigos 400, 401, 402, 403, 404, 419, 429, 500 y 503 interceptados globalmente en `bootstrap/app.php` y renderizados dentro del ciclo de vida SPA en `resources/js/Pages/Error.vue`.
+- **Visualización de Datos y Tablas Densas:** Rejilla equilibrada y adaptable en Transparencia Estadística con scrollbar estilizada y cabeceras/pies fijos (`sticky`) para consultar más de 28 años de registros históricos continuos sin desbordamientos.
 - **Lector Embebido con Respaldo *Cross-Origin*:** Streaming seguro inline de PDFs y vista de respaldo institucional `library.external-fallback.blade.php` para repositorios remotos protegidos por políticas `X-Frame-Options: SAMEORIGIN` (Europe PMC, PubMed, SciELO, etc.).
 
 ---

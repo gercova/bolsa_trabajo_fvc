@@ -10,10 +10,10 @@
 | :--- | :--- |
 | **Documento** | Product Definition Report (PDR) / Technical Architecture Document |
 | **Proyecto** | Plataforma Integral IESTP Francisco Vigo Caballero (Bolsa FVC) |
-| **Versión** | 3.0.0-PROD (SPA Híbrida Reactiva) |
+| **Versión** | 3.1.0-PROD (Arquitectura 100% Single-Page Application Homologada) |
 | **Entorno de Referencia** | PHP 8.3 / Laravel 11.31 / Inertia.js 3.5 / Vue 3.5 / Tailwind CSS 3.4 / Vite 8.3 / MySQL 8.0+ |
 | **URL Oficial de Producción** | `https://iestpfranciscovigocaballero.edu.pe/` |
-| **Estado** | Aprobado para Producción, Homologación y Auditoría Técnica |
+| **Estado** | Aprobado para Producción, Homologación y Auditoría Técnica — 100% SPA Certificada |
 | **Última Actualización** | Noviembre 2026 |
 | **Inventario Técnico Exhaustivo** | 45 Modelos • 44 Controladores • 42 FormRequests • 2 Servicios de Dominio • 319 Rutas • 116 Vistas Vue SPA • 2 Layouts Vue • 17 Plantillas Blade Esenciales • 55 Migraciones • 30 Seeders • 33 Tests • 2 Comandos CLI • 5 Imports • 6 Exports |
 
@@ -456,7 +456,49 @@ Más de 270 rutas operativas protegidas con autenticación y permisos Spatie:
 
 ## 8. Arquitectura Frontend, Páginas Vue SPA y Plantillas Blade
 
-### 8.1. Páginas Vue SPA (`resources/js/Pages/` — 116 Componentes)
+### 8.1. Especificación y Configuración 100% Single-Page Application (SPA)
+
+La plataforma opera bajo una arquitectura **100% Single-Page Application (SPA)** impulsada por `@inertiajs/vue3` y Vue 3 (Composition API), eliminando recargas completas del navegador en todas las transiciones internas y preservando el estado global de la aplicación.
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        FLUJO DE NAVEGACIÓN SPA                         │
+├────────────────────────────────────────────────────────────────────────┤
+│ 1. Carga Inicial:                                                      │
+│    GET /  ───► Blade Mount (inertia-app.blade.php) ──► Vue 3 App       │
+│                                                                        │
+│ 2. Navegación Interna (100% en Cliente):                               │
+│    <Link :href="route(...)"> ───► X-Inertia Request (AJAX)             │
+│    Servidor responde JSON (Component + Props)                          │
+│    Inertia intercambia componente Vue dinámicamente                    │
+│    Indicador de Progreso: Barra activa superior (#2563eb)              │
+│    Título Dinámico: title: (t) => `${t} — IESTP Francisco Vigo...`    │
+│    CERO Parpadeos • CERO Recargas de Página • Preservación de Estado   │
+│                                                                        │
+│ 3. Envíos y Formularios Reactivos:                                     │
+│    @submit.prevent="submit" ───► useForm() / router.post/put/delete    │
+│    Mensajes Flash en Props Globales • Validaciones Precognition        │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Estándares de Implementación SPA Homologados:
+1. **Configuración Centralizada en `resources/js/app.js`:**
+   - **Registro Global de Primitivas:** Los componentes `<Link>` y `<Head>` de `@inertiajs/vue3` se encuentran registrados globalmente en `app.component()`, permitiendo su uso universal en todos los módulos sin riesgo de recurrir a etiquetas `<a>` no reactivas.
+   - **Barra de Progreso Nativa de Navegación:** Configuración integrada `progress: { color: '#2563eb', includeCSS: true, showSpinner: false }` que provee retroalimentación visual inmediata durante cualquier navegación asíncrona.
+   - **Gestor Dinámico de Títulos:** Callback `title: (title) => title ? `${title} — IESTP Francisco Vigo Caballero` : 'IESTP Francisco Vigo Caballero'`, estandarizando la pestaña del navegador de forma reactiva.
+2. **Hipervínculos y Transiciones:**
+   - Todo enlace interno (menú principal, sidebar administrativo, breadcrumbs, botones de acción y paginadores) utiliza `<Link>` de Inertia.
+   - Los enlaces a protocolos externos (`tel:`, `mailto:`), maquetas de impresión (`/imprimir`, `/bulk-print`), descargas de documentos (`download`) y URLs externas utilizan estrictamente atributos `target="_blank"` y `rel="noopener noreferrer"`.
+3. **Formularios e Interacciones Asíncronas:**
+   - El 100% de los formularios utiliza `@submit.prevent` combinado con el composable `useForm()` o llamadas a `router` de Inertia (`router.post`, `router.put`, `router.delete`), gestionando cargas de archivos (archivos PDF, imágenes, Excels) mediante `FormData` sin abandonar la aplicación.
+4. **Modales y Diálogos en Memoria:**
+   - Los diálogos de confirmación, visores de detalle, actualización de credenciales e importaciones masivas se operan mediante estado reactivo local (`ref()`), con fondo envolvente de pantalla completa (`backdrop-blur-md fixed inset-0 z-50`) que previene desajustes visuales o recortes en ventanas flotantes.
+5. **Interceptación Global de Errores HTTP:**
+   - Configurada en `bootstrap/app.php`, intercepta estados HTTP `400, 401, 402, 403, 404, 419, 429, 500, 503` y los canaliza hacia `resources/js/Pages/Error.vue` con `Inertia::render('Error')`, manteniendo la estética institucional y el ciclo de vida SPA incluso ante fallos de servidor o de autorización.
+6. **Optimización de Grids y Tablas de Alta Densidad:**
+   - En `resources/js/Pages/Transparency/Statistics.vue`, la rejilla de tarjetas comparativas (Matrícula y Títulos Otorgados) está balanceada milimétricamente en altura (`709px` en escritorio), con scrollbar personalizada (`custom-scrollbar`) y fijación estricta (`sticky`) de encabezados y sumatorias históricas (`thead`, `tfoot`) para explorar 28 años de historial ininterrumpidamente.
+
+### 8.2. Páginas Vue SPA (`resources/js/Pages/` — 116 Componentes)
 
 #### A. Portal Público e Institucional (18 Componentes)
 - `Home.vue`: Portada principal, hero carousel, accesos rápidos y estadísticas.
@@ -538,7 +580,7 @@ Más de 270 rutas operativas protegidas con autenticación y permisos Spatie:
 - `Tupa/Index.vue`, `Create.vue`, `Edit.vue`: Matriz TUPA institucional.
 - `Users/Index.vue`, `Create.vue`, `Edit.vue`: Directorio de usuarios, importación Excel y reseteo de claves.
 
-### 8.2. Layouts Vue (`resources/js/Layouts/` — 2 Componentes)
+### 8.3. Layouts Vue (`resources/js/Layouts/` — 2 Componentes)
 1. **`PublicLayout.vue`:**
    - Barra superior institucional con accesos rápidos, teléfono, correo y redes sociales.
    - Navegación principal con menú desplegable e interactivo para Nosotros, Programas de Estudio, Admisión, Transparencia, Trámites y Servicios.
@@ -550,7 +592,7 @@ Más de 270 rutas operativas protegidas con autenticación y permisos Spatie:
    - Control contextual de visibilidad de ítems basado en la matriz de permisos Spatie (`$page.props.auth.user`).
    - Barra superior con botón de alternancia móvil, atajos directos al portal público y menú de cierre de sesión.
 
-### 8.3. Plantillas Blade Remanentes (`resources/views/` — 17 Archivos Esenciales)
+### 8.4. Plantillas Blade Remanentes (`resources/views/` — 17 Archivos Esenciales)
 
 | Archivo Blade | Justificación de Retención Arquitectural |
 |---|---|

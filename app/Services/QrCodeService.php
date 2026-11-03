@@ -92,7 +92,6 @@ class QrCodeService
     protected static function computeReedSolomon(array $data, int $ecCount): array
     {
         self::initGf();
-
         // Generate generator polynomial
         $generator = [1];
         for ($i = 0; $i < $ecCount; $i++) {
@@ -143,17 +142,13 @@ class QrCodeService
         $dataBytes = array_values(unpack('C*', $text));
         $len = count($dataBytes);
         $totalDataCapacity = self::$versionSpecs[$version]['data'];
-
         // Bit stream builder
         $bitStream = '';
-
         // 1. Mode indicator: Byte mode is 0100
         $bitStream .= '0100';
-
         // 2. Character count indicator: 8 bits for version 1-9, 16 bits for version 10
         $charCountBits = ($version <= 9) ? 8 : 16;
         $bitStream .= str_pad(decbin($len), $charCountBits, '0', STR_PAD_LEFT);
-
         // 3. Data bits
         foreach ($dataBytes as $b) {
             $bitStream .= str_pad(decbin($b), 8, '0', STR_PAD_LEFT);
@@ -199,7 +194,6 @@ class QrCodeService
         $ecPerBlock = $spec['ecPerBlock'];
         $dataPerBlock = intdiv($spec['data'], $numBlocks);
         $extraDataBlocks = $spec['data'] % $numBlocks;
-
         $dataBlocks = [];
         $ecBlocks = [];
 
@@ -238,7 +232,6 @@ class QrCodeService
     {
         $version = self::chooseVersion(strlen($text));
         $size = 4 * $version + 17;
-
         $matrix = array_fill(0, $size, array_fill(0, $size, null));
         $isReserved = array_fill(0, $size, array_fill(0, $size, false));
 
@@ -442,13 +435,23 @@ class QrCodeService
     }
 
     /**
+     * Get the boolean module matrix for custom renderers (e.g., PDF vector streams).
+     *
+     * @return array<int, array<int, bool>>
+     */
+    public static function matrix(string $text): array
+    {
+        return self::generateMatrix($text);
+    }
+
+    /**
      * Render QR code as sharp, scalable SVG.
      */
     public static function svg(string $text, int $size = 140, string $color = '#000000'): string
     {
         $matrix = self::generateMatrix($text);
         $moduleCount = count($matrix);
-        // $quietZone = 2; // quiet zone in modules
+        // $quietZone   = 2; // quiet zone in modules
         $quietZone = 4;
         $totalModules = $moduleCount + ($quietZone * 2);
 

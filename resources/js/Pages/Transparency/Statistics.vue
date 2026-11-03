@@ -48,10 +48,10 @@ const calcPct = (val, total) => {
 };
 
 // Demographic Gender Percentages
-const pctMalesMat = computed(() => calcPct(props.totalMalesMatricula, props.totalMatriculas));
+const pctMalesMat   = computed(() => calcPct(props.totalMalesMatricula, props.totalMatriculas));
 const pctFemalesMat = computed(() => calcPct(props.totalFemalesMatricula, props.totalMatriculas));
 
-const pctMalesTit = computed(() => calcPct(props.totalMalesTitulos, props.totalTitulos));
+const pctMalesTit   = computed(() => calcPct(props.totalMalesTitulos, props.totalTitulos));
 const pctFemalesTit = computed(() => calcPct(props.totalFemalesTitulos, props.totalTitulos));
 
 // Print handler
@@ -65,7 +65,6 @@ const matchesSearch = (text) => {
     return String(text || '').toLowerCase().includes(searchQuery.value.toLowerCase().trim());
 };
 </script>
-
 <template>
     <Head>
         <title>Estadísticas Institucionales — IESTP Francisco Vigo Caballero</title>
@@ -82,7 +81,6 @@ const matchesSearch = (text) => {
         <meta property="og:title" content="Estadísticas Institucionales — IESTP Francisco Vigo Caballero" />
         <meta property="og:description" content="Consulta los reportes y resúmenes estadísticos oficiales de matrícula, admisión y grados y títulos registrados en el IESTP Francisco Vigo Caballero." />
     </Head>
-
     <PublicLayout title="Estadísticas Institucionales">
         <div class="bg-slate-50 min-h-screen">
             <!-- ═══ HERO SECTION ═══════════════════════════════════════════ -->
@@ -93,12 +91,10 @@ const matchesSearch = (text) => {
                     <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-white max-w-5xl mx-auto">
                         Estadísticas <span class="text-sky-400">Institucionales</span>
                     </h1>
-
                     <p class="text-base sm:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed font-normal">
                         Información oficial consolidada de matrícula estudiantil, procesos de admisión y registro de grados y títulos del
                         <strong class="text-white font-semibold">{{ ent.company_name || 'IESTP Francisco Vigo Caballero' }}</strong>.
                     </p>
-
                     <!-- Highlights Badges -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-5xl mx-auto mt-8 pt-6 border-t border-white/10 text-left">
                         <div class="bg-white/5 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl border border-white/10 flex items-center gap-3">
@@ -110,7 +106,6 @@ const matchesSearch = (text) => {
                                 <p class="text-lg sm:text-xl font-black text-white">{{ formatNumber(totalMatriculas) }}</p>
                             </div>
                         </div>
-
                         <div class="bg-white/5 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl border border-white/10 flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl shrink-0">
                                 <i class="bi bi-award-fill"></i>
@@ -120,7 +115,6 @@ const matchesSearch = (text) => {
                                 <p class="text-lg sm:text-xl font-black text-white">{{ formatNumber(totalTitulos) }}</p>
                             </div>
                         </div>
-
                         <div class="bg-white/5 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl border border-white/10 flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl shrink-0">
                                 <i class="bi bi-mortarboard-fill"></i>
@@ -130,7 +124,6 @@ const matchesSearch = (text) => {
                                 <p class="text-lg sm:text-xl font-black text-white">{{ formatNumber(totalProgramas) }}</p>
                             </div>
                         </div>
-
                         <div class="bg-white/5 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl border border-white/10 flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl shrink-0">
                                 <i class="bi bi-calendar2-range-fill"></i>
@@ -143,7 +136,6 @@ const matchesSearch = (text) => {
                     </div>
                 </div>
             </section>
-
             <!-- ═══ MAIN STATISTICAL CONTENT ════════════════════════════════ -->
             <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
                 <!-- Navigation Tabs -->
@@ -159,7 +151,6 @@ const matchesSearch = (text) => {
                                 <i class="bi bi-pie-chart-fill"></i>
                                 <span>Resumen Consolidado</span>
                             </button>
-
                             <button
                                 type="button"
                                 class="px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-all duration-200 flex items-center gap-2 cursor-pointer"
@@ -175,7 +166,6 @@ const matchesSearch = (text) => {
                                     {{ formatNumber(totalMatriculas) }}
                                 </span>
                             </button>
-
                             <button
                                 type="button"
                                 class="px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-all duration-200 flex items-center gap-2 cursor-pointer"
@@ -209,7 +199,6 @@ const matchesSearch = (text) => {
                                 </span>
                             </button>
                         </nav>
-
                         <!-- Search Filter & Print -->
                         <div class="flex items-center gap-2 w-full sm:w-auto">
                             <div class="relative flex-1 sm:w-64">
@@ -229,7 +218,6 @@ const matchesSearch = (text) => {
                                     <i class="bi bi-x-circle-fill"></i>
                                 </button>
                             </div>
-
                             <button
                                 type="button"
                                 title="Imprimir resumen estadístico"
@@ -242,7 +230,6 @@ const matchesSearch = (text) => {
                         </div>
                     </div>
                 </div>
-
                 <!-- ══ TAB 1: RESUMEN CONSOLIDADO GENERAL ═══════════════════ -->
                 <section v-show="activeTab === 'general'" class="space-y-8">
                     <!-- Demographic Gender Indicators Bar -->
@@ -266,7 +253,6 @@ const matchesSearch = (text) => {
                                 <div class="bg-blue-600 h-full" :style="{ width: `${pctMalesMat}%` }" :title="`Varones: ${pctMalesMat}%`"></div>
                                 <div class="bg-pink-500 h-full" :style="{ width: `${pctFemalesMat}%` }" :title="`Mujeres: ${pctFemalesMat}%`"></div>
                             </div>
-
                             <div class="grid grid-cols-2 gap-4 pt-1 text-center">
                                 <div class="bg-blue-50/70 p-2.5 rounded-xl border border-blue-100">
                                     <p class="text-xs font-semibold text-blue-700 flex items-center justify-center gap-1">
@@ -282,7 +268,6 @@ const matchesSearch = (text) => {
                                 </div>
                             </div>
                         </div>
-
                         <!-- Titulación Gender Card -->
                         <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
                             <div class="flex items-center justify-between">
@@ -302,7 +287,6 @@ const matchesSearch = (text) => {
                                 <div class="bg-blue-600 h-full" :style="{ width: `${pctMalesTit}%` }" :title="`Varones: ${pctMalesTit}%`"></div>
                                 <div class="bg-pink-500 h-full" :style="{ width: `${pctFemalesTit}%` }" :title="`Mujeres: ${pctFemalesTit}%`"></div>
                             </div>
-
                             <div class="grid grid-cols-2 gap-4 pt-1 text-center">
                                 <div class="bg-blue-50/70 p-2.5 rounded-xl border border-blue-100">
                                     <p class="text-xs font-semibold text-blue-700 flex items-center justify-center gap-1">
@@ -319,7 +303,6 @@ const matchesSearch = (text) => {
                             </div>
                         </div>
                     </div>
-
                     <!-- Tabla 1: Resumen Histórico de Matrícula por Programa de Estudios -->
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-0">
                         <div class="px-6 py-5 border-b border-slate-200 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -333,7 +316,6 @@ const matchesSearch = (text) => {
                                 {{ enrollmentProgramSummary.length }} Programas Registrados
                             </span>
                         </div>
-
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-xs sm:text-sm">
                                 <thead>
@@ -398,12 +380,11 @@ const matchesSearch = (text) => {
                             </table>
                         </div>
                     </div>
-
                     <!-- 2 Columns: Tabla 2 & Tabla 3 -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                         <!-- Evolución por Periodo Académico -->
-                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-0">
-                            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full space-y-0 min-h-[520px]">
+                            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between shrink-0">
                                 <h2 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
                                     <i class="bi bi-calendar3 text-indigo-600"></i> Tabla 2: Matrícula por Periodo Académico
                                 </h2>
@@ -411,17 +392,16 @@ const matchesSearch = (text) => {
                                     {{ enrollmentPeriodSummary.length }} Periodos
                                 </span>
                             </div>
-
-                            <div class="overflow-x-auto">
+                            <div class="overflow-x-auto overflow-y-auto flex-1 custom-scrollbar">
                                 <table class="w-full text-left border-collapse text-xs sm:text-sm">
-                                    <thead>
+                                    <thead class="sticky top-0 z-10 bg-slate-900 shadow-sm">
                                         <tr class="bg-slate-900 text-slate-200 uppercase tracking-wider text-[11px] font-extrabold">
-                                            <th scope="col" class="py-3 px-4">Periodo</th>
-                                            <th scope="col" class="py-3 px-4 text-center">Prog.</th>
-                                            <th scope="col" class="py-3 px-4 text-right">Varones</th>
-                                            <th scope="col" class="py-3 px-4 text-right">Mujeres</th>
-                                            <th scope="col" class="py-3 px-4 text-right">Total</th>
-                                            <th scope="col" class="py-3 px-4 text-right">%</th>
+                                            <th scope="col" class="py-3 px-4 bg-slate-900">Periodo</th>
+                                            <th scope="col" class="py-3 px-4 text-center bg-slate-900">Prog.</th>
+                                            <th scope="col" class="py-3 px-4 text-right bg-slate-900">Varones</th>
+                                            <th scope="col" class="py-3 px-4 text-right bg-slate-900">Mujeres</th>
+                                            <th scope="col" class="py-3 px-4 text-right bg-slate-900">Total</th>
+                                            <th scope="col" class="py-3 px-4 text-right bg-slate-900">%</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">
@@ -434,44 +414,42 @@ const matchesSearch = (text) => {
                                             <td class="py-2.5 px-4 text-right text-xs font-semibold text-slate-600">{{ calcPct(ep.total, totalMatriculas) }}%</td>
                                         </tr>
                                     </tbody>
-                                    <tfoot>
-                                        <tr class="bg-slate-100 font-bold text-slate-900 border-t border-slate-200 text-xs">
-                                            <td class="py-2.5 px-4" colspan="2">TOTAL</td>
-                                            <td class="py-2.5 px-4 text-right font-mono text-blue-800">{{ formatNumber(totalMalesMatricula) }}</td>
-                                            <td class="py-2.5 px-4 text-right font-mono text-pink-800">{{ formatNumber(totalFemalesMatricula) }}</td>
-                                            <td class="py-2.5 px-4 text-right font-mono">{{ formatNumber(totalMatriculas) }}</td>
-                                            <td class="py-2.5 px-4 text-right font-mono">100%</td>
+                                    <tfoot class="sticky bottom-0 z-10 bg-slate-100 shadow-[0_-2px_6px_rgba(0,0,0,0.06)] border-t border-slate-200">
+                                        <tr class="font-bold text-slate-900 text-xs">
+                                            <td class="py-2.5 px-4 bg-slate-100" colspan="2">TOTAL</td>
+                                            <td class="py-2.5 px-4 text-right font-mono text-blue-800 bg-slate-100">{{ formatNumber(totalMalesMatricula) }}</td>
+                                            <td class="py-2.5 px-4 text-right font-mono text-pink-800 bg-slate-100">{{ formatNumber(totalFemalesMatricula) }}</td>
+                                            <td class="py-2.5 px-4 text-right font-mono bg-slate-100">{{ formatNumber(totalMatriculas) }}</td>
+                                            <td class="py-2.5 px-4 text-right font-mono bg-slate-100">100%</td>
                                         </tr>
                                     </tfoot>
                                 </table>
                             </div>
                         </div>
-
                         <!-- Evolución Anual de Grados y Títulos -->
-                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-0">
-                            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full space-y-0 min-h-[520px]">
+                            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between shrink-0">
                                 <h2 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
                                     <i class="bi bi-award-fill text-purple-600"></i> Tabla 3: Títulos Otorgados por Año
                                 </h2>
-                                <span class="text-xs font-semibold px-2 py-0.5 bg-purple-100 text-purple-800 rounded-md">
+                                <span class="text-xs font-semibold px-2.5 py-0.5 bg-purple-100 text-purple-800 rounded-full">
                                     {{ degreesYearSummary.length }} Años Registrados
                                 </span>
                             </div>
-
-                            <div class="overflow-x-auto max-h-[380px]">
+                            <div class="overflow-x-auto overflow-y-auto max-h-[654px] flex-1 custom-scrollbar">
                                 <table class="w-full text-left border-collapse text-xs sm:text-sm">
-                                    <thead class="sticky top-0 z-10">
+                                    <thead class="sticky top-0 z-10 bg-slate-900 shadow-sm">
                                         <tr class="bg-slate-900 text-slate-200 uppercase tracking-wider text-[11px] font-extrabold">
-                                            <th scope="col" class="py-3 px-4">Año</th>
-                                            <th scope="col" class="py-3 px-4 text-center">Prog.</th>
-                                            <th scope="col" class="py-3 px-4 text-right">Varones</th>
-                                            <th scope="col" class="py-3 px-4 text-right">Mujeres</th>
-                                            <th scope="col" class="py-3 px-4 text-right">Total</th>
-                                            <th scope="col" class="py-3 px-4 text-right">%</th>
+                                            <th scope="col" class="py-3 px-4 bg-slate-900">Año</th>
+                                            <th scope="col" class="py-3 px-4 text-center bg-slate-900">Prog.</th>
+                                            <th scope="col" class="py-3 px-4 text-right bg-slate-900">Varones</th>
+                                            <th scope="col" class="py-3 px-4 text-right bg-slate-900">Mujeres</th>
+                                            <th scope="col" class="py-3 px-4 text-right bg-slate-900">Total</th>
+                                            <th scope="col" class="py-3 px-4 text-right bg-slate-900">%</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">
-                                        <tr v-for="dy in degreesYearSummary" :key="dy.year" class="hover:bg-slate-50 transition-colors">
+                                        <tr v-for="dy in degreesYearSummary" :key="dy.year" class="hover:bg-purple-50/50 transition-colors">
                                             <td class="py-2.5 px-4 font-bold text-purple-900 font-mono">{{ dy.year }}</td>
                                             <td class="py-2.5 px-4 text-center text-slate-600 font-mono">{{ dy.programs_count }}</td>
                                             <td class="py-2.5 px-4 text-right font-mono text-blue-700">{{ formatNumber(dy.males) }}</td>
@@ -480,20 +458,19 @@ const matchesSearch = (text) => {
                                             <td class="py-2.5 px-4 text-right text-xs font-semibold text-slate-600">{{ calcPct(dy.total, totalTitulos) }}%</td>
                                         </tr>
                                     </tbody>
-                                    <tfoot class="sticky bottom-0 bg-slate-100">
-                                        <tr class="font-bold text-slate-900 border-t border-slate-200 text-xs">
-                                            <td class="py-2.5 px-4" colspan="2">TOTAL HISTÓRICO</td>
-                                            <td class="py-2.5 px-4 text-right font-mono text-blue-800">{{ formatNumber(totalMalesTitulos) }}</td>
-                                            <td class="py-2.5 px-4 text-right font-mono text-pink-800">{{ formatNumber(totalFemalesTitulos) }}</td>
-                                            <td class="py-2.5 px-4 text-right font-mono">{{ formatNumber(totalTitulos) }}</td>
-                                            <td class="py-2.5 px-4 text-right font-mono">100%</td>
+                                    <tfoot class="sticky bottom-0 z-10 bg-slate-100 shadow-[0_-2px_6px_rgba(0,0,0,0.06)] border-t border-slate-200">
+                                        <tr class="font-bold text-slate-900 text-xs">
+                                            <td class="py-2.5 px-4 bg-slate-100" colspan="2">TOTAL HISTÓRICO</td>
+                                            <td class="py-2.5 px-4 text-right font-mono text-blue-800 bg-slate-100">{{ formatNumber(totalMalesTitulos) }}</td>
+                                            <td class="py-2.5 px-4 text-right font-mono text-pink-800 bg-slate-100">{{ formatNumber(totalFemalesTitulos) }}</td>
+                                            <td class="py-2.5 px-4 text-right font-mono text-slate-950 font-black bg-slate-100">{{ formatNumber(totalTitulos) }}</td>
+                                            <td class="py-2.5 px-4 text-right font-mono bg-slate-100">100%</td>
                                         </tr>
                                     </tfoot>
                                 </table>
                             </div>
                         </div>
                     </div>
-
                     <!-- Tabla 4: Grados y Títulos por Familia Productiva -->
                     <div v-if="degreesFamilySummary && degreesFamilySummary.length > 0" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-0">
                         <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between">
@@ -504,7 +481,6 @@ const matchesSearch = (text) => {
                                 Clasificación MINEDU
                             </span>
                         </div>
-
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-xs sm:text-sm">
                                 <thead>
@@ -531,7 +507,6 @@ const matchesSearch = (text) => {
                         </div>
                     </div>
                 </section>
-
                 <!-- ══ TAB 2: MATRÍCULA POR PERIODO ACADÉMICO ═══════════════ -->
                 <section v-show="activeTab === 'matricula'" class="space-y-8">
                     <!-- Period Filter bar -->
@@ -545,7 +520,6 @@ const matchesSearch = (text) => {
                                 <p class="text-xs text-slate-500">Seleccione un periodo para ver el desglose por programa y ciclo</p>
                             </div>
                         </div>
-
                         <select
                             v-model="selectedPeriod"
                             class="text-xs sm:text-sm border border-slate-300 rounded-xl py-2 px-3 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white font-semibold text-slate-800"
@@ -556,7 +530,6 @@ const matchesSearch = (text) => {
                             </option>
                         </select>
                     </div>
-
                     <!-- Period Tables -->
                     <template v-for="(periodRows, periodName) in enrollmentByPeriod" :key="periodName">
                         <div
@@ -588,7 +561,6 @@ const matchesSearch = (text) => {
                                     </span>
                                 </div>
                             </div>
-
                             <!-- Table of Programs & Cycles -->
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left border-collapse text-xs sm:text-sm">
@@ -648,7 +620,6 @@ const matchesSearch = (text) => {
                         </div>
                     </template>
                 </section>
-
                 <!-- ══ TAB 3: ADMISIÓN E INGRESANTES ═════════════════════════ -->
                 <section v-show="activeTab === 'admision'" class="space-y-8">
                     <div class="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
@@ -661,7 +632,6 @@ const matchesSearch = (text) => {
                                 <p class="text-xs text-slate-500">Resumen estadístico de postulantes e ingresantes por programa y periodo</p>
                             </div>
                         </div>
-
                         <select
                             v-if="Object.keys(admissionByPeriod).length > 0"
                             v-model="selectedAdmissionPeriod"
@@ -673,7 +643,6 @@ const matchesSearch = (text) => {
                             </option>
                         </select>
                     </div>
-
                     <template v-if="Object.keys(admissionByPeriod).length > 0">
                         <div
                             v-for="(periodRows, periodName) in admissionByPeriod"
@@ -705,7 +674,6 @@ const matchesSearch = (text) => {
                                     </span>
                                 </div>
                             </div>
-
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left border-collapse text-xs sm:text-sm">
                                     <thead>
@@ -745,7 +713,6 @@ const matchesSearch = (text) => {
                         <p class="text-xs text-slate-500 mt-1">Los reportes se actualizarán al culminar cada proceso de examen ordinario o extraordinario.</p>
                     </div>
                 </section>
-
                 <!-- ══ TAB 4: GRADOS Y TÍTULOS ═══════════════════════════════ -->
                 <section v-show="activeTab === 'titulos'" class="space-y-8">
                     <!-- Graduation Year Filter -->
@@ -770,7 +737,6 @@ const matchesSearch = (text) => {
                             </option>
                         </select>
                     </div>
-
                     <!-- Tabla Consolidada Histórica -->
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-0">
                         <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between">
@@ -781,7 +747,6 @@ const matchesSearch = (text) => {
                                 Total: {{ formatNumber(totalTitulos) }} Títulos
                             </span>
                         </div>
-
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-xs sm:text-sm">
                                 <thead>
@@ -828,13 +793,11 @@ const matchesSearch = (text) => {
                             </table>
                         </div>
                     </div>
-
                     <!-- Annual Detailed Tables -->
                     <div class="space-y-6">
                         <h3 class="text-sm font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                             <i class="bi bi-calendar-check text-purple-600"></i> Desglose Anual Detallado
                         </h3>
-
                         <template v-for="(yearRows, yearName) in degreesByYear" :key="yearName">
                             <div
                                 v-show="selectedYear === 'all' || selectedYear === String(yearName)"
@@ -861,7 +824,6 @@ const matchesSearch = (text) => {
                                         </span>
                                     </div>
                                 </div>
-
                                 <div class="overflow-x-auto">
                                     <table class="w-full text-left border-collapse text-xs sm:text-sm">
                                         <thead>
@@ -899,7 +861,6 @@ const matchesSearch = (text) => {
                         </template>
                     </div>
                 </section>
-
                 <!-- Institutional Footnote -->
                 <div class="bg-slate-100 rounded-2xl p-5 sm:p-6 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-slate-600">
                     <div class="flex items-center gap-3">
@@ -922,3 +883,21 @@ const matchesSearch = (text) => {
         </div>
     </PublicLayout>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(241, 245, 249, 0.7);
+    border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.4);
+    border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.6);
+}
+</style>

@@ -11,14 +11,14 @@ const props = defineProps({
 
 const page = usePage();
 
-const enterprise = computed(() => page.props.enterprise || {});
-const authUser = computed(() => page.props.auth?.user || {});
-const isStudent = computed(() => Boolean(authUser.value?.is_student));
+const enterprise    = computed(() => page.props.enterprise || {});
+const authUser      = computed(() => page.props.auth?.user || {});
+const isStudent     = computed(() => Boolean(authUser.value?.is_student));
 
-const flashSuccess = computed(() => page.props.flash?.success);
-const flashError = computed(() => page.props.flash?.error);
+const flashSuccess  = computed(() => page.props.flash?.success);
+const flashError    = computed(() => page.props.flash?.error);
 
-const showFlash = ref(true);
+const showFlash     = ref(true);
 watch([flashSuccess, flashError], () => {
     showFlash.value = true;
 });
@@ -101,12 +101,12 @@ const transparencyOpen = ref(
     currentUrl.value.includes('/admin-inversiones')
 );
 
-const isCalendarActive = computed(() => isRouteActive('/admin-exams') || isRouteActive('/admin-matriculas') || isRouteActive('/admin-scholarships'));
-const isDocsActive = computed(() => isRouteActive('/admin-tupa') || isRouteActive('/admin-documentos'));
-const isPeopleActive = computed(() => isRouteActive('/admin-usuarios') || isRouteActive('/admin-docentes-roles') || isRouteActive('/admin-consejo-estudiantil'));
-const isCompanyActive = computed(() => isRouteActive('/admin-empresa') || isRouteActive('/admin-carrusel') || isRouteActive('/admin-historia') || isRouteActive('/admin-socios') || isRouteActive('/admin-enlaces') || isRouteActive('/admin-areas'));
-const isProgramsActive = computed(() => isRouteActive('/admin-programas') || isRouteActive('/admin-certificados') || isRouteActive('/admin-cursos') || isRouteActive('/admin-modulos') || isRouteActive('/admin-itinerarios'));
-const isTransparencyActive = computed(() => isRouteActive('/admin-reclamos') || isRouteActive('/admin-estadisticas') || isRouteActive('/admin-titulos') || isRouteActive('/admin-licenciamiento') || isRouteActive('/admin-inversiones'));
+const isCalendarActive      = computed(() => isRouteActive('/admin-exams') || isRouteActive('/admin-matriculas') || isRouteActive('/admin-scholarships'));
+const isDocsActive          = computed(() => isRouteActive('/admin-tupa') || isRouteActive('/admin-documentos'));
+const isPeopleActive        = computed(() => isRouteActive('/admin-usuarios') || isRouteActive('/admin-docentes-roles') || isRouteActive('/admin-consejo-estudiantil'));
+const isCompanyActive       = computed(() => isRouteActive('/admin-empresa') || isRouteActive('/admin-carrusel') || isRouteActive('/admin-historia') || isRouteActive('/admin-socios') || isRouteActive('/admin-enlaces') || isRouteActive('/admin-areas'));
+const isProgramsActive      = computed(() => isRouteActive('/admin-programas') || isRouteActive('/admin-certificados') || isRouteActive('/admin-cursos') || isRouteActive('/admin-modulos') || isRouteActive('/admin-itinerarios'));
+const isTransparencyActive  = computed(() => isRouteActive('/admin-reclamos') || isRouteActive('/admin-estadisticas') || isRouteActive('/admin-titulos') || isRouteActive('/admin-licenciamiento') || isRouteActive('/admin-inversiones'));
 
 // Close mobile sidebar on page navigation & auto-expand active accordion
 watch(() => page.url, (newUrl) => {
@@ -149,9 +149,7 @@ const logout = () => {
         </div>
 
         <div class="flex flex-1 w-full relative min-h-screen">
-            <!-- ═══════════════════════════════════════════════════════ -->
-            <!-- SIDEBAR                                                 -->
-            <!-- ═══════════════════════════════════════════════════════ -->
+            <!-- SIDEBAR -->
             <aside class="bg-slate-900 shadow-2xl transition-all duration-300 ease-in-out flex-shrink-0 fixed lg:sticky inset-y-0 left-0 z-[45] lg:z-[40] top-0 h-screen flex flex-col"
                    :class="sidebarOpen ? 'w-72 translate-x-0' : 'w-0 -translate-x-full lg:translate-x-0 lg:w-20'">
 
@@ -170,7 +168,6 @@ const logout = () => {
                             </span>
                         </div>
                     </Link>
-
                     <button @click="toggleSidebar()"
                             type="button"
                             class="text-slate-400 hover:text-white transition-colors p-2 rounded-xl hover:bg-slate-800"
@@ -178,7 +175,6 @@ const logout = () => {
                         <i class="bi text-xl" :class="sidebarOpen ? 'bi-chevron-left' : 'bi-list'"></i>
                     </button>
                 </div>
-
                 <!-- Nav Menu Items (Scrollable) -->
                 <nav class="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto sidebar-scrollbar custom-scrollbar">
 
@@ -190,7 +186,6 @@ const logout = () => {
                                 <span>Portal del Estudiante</span>
                             </p>
                         </div>
-
                         <!-- 1. Actualizar Datos -->
                         <Link :href="route('admin.profile.edit')"
                               class="flex items-center px-3.5 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden"
@@ -575,11 +570,11 @@ const logout = () => {
                               title="Gestionar Blogs">
                             <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200"
                                  :class="isRouteActive('/admin-blogs') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'"></div>
-                            <i class="bi bi-newspaper text-xl transition-transform duration-200 group-hover:scale-110"
+                            <i class="bi bi-newspaper text-lg transition-transform group-hover:scale-110"
                                :class="isRouteActive('/admin-blogs') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'"></i>
-                            <span v-show="sidebarOpen" class="ml-4 font-medium whitespace-nowrap">Gestionar Blogs</span>
+                            <span v-show="sidebarOpen" class="ml-3 text-sm font-medium whitespace-nowrap">Gestionar Blogs</span>
                             <div v-if="isRouteActive('/admin-blogs')"
-                                 class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
+                                 class="absolute right-3.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                         </Link>
 
                         <!-- ── ENLACE: Bolsa de Trabajo ── -->
@@ -589,11 +584,11 @@ const logout = () => {
                               title="Bolsa de Trabajo">
                             <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200"
                                  :class="isRouteActive('/admin-trabajos') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'"></div>
-                            <i class="bi bi-briefcase text-xl transition-transform duration-200 group-hover:scale-110"
+                            <i class="bi bi-briefcase text-lg transition-transform group-hover:scale-110"
                                :class="isRouteActive('/admin-trabajos') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'"></i>
-                            <span v-show="sidebarOpen" class="ml-4 font-medium whitespace-nowrap">Bolsa de Trabajo</span>
+                            <span v-show="sidebarOpen" class="ml-3 text-sm font-medium whitespace-nowrap">Bolsa de Trabajo</span>
                             <div v-if="isRouteActive('/admin-trabajos')"
-                                 class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
+                                 class="absolute right-3.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                         </Link>
 
                         <!-- ── ENLACE: Roles del sistema ── -->
@@ -603,11 +598,11 @@ const logout = () => {
                               title="Roles del sistema">
                             <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-md transition-all duration-200"
                                  :class="isRouteActive('/admin-roles') ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-75'"></div>
-                            <i class="bi bi-shield-lock text-xl transition-transform duration-200 group-hover:scale-110"
+                            <i class="bi bi-shield-lock text-lg transition-transform group-hover:scale-110"
                                :class="isRouteActive('/admin-roles') ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-400'"></i>
-                            <span v-show="sidebarOpen" class="ml-4 font-medium whitespace-nowrap">Roles del sistema</span>
+                            <span v-show="sidebarOpen" class="ml-3 text-sm font-medium whitespace-nowrap">Roles del sistema</span>
                             <div v-if="isRouteActive('/admin-roles')"
-                                 class="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
+                                 class="absolute right-3.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-lg shadow-purple-400/50"></div>
                         </Link>
 
                         <!-- ── GRUPO: Transparencia ── -->
@@ -708,9 +703,7 @@ const logout = () => {
                 </div>
             </aside>
 
-            <!-- ═══════════════════════════════════════════════════════ -->
-            <!-- MAIN CONTENT AREA                                       -->
-            <!-- ═══════════════════════════════════════════════════════ -->
+            <!-- MAIN CONTENT AREA -->
             <div class="flex-1 flex flex-col min-w-0 bg-slate-50/70 relative">
                 <!-- Sticky Top Navigation Bar -->
                 <header class="bg-white/95 border-b border-slate-200/80 sticky top-0 z-[30] shadow-sm backdrop-blur-md">

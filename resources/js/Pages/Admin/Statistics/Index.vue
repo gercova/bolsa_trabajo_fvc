@@ -55,10 +55,10 @@ const props = defineProps({
 })
 
 // Filters state
-const searchInput = ref(props.search || '')
-const selectedRecordType = ref(props.recordType || '')
-const selectedAcademicPeriod = ref(props.academicPeriod || '')
-const selectedStudyProgram = ref(props.studyProgram || '')
+const searchInput               = ref(props.search || '')
+const selectedRecordType        = ref(props.recordType || '')
+const selectedAcademicPeriod    = ref(props.academicPeriod || '')
+const selectedStudyProgram      = ref(props.studyProgram || '')
 
 function applyFilters() {
     router.get(route('admin.statistics.index'), {
@@ -73,30 +73,30 @@ function applyFilters() {
 }
 
 function clearFilters() {
-    searchInput.value = ''
-    selectedRecordType.value = ''
-    selectedAcademicPeriod.value = ''
-    selectedStudyProgram.value = ''
+    searchInput.value               = ''
+    selectedRecordType.value        = ''
+    selectedAcademicPeriod.value    = ''
+    selectedStudyProgram.value      = ''
     router.get(route('admin.statistics.index'))
 }
 
 // Detail Modal
-const showDetailModal = ref(false)
-const activeRecord = ref(null)
+const showDetailModal   = ref(false)
+const activeRecord      = ref(null)
 
 function openDetail(record) {
-    activeRecord.value = record
-    showDetailModal.value = true
+    activeRecord.value      = record
+    showDetailModal.value   = true
 }
 
 // Delete Modal
-const showDeleteModal = ref(false)
-const recordToDelete = ref(null)
-const isDeleting = ref(false)
+const showDeleteModal   = ref(false)
+const recordToDelete    = ref(null)
+const isDeleting        = ref(false)
 
 function confirmDelete(record) {
-    recordToDelete.value = record
-    showDeleteModal.value = true
+    recordToDelete.value    = record
+    showDeleteModal.value   = true
 }
 
 function deleteRecord() {
@@ -106,9 +106,9 @@ function deleteRecord() {
     router.delete(route('admin.statistics.destroy', recordToDelete.value.id), {
         preserveScroll: true,
         onFinish: () => {
-            isDeleting.value = false
-            showDeleteModal.value = false
-            recordToDelete.value = null
+            isDeleting.value        = false
+            showDeleteModal.value   = false
+            recordToDelete.value    = null
         },
     })
 }
@@ -145,7 +145,6 @@ function submitImport() {
 <template>
     <AdminLayout title="Estadísticas y Registros Académicos">
         <Head title="Estadísticas y Registros Estudiantiles - Transparencia" />
-
         <div class="space-y-6">
             <!-- Header Section -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
@@ -160,7 +159,6 @@ function submitImport() {
                         Padrón y estadísticas oficiales para los procesos de Admisión y Matrícula institucional.
                     </p>
                 </div>
-
                 <div class="flex items-center gap-3 w-full sm:w-auto">
                     <button @click="showImportModal = true"
                             type="button"
@@ -176,7 +174,6 @@ function submitImport() {
                     </Link>
                 </div>
             </div>
-
             <!-- KPI Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
@@ -188,7 +185,6 @@ function submitImport() {
                         <h3 class="text-2xl font-black text-gray-900">{{ totalRecords.toLocaleString() }}</h3>
                     </div>
                 </div>
-
                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
                     <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl shrink-0">
                         <i class="bi bi-journal-check"></i>
@@ -198,7 +194,6 @@ function submitImport() {
                         <h3 class="text-2xl font-black text-blue-700">{{ totalAdmission.toLocaleString() }}</h3>
                     </div>
                 </div>
-
                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
                     <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl shrink-0">
                         <i class="bi bi-mortarboard-fill"></i>
@@ -208,7 +203,6 @@ function submitImport() {
                         <h3 class="text-2xl font-black text-emerald-700">{{ totalEnrollment.toLocaleString() }}</h3>
                     </div>
                 </div>
-
                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
                     <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl shrink-0">
                         <i class="bi bi-buildings"></i>
@@ -219,7 +213,6 @@ function submitImport() {
                     </div>
                 </div>
             </div>
-
             <!-- Filters Bar -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
@@ -232,7 +225,6 @@ function submitImport() {
                                placeholder="Buscar por DNI, nombres, colegio..."
                                class="w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all">
                     </div>
-
                     <!-- Record Type Filter -->
                     <div class="lg:col-span-2">
                         <select v-model="selectedRecordType"
@@ -243,7 +235,6 @@ function submitImport() {
                             <option value="MATRICULA">Matrícula</option>
                         </select>
                     </div>
-
                     <!-- Academic Period Filter -->
                     <div class="lg:col-span-2">
                         <select v-model="selectedAcademicPeriod"
@@ -255,7 +246,6 @@ function submitImport() {
                             </option>
                         </select>
                     </div>
-
                     <!-- Study Program Filter -->
                     <div class="lg:col-span-2">
                         <select v-model="selectedStudyProgram"
@@ -267,7 +257,6 @@ function submitImport() {
                             </option>
                         </select>
                     </div>
-
                     <!-- Action Buttons -->
                     <div class="lg:col-span-2 flex items-center gap-2 justify-end">
                         <button @click="applyFilters"
@@ -285,7 +274,6 @@ function submitImport() {
                     </div>
                 </div>
             </div>
-
             <!-- Table Container -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="overflow-x-auto">
@@ -357,7 +345,6 @@ function submitImport() {
                                     </button>
                                 </td>
                             </tr>
-
                             <tr v-if="!studentRecords.data || studentRecords.data.length === 0">
                                 <td colspan="8" class="p-12 text-center text-gray-400">
                                     <i class="bi bi-folder-x text-4xl mb-2 block text-gray-300"></i>
@@ -368,7 +355,6 @@ function submitImport() {
                         </tbody>
                     </table>
                 </div>
-
                 <!-- Pagination -->
                 <div v-if="studentRecords.links && studentRecords.links.length > 3"
                      class="px-6 py-4 bg-gray-50/75 border-t border-gray-100 flex items-center justify-between">
@@ -389,210 +375,208 @@ function submitImport() {
                     </div>
                 </div>
             </div>
-
             <!-- Import Modal -->
-            <div v-if="showImportModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
-                <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-gray-100 space-y-4">
-                    <div class="flex items-center justify-between pb-3 border-b border-gray-100">
-                        <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                                <i class="bi bi-file-earmark-spreadsheet-fill text-lg"></i>
+            <Teleport to="body">
+                <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm" @click.self="!importForm.processing && (showImportModal = false)">
+                    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-gray-100 space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                                    <i class="bi bi-file-earmark-spreadsheet-fill text-lg"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-extrabold text-gray-900">Importar Registros</h3>
+                                    <p class="text-xs text-gray-500">Excel (.xlsx, .xls) o CSV — Columnas H a AF</p>
+                                </div>
+                            </div>
+                            <button @click="showImportModal = false" :disabled="importForm.processing" class="text-gray-400 hover:text-gray-600">
+                                <i class="bi bi-x-lg text-sm"></i>
+                            </button>
+                        </div>
+
+                        <form @submit.prevent="submitImport" class="space-y-4 text-xs">
+                            <!-- Tipo de registro -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                                    Tipo de Registro <span class="text-rose-500">*</span>
+                                </label>
+                                <select v-model="importForm.record_type"
+                                        class="w-full text-xs border border-gray-300 rounded-xl py-2.5 px-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition font-semibold">
+                                    <option value="AUTO">Automático (detectar por ciclo)</option>
+                                    <option value="ADMISION">Admisión — todo el archivo</option>
+                                    <option value="MATRICULA">Matrícula — todo el archivo</option>
+                                </select>
+                                <p class="text-[11px] text-gray-400 mt-1">En modo automático: si hay ciclo → Matrícula; si no → Admisión.</p>
+                            </div>
+                            <!-- Archivo -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                                    Archivo <span class="text-rose-500">*</span>
+                                </label>
+                                <label class="border-2 border-dashed border-gray-300 hover:border-emerald-500 rounded-xl p-5 flex flex-col items-center justify-center cursor-pointer transition bg-gray-50/50">
+                                    <i class="bi bi-cloud-arrow-up text-3xl text-emerald-600 mb-1"></i>
+                                    <span v-if="fileName" class="text-xs font-bold text-gray-800">{{ fileName }}</span>
+                                    <span v-else class="text-xs font-semibold text-gray-600">Haz clic o arrastra un archivo aquí</span>
+                                    <span class="text-[10px] text-gray-400 mt-0.5">XLSX, XLS, CSV hasta 20 MB</span>
+                                    <input type="file"
+                                           accept=".xlsx,.xls,.csv"
+                                           class="hidden"
+                                           @change="onFileSelect" />
+                                </label>
+                                <p v-if="importForm.errors.file" class="text-xs text-rose-500 font-semibold mt-1">{{ importForm.errors.file }}</p>
+                            </div>
+
+                            <!-- Acciones -->
+                            <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                                <button @click="showImportModal = false"
+                                        type="button"
+                                        class="px-4 py-2 bg-gray-100 text-gray-700 font-semibold text-xs rounded-xl hover:bg-gray-200 transition-colors">
+                                    Cancelar
+                                </button>
+                                <button type="submit"
+                                        :disabled="importForm.processing || !importForm.file"
+                                        class="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-xs rounded-xl shadow-md hover:from-emerald-700 hover:to-teal-700 transition-all flex items-center gap-2 disabled:opacity-50">
+                                    <span v-if="importForm.processing">Procesando archivo...</span>
+                                    <span v-else class="flex items-center gap-1.5"><i class="bi bi-upload"></i> Iniciar Importación</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </Teleport>
+            <!-- Detail Modal -->
+            <Teleport to="body">
+                <div v-if="showDetailModal && activeRecord" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm" @click.self="showDetailModal = false">
+                    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl border border-gray-100 space-y-4 max-h-[90vh] overflow-y-auto text-xs">
+                        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+                            <h3 class="text-sm font-extrabold text-gray-900 flex items-center gap-2">
+                                <i class="bi bi-person-vcard text-purple-600"></i> Ficha de Registro Académico #{{ activeRecord.id }}
+                            </h3>
+                            <button @click="showDetailModal = false" class="text-gray-400 hover:text-gray-600">
+                                <i class="bi bi-x-lg text-sm"></i>
+                            </button>
+                        </div>
+                        <!-- Detail Sections -->
+                        <div class="space-y-4">
+                            <div class="bg-purple-50/50 p-4 rounded-xl border border-purple-100 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Tipo de Registro</span>
+                                    <span class="font-bold text-gray-800">{{ activeRecord.record_type }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Período Académico</span>
+                                    <span class="font-bold text-purple-700">{{ activeRecord.academic_period }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Programa</span>
+                                    <span class="font-bold text-gray-800">{{ activeRecord.study_program }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Puntaje</span>
+                                    <span class="font-bold text-gray-800">{{ activeRecord.score ?? '-' }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Situación</span>
+                                    <span class="font-bold text-gray-800">{{ activeRecord.situation ?? '-' }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Ciclo</span>
+                                    <span class="font-bold text-gray-800">{{ activeRecord.cycle ?? '-' }}</span>
+                                </div>
                             </div>
                             <div>
-                                <h3 class="text-sm font-extrabold text-gray-900">Importar Registros</h3>
-                                <p class="text-xs text-gray-500">Excel (.xlsx, .xls) o CSV — Columnas H a AF</p>
+                                <h4 class="font-bold text-gray-800 mb-2">Datos Personales</h4>
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    <div class="sm:col-span-2">
+                                        <span class="text-gray-400 block text-[10px] uppercase font-bold">Apellidos y Nombres</span>
+                                        <span class="font-bold text-gray-900">{{ activeRecord.last_name_father }} {{ activeRecord.last_name_mother }} {{ activeRecord.names }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400 block text-[10px] uppercase font-bold">Documento</span>
+                                        <span class="font-mono font-bold text-gray-800">{{ activeRecord.document }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400 block text-[10px] uppercase font-bold">Género</span>
+                                        <span>{{ activeRecord.gender ?? '-' }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400 block text-[10px] uppercase font-bold">Fecha Nacimiento</span>
+                                        <span>{{ activeRecord.birthdate ?? '-' }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400 block text-[10px] uppercase font-bold">Teléfono</span>
+                                        <span>{{ activeRecord.phone ?? '-' }}</span>
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <span class="text-gray-400 block text-[10px] uppercase font-bold">Correo Electrónico</span>
+                                        <span class="text-purple-700 font-medium">{{ activeRecord.email ?? '-' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 mb-2">Colegio / I.E. de Procedencia</h4>
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    <div class="sm:col-span-2">
+                                        <span class="text-gray-400 block text-[10px] uppercase font-bold">Nombre I.E.</span>
+                                        <span class="font-bold text-gray-900">{{ activeRecord.institution_name_ie ?? '-' }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400 block text-[10px] uppercase font-bold">Año Egreso</span>
+                                        <span class="font-mono font-bold">{{ activeRecord.year_graduation ?? '-' }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400 block text-[10px] uppercase font-bold">Código Modular</span>
+                                        <span class="font-mono">{{ activeRecord.modular_code_ie ?? '-' }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400 block text-[10px] uppercase font-bold">Ubicación I.E.</span>
+                                        <span>{{ [activeRecord.district_ie, activeRecord.province_ie, activeRecord.region_ie].filter(Boolean).join(', ') || '-' }}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <button @click="showImportModal = false" :disabled="importForm.processing" class="text-gray-400 hover:text-gray-600">
-                            <i class="bi bi-x-lg text-sm"></i>
-                        </button>
+                        <div class="flex justify-end pt-3 border-t border-gray-100">
+                            <button @click="showDetailModal = false"
+                                    type="button"
+                                    class="px-5 py-2 bg-gray-100 text-gray-700 font-semibold text-xs rounded-xl hover:bg-gray-200 transition-colors">
+                                Cerrar
+                            </button>
+                        </div>
                     </div>
-
-                    <form @submit.prevent="submitImport" class="space-y-4 text-xs">
-                        <!-- Tipo de registro -->
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                                Tipo de Registro <span class="text-rose-500">*</span>
-                            </label>
-                            <select v-model="importForm.record_type"
-                                    class="w-full text-xs border border-gray-300 rounded-xl py-2.5 px-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition font-semibold">
-                                <option value="AUTO">Automático (detectar por ciclo)</option>
-                                <option value="ADMISION">Admisión — todo el archivo</option>
-                                <option value="MATRICULA">Matrícula — todo el archivo</option>
-                            </select>
-                            <p class="text-[11px] text-gray-400 mt-1">En modo automático: si hay ciclo → Matrícula; si no → Admisión.</p>
+                </div>
+            </Teleport>
+            <!-- Delete Confirmation Modal -->
+            <Teleport to="body">
+                <div v-if="showDeleteModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm" @click.self="!isDeleting && (showDeleteModal = false)">
+                    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-100 space-y-4">
+                        <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl mx-auto">
+                            <i class="bi bi-trash"></i>
                         </div>
 
-                        <!-- Archivo -->
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                                Archivo <span class="text-rose-500">*</span>
-                            </label>
-                            <label class="border-2 border-dashed border-gray-300 hover:border-emerald-500 rounded-xl p-5 flex flex-col items-center justify-center cursor-pointer transition bg-gray-50/50">
-                                <i class="bi bi-cloud-arrow-up text-3xl text-emerald-600 mb-1"></i>
-                                <span v-if="fileName" class="text-xs font-bold text-gray-800">{{ fileName }}</span>
-                                <span v-else class="text-xs font-semibold text-gray-600">Haz clic o arrastra un archivo aquí</span>
-                                <span class="text-[10px] text-gray-400 mt-0.5">XLSX, XLS, CSV hasta 20 MB</span>
-                                <input type="file"
-                                       accept=".xlsx,.xls,.csv"
-                                       class="hidden"
-                                       @change="onFileSelect" />
-                            </label>
-                            <p v-if="importForm.errors.file" class="text-xs text-rose-500 font-semibold mt-1">{{ importForm.errors.file }}</p>
+                        <div class="text-center">
+                            <h3 class="text-base font-bold text-gray-900">¿Eliminar este registro académico?</h3>
+                            <p class="text-xs text-gray-500 mt-1">
+                                Estás a punto de eliminar el registro de <strong class="text-gray-800">{{ recordToDelete?.names }}</strong>. Esta acción no se puede deshacer.
+                            </p>
                         </div>
 
-                        <!-- Acciones -->
-                        <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
-                            <button @click="showImportModal = false"
+                        <div class="flex items-center justify-end gap-3 pt-2">
+                            <button @click="showDeleteModal = false"
                                     type="button"
                                     class="px-4 py-2 bg-gray-100 text-gray-700 font-semibold text-xs rounded-xl hover:bg-gray-200 transition-colors">
                                 Cancelar
                             </button>
-                            <button type="submit"
-                                    :disabled="importForm.processing || !importForm.file"
-                                    class="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-xs rounded-xl shadow-md hover:from-emerald-700 hover:to-teal-700 transition-all flex items-center gap-2 disabled:opacity-50">
-                                <span v-if="importForm.processing">Procesando archivo...</span>
-                                <span v-else class="flex items-center gap-1.5"><i class="bi bi-upload"></i> Iniciar Importación</span>
+                            <button @click="deleteRecord"
+                                    :disabled="isDeleting"
+                                    type="button"
+                                    class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-2 disabled:opacity-60">
+                                <span v-if="isDeleting">Eliminando...</span>
+                                <span v-else>Sí, Eliminar</span>
                             </button>
                         </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Detail Modal -->
-            <div v-if="showDetailModal && activeRecord" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
-                <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl border border-gray-100 space-y-4 max-h-[90vh] overflow-y-auto text-xs">
-                    <div class="flex items-center justify-between pb-3 border-b border-gray-100">
-                        <h3 class="text-sm font-extrabold text-gray-900 flex items-center gap-2">
-                            <i class="bi bi-person-vcard text-purple-600"></i> Ficha de Registro Académico #{{ activeRecord.id }}
-                        </h3>
-                        <button @click="showDetailModal = false" class="text-gray-400 hover:text-gray-600">
-                            <i class="bi bi-x-lg text-sm"></i>
-                        </button>
-                    </div>
-
-                    <!-- Detail Sections -->
-                    <div class="space-y-4">
-                        <div class="bg-purple-50/50 p-4 rounded-xl border border-purple-100 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Tipo de Registro</span>
-                                <span class="font-bold text-gray-800">{{ activeRecord.record_type }}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Período Académico</span>
-                                <span class="font-bold text-purple-700">{{ activeRecord.academic_period }}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Programa</span>
-                                <span class="font-bold text-gray-800">{{ activeRecord.study_program }}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Puntaje</span>
-                                <span class="font-bold text-gray-800">{{ activeRecord.score ?? '-' }}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Situación</span>
-                                <span class="font-bold text-gray-800">{{ activeRecord.situation ?? '-' }}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Ciclo</span>
-                                <span class="font-bold text-gray-800">{{ activeRecord.cycle ?? '-' }}</span>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h4 class="font-bold text-gray-800 mb-2">Datos Personales</h4>
-                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                <div class="sm:col-span-2">
-                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Apellidos y Nombres</span>
-                                    <span class="font-bold text-gray-900">{{ activeRecord.last_name_father }} {{ activeRecord.last_name_mother }} {{ activeRecord.names }}</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Documento</span>
-                                    <span class="font-mono font-bold text-gray-800">{{ activeRecord.document }}</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Género</span>
-                                    <span>{{ activeRecord.gender ?? '-' }}</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Fecha Nacimiento</span>
-                                    <span>{{ activeRecord.birthdate ?? '-' }}</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Teléfono</span>
-                                    <span>{{ activeRecord.phone ?? '-' }}</span>
-                                </div>
-                                <div class="sm:col-span-2">
-                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Correo Electrónico</span>
-                                    <span class="text-purple-700 font-medium">{{ activeRecord.email ?? '-' }}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h4 class="font-bold text-gray-800 mb-2">Colegio / I.E. de Procedencia</h4>
-                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                <div class="sm:col-span-2">
-                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Nombre I.E.</span>
-                                    <span class="font-bold text-gray-900">{{ activeRecord.institution_name_ie ?? '-' }}</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Año Egreso</span>
-                                    <span class="font-mono font-bold">{{ activeRecord.year_graduation ?? '-' }}</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Código Modular</span>
-                                    <span class="font-mono">{{ activeRecord.modular_code_ie ?? '-' }}</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Ubicación I.E.</span>
-                                    <span>{{ [activeRecord.district_ie, activeRecord.province_ie, activeRecord.region_ie].filter(Boolean).join(', ') || '-' }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end pt-3 border-t border-gray-100">
-                        <button @click="showDetailModal = false"
-                                type="button"
-                                class="px-5 py-2 bg-gray-100 text-gray-700 font-semibold text-xs rounded-xl hover:bg-gray-200 transition-colors">
-                            Cerrar
-                        </button>
                     </div>
                 </div>
-            </div>
-
-            <!-- Delete Confirmation Modal -->
-            <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
-                <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-100 space-y-4">
-                    <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl mx-auto">
-                        <i class="bi bi-trash"></i>
-                    </div>
-
-                    <div class="text-center">
-                        <h3 class="text-base font-bold text-gray-900">¿Eliminar este registro académico?</h3>
-                        <p class="text-xs text-gray-500 mt-1">
-                            Estás a punto de eliminar el registro de <strong class="text-gray-800">{{ recordToDelete?.names }}</strong>. Esta acción no se puede deshacer.
-                        </p>
-                    </div>
-
-                    <div class="flex items-center justify-end gap-3 pt-2">
-                        <button @click="showDeleteModal = false"
-                                type="button"
-                                class="px-4 py-2 bg-gray-100 text-gray-700 font-semibold text-xs rounded-xl hover:bg-gray-200 transition-colors">
-                            Cancelar
-                        </button>
-                        <button @click="deleteRecord"
-                                :disabled="isDeleting"
-                                type="button"
-                                class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-2 disabled:opacity-60">
-                            <span v-if="isDeleting">Eliminando...</span>
-                            <span v-else>Sí, Eliminar</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            </Teleport>
         </div>
     </AdminLayout>
 </template>

@@ -26,26 +26,27 @@ class LibraryController extends Controller
     /**
      * Display the "Libros Asignados" view.
      */
-    public function index(Request $request): Response {
+    public function index(Request $request): Response
+    {
         $selectedCareer = $request->query('career', 'all');
-        $searchQuery    = $request->query('q', '');
-        $viewMode       = $request->query('view', 'grid');
-        $query          = Book::with('studyProgram')
+        $searchQuery = $request->query('q', '');
+        $viewMode = $request->query('view', 'grid');
+        $query = Book::with('studyProgram')
             ->career($selectedCareer)
             ->search($searchQuery)
             ->latest('id');
 
-        $totalCount     = (clone $query)->count();
-        $books          = $query->paginate(24)->withQueryString();
-        $studyPrograms  = StudyProgram::select('id', 'name')->orderBy('name')->get();
+        $totalCount = (clone $query)->count();
+        $books = $query->paginate(24)->withQueryString();
+        $studyPrograms = StudyProgram::select('id', 'name')->orderBy('name')->get();
 
         return Inertia::render('Admin/Library/AssignedBooks', [
-            'books'             => $books,
-            'studyPrograms'     => $studyPrograms,
-            'selectedCareer'    => $selectedCareer,
-            'searchQuery'       => $searchQuery,
-            'viewMode'          => $viewMode,
-            'totalCount'        => $totalCount,
+            'books' => $books,
+            'studyPrograms' => $studyPrograms,
+            'selectedCareer' => $selectedCareer,
+            'searchQuery' => $searchQuery,
+            'viewMode' => $viewMode,
+            'totalCount' => $totalCount,
         ]);
     }
 
@@ -133,6 +134,18 @@ class LibraryController extends Controller
         $validated['rating'] = $validated['rating'] ?? 5.0;
 
         if (! empty($validated['external_url'])) {
+            if (! $academicService->isValidAndReachableUrl($validated['external_url'])) {
+                if ($request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'El enlace académico no es válido o no se encuentra accesible en el servidor remoto.',
+                        'errors' => ['external_url' => ['El enlace académico no es accesible o no existe en el servidor remoto.']],
+                    ], 422);
+                }
+
+                return back()->withErrors(['external_url' => 'El enlace académico no es accesible o no existe en el servidor remoto.'])->withInput();
+            }
+
             $validated['external_url'] = Str::limit(
                 $academicService->resolveDirectDocumentLink((string) $validated['external_url']),
                 495
@@ -163,6 +176,12 @@ class LibraryController extends Controller
         }
 
         $book = Book::create($validated);
+
+        // Si el repositorio externo bloquea la descarga física, crear y almacenar copia virtual de inmediato
+        if (empty($book->file_path) && ! empty($book->external_url)) {
+            $academicService->generateAndStoreVirtualCopy($book);
+            $book->refresh();
+        }
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -217,6 +236,18 @@ class LibraryController extends Controller
 
         $urlChanged = ! empty($validated['external_url']) && $validated['external_url'] !== $book->external_url;
         if ($urlChanged) {
+            if (! $academicService->isValidAndReachableUrl($validated['external_url'])) {
+                if ($request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'El enlace académico no es válido o no se encuentra accesible en el servidor remoto.',
+                        'errors' => ['external_url' => ['El enlace académico no es accesible o no existe en el servidor remoto.']],
+                    ], 422);
+                }
+
+                return back()->withErrors(['external_url' => 'El enlace académico no es accesible o no existe en el servidor remoto.'])->withInput();
+            }
+
             $validated['external_url'] = Str::limit(
                 $academicService->resolveDirectDocumentLink((string) $validated['external_url']),
                 495
@@ -251,6 +282,12 @@ class LibraryController extends Controller
         }
 
         $book->update($validated);
+
+        // Si no tiene archivo físico local y el repositorio externo bloquea descarga, crear copia virtual
+        if (empty($book->file_path) && ! empty($book->external_url)) {
+            $academicService->generateAndStoreVirtualCopy($book);
+            $book->refresh();
+        }
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -348,7 +385,48 @@ class LibraryController extends Controller
             Log::warning("Error en streamDocument proxy para libro ID {$book->id}: ".$e->getMessage());
         }
 
+        // 4. Si el servidor externo bloquea o el streaming falla, generar Copia Virtual y descargarla in-app
+        try {
+            $virtualCopy = $academicService->generateAndStoreVirtualCopy($book);
+            if (! empty($virtualCopy['file_path']) && Storage::disk('public')->exists($virtualCopy['file_path'])) {
+                $fullPath = Storage::disk('public')->path($virtualCopy['file_path']);
+
+                return response()->file($fullPath, [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => "{$dispositionType}; filename=\"{$safeFilename}\"",
+                    'X-Frame-Options' => 'SAMEORIGIN',
+                    'Cache-Control' => 'public, max-age=86400',
+                ]);
+            }
+        } catch (\Throwable $ve) {
+            Log::error('Error en generación de copia virtual en streamDocument: '.$ve->getMessage());
+        }
+
         abort(502, 'No fue posible obtener el flujo del documento desde el servidor académico de origen.');
+    }
+
+    /**
+     * Genera o regenera manualmente la copia virtual institucional de un documento.
+     */
+    public function generateVirtualCopy(Book $book, AcademicLibraryService $academicService): JsonResponse
+    {
+        try {
+            $result = $academicService->generateAndStoreVirtualCopy($book);
+            $book->refresh();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Copia virtual institucional generada y descargada exitosamente en la aplicación.',
+                'file_url' => $book->file_url,
+                'file_path' => $result['file_path'],
+                'file_size' => $result['file_size'],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al generar la copia virtual institucional: '.$e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

@@ -136,6 +136,12 @@ class LibraryModuleTest extends TestCase
 
     public function test_admin_can_store_book_with_external_link(): void
     {
+        Http::fake([
+            'https://scielo.org/articulo-ciberseguridad-2026' => Http::response('<html><head><title>Ciberseguridad 2026</title></head><body>Contenido</body></html>', 200, [
+                'Content-Type' => 'text/html',
+            ]),
+        ]);
+
         $response = $this->actingAs($this->admin)->post(route('admin.library.store'), [
             'title' => 'Paper Científico de Ciberseguridad 2026',
             'author' => 'Revista IEEE',
@@ -155,6 +161,30 @@ class LibraryModuleTest extends TestCase
             'title' => 'Paper Científico de Ciberseguridad 2026',
             'category' => 'Paper',
             'external_url' => 'https://scielo.org/articulo-ciberseguridad-2026',
+        ]);
+    }
+
+    public function test_admin_cannot_store_book_with_invalid_or_unreachable_external_link(): void
+    {
+        Http::fake([
+            'https://scielo.org/enlace-roto-404' => Http::response('Not Found', 404),
+        ]);
+
+        $response = $this->actingAs($this->admin)->post(route('admin.library.store'), [
+            'title' => 'Paper con Enlace Caído',
+            'author' => 'Autor Desconocido',
+            'category' => 'Paper',
+            'study_program_id' => $this->program->id,
+            'source_type' => 'link',
+            'external_url' => 'https://scielo.org/enlace-roto-404',
+            'language' => 'Español',
+            'year' => 2026,
+            'is_active' => 1,
+        ]);
+
+        $response->assertSessionHasErrors('external_url');
+        $this->assertDatabaseMissing('books', [
+            'title' => 'Paper con Enlace Caído',
         ]);
     }
 
@@ -328,8 +358,10 @@ class LibraryModuleTest extends TestCase
         $this->assertEquals(1, $book->views_count);
     }
 
-    public function test_stream_returns_institutional_fallback_view_when_external_server_blocks_proxy(): void
+    public function test_stream_generates_and_serves_virtual_copy_when_external_server_blocks(): void
     {
+        Storage::fake('public');
+
         Http::fake([
             'https://europepmc.org/*' => Http::response('<html>Forbidden by Cloudflare</html>', 403, [
                 'Content-Type' => 'text/html',
@@ -351,14 +383,21 @@ class LibraryModuleTest extends TestCase
         $response = $this->actingAs($this->estudiante)->get(route('biblioteca.stream', $book));
 
         $response->assertStatus(200);
-        $response->assertHeader('X-Frame-Options', 'SAMEORIGIN');
-        $response->assertSee('Repositorio Externo Protegido');
-        $response->assertSee('Abrir en Visor Oficial');
-        $response->assertSee('https://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC13553628&blobtype=pdf');
+        $response->assertHeader('Content-Type', 'application/pdf');
+
+        $book->refresh();
+        $this->assertNotEmpty($book->file_path);
+        $this->assertTrue(Storage::disk('public')->exists($book->file_path));
     }
 
-    public function test_stream_redirects_when_download_requested_for_external_book(): void
+    public function test_stream_serves_download_attachment_when_download_requested(): void
     {
+        Storage::fake('public');
+
+        Http::fake([
+            'https://europepmc.org/*' => Http::response('<html>Forbidden by Cloudflare</html>', 403),
+        ]);
+
         $book = Book::create([
             'title' => 'Libro Para Descargar Test',
             'slug' => 'libro-para-descargar-test',
@@ -371,7 +410,75 @@ class LibraryModuleTest extends TestCase
 
         $response = $this->actingAs($this->estudiante)->get(route('biblioteca.stream', ['book' => $book, 'download' => 1]));
 
-        $response->assertStatus(302);
-        $response->assertRedirect('https://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC13553628&blobtype=pdf');
+        $response->assertStatus(200);
+        $response->assertHeader('Content-Type', 'application/pdf');
+        $this->assertStringContainsString('attachment;', (string) $response->headers->get('Content-Disposition'));
+    }
+
+    public function test_admin_can_generate_virtual_copy_on_demand(): void
+    {
+        Storage::fake('public');
+
+        $book = Book::create([
+            'title' => 'Documento Para Copia Virtual',
+            'slug' => 'documento-para-copia-virtual',
+            'author' => 'Investigador FVC',
+            'category' => 'Paper',
+            'study_program_id' => $this->program->id,
+            'external_url' => 'https://scielo.org/articulo-bloqueado',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($this->admin)->postJson(route('admin.library.generate-virtual-copy', $book));
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        $book->refresh();
+        $this->assertNotEmpty($book->file_path);
+        $this->assertTrue(Storage::disk('public')->exists($book->file_path));
+    }
+
+    public function test_academic_import_filters_out_unreachable_or_invalid_links(): void
+    {
+        Storage::fake('public');
+
+        Http::fake([
+            'https://api.crossref.org/*' => Http::response([
+                'message' => [
+                    'items' => [
+                        [
+                            'title' => ['Artículo con Enlace Válido'],
+                            'author' => [['given' => 'Juan', 'family' => 'Pérez']],
+                            'URL' => 'https://ejemplo.com/valido.pdf',
+                            'publisher' => 'Publisher Valid',
+                        ],
+                        [
+                            'title' => ['Artículo con Enlace Roto'],
+                            'author' => [['given' => 'Ana', 'family' => 'Gómez']],
+                            'URL' => 'https://ejemplo.com/enlace-caido',
+                            'publisher' => 'Publisher Broken',
+                        ],
+                    ],
+                ],
+            ], 200),
+            'https://ejemplo.com/valido.pdf' => Http::response('%PDF-1.4 test', 200, ['Content-Type' => 'application/pdf']),
+            'https://ejemplo.com/enlace-caido' => Http::response('Not Found', 404),
+        ]);
+
+        $response = $this->actingAs($this->admin)->postJson(route('admin.library.fetch-academic'), [
+            'study_program_id' => $this->program->id,
+            'category' => 'Paper',
+            'sources' => ['crossref'],
+            'limit' => 5,
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('books', [
+            'title' => 'Artículo con Enlace Válido',
+        ]);
+        $this->assertDatabaseMissing('books', [
+            'title' => 'Artículo con Enlace Roto',
+        ]);
     }
 }

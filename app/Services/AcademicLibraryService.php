@@ -218,6 +218,19 @@ class AcademicLibraryService
      */
     private array $resolvedUrlCache = [];
 
+    /**
+     * In-memory cache for link reachability and validity check results.
+     *
+     * @var array<string, bool>
+     */
+    private array $urlReachabilityCache = [];
+
+    public function __construct(
+        protected ?VirtualDocumentGeneratorService $virtualDocService = null
+    ) {
+        $this->virtualDocService = $this->virtualDocService ?? new VirtualDocumentGeneratorService;
+    }
+
     // ══════════════════════════════════════════════════════════════
     // MAIN ENTRY POINT
     // ══════════════════════════════════════════════════════════════
@@ -309,7 +322,16 @@ class AcademicLibraryService
                     break;
                 }
 
-                if ($strictPdfOnly && ! $this->isDirectDocumentOrPdfUrl((string) ($item['external_url'] ?? ''), true)) {
+                $extUrl = (string) ($item['external_url'] ?? '');
+
+                // Filtro para prevenir la inclusión de enlaces inexistentes o no válidos
+                if (! $this->isValidAndReachableUrl($extUrl)) {
+                    $skippedCount++;
+
+                    continue;
+                }
+
+                if ($strictPdfOnly && ! $this->isDirectDocumentOrPdfUrl($extUrl, true)) {
                     $skippedCount++;
 
                     continue;
@@ -1801,7 +1823,6 @@ class AcademicLibraryService
     // ══════════════════════════════════════════════════════════════
     // OJS & REPOSITORY URL NORMALIZATION
     // ══════════════════════════════════════════════════════════════
-
     /**
      * Normalize an OJS document URL to ensure it points to the interactive viewer route.
      */
@@ -2019,6 +2040,136 @@ class AcademicLibraryService
             Log::info("Descarga en caché local omitida para [{$targetUrl}]: ".$e->getMessage());
 
             return null;
+        }
+    }
+
+    /**
+     * Genera una Copia Virtual Institucional certificada en PDF para un recurso académico
+     * cuando los repositorios externos bloquean incrustación o descargas automáticas por WAF/Cloudflare.
+     *
+     * @return array{file_path: string, file_size: int}
+     */
+    public function generateAndStoreVirtualCopy(Book $book): array
+    {
+        $virtualGenerator = $this->virtualDocService ?? new VirtualDocumentGeneratorService;
+        $pdfBytes = $virtualGenerator->generate($book);
+
+        $safeSlug = Str::slug(Str::limit($book->slug ?: $book->title, 80)) ?: 'book-'.$book->id;
+        $relativePath = 'library/books/book_virtual_'.$safeSlug.'_'.$book->id.'.pdf';
+
+        Storage::disk('public')->put($relativePath, $pdfBytes);
+
+        $fileSize = strlen($pdfBytes);
+        $book->update([
+            'file_path' => $relativePath,
+            'file_size' => $fileSize,
+        ]);
+
+        return [
+            'file_path' => $relativePath,
+            'file_size' => $fileSize,
+        ];
+    }
+
+    /**
+     * Filtra y valida si una URL académica existe, es accesible y no conduce a errores 404/410/500
+     * ni a redirecciones ciegas hacia portales o páginas de inicio genéricas.
+     */
+    public function isValidAndReachableUrl(?string $url): bool
+    {
+        if (empty($url)) {
+            return false;
+        }
+
+        $url = trim($url);
+
+        // 1. Verificación sintáctica y de esquema
+        if (str_starts_with($url, 'javascript:') || $url === '#' || ! filter_var($url, FILTER_VALIDATE_URL)) {
+            return false;
+        }
+
+        $parsed = parse_url($url);
+        if (empty($parsed['scheme']) || ! in_array(strtolower($parsed['scheme']), ['http', 'https'])) {
+            return false;
+        }
+
+        $host = strtolower($parsed['host'] ?? '');
+        if ($host === '' || in_array($host, ['localhost', '127.0.0.1', '::1']) || str_ends_with($host, '.local') || str_ends_with($host, '.internal')) {
+            return false;
+        }
+
+        if (isset($this->urlReachabilityCache[$url])) {
+            return $this->urlReachabilityCache[$url];
+        }
+
+        // 2. Comprobación DNS básica
+        if (! checkdnsrr($host, 'A') && ! checkdnsrr($host, 'AAAA')) {
+            return $this->urlReachabilityCache[$url] = false;
+        }
+
+        // 3. Sonda HTTP ligera para comprobar que el recurso existe en el servidor remoto
+        try {
+            $parsedHost = parse_url($url, PHP_URL_HOST) ?: '';
+            $parsedScheme = parse_url($url, PHP_URL_SCHEME) ?: 'https';
+            $referer = $parsedHost ? "{$parsedScheme}://{$parsedHost}/" : self::SCRAPE_REFERERS[0];
+
+            $response = Http::connectTimeout(4)
+                ->timeout(8)
+                ->withHeaders(array_merge(self::SCRAPE_HEADERS, [
+                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,application/pdf;q=0.8,*/*;q=0.7',
+                    'Referer' => $referer,
+                ]))
+                ->withOptions([
+                    'verify' => false,
+                    'allow_redirects' => [
+                        'max' => 6,
+                        'strict' => false,
+                        'referer' => true,
+                        'track_redirects' => true,
+                    ],
+                ])
+                ->get($url);
+
+            $status = $response->status();
+
+            // Errores claros de inexistencia o caída del servidor
+            if (in_array($status, [404, 410, 500, 502, 503, 504])) {
+                return $this->urlReachabilityCache[$url] = false;
+            }
+
+            // Detección de enlaces caídos redirigidos a la raíz del portal institucional (ej. TSA/view/5635 -> uady.mx)
+            $effectiveUri = (string) ($response->effectiveUri() ?: '');
+            if ($effectiveUri !== '') {
+                $effParsed = parse_url($effectiveUri);
+                $origPath = trim($parsed['path'] ?? '', '/');
+                $effPath = trim($effParsed['path'] ?? '', '/');
+
+                if (strlen($origPath) > 15 && in_array($effPath, ['', 'index.php', 'index.html', 'login', 'portal', 'home', 'inicio'])) {
+                    return $this->urlReachabilityCache[$url] = false;
+                }
+            }
+
+            // Detección de soft-404 (páginas que devuelven HTTP 200 pero informan que el recurso no existe)
+            if ($status === 200) {
+                $contentType = strtolower((string) $response->header('Content-Type'));
+                if (str_contains($contentType, 'text/html')) {
+                    $snippet = strtolower(substr($response->body(), 0, 4096));
+                    if (str_contains($snippet, '<title>404')
+                        || str_contains($snippet, 'page not found')
+                        || str_contains($snippet, 'página no encontrada')
+                        || str_contains($snippet, 'documento no encontrado')
+                        || str_contains($snippet, 'artículo no encontrado')
+                        || str_contains($snippet, 'not found</title>')) {
+                        return $this->urlReachabilityCache[$url] = false;
+                    }
+                }
+            }
+
+            $isValid = ($status >= 200 && $status < 400) || $status === 403;
+
+            return $this->urlReachabilityCache[$url] = $isValid;
+        } catch (\Throwable) {
+            return $this->urlReachabilityCache[$url] = false;
         }
     }
 
@@ -2599,7 +2750,6 @@ class AcademicLibraryService
     private function mapCategory(string $academicType, string $fallback): string
     {
         $type = mb_strtolower($academicType);
-
         if (str_contains($type, 'book') || str_contains($type, 'monograph') || str_contains($type, 'chapter')) {
             return 'Libro';
         }
@@ -2702,7 +2852,8 @@ class AcademicLibraryService
             return ['skipped', new Book];
         }
 
-        if (str_starts_with($item['external_url'], 'javascript:') || $item['external_url'] === '#') {
+        // Filtro para prevenir la inclusión de enlaces inexistentes o no válidos
+        if (! $this->isValidAndReachableUrl($item['external_url'])) {
             return ['skipped', new Book];
         }
 
@@ -2736,6 +2887,11 @@ class AcademicLibraryService
             }
 
             $existing->update($updates);
+
+            if (empty($existing->file_path) && ! empty($existing->external_url)) {
+                $this->generateAndStoreVirtualCopy($existing);
+                $existing->refresh();
+            }
 
             return ['updated', $existing];
         }
@@ -2772,6 +2928,13 @@ class AcademicLibraryService
         ];
 
         $book = Book::create($bookData);
+
+        // Si el repositorio externo bloquea la descarga del archivo binario (WAF/Cloudflare/anti-bot),
+        // creamos y almacenamos de inmediato una copia virtual institucional para lectura in-app
+        if (empty($book->file_path) && ! empty($book->external_url)) {
+            $this->generateAndStoreVirtualCopy($book);
+            $book->refresh();
+        }
 
         return ['saved', $book];
     }

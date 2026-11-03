@@ -178,52 +178,53 @@ Route::middleware(['auth'])->group(function () {
 
     // ── BIBLIOTECA VIRTUAL: Portal para Lectores (Docentes y Estudiantes) ──────
     Route::prefix('biblioteca')->name('biblioteca.')->group(function () {
-        Route::get('/',                         [LibraryReaderController::class, 'index'])->name('index');
-        Route::get('/buscar',                   [LibraryReaderController::class, 'search'])->name('search');
-        Route::get('/mi-biblioteca',            [LibraryReaderController::class, 'myLibrary'])->name('favorites');
-        Route::get('/leer/{book:slug}',         [LibraryReaderController::class, 'read'])->name('read');
-        Route::get('/stream/{book:slug}',       [LibraryReaderController::class, 'stream'])->name('stream');
-        Route::post('/favorito/{book}',         [LibraryReaderController::class, 'toggleFavorite'])->name('favorite.toggle');
+        Route::get('/', [LibraryReaderController::class, 'index'])->name('index');
+        Route::get('/buscar', [LibraryReaderController::class, 'search'])->name('search');
+        Route::get('/mi-biblioteca', [LibraryReaderController::class, 'myLibrary'])->name('favorites');
+        Route::get('/leer/{book:slug}', [LibraryReaderController::class, 'read'])->name('read');
+        Route::get('/stream/{book:slug}', [LibraryReaderController::class, 'stream'])->name('stream');
+        Route::post('/favorito/{book}', [LibraryReaderController::class, 'toggleFavorite'])->name('favorite.toggle');
     });
 
     // Alias de compatibilidad para resolver la ruta library.stream sin conflictos
-    Route::get('/library/stream/{book:slug}',   [LibraryReaderController::class, 'stream'])->name('library.stream');
+    Route::get('/library/stream/{book:slug}', [LibraryReaderController::class, 'stream'])->name('library.stream');
 
     // ── BIBLIOTECA VIRTUAL: Panel de Gestión Administrativa ────────────────────
     Route::prefix('admin-biblioteca')->name('admin.library.')->group(function () {
-        Route::get('/',                         [AdminLibraryController::class, 'index'])->name('index');
-        Route::get('/libros',                   [AdminLibraryController::class, 'index'])->name('books.index');
-        Route::get('/repositorio',              [AdminLibraryController::class, 'repository'])->name('repository');
-        Route::post('/importar-academicos',     [AdminLibraryController::class, 'fetchAcademicResources'])->name('fetch-academic');
-        Route::post('/guardar',                 [AdminLibraryController::class, 'store'])->name('store');
-        Route::get('/editar/{book}',            [AdminLibraryController::class, 'edit'])->name('edit');
-        Route::put('/editar/{book}',            [AdminLibraryController::class, 'update'])->name('update');
-        Route::delete('/{book}',                [AdminLibraryController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{book}',          [AdminLibraryController::class, 'toggleStatus'])->name('toggle-status');
-        Route::get('/lectores',                 [AdminLibraryController::class, 'readers'])->name('readers');
-        Route::get('/administradores',          [AdminLibraryController::class, 'administrators'])->name('administrators');
-        Route::get('/reportes',                 [AdminLibraryController::class, 'reports'])->name('reports');
+        Route::get('/', [AdminLibraryController::class, 'index'])->name('index');
+        Route::get('/libros', [AdminLibraryController::class, 'index'])->name('books.index');
+        Route::get('/repositorio', [AdminLibraryController::class, 'repository'])->name('repository');
+        Route::post('/importar-academicos', [AdminLibraryController::class, 'fetchAcademicResources'])->name('fetch-academic');
+        Route::post('/guardar', [AdminLibraryController::class, 'store'])->name('store');
+        Route::get('/editar/{book}', [AdminLibraryController::class, 'edit'])->name('edit');
+        Route::put('/editar/{book}', [AdminLibraryController::class, 'update'])->name('update');
+        Route::delete('/{book}', [AdminLibraryController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{book}', [AdminLibraryController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/lectores', [AdminLibraryController::class, 'readers'])->name('readers');
+        Route::get('/administradores', [AdminLibraryController::class, 'administrators'])->name('administrators');
+        Route::get('/reportes', [AdminLibraryController::class, 'reports'])->name('reports');
+        Route::post('/generar-copia-virtual/{book}', [AdminLibraryController::class, 'generateVirtualCopy'])->name('generate-virtual-copy');
     });
 
     // tupa
     Route::prefix('admin-tupa')->name('admin.tupa.')->group(function () {
         // Documentos TUPA
-        Route::get('/',                         [TupaController::class, 'index'])->name('index');
-        Route::get('/crear-tupa',               [TupaController::class, 'create'])->name('create');
-        Route::post('/guardar',                 [TupaController::class, 'store'])->name('store');
-        Route::get('/editar-tupa/{tupa}',       [TupaController::class, 'edit'])->name('edit');
-        Route::put('/editar-tupa/{tupa}',       [TupaController::class, 'update'])->name('update');
-        Route::delete('/{tupa}',                [TupaController::class, 'destroy'])->name('destroy');
-        Route::patch('/estado/{tupa}',          [TupaController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/', [TupaController::class, 'index'])->name('index');
+        Route::get('/crear-tupa', [TupaController::class, 'create'])->name('create');
+        Route::post('/guardar', [TupaController::class, 'store'])->name('store');
+        Route::get('/editar-tupa/{tupa}', [TupaController::class, 'edit'])->name('edit');
+        Route::put('/editar-tupa/{tupa}', [TupaController::class, 'update'])->name('update');
+        Route::delete('/{tupa}', [TupaController::class, 'destroy'])->name('destroy');
+        Route::patch('/estado/{tupa}', [TupaController::class, 'toggleStatus'])->name('toggle-status');
 
         // Categorías TUPA
         Route::prefix('categorias')->name('categories.')->group(function () {
-            Route::get('/crear',                [TupaController::class, 'createCategory'])->name('create');
-            Route::post('/guardar',             [TupaController::class, 'storeCategory'])->name('store');
-            Route::get('/editar/{category}',    [TupaController::class, 'editCategory'])->name('edit');
-            Route::put('/editar/{category}',    [TupaController::class, 'updateCategory'])->name('update');
-            Route::delete('/{category}',        [TupaController::class, 'destroyCategory'])->name('destroy');
-            Route::patch('/estado/{category}',  [TupaController::class, 'toggleCategoryStatus'])->name('toggle-status');
+            Route::get('/crear', [TupaController::class, 'createCategory'])->name('create');
+            Route::post('/guardar', [TupaController::class, 'storeCategory'])->name('store');
+            Route::get('/editar/{category}', [TupaController::class, 'editCategory'])->name('edit');
+            Route::put('/editar/{category}', [TupaController::class, 'updateCategory'])->name('update');
+            Route::delete('/{category}', [TupaController::class, 'destroyCategory'])->name('destroy');
+            Route::patch('/estado/{category}', [TupaController::class, 'toggleCategoryStatus'])->name('toggle-status');
         });
 
         // Procedimientos TUPA

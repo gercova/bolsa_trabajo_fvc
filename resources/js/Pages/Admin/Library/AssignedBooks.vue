@@ -275,7 +275,9 @@ const runAcademicImport = async () => {
 
 // ── 4. MODAL: VISOR DE LIBRO / IFRAME PREVIEW ──────────────────────────────────
 const showIframeModal = ref(false);
+const generatingVirtualCopy = ref(false);
 const previewData = reactive({
+    id: null,
     title: '',
     author: '',
     category: '',
@@ -286,6 +288,7 @@ const previewData = reactive({
 });
 
 const openIframePreviewModal = (data) => {
+    previewData.id = data.id || null;
     previewData.title = data.title || '';
     previewData.author = data.author || '';
     previewData.category = data.category || 'Documento';
@@ -298,7 +301,36 @@ const openIframePreviewModal = (data) => {
 
 const closeIframePreviewModal = () => {
     showIframeModal.value = false;
+    previewData.id = null;
     previewData.url = '';
+};
+
+const regenerateVirtualCopy = async () => {
+    if (!previewData.id) return;
+    generatingVirtualCopy.value = true;
+    try {
+        const response = await fetch(route('admin.library.generate-virtual-copy', previewData.id), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                'Accept': 'application/json',
+            },
+        });
+        const data = await response.json();
+        if (data.success) {
+            notify('Copia virtual institucional generada y descargada exitosamente en la aplicación.');
+            const base = previewData.slug ? route('biblioteca.stream', previewData.slug) : previewData.url.split('?')[0];
+            previewData.url = `${base}?v=${Date.now()}`;
+            router.reload({ only: ['books'] });
+        } else {
+            notify(data.message || 'No se pudo generar la copia virtual.', 'error');
+        }
+    } catch (err) {
+        notify('Ocurrió un error al contactar al servidor para generar la copia virtual.', 'error');
+    } finally {
+        generatingVirtualCopy.value = false;
+    }
 };
 
 // ── 5. TOGGLE STATUS & DELETE ACTIONS ──────────────────────────────────────────
@@ -560,6 +592,7 @@ const toggleStatus = (book) => {
                                 <button
                                     type="button"
                                     @click="openIframePreviewModal({
+                                        id: book.id,
                                         title: book.title,
                                         author: book.author,
                                         category: book.category,
@@ -702,6 +735,7 @@ const toggleStatus = (book) => {
                                         <button
                                             type="button"
                                             @click="openIframePreviewModal({
+                                                id: book.id,
                                                 title: book.title,
                                                 author: book.author,
                                                 category: book.category,
@@ -1394,6 +1428,15 @@ const toggleStatus = (book) => {
                                 class="w-full text-xs font-medium px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition text-slate-800"
                             >
                         </div>
+
+                        <!-- Filtro de integridad y verificación de enlaces -->
+                        <div class="sm:col-span-2 p-3 bg-emerald-50/80 border border-emerald-200/80 rounded-xl flex items-center gap-2.5 text-[11px] text-emerald-800">
+                            <i class="bi bi-shield-check text-emerald-600 text-base flex-shrink-0"></i>
+                            <div>
+                                <span class="font-bold">Filtro de integridad de enlaces activo:</span>
+                                Se sondean y verifican los enlaces de origen; los enlaces caídos, rotos o inaccesibles se filtran automáticamente para no ser incluidos.
+                            </div>
+                        </div>
                     </div>
                     <!-- Loading Banner -->
                     <div v-if="importingAcademic" class="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl flex items-center gap-3 animate-pulse">
@@ -1520,6 +1563,18 @@ const toggleStatus = (book) => {
                     </div>
 
                     <div class="flex items-center gap-2 flex-shrink-0">
+                        <button
+                            v-if="previewData.id"
+                            type="button"
+                            @click="regenerateVirtualCopy"
+                            :disabled="generatingVirtualCopy"
+                            class="px-3 py-1.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 hover:text-white text-xs font-semibold transition inline-flex items-center gap-1.5 border border-teal-500/30 disabled:opacity-50"
+                            title="Descargar copia virtual institucional para eludir bloqueos externos"
+                        >
+                            <i class="bi" :class="generatingVirtualCopy ? 'bi-arrow-repeat animate-spin' : 'bi-file-earmark-pdf'"></i>
+                            <span class="hidden sm:inline">{{ generatingVirtualCopy ? 'Descargando...' : 'Copia Virtual' }}</span>
+                        </button>
+
                         <a
                             :href="previewData.url"
                             target="_blank"

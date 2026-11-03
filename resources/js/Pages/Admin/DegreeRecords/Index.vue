@@ -384,166 +384,172 @@ function submitImport() {
             </div>
 
             <!-- Import Modal -->
-            <div v-if="showImportModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
-                <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-gray-100 space-y-4">
-                    <div class="flex items-center justify-between pb-3 border-b border-gray-100">
-                        <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                                <i class="bi bi-file-earmark-spreadsheet-fill text-lg"></i>
+            <Teleport to="body">
+                <div v-if="showImportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm" @click.self="!importForm.processing && (showImportModal = false)">
+                    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-gray-100 space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                                    <i class="bi bi-file-earmark-spreadsheet-fill text-lg"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-extrabold text-gray-900">Importar Grados y Títulos</h3>
+                                    <p class="text-xs text-gray-500">Formato oficial reporte MINEDU (Columnas B a X)</p>
+                                </div>
                             </div>
+                            <button @click="showImportModal = false" :disabled="importForm.processing" class="text-gray-400 hover:text-gray-600">
+                                <i class="bi bi-x-lg text-sm"></i>
+                            </button>
+                        </div>
+
+                        <form @submit.prevent="submitImport" class="space-y-4 text-xs">
                             <div>
-                                <h3 class="text-sm font-extrabold text-gray-900">Importar Grados y Títulos</h3>
-                                <p class="text-xs text-gray-500">Formato oficial reporte MINEDU (Columnas B a X)</p>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                                    Archivo Excel <span class="text-rose-500">*</span>
+                                </label>
+                                <label class="border-2 border-dashed border-gray-300 hover:border-emerald-500 rounded-xl p-5 flex flex-col items-center justify-center cursor-pointer transition bg-gray-50/50">
+                                    <i class="bi bi-cloud-arrow-up text-3xl text-emerald-600 mb-1"></i>
+                                    <span v-if="fileName" class="text-xs font-bold text-gray-800">{{ fileName }}</span>
+                                    <span v-else class="text-xs font-semibold text-gray-600">Haz clic o arrastra un archivo aquí</span>
+                                    <span class="text-[10px] text-gray-400 mt-0.5">XLSX, XLS hasta 20 MB</span>
+                                    <input type="file"
+                                           accept=".xlsx,.xls"
+                                           class="hidden"
+                                           @change="onFileSelect" />
+                                </label>
+                                <p v-if="importForm.errors.file" class="text-xs text-rose-500 font-semibold mt-1">{{ importForm.errors.file }}</p>
+                            </div>
+
+                            <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                                <button @click="showImportModal = false"
+                                        type="button"
+                                        class="px-4 py-2 bg-gray-100 text-gray-700 font-semibold text-xs rounded-xl hover:bg-gray-200 transition-colors">
+                                    Cancelar
+                                </button>
+                                <button type="submit"
+                                        :disabled="importForm.processing || !importForm.file"
+                                        class="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-xs rounded-xl shadow-md hover:from-emerald-700 hover:to-teal-700 transition-all flex items-center gap-2 disabled:opacity-50">
+                                    <span v-if="importForm.processing">Procesando archivo...</span>
+                                    <span v-else class="flex items-center gap-1.5"><i class="bi bi-upload"></i> Iniciar Importación</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </Teleport>
+
+            <!-- Detail Modal -->
+            <Teleport to="body">
+                <div v-if="showDetailModal && activeRecord" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm" @click.self="showDetailModal = false">
+                    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl border border-gray-100 space-y-4 max-h-[90vh] overflow-y-auto text-xs">
+                        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+                            <h3 class="text-sm font-extrabold text-gray-900 flex items-center gap-2">
+                                <i class="bi bi-award text-purple-600"></i> Ficha de Grado / Título #{{ activeRecord.id }}
+                            </h3>
+                            <button @click="showDetailModal = false" class="text-gray-400 hover:text-gray-600">
+                                <i class="bi bi-x-lg text-sm"></i>
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="bg-purple-50/50 p-4 rounded-xl border border-purple-100 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Egresado</span>
+                                    <span class="font-bold text-gray-900">{{ activeRecord.full_names }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Documento</span>
+                                    <span class="font-mono font-bold">{{ activeRecord.document_number }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Programa</span>
+                                    <span class="font-bold text-purple-700">{{ activeRecord.study_program }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Código Título</span>
+                                    <span class="font-mono font-bold text-gray-800">{{ activeRecord.generated_title_code ?? '-' }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">N° Registro Institucional</span>
+                                    <span class="font-mono text-gray-800">{{ activeRecord.institutional_registration_number ?? '-' }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Expediente</span>
+                                    <span class="font-mono">{{ activeRecord.file_number ?? '-' }}</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Fecha Egreso</span>
+                                    <span>{{ activeRecord.graduation_date ? activeRecord.graduation_date.substring(0, 10) : '-' }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Fecha Diploma</span>
+                                    <span>{{ activeRecord.diploma_issue_date ? activeRecord.diploma_issue_date.substring(0, 10) : '-' }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Registro MINEDU</span>
+                                    <span>{{ activeRecord.minedu_registration_date ? activeRecord.minedu_registration_date.substring(0, 10) : '-' }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Institución</span>
+                                    <span class="font-medium text-gray-800">{{ activeRecord.institution_name }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Departamento</span>
+                                    <span>{{ activeRecord.department ?? '-' }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400 block text-[10px] uppercase font-bold">Especialista</span>
+                                    <span class="font-mono">{{ activeRecord.specialist_user ?? '-' }}</span>
+                                </div>
                             </div>
                         </div>
-                        <button @click="showImportModal = false" :disabled="importForm.processing" class="text-gray-400 hover:text-gray-600">
-                            <i class="bi bi-x-lg text-sm"></i>
-                        </button>
-                    </div>
 
-                    <form @submit.prevent="submitImport" class="space-y-4 text-xs">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                                Archivo Excel <span class="text-rose-500">*</span>
-                            </label>
-                            <label class="border-2 border-dashed border-gray-300 hover:border-emerald-500 rounded-xl p-5 flex flex-col items-center justify-center cursor-pointer transition bg-gray-50/50">
-                                <i class="bi bi-cloud-arrow-up text-3xl text-emerald-600 mb-1"></i>
-                                <span v-if="fileName" class="text-xs font-bold text-gray-800">{{ fileName }}</span>
-                                <span v-else class="text-xs font-semibold text-gray-600">Haz clic o arrastra un archivo aquí</span>
-                                <span class="text-[10px] text-gray-400 mt-0.5">XLSX, XLS hasta 20 MB</span>
-                                <input type="file"
-                                       accept=".xlsx,.xls"
-                                       class="hidden"
-                                       @change="onFileSelect" />
-                            </label>
-                            <p v-if="importForm.errors.file" class="text-xs text-rose-500 font-semibold mt-1">{{ importForm.errors.file }}</p>
+                        <div class="flex justify-end pt-3 border-t border-gray-100">
+                            <button @click="showDetailModal = false"
+                                    type="button"
+                                    class="px-5 py-2 bg-gray-100 text-gray-700 font-semibold text-xs rounded-xl hover:bg-gray-200 transition-colors">
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </Teleport>
+
+            <!-- Delete Confirmation Modal -->
+            <Teleport to="body">
+                <div v-if="showDeleteModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm" @click.self="!isDeleting && (showDeleteModal = false)">
+                    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-100 space-y-4">
+                        <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl mx-auto">
+                            <i class="bi bi-trash"></i>
                         </div>
 
-                        <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
-                            <button @click="showImportModal = false"
+                        <div class="text-center">
+                            <h3 class="text-base font-bold text-gray-900">¿Eliminar este título registrado?</h3>
+                            <p class="text-xs text-gray-500 mt-1">
+                                Estás a punto de eliminar el registro de <strong class="text-gray-800">{{ recordToDelete?.full_names }}</strong>.
+                            </p>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-3 pt-2">
+                            <button @click="showDeleteModal = false"
                                     type="button"
                                     class="px-4 py-2 bg-gray-100 text-gray-700 font-semibold text-xs rounded-xl hover:bg-gray-200 transition-colors">
                                 Cancelar
                             </button>
-                            <button type="submit"
-                                    :disabled="importForm.processing || !importForm.file"
-                                    class="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-xs rounded-xl shadow-md hover:from-emerald-700 hover:to-teal-700 transition-all flex items-center gap-2 disabled:opacity-50">
-                                <span v-if="importForm.processing">Procesando archivo...</span>
-                                <span v-else class="flex items-center gap-1.5"><i class="bi bi-upload"></i> Iniciar Importación</span>
+                            <button @click="deleteRecord"
+                                    :disabled="isDeleting"
+                                    type="button"
+                                    class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-2 disabled:opacity-60">
+                                <span v-if="isDeleting">Eliminando...</span>
+                                <span v-else>Sí, Eliminar</span>
                             </button>
                         </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Detail Modal -->
-            <div v-if="showDetailModal && activeRecord" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
-                <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl border border-gray-100 space-y-4 max-h-[90vh] overflow-y-auto text-xs">
-                    <div class="flex items-center justify-between pb-3 border-b border-gray-100">
-                        <h3 class="text-sm font-extrabold text-gray-900 flex items-center gap-2">
-                            <i class="bi bi-award text-purple-600"></i> Ficha de Grado / Título #{{ activeRecord.id }}
-                        </h3>
-                        <button @click="showDetailModal = false" class="text-gray-400 hover:text-gray-600">
-                            <i class="bi bi-x-lg text-sm"></i>
-                        </button>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div class="bg-purple-50/50 p-4 rounded-xl border border-purple-100 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Egresado</span>
-                                <span class="font-bold text-gray-900">{{ activeRecord.full_names }}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Documento</span>
-                                <span class="font-mono font-bold">{{ activeRecord.document_number }}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Programa</span>
-                                <span class="font-bold text-purple-700">{{ activeRecord.study_program }}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Código Título</span>
-                                <span class="font-mono font-bold text-gray-800">{{ activeRecord.generated_title_code ?? '-' }}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">N° Registro Institucional</span>
-                                <span class="font-mono text-gray-800">{{ activeRecord.institutional_registration_number ?? '-' }}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Expediente</span>
-                                <span class="font-mono">{{ activeRecord.file_number ?? '-' }}</span>
-                            </div>
-                        </div>
-
-                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Fecha Egreso</span>
-                                <span>{{ activeRecord.graduation_date ? activeRecord.graduation_date.substring(0, 10) : '-' }}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Fecha Diploma</span>
-                                <span>{{ activeRecord.diploma_issue_date ? activeRecord.diploma_issue_date.substring(0, 10) : '-' }}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Registro MINEDU</span>
-                                <span>{{ activeRecord.minedu_registration_date ? activeRecord.minedu_registration_date.substring(0, 10) : '-' }}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Institución</span>
-                                <span class="font-medium text-gray-800">{{ activeRecord.institution_name }}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Departamento</span>
-                                <span>{{ activeRecord.department ?? '-' }}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-400 block text-[10px] uppercase font-bold">Especialista</span>
-                                <span class="font-mono">{{ activeRecord.specialist_user ?? '-' }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end pt-3 border-t border-gray-100">
-                        <button @click="showDetailModal = false"
-                                type="button"
-                                class="px-5 py-2 bg-gray-100 text-gray-700 font-semibold text-xs rounded-xl hover:bg-gray-200 transition-colors">
-                            Cerrar
-                        </button>
                     </div>
                 </div>
-            </div>
-
-            <!-- Delete Confirmation Modal -->
-            <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
-                <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-100 space-y-4">
-                    <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl mx-auto">
-                        <i class="bi bi-trash"></i>
-                    </div>
-
-                    <div class="text-center">
-                        <h3 class="text-base font-bold text-gray-900">¿Eliminar este título registrado?</h3>
-                        <p class="text-xs text-gray-500 mt-1">
-                            Estás a punto de eliminar el registro de <strong class="text-gray-800">{{ recordToDelete?.full_names }}</strong>.
-                        </p>
-                    </div>
-
-                    <div class="flex items-center justify-end gap-3 pt-2">
-                        <button @click="showDeleteModal = false"
-                                type="button"
-                                class="px-4 py-2 bg-gray-100 text-gray-700 font-semibold text-xs rounded-xl hover:bg-gray-200 transition-colors">
-                            Cancelar
-                        </button>
-                        <button @click="deleteRecord"
-                                :disabled="isDeleting"
-                                type="button"
-                                class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-2 disabled:opacity-60">
-                            <span v-if="isDeleting">Eliminando...</span>
-                            <span v-else>Sí, Eliminar</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            </Teleport>
         </div>
     </AdminLayout>
 </template>

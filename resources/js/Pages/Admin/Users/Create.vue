@@ -103,23 +103,130 @@
             <div class="lg:col-span-2 space-y-6">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <!-- DNI -->
-                <div>
-                  <label for="dni" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    DNI / Documento <span class="text-red-500">*</span>
-                  </label>
-                  <div class="relative">
-                    <i class="bi bi-person-vcard absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <div class="sm:col-span-2 lg:col-span-1">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <label for="dni" class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      DNI / Documento <span class="text-red-500">*</span>
+                    </label>
+                    <span class="text-[11px] font-semibold text-purple-700 flex items-center gap-1">
+                      <i class="bi bi-shield-check"></i> Decolecta RENIEC
+                    </span>
+                  </div>
+                  <div class="relative flex items-center">
+                    <i class="bi bi-person-vcard absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
                     <input
                       type="text"
                       id="dni"
                       v-model="form.dni"
-                      maxlength="15"
+                      maxlength="8"
+                      @keydown.enter.prevent="consultarDni"
                       placeholder="Ej: 12345678"
-                      class="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      class="w-full pl-10 pr-24 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                       required
                     />
+                    <button
+                      type="button"
+                      @click="consultarDni"
+                      :disabled="isSearchingDni || !form.dni || form.dni.toString().trim().length !== 8"
+                      class="absolute right-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer"
+                      title="Buscar en RENIEC vía Decolecta API"
+                    >
+                      <i v-if="isSearchingDni" class="bi bi-arrow-repeat animate-spin"></i>
+                      <i v-else class="bi bi-search"></i>
+                      <span>{{ isSearchingDni ? 'Buscando...' : 'Buscar' }}</span>
+                    </button>
                   </div>
                   <p v-if="form.errors.dni" class="text-xs text-red-600 mt-1">{{ form.errors.dni }}</p>
+
+                  <!-- Decolecta Success Notification -->
+                  <div
+                    v-if="searchSuccessMessage"
+                    class="mt-2.5 p-3 rounded-xl bg-emerald-50/80 border border-emerald-200 text-emerald-800 text-xs flex items-start gap-2.5"
+                  >
+                    <div class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <i class="bi bi-check-lg"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="font-bold text-emerald-900 flex items-center gap-1.5">
+                        <span>Datos obtenidos con Decolecta (RENIEC)</span>
+                      </p>
+                      <p class="text-[11px] text-emerald-700 mt-0.5 truncate">{{ searchSuccessMessage }}</p>
+                    </div>
+                  </div>
+
+                  <!-- Error Notification -->
+                  <div
+                    v-if="searchErrorMessage"
+                    class="mt-2.5 p-3 rounded-xl bg-red-50/90 border border-red-200 text-red-800 text-xs flex items-start gap-2.5"
+                  >
+                    <div class="w-5 h-5 rounded-full bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="font-bold text-red-900">Consulta de DNI</p>
+                      <p class="text-[11px] text-red-700 mt-0.5">{{ searchErrorMessage }}</p>
+                    </div>
+                    <button
+                      type="button"
+                      @click="searchErrorMessage = ''"
+                      class="text-red-400 hover:text-red-600 p-0.5"
+                      title="Cerrar mensaje"
+                    >
+                      <i class="bi bi-x-lg text-xs"></i>
+                    </button>
+                  </div>
+
+                  <!-- Existing User Alert -->
+                  <div
+                    v-if="institutionalData?.existing_user"
+                    class="mt-2.5 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-1.5"
+                  >
+                    <div class="flex items-center gap-1.5 font-bold text-amber-800">
+                      <i class="bi bi-person-exclamation text-base text-amber-600"></i>
+                      <span>Usuario ya registrado en la plataforma</span>
+                    </div>
+                    <p class="text-[11px] text-amber-700">
+                      Este DNI ya pertenece al usuario <strong>{{ institutionalData.existing_user.names }}</strong> con el rol institucional <strong>{{ institutionalData.existing_user.role }}</strong>
+                      <span v-if="institutionalData.existing_user.job_position"> ({{ institutionalData.existing_user.job_position }})</span>.
+                    </p>
+                    <div class="pt-1">
+                      <Link
+                        :href="route('admin.users.edit', institutionalData.existing_user.id)"
+                        class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-900 hover:underline"
+                      >
+                        <i class="bi bi-pencil-square"></i> Ver / Editar este usuario registrado
+                      </Link>
+                    </div>
+                  </div>
+
+                  <!-- Student Record Institutional Match -->
+                  <div
+                    v-if="institutionalData?.student_record"
+                    class="mt-2.5 p-3 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-900 text-xs space-y-2"
+                  >
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-1.5 font-bold text-indigo-900">
+                        <i class="bi bi-mortarboard-fill text-indigo-600"></i>
+                        <span>Registro de Estudiante FVC encontrado</span>
+                      </div>
+                      <span class="px-2 py-0.5 bg-indigo-200/70 text-indigo-800 rounded-full text-[10px] font-bold uppercase">
+                        {{ institutionalData.student_record.enrollment_status || 'Estudiante' }}
+                      </span>
+                    </div>
+                    <p class="text-[11px] text-indigo-700">
+                      Programa: <strong>{{ institutionalData.student_record.study_program }}</strong>
+                      <span v-if="institutionalData.student_record.academic_period"> • Periodo: {{ institutionalData.student_record.academic_period }}</span>
+                      <span v-if="institutionalData.student_record.cycle"> • Ciclo: {{ institutionalData.student_record.cycle }}</span>
+                    </p>
+                    <button
+                      type="button"
+                      @click="applyStudentData"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[11px] font-bold shadow-sm transition-colors cursor-pointer"
+                    >
+                      <i class="bi bi-magic"></i>
+                      <span>Autocompletar rol y datos de estudiante</span>
+                    </button>
+                  </div>
                 </div>
 
                 <!-- Names -->
@@ -290,6 +397,7 @@
 <script setup>
 import { ref } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
+import axios from 'axios';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { route } from '@/route';
 
@@ -303,6 +411,12 @@ const props = defineProps({
 const showPassword = ref(false);
 const photoPreview = ref(null);
 
+// Estados para consulta de DNI con Decolecta
+const isSearchingDni = ref(false);
+const searchSuccessMessage = ref('');
+const searchErrorMessage = ref('');
+const institutionalData = ref(null);
+
 const form = useForm({
   dni: '',
   names: '',
@@ -315,6 +429,64 @@ const form = useForm({
   cv_file: null,
   is_active: true
 });
+
+async function consultarDni() {
+  searchSuccessMessage.value = '';
+  searchErrorMessage.value = '';
+  institutionalData.value = null;
+
+  const cleanDni = form.dni ? form.dni.toString().trim() : '';
+  if (!cleanDni) {
+    searchErrorMessage.value = 'Por favor, ingrese un número de DNI.';
+    return;
+  }
+
+  if (cleanDni.length !== 8) {
+    searchErrorMessage.value = 'El DNI debe contener exactamente 8 dígitos.';
+    return;
+  }
+
+  isSearchingDni.value = true;
+  try {
+    const response = await axios.get(route('admin.users.search-dni', { dni: cleanDni }));
+    if (response.data && response.data.success) {
+      const data = response.data.data;
+      form.names = data.names || data.full_name;
+      institutionalData.value = data.institutional_records || null;
+      searchSuccessMessage.value = `${data.names || data.full_name}`;
+
+      if (form.errors.dni) delete form.errors.dni;
+      if (form.errors.names) delete form.errors.names;
+    } else {
+      searchErrorMessage.value = response.data?.message || 'No se encontraron datos para el DNI ingresado.';
+    }
+  } catch (error) {
+    const errorMsg = error.response?.data?.message || 'Error al consultar la API de Decolecta / RENIEC.';
+    searchErrorMessage.value = errorMsg;
+  } finally {
+    isSearchingDni.value = false;
+  }
+}
+
+function applyStudentData() {
+  if (!institutionalData.value?.student_record) return;
+  const student = institutionalData.value.student_record;
+
+  const studentRole = props.roles.find(
+    (r) => r.name.toLowerCase() === 'estudiante' || r.name.toLowerCase() === 'student'
+  );
+  if (studentRole) {
+    form.role = studentRole.name;
+  }
+
+  if (student.email && !form.email) {
+    form.email = student.email;
+  }
+
+  if (student.study_program) {
+    form.job_position = `Estudiante de ${student.study_program}`;
+  }
+}
 
 function handlePhotoChange(e) {
   const file = e.target.files[0];

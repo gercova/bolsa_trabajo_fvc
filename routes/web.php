@@ -397,6 +397,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [UsersController::class, 'index'])->name('index');
         Route::get('/plantilla', [UsersController::class, 'downloadTemplate'])->name('template');
         Route::post('/importar', [UsersController::class, 'import'])->name('import');
+        Route::match(['get', 'post'], '/consultar-dni/{dni?}', [UsersController::class, 'searchDni'])->name('search-dni');
         Route::get('/crear', [UsersController::class, 'create'])->name('create');
         Route::get('/{user}/editar/', [UsersController::class, 'edit'])->name('edit');
         Route::post('/', [UsersController::class, 'store'])->name('store');
@@ -412,6 +413,8 @@ Route::middleware(['auth'])->group(function () {
     // Rutas directas para compatibilidad con /admin/usuarios/{user}/password
     Route::match(['patch', 'post'], '/admin/usuarios/{user}/password', [UsersController::class, 'updatePassword'])->name('admin.users.password.alias');
     Route::get('/admin/usuarios/{user}/password', fn () => redirect()->route('admin.users.index'))->name('admin.users.password.alias.get');
+    Route::match(['get', 'post'], '/admin/users/search-dni/{dni?}', [UsersController::class, 'searchDni'])->name('admin.users.search-dni.alias');
+    Route::match(['get', 'post'], '/admin-usuarios/search-dni/{dni?}', [UsersController::class, 'searchDni'])->name('admin.users.search-dni.alias-usuarios');
 
     // Teacher role details
     Route::prefix('admin-docentes-roles')->name('admin.teacher-roles.')->group(function () {

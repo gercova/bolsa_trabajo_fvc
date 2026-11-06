@@ -8,6 +8,7 @@ use App\Http\Requests\UserImportRequest;
 use App\Http\Requests\UserValidate;
 use App\Imports\UserImport;
 use App\Models\User;
+use App\Services\DecolectaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -132,6 +133,30 @@ class UsersController extends Controller
             ->when($createdBefore, function ($query) use ($createdBefore) {
                 $query->whereDate('created_at', '<=', $createdBefore);
             });
+    }
+
+    /**
+     * Consulta datos de identidad vía Decolecta API e información institucional.
+     */
+    public function searchDni(Request $request, DecolectaService $decolectaService, ?string $dni = null): JsonResponse
+    {
+        $dniToSearch = $dni ?? $request->input('dni') ?? $request->query('dni');
+
+        if (empty($dniToSearch)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El número de DNI es obligatorio.',
+            ], 422);
+        }
+
+        $result = $decolectaService->searchByDni((string) $dniToSearch);
+
+        $status = $result['success'] ? 200 : 422;
+        if (! $result['success'] && str_contains($result['message'] ?? '', 'No se encontraron datos')) {
+            $status = 404;
+        }
+
+        return response()->json($result, $status);
     }
 
     /**

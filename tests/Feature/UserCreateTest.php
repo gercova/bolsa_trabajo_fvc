@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\StudentRecord;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -121,5 +123,136 @@ class UserCreateTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors(['dni', 'names', 'email', 'role']);
+    }
+
+    public function test_admin_can_search_dni_via_decolecta_api(): void
+    {
+        Http::fake([
+            'https://api.decolecta.com/v1/reniec/dni*' => Http::response([
+                'first_name' => 'OLVIS ALBERTO',
+                'first_last_name' => 'QUINTANA',
+                'second_last_name' => 'VILLANUEVA',
+                'full_name' => 'QUINTANA VILLANUEVA OLVIS ALBERTO',
+                'document_number' => '49071347',
+            ], 200),
+        ]);
+
+        $response = $this->actingAs($this->admin)->getJson(route('admin.users.search-dni', ['dni' => '49071347']));
+
+        $response->assertOk();
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'dni' => '49071347',
+                'first_name' => 'OLVIS ALBERTO',
+                'first_last_name' => 'QUINTANA',
+                'second_last_name' => 'VILLANUEVA',
+                'full_name' => 'QUINTANA VILLANUEVA OLVIS ALBERTO',
+                'names' => 'Olvis Alberto Quintana Villanueva',
+            ],
+        ]);
+    }
+
+    public function test_search_dni_works_via_admin_users_search_dni_alias(): void
+    {
+        Http::fake([
+            'https://api.decolecta.com/v1/reniec/dni*' => Http::response([
+                'first_name' => 'PILAR',
+                'first_last_name' => 'SALAZAR',
+                'second_last_name' => 'SINARAHUA',
+                'full_name' => 'SALAZAR SINARAHUA PILAR',
+                'document_number' => '46570851',
+            ], 200),
+        ]);
+
+        $response = $this->actingAs($this->admin)->getJson('/admin/users/search-dni?dni=46570851');
+
+        $response->assertOk();
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'dni' => '46570851',
+                'names' => 'Pilar Salazar Sinarahua',
+            ],
+        ]);
+    }
+
+    public function test_search_dni_detects_existing_student_record(): void
+    {
+        Http::fake([
+            'https://api.decolecta.com/v1/reniec/dni*' => Http::response([
+                'first_name' => 'JUAN CARLOS',
+                'first_last_name' => 'PEREZ',
+                'second_last_name' => 'GOMEZ',
+                'full_name' => 'PEREZ GOMEZ JUAN CARLOS',
+                'document_number' => '76543210',
+            ], 200),
+        ]);
+
+        StudentRecord::create([
+            'document_type_id' => 1,
+            'document' => '76543210',
+            'names' => 'JUAN CARLOS',
+            'last_name_father' => 'PEREZ',
+            'last_name_mother' => 'GOMEZ',
+            'email' => 'juan.perez@iestpfvc.edu.pe',
+            'study_program' => 'Enfermería Técnica',
+            'academic_period' => '2026-I',
+            'record_type' => 'MATRICULA',
+            'cycle' => 'I',
+        ]);
+
+        $response = $this->actingAs($this->admin)->getJson(route('admin.users.search-dni', ['dni' => '76543210']));
+
+        $response->assertOk();
+        $response->assertJsonPath('data.institutional_records.student_record.study_program', 'Enfermería Técnica');
+        $response->assertJsonPath('data.institutional_records.student_record.email', 'juan.perez@iestpfvc.edu.pe');
+    }
+
+    public function test_search_dni_validates_8_digits(): void
+    {
+        $response = $this->actingAs($this->admin)->getJson(route('admin.users.search-dni', ['dni' => '123']));
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'El DNI debe tener exactamente 8 dígitos numéricos.',
+        ]);
+    }
+
+    public function test_search_dni_detects_existing_user(): void
+    {
+        Http::fake([
+            'https://api.decolecta.com/v1/reniec/dni*' => Http::response([
+                'first_name' => 'ADMIN',
+                'first_last_name' => 'CREATE',
+                'second_last_name' => 'TEST',
+                'full_name' => 'CREATE TEST ADMIN',
+                'document_number' => '88880001',
+            ], 200),
+        ]);
+
+        $response = $this->actingAs($this->admin)->getJson(route('admin.users.search-dni', ['dni' => '88880001']));
+
+        $response->assertOk();
+        $response->assertJsonPath('data.institutional_records.existing_user.id', $this->admin->id);
+        $response->assertJsonPath('data.institutional_records.existing_user.role', 'Admin');
+    }
+
+    public function test_search_dni_handles_not_found_in_reniec(): void
+    {
+        Http::fake([
+            'https://api.decolecta.com/v1/reniec/dni*' => Http::response([
+                'message' => 'not found',
+            ], 404),
+        ]);
+
+        $response = $this->actingAs($this->admin)->getJson(route('admin.users.search-dni', ['dni' => '00000000']));
+
+        $response->assertStatus(404);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'No se encontraron datos en RENIEC para el DNI ingresado.',
+        ]);
     }
 }

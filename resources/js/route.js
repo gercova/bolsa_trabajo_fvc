@@ -121,6 +121,7 @@ export const routesMap = {
     'admin.users.toggle-status': '/admin-usuarios/estado/{user}',
     'admin.users.template': '/admin-usuarios/plantilla',
     'admin.users.import': '/admin-usuarios/importar',
+    'admin.users.search-dni': '/admin-usuarios/consultar-dni/{dni?}',
     'admin.users.password.update': '/admin-usuarios/{user}/password',
     'admin.users.bulk-delete': '/admin-usuarios/eliminar-masivo',
     'admin.users.count-bulk-delete': '/admin-usuarios/conteo-masivo',

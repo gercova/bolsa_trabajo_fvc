@@ -146,6 +146,80 @@ class AdminStudyProgramTest extends TestCase
         Storage::disk('public')->assertExists($program->logo_path);
     }
 
+    public function test_updating_program_without_new_files_preserves_existing_logo_and_itinerary(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        Storage::disk('public')->put('programs/initial-logo.png', 'logo content');
+        Storage::disk('public')->put('programs/documents/itinerary.pdf', 'pdf content');
+
+        $program = StudyProgram::create([
+            'name' => 'Enfermería Técnica',
+            'slug' => 'enfermeria-tecnica',
+            'description' => 'Descripción inicial',
+            'details' => 'Detalle inicial',
+            'logo_path' => 'programs/initial-logo.png',
+            'training_itinerary_path' => 'programs/documents/itinerary.pdf',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($user)->put("/admin-programas/editar-programa/{$program->id}", [
+            'name' => 'Enfermería Técnica Actualizada',
+            'description' => 'Descripción modificada',
+            'details' => 'Detalle modificado',
+            'logo_path' => null,
+            'training_itinerary_path' => null,
+            'is_active' => '1',
+        ]);
+
+        $response->assertRedirect('/admin-programas?tab=programs');
+        $response->assertSessionHas('success');
+
+        $program->refresh();
+        $this->assertEquals('Enfermería Técnica Actualizada', $program->name);
+        $this->assertEquals('programs/initial-logo.png', $program->logo_path);
+        $this->assertEquals('programs/documents/itinerary.pdf', $program->training_itinerary_path);
+        Storage::disk('public')->assertExists('programs/initial-logo.png');
+        Storage::disk('public')->assertExists('programs/documents/itinerary.pdf');
+    }
+
+    public function test_admin_can_explicitly_remove_logo_and_itinerary(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        Storage::disk('public')->put('programs/initial-logo.png', 'logo content');
+        Storage::disk('public')->put('programs/documents/itinerary.pdf', 'pdf content');
+
+        $program = StudyProgram::create([
+            'name' => 'Producción Agropecuaria',
+            'slug' => 'produccion-agropecuaria',
+            'description' => 'Descripción inicial',
+            'details' => 'Detalle inicial',
+            'logo_path' => 'programs/initial-logo.png',
+            'training_itinerary_path' => 'programs/documents/itinerary.pdf',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($user)->put("/admin-programas/editar-programa/{$program->id}", [
+            'name' => 'Producción Agropecuaria',
+            'description' => 'Descripción inicial',
+            'details' => 'Detalle inicial',
+            'remove_logo' => true,
+            'remove_training_itinerary' => true,
+            'is_active' => '1',
+        ]);
+
+        $response->assertRedirect('/admin-programas?tab=programs');
+
+        $program->refresh();
+        $this->assertNull($program->logo_path);
+        $this->assertNull($program->training_itinerary_path);
+        Storage::disk('public')->assertMissing('programs/initial-logo.png');
+        Storage::disk('public')->assertMissing('programs/documents/itinerary.pdf');
+    }
+
     public function test_admin_can_toggle_program_status(): void
     {
         $user = User::factory()->create();

@@ -218,20 +218,40 @@ class StudyProgramsController extends Controller
         $validated['enable_carousel'] = $request->boolean('enable_carousel');
         $validated['order'] = $validated['order'] ?? $program->order;
 
-        if ($request->hasFile('logo_path')) {
-            if ($program->logo_path && Storage::disk('public')->exists($program->logo_path)) {
-                Storage::disk('public')->delete($program->logo_path);
+        // Gestión del logo institucional
+        if ($request->boolean('remove_logo')) {
+            $oldLogo = $program->logo_path ? ltrim(str_replace(['/storage/', 'storage/'], '', $program->logo_path), '/') : null;
+            if ($oldLogo && ! Str::startsWith($oldLogo, ['http://', 'https://', 'data:']) && Storage::disk('public')->exists($oldLogo)) {
+                Storage::disk('public')->delete($oldLogo);
+            }
+            $validated['logo_path'] = null;
+        } elseif ($request->hasFile('logo_path')) {
+            $oldLogo = $program->logo_path ? ltrim(str_replace(['/storage/', 'storage/'], '', $program->logo_path), '/') : null;
+            if ($oldLogo && ! Str::startsWith($oldLogo, ['http://', 'https://', 'data:']) && Storage::disk('public')->exists($oldLogo)) {
+                Storage::disk('public')->delete($oldLogo);
             }
             $path = $request->file('logo_path')->store('programs', 'public');
             $validated['logo_path'] = $path;
+        } else {
+            unset($validated['logo_path']);
         }
 
-        if ($request->hasFile('training_itinerary_path')) {
-            if ($program->training_itinerary_path && Storage::disk('public')->exists($program->training_itinerary_path)) {
-                Storage::disk('public')->delete($program->training_itinerary_path);
+        // Gestión del documento del itinerario formativo (PDF)
+        if ($request->boolean('remove_training_itinerary')) {
+            $oldPdf = $program->training_itinerary_path ? ltrim(str_replace(['/storage/', 'storage/'], '', $program->training_itinerary_path), '/') : null;
+            if ($oldPdf && ! Str::startsWith($oldPdf, ['http://', 'https://']) && Storage::disk('public')->exists($oldPdf)) {
+                Storage::disk('public')->delete($oldPdf);
+            }
+            $validated['training_itinerary_path'] = null;
+        } elseif ($request->hasFile('training_itinerary_path')) {
+            $oldPdf = $program->training_itinerary_path ? ltrim(str_replace(['/storage/', 'storage/'], '', $program->training_itinerary_path), '/') : null;
+            if ($oldPdf && ! Str::startsWith($oldPdf, ['http://', 'https://']) && Storage::disk('public')->exists($oldPdf)) {
+                Storage::disk('public')->delete($oldPdf);
             }
             $itineraryPath = $request->file('training_itinerary_path')->store('programs/documents', 'public');
             $validated['training_itinerary_path'] = $itineraryPath;
+        } else {
+            unset($validated['training_itinerary_path']);
         }
 
         $program->update($validated);
@@ -297,18 +317,23 @@ class StudyProgramsController extends Controller
 
     public function destroy(StudyProgram $program): RedirectResponse
     {
-        if ($program->logo_path && Storage::disk('public')->exists($program->logo_path)) {
-            Storage::disk('public')->delete($program->logo_path);
+        $oldLogo = $program->logo_path ? ltrim(str_replace(['/storage/', 'storage/'], '', $program->logo_path), '/') : null;
+        if ($oldLogo && ! Str::startsWith($oldLogo, ['http://', 'https://', 'data:']) && Storage::disk('public')->exists($oldLogo)) {
+            Storage::disk('public')->delete($oldLogo);
         }
-        if ($program->training_itinerary_path && Storage::disk('public')->exists($program->training_itinerary_path)) {
-            Storage::disk('public')->delete($program->training_itinerary_path);
+
+        $oldPdf = $program->training_itinerary_path ? ltrim(str_replace(['/storage/', 'storage/'], '', $program->training_itinerary_path), '/') : null;
+        if ($oldPdf && ! Str::startsWith($oldPdf, ['http://', 'https://']) && Storage::disk('public')->exists($oldPdf)) {
+            Storage::disk('public')->delete($oldPdf);
         }
+
         foreach ($program->images as $image) {
             if ($image->path && Storage::disk('public')->exists($image->path)) {
                 Storage::disk('public')->delete($image->path);
             }
             $image->delete();
         }
+
         $program->delete();
 
         return redirect()->route('admin.programs.index', ['tab' => 'programs'])->with('success', 'Programa de estudio eliminado correctamente.');

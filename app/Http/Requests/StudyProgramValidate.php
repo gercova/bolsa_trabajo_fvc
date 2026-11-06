@@ -26,6 +26,8 @@ class StudyProgramValidate extends FormRequest
             ],
             'logo_path' => 'nullable|file|image|mimes:jpeg,png,jpg,gif,webp,svg|max:4096',
             'training_itinerary_path' => 'nullable|file|mimes:pdf|max:20480',
+            'remove_logo' => 'nullable|boolean',
+            'remove_training_itinerary' => 'nullable|boolean',
             'images' => 'nullable|array',
             'images.*' => 'file|image|mimes:jpeg,png,jpg,gif,webp,svg,avif,bmp|max:10240',
             'main_image_index' => 'nullable|integer|min:0',

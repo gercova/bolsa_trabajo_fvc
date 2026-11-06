@@ -16,6 +16,8 @@ const form = useForm({
     name: props.program.name || '',
     logo_path: null,
     training_itinerary_path: null,
+    remove_logo: false,
+    remove_training_itinerary: false,
     images: [],
     main_image_index: null,
     main_image_id: props.program.images?.find((img) => img.is_main)?.id || null,
@@ -42,6 +44,7 @@ const handleLogoChange = (event) => {
     if (file) {
         logoFileName.value = file.name;
         form.logo_path = file;
+        form.remove_logo = false;
         const reader = new FileReader();
         reader.onload = (e) => {
             newLogoPreview.value = e.target.result;
@@ -56,6 +59,17 @@ const cancelNewLogo = () => {
     form.logo_path = null;
 };
 
+const removeExistingLogo = () => {
+    form.remove_logo = true;
+    form.logo_path = null;
+    newLogoPreview.value = null;
+    logoFileName.value = '';
+};
+
+const restoreExistingLogo = () => {
+    form.remove_logo = false;
+};
+
 // PDF Itinerary management
 const existingPdfUrl = ref(props.program.training_itinerary_url || null);
 const newPdfFileName = ref('');
@@ -65,12 +79,23 @@ const handlePdfChange = (event) => {
     if (file) {
         newPdfFileName.value = file.name;
         form.training_itinerary_path = file;
+        form.remove_training_itinerary = false;
     }
 };
 
 const cancelNewPdf = () => {
     newPdfFileName.value = '';
     form.training_itinerary_path = null;
+};
+
+const removeExistingPdf = () => {
+    form.remove_training_itinerary = true;
+    form.training_itinerary_path = null;
+    newPdfFileName.value = '';
+};
+
+const restoreExistingPdf = () => {
+    form.remove_training_itinerary = false;
 };
 
 // Existing Gallery Images
@@ -289,16 +314,52 @@ const submit = () => {
                                         </span>
                                     </div>
 
+                                    <!-- Existing Logo marked for removal -->
+                                    <div v-else-if="existingLogoUrl && form.remove_logo" class="text-center space-y-3 relative w-full p-2">
+                                        <div class="relative inline-block opacity-40">
+                                            <img
+                                                :src="existingLogoUrl"
+                                                :alt="program.name"
+                                                class="w-24 h-24 object-contain rounded-xl bg-white p-2 border border-red-300 shadow-sm mx-auto grayscale"
+                                            />
+                                        </div>
+                                        <div>
+                                            <span class="inline-block px-2.5 py-0.5 bg-red-100 text-red-800 text-[11px] font-bold rounded-full">
+                                                Marcado para eliminar
+                                            </span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            @click="restoreExistingLogo"
+                                            class="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-purple-700 bg-purple-50 hover:bg-purple-100 rounded-lg font-semibold transition-colors cursor-pointer"
+                                        >
+                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                            <span>Conservar logo</span>
+                                        </button>
+                                    </div>
+
                                     <!-- Existing Logo -->
                                     <div v-else-if="existingLogoUrl" class="text-center space-y-3 relative w-full">
-                                        <img
-                                            :src="existingLogoUrl"
-                                            :alt="program.name"
-                                            class="w-24 h-24 object-contain rounded-xl bg-white p-2 border border-gray-200 shadow-sm mx-auto"
-                                        />
-                                        <span class="inline-block px-2.5 py-0.5 bg-gray-200 text-gray-700 text-[11px] font-bold rounded-full">
-                                            Logo Actual
-                                        </span>
+                                        <div class="relative inline-block group">
+                                            <img
+                                                :src="existingLogoUrl"
+                                                :alt="program.name"
+                                                class="w-24 h-24 object-contain rounded-xl bg-white p-2 border border-gray-200 shadow-sm mx-auto"
+                                            />
+                                            <button
+                                                type="button"
+                                                @click="removeExistingLogo"
+                                                class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full text-xs shadow-md transition-colors cursor-pointer"
+                                                title="Eliminar logo actual"
+                                            >
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                        <div>
+                                            <span class="inline-block px-2.5 py-0.5 bg-gray-200 text-gray-700 text-[11px] font-bold rounded-full">
+                                                Logo Actual
+                                            </span>
+                                        </div>
                                     </div>
 
                                     <!-- No Logo -->
@@ -359,18 +420,50 @@ const submit = () => {
                                         </span>
                                     </div>
 
+                                    <!-- Existing PDF marked for removal -->
+                                    <div v-else-if="existingPdfUrl && form.remove_training_itinerary" class="text-center space-y-3 relative w-full p-2">
+                                        <div class="w-16 h-16 rounded-2xl bg-red-50 text-red-400 border border-red-100 flex items-center justify-center text-3xl shadow-sm mx-auto opacity-50">
+                                            <i class="bi bi-file-earmark-x-fill"></i>
+                                        </div>
+                                        <div>
+                                            <span class="inline-block px-2.5 py-0.5 bg-red-100 text-red-800 text-[11px] font-bold rounded-full">
+                                                Marcado para eliminar
+                                            </span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            @click="restoreExistingPdf"
+                                            class="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg font-semibold transition-colors cursor-pointer"
+                                        >
+                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                            <span>Conservar PDF</span>
+                                        </button>
+                                    </div>
+
                                     <!-- Existing PDF Registered -->
                                     <div v-else-if="existingPdfUrl" class="text-center space-y-3 relative w-full">
-                                        <div class="w-16 h-16 rounded-2xl bg-red-50 text-red-600 border border-red-100 flex items-center justify-center text-3xl shadow-sm mx-auto">
-                                            <i class="bi bi-file-earmark-pdf-fill"></i>
+                                        <div class="relative inline-block group">
+                                            <div class="w-16 h-16 rounded-2xl bg-red-50 text-red-600 border border-red-100 flex items-center justify-center text-3xl shadow-sm mx-auto">
+                                                <i class="bi bi-file-earmark-pdf-fill"></i>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                @click="removeExistingPdf"
+                                                class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full text-xs shadow-md transition-colors cursor-pointer"
+                                                title="Eliminar PDF actual"
+                                            >
+                                                <i class="bi bi-trash"></i>
+                                            </button>
                                         </div>
-                                        <a
-                                            :href="existingPdfUrl"
-                                            target="_blank"
-                                            class="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-bold hover:underline"
-                                        >
-                                            <i class="bi bi-eye"></i> Ver PDF Actual
-                                        </a>
+                                        <div>
+                                            <a
+                                                :href="existingPdfUrl"
+                                                target="_blank"
+                                                class="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-bold hover:underline"
+                                            >
+                                                <i class="bi bi-eye"></i> Ver PDF Actual
+                                            </a>
+                                        </div>
                                         <span class="inline-block px-2.5 py-0.5 bg-indigo-100 text-indigo-800 text-[11px] font-bold rounded-full">
                                             PDF Registrado
                                         </span>

@@ -52,9 +52,7 @@ class RoleController extends Controller
     {
         $permissions = Permission::all();
 
-        return Inertia::render('Admin/Roles/Create', [
-            'permissions' => $permissions,
-        ]);
+        return Inertia::render('Admin/Roles/Create', ['permissions' => $permissions]);
     }
 
     /**
@@ -139,10 +137,7 @@ class RoleController extends Controller
         ]);
 
         try {
-            $role->update([
-                'name' => trim($request->name),
-            ]);
-
+            $role->update(['name' => trim($request->name)]);
             $role->syncPermissions($request->permissions ?? []);
 
             if ($this->wantsJson($request)) {
@@ -153,12 +148,12 @@ class RoleController extends Controller
                 ], 200);
             }
 
-            return redirect()->route('admin.roles.index')
+            return redirect()
+                ->route('admin.roles.index')
                 ->with('success', "El rol '{$role->name}' se ha actualizado correctamente.");
 
         } catch (\Exception $e) {
             Log::error('Error actualizando rol: '.$e->getMessage());
-
             if ($this->wantsJson($request)) {
                 return response()->json([
                     'success' => false,

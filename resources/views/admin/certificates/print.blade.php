@@ -12,7 +12,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Great+Vibes&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,600;1,700;1,800&display=swap">
-
     <style>
         /* ── Reset & Page Setup ── */
         *,
@@ -1377,7 +1376,6 @@
                     <path d="M0,245 C180,205 320,110 475,0 L490,0 C325,120 190,220 0,265 Z"
                         fill="url(#engGoldGradTL)" />
                 </svg>
-
                 <!-- ── Bottom-Right Flowing Corner Wave SVG ── -->
                 <svg class="english-wave english-wave-br" viewBox="0 0 520 280" fill="none"
                     preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -1422,16 +1420,13 @@
                     <path d="M520,35 C340,75 200,170 45,280 L30,280 C195,160 330,60 520,15 Z"
                         fill="url(#engGoldGradBR)" />
                 </svg>
-
                 <!-- ── Center Institutional Logo Watermark ── -->
-                <img src="{{ $logoSrc }}" alt="Marca de agua institucional"
-                    class="english-watermark english-front-watermark">
+                <img src="{{ $logoSrc }}" alt="Marca de agua institucional" class="english-watermark english-front-watermark">
 
                 <!-- ── Top-Right Institutional Crest / Shield ── -->
                 <div class="english-header-logo-container">
                     <img src="{{ $logoSrc }}" alt="Logo IESTP FVC" class="english-top-logo">
                 </div>
-
                 <!-- ── Mid-Left Metallic Golden Rosette / Seal with Ribbons ── -->
                 <div class="english-rosette-container">
                     <svg class="english-rosette-svg" viewBox="0 0 160 210" fill="none"
@@ -1467,7 +1462,6 @@
                         <polygon points="52,110 32,195 56,182 80,195 68,110" fill="url(#ribbonGoldGrad1)" />
                         <!-- Ribbon Tails (Right) -->
                         <polygon points="92,110 80,195 104,182 128,195 108,110" fill="url(#ribbonGoldGrad2)" />
-
                         <!-- Rosette Star / Serrated Polygon (24 points) -->
                         <g transform="translate(80, 75)">
                             <path
@@ -1490,29 +1484,25 @@
                         </g>
                     </svg>
                 </div>
-
                 <!-- ── Main Content Area ── -->
                 <div class="english-content-container">
                     <h1 class="english-cert-title">CERTIFICADO</h1>
                     <h2 class="english-cert-granted">OTORGADO A:</h2>
 
                     @php
-                        $rawStudentName = $certificate->user->names;
-                        $cleanStudentName = preg_replace('/\s*,\s*/', ', ', trim($rawStudentName));
-                        $displayName = mb_convert_case($cleanStudentName, MB_CASE_TITLE, 'UTF-8');
+                        $rawStudentName     = $certificate->user->names;
+                        $cleanStudentName   = preg_replace('/\s*,\s*/', ', ', trim($rawStudentName));
+                        $displayName        = mb_convert_case($cleanStudentName, MB_CASE_TITLE, 'UTF-8');
                     @endphp
                     <div class="english-recipient-name">
                         {{ $displayName }}
                     </div>
-
                     <p class="english-intro-text">
                         Por haber concluido satisfactoria el curso de:
                     </p>
-
                     <div class="english-course-title">
                         {{ $certificate->course->name }}
                     </div>
-
                     <div class="english-narrative-box">
                         @php
                             $formattedRange =
@@ -1529,7 +1519,6 @@
                             Se le expide este documento a solicitud del interesado para los fines pertinentes.
                         </p>
                     </div>
-
                     @php
                         $issueDateObj = $certificate->issue_date
                             ? \Carbon\Carbon::parse($certificate->issue_date)

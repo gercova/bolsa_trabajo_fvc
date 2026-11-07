@@ -29,9 +29,7 @@ class ProfileController extends Controller
                 ->with('error', 'Solo tiene acceso a la edición de su propio perfil de usuario.');
         }
 
-        return Inertia::render('Admin/Profile/Edit', [
-            'user' => $targetUser,
-        ]);
+        return Inertia::render('Admin/Profile/Edit', ['user' => $targetUser]);
     }
 
     /**

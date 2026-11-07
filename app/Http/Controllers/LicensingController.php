@@ -123,9 +123,7 @@ class LicensingController extends Controller
      */
     public function edit(LicensingPhase $licensing): Response
     {
-        return Inertia::render('Admin/Licensing/Edit', [
-            'licensing' => $licensing,
-        ]);
+        return Inertia::render('Admin/Licensing/Edit', ['licensing' => $licensing]);
     }
 
     /**
@@ -192,7 +190,8 @@ class LicensingController extends Controller
 
         $licensing->delete();
 
-        return redirect()->route('admin.licensing.index')
+        return redirect()
+            ->route('admin.licensing.index')
             ->with('success', 'La fase del licenciamiento ha sido eliminada correctamente.');
     }
 
@@ -211,9 +210,7 @@ class LicensingController extends Controller
      */
     public function toggleStatus(Request $request, LicensingPhase $licensing): RedirectResponse|JsonResponse
     {
-        $licensing->update([
-            'is_active' => ! $licensing->is_active,
-        ]);
+        $licensing->update(['is_active' => ! $licensing->is_active]);
 
         if ($this->wantsJson($request)) {
             return response()->json([

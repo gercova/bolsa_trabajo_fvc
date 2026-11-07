@@ -70,16 +70,18 @@ class ModuleController extends Controller
         try {
             $data = $request->validated();
             $data['is_active'] = $request->boolean('is_active', true);
-
             $module = Module::create($data);
 
-            return redirect()->route('admin.modules.index')
+            return redirect()
+                ->route('admin.modules.index')
                 ->with('success', "El módulo '{$module->name}' ha sido registrado exitosamente.");
 
         } catch (\Exception $e) {
             Log::error('Error registrando módulo: '.$e->getMessage());
 
-            return back()->withInput()->with('error', 'Error al registrar el módulo: '.$e->getMessage());
+            return back()
+                ->withInput()
+                ->with('error', 'Error al registrar el módulo: '.$e->getMessage());
         }
     }
 
@@ -91,16 +93,18 @@ class ModuleController extends Controller
         try {
             $data = $request->validated();
             $data['is_active'] = $request->boolean('is_active');
-
             $module->update($data);
 
-            return redirect()->route('admin.modules.index')
+            return redirect()
+                ->route('admin.modules.index')
                 ->with('success', "El módulo '{$module->name}' ha sido actualizado exitosamente.");
 
         } catch (\Exception $e) {
             Log::error('Error actualizando módulo: '.$e->getMessage());
 
-            return back()->withInput()->with('error', 'Error al actualizar el módulo: '.$e->getMessage());
+            return back()
+                ->withInput()
+                ->with('error', 'Error al actualizar el módulo: '.$e->getMessage());
         }
     }
 
@@ -113,7 +117,8 @@ class ModuleController extends Controller
             $name = $module->name;
             $module->delete();
 
-            return redirect()->route('admin.modules.index')
+            return redirect()
+                ->route('admin.modules.index')
                 ->with('success', "El módulo '{$name}' ha sido eliminado correctamente.");
 
         } catch (\Exception $e) {

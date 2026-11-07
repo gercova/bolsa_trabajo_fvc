@@ -59,7 +59,9 @@ class PartnersController extends Controller
             ], 201);
         }
 
-        return redirect()->route('admin.partners.index')->with('success', 'Partner registrado exitosamente.');
+        return redirect()
+            ->route('admin.partners.index')
+            ->with('success', 'Partner registrado exitosamente.');
     }
 
     public function show(Partner $partner): JsonResponse
@@ -69,9 +71,7 @@ class PartnersController extends Controller
 
     public function edit(Partner $partner): Response
     {
-        return Inertia::render('Admin/Partners/Edit', [
-            'partner' => $partner,
-        ]);
+        return Inertia::render('Admin/Partners/Edit', ['partner' => $partner]);
     }
 
     public function update(Request $request, Partner $partner): RedirectResponse|JsonResponse

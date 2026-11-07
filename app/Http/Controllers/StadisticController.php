@@ -21,13 +21,12 @@ class StadisticController extends Controller
     /**
      * Display a listing of the resource with statistics & filters.
      */
-    public function index(Request $request): Response
-    {
-        $search = $request->input('search');
-        $recordType = $request->input('record_type');
+    public function index(Request $request): Response {
+        $search         = $request->input('search');
+        $recordType     = $request->input('record_type');
         $academicPeriod = $request->input('academic_period');
-        $studyProgram = $request->input('study_program');
-        $query = StudentRecord::with('documentType')
+        $studyProgram   = $request->input('study_program');
+        $query          = StudentRecord::with('documentType')
             ->when($search, function ($q, $search) {
                 $q->where(function ($sub) use ($search) {
                     $sub->where('document', 'LIKE', "%{$search}%")
@@ -42,15 +41,15 @@ class StadisticController extends Controller
             ->when($academicPeriod, fn ($q, $period) => $q->where('academic_period', $period))
             ->when($studyProgram, fn ($q, $prog) => $q->where('study_program', $prog));
 
-        $studentRecords = $query->latest('id')->paginate(15)->withQueryString();
+        $studentRecords     = $query->latest('id')->paginate(15)->withQueryString();
         // High-level KPI Statistics
-        $totalRecords = StudentRecord::count();
-        $totalAdmission = StudentRecord::where('record_type', 'ADMISION')->count();
-        $totalEnrollment = StudentRecord::where('record_type', 'MATRICULA')->count();
-        $totalPrograms = StudentRecord::whereNotNull('study_program')->distinct('study_program')->count('study_program');
+        $totalRecords       = StudentRecord::count();
+        $totalAdmission     = StudentRecord::where('record_type', 'ADMISION')->count();
+        $totalEnrollment    = StudentRecord::where('record_type', 'MATRICULA')->count();
+        $totalPrograms      = StudentRecord::whereNotNull('study_program')->distinct('study_program')->count('study_program');
 
         // Distribution by program
-        $programStats = StudentRecord::selectRaw('study_program, COUNT(*) as total, SUM(CASE WHEN record_type = "ADMISION" THEN 1 ELSE 0 END) as admision_count, SUM(CASE WHEN record_type = "MATRICULA" THEN 1 ELSE 0 END) as matricula_count')
+        $programStats       = StudentRecord::selectRaw('study_program, COUNT(*) as total, SUM(CASE WHEN record_type = "ADMISION" THEN 1 ELSE 0 END) as admision_count, SUM(CASE WHEN record_type = "MATRICULA" THEN 1 ELSE 0 END) as matricula_count')
             ->whereNotNull('study_program')
             ->groupBy('study_program')
             ->orderByDesc('total')
@@ -68,29 +67,27 @@ class StadisticController extends Controller
             ->pluck('name');
 
         return Inertia::render('Admin/Statistics/Index', [
-            'studentRecords' => $studentRecords,
-            'totalRecords' => $totalRecords,
-            'totalAdmission' => $totalAdmission,
-            'totalEnrollment' => $totalEnrollment,
-            'totalPrograms' => $totalPrograms,
-            'programStats' => $programStats,
-            'academicPeriods' => $academicPeriods,
+            'studentRecords'    => $studentRecords,
+            'totalRecords'      => $totalRecords,
+            'totalAdmission'    => $totalAdmission,
+            'totalEnrollment'   => $totalEnrollment,
+            'totalPrograms'     => $totalPrograms,
+            'programStats'      => $programStats,
+            'academicPeriods'   => $academicPeriods,
             'studyProgramsList' => $studyProgramsList,
-            'search' => $search ?? '',
-            'recordType' => $recordType ?? '',
-            'academicPeriod' => $academicPeriod ?? '',
-            'studyProgram' => $studyProgram ?? '',
+            'search'            => $search ?? '',
+            'recordType'        => $recordType ?? '',
+            'academicPeriod'    => $academicPeriod ?? '',
+            'studyProgram'      => $studyProgram ?? '',
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): Response
-    {
+    public function create(): Response {
         $documentTypes = DocumentType::where('is_active', true)->get();
         $studyPrograms = StudyProgram::where('is_active', true)->orderBy('name')->get();
-
         return Inertia::render('Admin/Statistics/Create', [
             'documentTypes' => $documentTypes,
             'studyPrograms' => $studyPrograms,
@@ -100,11 +97,9 @@ class StadisticController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StudentRecordRequest $request): RedirectResponse
-    {
+    public function store(StudentRecordRequest $request): RedirectResponse {
         $validated = $request->validated();
         StudentRecord::create($validated);
-
         return redirect()
             ->route('admin.statistics.index')
             ->with('success', 'Registro académico creado exitosamente.');
@@ -113,8 +108,7 @@ class StadisticController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(StudentRecord $studentRecord): View|JsonResponse
-    {
+    public function show(StudentRecord $studentRecord): View|JsonResponse {
         $studentRecord->load('documentType');
 
         if (request()->wantsJson()) {
@@ -127,11 +121,9 @@ class StadisticController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(StudentRecord $studentRecord): Response
-    {
+    public function edit(StudentRecord $studentRecord): Response {
         $documentTypes = DocumentType::where('is_active', true)->get();
         $studyPrograms = StudyProgram::where('is_active', true)->orderBy('name')->get();
-
         return Inertia::render('Admin/Statistics/Edit', [
             'studentRecord' => $studentRecord,
             'documentTypes' => $documentTypes,
@@ -142,11 +134,9 @@ class StadisticController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StudentRecordRequest $request, StudentRecord $studentRecord): RedirectResponse
-    {
+    public function update(StudentRecordRequest $request, StudentRecord $studentRecord): RedirectResponse {
         $validated = $request->validated();
         $studentRecord->update($validated);
-
         return redirect()
             ->route('admin.statistics.index')
             ->with('success', 'Registro académico actualizado exitosamente.');
@@ -155,10 +145,8 @@ class StadisticController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(StudentRecord $studentRecord): RedirectResponse
-    {
+    public function destroy(StudentRecord $studentRecord): RedirectResponse {
         $studentRecord->delete();
-
         return redirect()
             ->route('admin.statistics.index')
             ->with('success', 'Registro académico eliminado exitosamente.');
@@ -168,8 +156,7 @@ class StadisticController extends Controller
      * Import student records in bulk from an Excel (.xlsx/.xls) or CSV file.
      * Columns H–AF of the MINEDU-format report are mapped to StudentRecord fields.
      */
-    public function import(StudentRecordImportRequest $request): RedirectResponse
-    {
+    public function import(StudentRecordImportRequest $request): RedirectResponse {
         $recordType = strtoupper(trim($request->input('record_type', 'AUTO')));
 
         try {

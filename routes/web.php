@@ -349,6 +349,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Certificados
+    Route::redirect('/admin-certificates', '/admin-certificados');
     Route::prefix('admin-certificados')->name('admin.certificates.')->group(function () {
         Route::get('/buscar-estudiantes', [CertificateController::class, 'searchStudents'])->name('search-students');
         Route::get('/', [CertificateController::class, 'index'])->name('index');

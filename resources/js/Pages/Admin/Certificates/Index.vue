@@ -367,6 +367,7 @@ const submitImport = () => {
 
 // ── BULK PDF EXPORT MODAL ──
 const bulkPdfModalOpen = ref(false);
+const pdfScope = ref('courses');
 const pdfSelectedCourseIds = ref(['all']);
 const pdfCourseFilterText = ref('');
 const pdfFaces = ref('all');
@@ -375,8 +376,10 @@ const pdfParticipationType = ref('all');
 const pdfOrderBy = ref('names_asc');
 const pdfDateFrom = ref('');
 const pdfDateTo = ref('');
+const isExportingBulkPdf = ref(false);
 
 const openBulkPdfModal = () => {
+    pdfScope.value = selectedCerts.value.length > 0 ? 'selected' : 'courses';
     pdfSelectedCourseIds.value = ['all'];
     pdfCourseFilterText.value = '';
     pdfFaces.value = 'all';
@@ -423,6 +426,69 @@ const selectAllPdfCourses = () => {
 
 const deselectAllPdfCourses = () => {
     pdfSelectedCourseIds.value = [];
+};
+
+const submitBulkPdf = () => {
+    if (props.totalCertificates === 0) {
+        notify('No hay certificados registrados para exportar.', 'error');
+        return;
+    }
+
+    if (pdfScope.value === 'selected') {
+        if (selectedCerts.value.length === 0) {
+            notify('No ha seleccionado ningún certificado en la tabla.', 'error');
+            return;
+        }
+    } else {
+        if (pdfSelectedCourseIds.value.length === 0) {
+            notify('Debe seleccionar al menos un curso o marcar "Todos los Cursos".', 'error');
+            return;
+        }
+    }
+
+    isExportingBulkPdf.value = true;
+
+    try {
+        const params = new URLSearchParams();
+        params.append('scope', pdfScope.value);
+        params.append('faces', pdfFaces.value || 'all');
+        params.append('modality', pdfModality.value || 'all');
+        params.append('participation_type', pdfParticipationType.value || 'all');
+        params.append('order_by', pdfOrderBy.value || 'names_asc');
+        params.append('auto_print', '1');
+
+        if (pdfDateFrom.value) params.append('date_from', pdfDateFrom.value);
+        if (pdfDateTo.value) params.append('date_to', pdfDateTo.value);
+
+        if (pdfScope.value === 'selected') {
+            selectedCerts.value.forEach(id => {
+                params.append('certificate_ids[]', id);
+            });
+        } else {
+            if (pdfSelectedCourseIds.value.includes('all')) {
+                params.append('course_ids[]', 'all');
+            } else {
+                pdfSelectedCourseIds.value.forEach(cid => {
+                    params.append('course_ids[]', cid);
+                });
+            }
+        }
+
+        const exportUrl = `${route('admin.certificates.bulk-export-pdf')}?${params.toString()}`;
+        const win = window.open(exportUrl, '_blank');
+
+        if (win) {
+            win.focus();
+            notify('Generando e imprimiendo lote de certificados en una nueva pestaña...', 'success');
+            bulkPdfModalOpen.value = false;
+        } else {
+            notify('Ventana emergente bloqueada. Por favor habilite las ventanas emergentes (pop-ups) en su navegador.', 'error');
+        }
+    } catch (e) {
+        notify('Ocurrió un error al intentar generar la exportación masiva.', 'error');
+    } finally {
+        isExportingBulkPdf.value = false;
+    }
 };
 
 // ── DELETE MODALS ──
@@ -1693,28 +1759,36 @@ const toggleStatus = (cert) => {
                 </div>
 
                 <form
-                    :action="route('admin.certificates.bulk-export-pdf')"
-                    method="POST"
-                    target="_blank"
-                    @submit="bulkPdfModalOpen = false"
+                    @submit.prevent="submitBulkPdf"
                     class="flex-1 flex flex-col overflow-hidden"
                 >
-                    <input type="hidden" name="scope" value="courses" />
-                    <input type="hidden" name="faces" :value="pdfFaces" />
-                    <input type="hidden" name="modality" :value="pdfModality" />
-                    <input type="hidden" name="participation_type" :value="pdfParticipationType" />
-                    <input type="hidden" name="order_by" :value="pdfOrderBy" />
-                    <input v-if="pdfDateFrom" type="hidden" name="date_from" :value="pdfDateFrom" />
-                    <input v-if="pdfDateTo" type="hidden" name="date_to" :value="pdfDateTo" />
-
-                    <!-- Hidden Course Ids -->
-                    <template v-for="cid in pdfSelectedCourseIds" :key="cid">
-                        <input type="hidden" name="course_ids[]" :value="cid" />
-                    </template>
-
                     <div class="p-6 space-y-5 overflow-y-auto flex-1 text-gray-800">
-                        <!-- Course Selection -->
-                        <div class="space-y-2">
+                        <!-- Scope Selector (When certificates are checked in the table) -->
+                        <div v-if="selectedCerts.length > 0" class="p-3 bg-rose-50/70 border border-rose-200 rounded-xl space-y-2">
+                            <label class="text-xs font-bold text-rose-900 flex items-center gap-1.5">
+                                <i class="bi bi-check2-square text-rose-600"></i>
+                                <span>Alcance del Lote</span>
+                            </label>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <label
+                                    class="flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition"
+                                    :class="pdfScope === 'selected' ? 'bg-white border-rose-500 font-bold text-rose-900 shadow-xs' : 'border-rose-200 bg-white/60 text-gray-700'"
+                                >
+                                    <input type="radio" value="selected" v-model="pdfScope" class="text-rose-600 focus:ring-rose-500" />
+                                    <span>Solo seleccionados ({{ selectedCerts.length }})</span>
+                                </label>
+                                <label
+                                    class="flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition"
+                                    :class="pdfScope === 'courses' ? 'bg-white border-rose-500 font-bold text-rose-900 shadow-xs' : 'border-rose-200 bg-white/60 text-gray-700'"
+                                >
+                                    <input type="radio" value="courses" v-model="pdfScope" class="text-rose-600 focus:ring-rose-500" />
+                                    <span>Por Cursos y Filtros</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Course Selection (shown when scope is courses) -->
+                        <div v-if="pdfScope === 'courses'" class="space-y-2">
                             <div class="flex items-center justify-between">
                                 <label class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
                                     <i class="bi bi-journal-bookmark-fill text-rose-600"></i>
@@ -1843,6 +1917,18 @@ const toggleStatus = (cert) => {
                                 </select>
                             </div>
                         </div>
+
+                        <!-- Date range filters -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1 border-t border-gray-100">
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Fecha Emisión Desde (opcional)</label>
+                                <input type="date" v-model="pdfDateFrom" class="w-full text-xs border border-gray-300 rounded-lg py-1.5 px-2 bg-white text-gray-800" />
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Fecha Emisión Hasta (opcional)</label>
+                                <input type="date" v-model="pdfDateTo" class="w-full text-xs border border-gray-300 rounded-lg py-1.5 px-2 bg-white text-gray-800" />
+                            </div>
+                        </div>
                     </div>
 
                     <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between shrink-0">
@@ -1851,16 +1937,19 @@ const toggleStatus = (cert) => {
                             <button
                                 type="button"
                                 @click="bulkPdfModalOpen = false"
-                                class="px-4 py-2 border border-gray-300 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-100 transition"
+                                :disabled="isExportingBulkPdf"
+                                class="px-4 py-2 border border-gray-300 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-100 transition disabled:opacity-50"
                             >
                                 Cancelar
                             </button>
                             <button
                                 type="submit"
-                                class="px-5 py-2.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5"
+                                :disabled="isExportingBulkPdf"
+                                class="px-5 py-2.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                             >
-                                <i class="bi bi-printer-fill"></i>
-                                <span>Generar e Imprimir Lote</span>
+                                <i class="bi bi-printer-fill" v-if="!isExportingBulkPdf"></i>
+                                <span class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" v-else></span>
+                                <span>{{ isExportingBulkPdf ? 'Generando...' : 'Generar e Imprimir Lote' }}</span>
                             </button>
                         </div>
                     </div>

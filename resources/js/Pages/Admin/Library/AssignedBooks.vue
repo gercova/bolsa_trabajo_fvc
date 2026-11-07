@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { ref, reactive, computed } from 'vue';
+import axios from 'axios';
 import LibraryLayout from './Layout.vue';
 import route from '@/route';
 
@@ -238,17 +239,14 @@ const runAcademicImport = async () => {
     importResults.value = null;
 
     try {
-        const response = await fetch(route('admin.library.fetch-academic'), {
-            method: 'POST',
+        const response = await axios.post(route('admin.library.fetch-academic'), importForm, {
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 'Accept': 'application/json',
             },
-            body: JSON.stringify(importForm),
+            timeout: 180000,
         });
 
-        const data = await response.json();
+        const data = response.data;
         importResults.value = data;
 
         if (data.success) {
@@ -259,15 +257,16 @@ const runAcademicImport = async () => {
             notify(data.message || 'Error en la importación masiva.', 'error');
         }
     } catch (err) {
+        const errMessage = err.response?.data?.message || err.message || 'Ocurrió un problema de conexión al procesar la búsqueda académica.';
         importResults.value = {
             success: false,
-            message: 'Ocurrió un problema de conexión al procesar la búsqueda académica.',
+            message: errMessage,
             saved: 0,
             updated: 0,
             skipped: 0,
-            errors: [err.message],
+            errors: [errMessage],
         };
-        notify('Fallo al conectar con el servicio de búsqueda académica.', 'error');
+        notify(errMessage, 'error');
     } finally {
         importingAcademic.value = false;
     }
@@ -309,15 +308,12 @@ const regenerateVirtualCopy = async () => {
     if (!previewData.id) return;
     generatingVirtualCopy.value = true;
     try {
-        const response = await fetch(route('admin.library.generate-virtual-copy', previewData.id), {
-            method: 'POST',
+        const response = await axios.post(route('admin.library.generate-virtual-copy', previewData.id), {}, {
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 'Accept': 'application/json',
             },
         });
-        const data = await response.json();
+        const data = response.data;
         if (data.success) {
             notify('Copia virtual institucional generada y descargada exitosamente en la aplicación.');
             const base = previewData.slug ? route('biblioteca.stream', previewData.slug) : previewData.url.split('?')[0];
@@ -327,7 +323,8 @@ const regenerateVirtualCopy = async () => {
             notify(data.message || 'No se pudo generar la copia virtual.', 'error');
         }
     } catch (err) {
-        notify('Ocurrió un error al contactar al servidor para generar la copia virtual.', 'error');
+        const msg = err.response?.data?.message || 'Ocurrió un error al contactar al servidor para generar la copia virtual.';
+        notify(msg, 'error');
     } finally {
         generatingVirtualCopy.value = false;
     }

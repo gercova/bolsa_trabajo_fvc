@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import axios from 'axios';
 import route from '@/route';
 
 const props = defineProps({
@@ -70,16 +71,12 @@ const toggleFavorite    = async () => {
     isFavorited.value   = !prev;
 
     try {
-        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-        const res   = await fetch(`/biblioteca/favorito/${props.book.id}`, {
-            method: 'POST',
+        const res   = await axios.post(`/biblioteca/favorito/${props.book.id}`, {}, {
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': token,
                 Accept: 'application/json',
             },
         });
-        const json = await res.json();
+        const json = res.data;
         if (json.success) {
             isFavorited.value = json.favorited;
         } else {

@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import axios from 'axios';
 import LibraryLayout from './Layout.vue';
 import route from '@/route';
 
@@ -149,10 +150,10 @@ const openEditModal = async (bookId) => {
     editCoverPreview.value = '';
 
     try {
-        const response = await fetch(route('admin.library.edit', bookId), {
+        const response = await axios.get(route('admin.library.edit', bookId), {
             headers: { Accept: 'application/json' },
         });
-        const json = await response.json();
+        const json = response.data;
         if (json.success && json.data) {
             const b = json.data;
             editForm.title = b.title || '';
@@ -241,23 +242,20 @@ const submitAcademicImport = async () => {
     academicResult.value = null;
 
     try {
-        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-        const response = await fetch(route('admin.library.fetch-academic'), {
-            method: 'POST',
+        const response = await axios.post(route('admin.library.fetch-academic'), {
+            engine: academicEngine.value,
+            sources: academicEngine.value ? [academicEngine.value] : null,
+            study_program_id: academicProgramId.value || null,
+            custom_query: academicCustomQuery.value || null,
+            limit: academicLimit.value,
+        }, {
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': token,
                 Accept: 'application/json',
             },
-            body: JSON.stringify({
-                engine: academicEngine.value,
-                study_program_id: academicProgramId.value || null,
-                custom_query: academicCustomQuery.value || null,
-                limit: academicLimit.value,
-            }),
+            timeout: 180000,
         });
 
-        const data = await response.json();
+        const data = response.data;
         academicResult.value = data;
 
         if (data.success) {
@@ -267,15 +265,16 @@ const submitAcademicImport = async () => {
             notify(data.message || 'Error en la importación académica.', 'error');
         }
     } catch (e) {
-        notify('Ocurrió un error de red al consultar los repositorios académicos.', 'error');
+        const msg = e.response?.data?.message || e.message || 'Error de conexión';
+        notify(msg, 'error');
         academicResult.value = {
             success: false,
-            message: e.message || 'Error de conexión',
+            message: msg,
             saved: 0,
             updated: 0,
             skipped: 0,
             total: 0,
-            errors: [e.message],
+            errors: [msg],
         };
     } finally {
         isImportingAcademic.value = false;

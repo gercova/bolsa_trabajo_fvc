@@ -93,10 +93,19 @@ class LibraryController extends Controller
         set_time_limit(180);
 
         try {
+            $defaultSources = ['scielo', 'google_scholar', 'redalyc', 'scopus', 'openalex', 'crossref', 'doaj', 'europe_pmc', 'open_library', 'semanticscholar'];
+            $sources = $request->input('sources');
+            if (empty($sources) && $request->filled('engine')) {
+                $sources = [$request->input('engine')];
+            }
+            if (empty($sources) || ! is_array($sources)) {
+                $sources = $defaultSources;
+            }
+
             $options = [
                 'study_program_id' => $request->input('study_program_id'),
                 'category' => $request->input('category'),
-                'sources' => $request->input('sources', ['scielo', 'google_scholar', 'redalyc', 'scopus', 'openalex', 'crossref', 'doaj', 'europe_pmc', 'open_library', 'semanticscholar']),
+                'sources' => $sources,
                 'custom_query' => $request->input('custom_query'),
                 'limit' => (int) $request->input('limit', 10),
                 'created_by' => auth()->id(),

@@ -247,7 +247,8 @@ class LicensingController extends Controller
             ]);
         }
 
-        return redirect()->back()
+        return redirect()
+            ->back()
             ->with('success', "La fase {$licensing->phase_number} ha sido establecida como la Etapa Actual (P).");
     }
 }

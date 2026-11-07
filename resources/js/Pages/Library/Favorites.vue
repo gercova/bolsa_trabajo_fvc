@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import axios from 'axios';
 import ReaderLayout from './Layout.vue';
 import route from '@/route';
 
@@ -29,16 +30,12 @@ const removeFavorite = async (bookId) => {
     removedBookIds.value.push(bookId);
 
     try {
-        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-        const res = await fetch(`/biblioteca/favorito/${bookId}`, {
-            method: 'POST',
+        const res = await axios.post(`/biblioteca/favorito/${bookId}`, {}, {
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': token,
                 Accept: 'application/json',
             },
         });
-        const json = await res.json();
+        const json = res.data;
         if (!json.success || json.favorited) {
             removedBookIds.value = removedBookIds.value.filter((id) => id !== bookId);
         }

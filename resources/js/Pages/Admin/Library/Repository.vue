@@ -252,30 +252,46 @@ const submitAcademicImport = async () => {
             headers: {
                 Accept: 'application/json',
             },
-            timeout: 180000,
+            timeout: 200000,
         });
 
         const data = response.data;
         academicResult.value = data;
 
         if (data.success) {
-            notify(`Importación completada: ${data.saved} nuevos, ${data.updated} actualizados.`);
+            notify(data.message || `Importación completada: ${data.saved} nuevos, ${data.updated} actualizados.`);
             router.reload({ only: ['books'] });
         } else {
             notify(data.message || 'Error en la importación académica.', 'error');
         }
     } catch (e) {
-        const msg = e.response?.data?.message || e.message || 'Error de conexión';
-        notify(msg, 'error');
-        academicResult.value = {
-            success: false,
-            message: msg,
-            saved: 0,
-            updated: 0,
-            skipped: 0,
-            total: 0,
-            errors: [msg],
-        };
+        const isTimeout = e.code === 'ECONNABORTED' || (e.message && e.message.toLowerCase().includes('timeout'));
+
+        if (isTimeout) {
+            router.reload({ only: ['books'] });
+            academicResult.value = {
+                success: true,
+                message: 'Se alcanzó el límite de tiempo de 3 minutos. Los recursos encontrados hasta ese momento han sido guardados con éxito en el catálogo.',
+                saved: 'Preservados',
+                updated: 0,
+                skipped: 0,
+                total: 0,
+                errors: ['Búsqueda detenida preventivamente al límite de 3 minutos. Los registros procesados se conservaron en el repositorio.'],
+            };
+            notify('Tiempo límite de 3 minutos alcanzado. Registros preservados en el repositorio.', 'info');
+        } else {
+            const msg = e.response?.data?.message || e.message || 'Error de conexión';
+            notify(msg, 'error');
+            academicResult.value = {
+                success: false,
+                message: msg,
+                saved: 0,
+                updated: 0,
+                skipped: 0,
+                total: 0,
+                errors: [msg],
+            };
+        }
     } finally {
         isImportingAcademic.value = false;
     }

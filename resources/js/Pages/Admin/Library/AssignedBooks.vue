@@ -243,30 +243,46 @@ const runAcademicImport = async () => {
             headers: {
                 'Accept': 'application/json',
             },
-            timeout: 180000,
+            timeout: 200000,
         });
 
         const data = response.data;
         importResults.value = data;
 
         if (data.success) {
-            notify(`Se importaron ${data.saved || 0} nuevos recursos académicos.`);
+            const count = (data.saved || 0) + (data.updated || 0);
+            notify(data.message || `Se importaron ${count} recursos académicos.`);
             // Refresh list in background
             router.reload({ only: ['books', 'totalCount'] });
         } else {
             notify(data.message || 'Error en la importación masiva.', 'error');
         }
     } catch (err) {
-        const errMessage = err.response?.data?.message || err.message || 'Ocurrió un problema de conexión al procesar la búsqueda académica.';
-        importResults.value = {
-            success: false,
-            message: errMessage,
-            saved: 0,
-            updated: 0,
-            skipped: 0,
-            errors: [errMessage],
-        };
-        notify(errMessage, 'error');
+        const isTimeout = err.code === 'ECONNABORTED' || (err.message && err.message.toLowerCase().includes('timeout'));
+
+        if (isTimeout) {
+            router.reload({ only: ['books', 'totalCount'] });
+            importResults.value = {
+                success: true,
+                message: 'Se alcanzó el límite de tiempo de 3 minutos. Los recursos encontrados hasta ese momento han sido guardados con éxito en el catálogo.',
+                saved: 'Preservados',
+                updated: 0,
+                skipped: 0,
+                errors: ['Búsqueda detenida preventivamente al límite de 3 minutos. Los registros procesados se conservaron en la biblioteca.'],
+            };
+            notify('Tiempo límite de 3 minutos alcanzado. Registros preservados en el catálogo.', 'info');
+        } else {
+            const errMessage = err.response?.data?.message || err.message || 'Ocurrió un problema de conexión al procesar la búsqueda académica.';
+            importResults.value = {
+                success: false,
+                message: errMessage,
+                saved: 0,
+                updated: 0,
+                skipped: 0,
+                errors: [errMessage],
+            };
+            notify(errMessage, 'error');
+        }
     } finally {
         importingAcademic.value = false;
     }

@@ -261,6 +261,12 @@ class AcademicLibraryService
      */
     public function fetchAndImport(array $options = []): array
     {
+        $startTime = microtime(true);
+        $maxExecutionSeconds = app()->runningUnitTests() && isset($options['max_execution_time'])
+            ? (int) $options['max_execution_time']
+            : max(30, min((int) ($options['max_execution_time'] ?? 160), 175));
+        $timeLimitReached = false;
+
         $limit = max(1, min((int) ($options['limit'] ?? 10), 100));
         $programId = ! empty($options['study_program_id']) && $options['study_program_id'] !== 'all' ? (int) $options['study_program_id'] : null;
         $categoryFilter = ! empty($options['category']) && $options['category'] !== 'all' ? (string) $options['category'] : null;
@@ -277,6 +283,17 @@ class AcademicLibraryService
         $importedList = [];
         $log = [];
         $errors = [];
+
+        // Helper to check if maximum execution budget is reached
+        $isOverTime = function () use ($startTime, $maxExecutionSeconds, &$timeLimitReached): bool {
+            if ($timeLimitReached || (microtime(true) - $startTime) >= $maxExecutionSeconds) {
+                $timeLimitReached = true;
+
+                return true;
+            }
+
+            return false;
+        };
 
         // Build list of target study programs
         $targets = [];
@@ -313,12 +330,13 @@ class AcademicLibraryService
 
         // Batch processing helper closure to deduplicate and safely persist items
         $processBatch = function (array $batchItems, string $sourceLabel, string $term, string $progName) use (
-            &$savedCount, &$updatedCount, &$skippedCount, &$importedList, &$log, $limit, $strictPdfOnly, $createdBy
+            &$savedCount, &$updatedCount, &$skippedCount, &$importedList, &$log, $limit, $strictPdfOnly, $createdBy,
+            $isOverTime
         ): void {
             $importedInBatch = 0;
 
             foreach ($batchItems as $item) {
-                if (($savedCount + $updatedCount) >= $limit) {
+                if (($savedCount + $updatedCount) >= $limit || $isOverTime()) {
                     break;
                 }
 
@@ -360,7 +378,7 @@ class AcademicLibraryService
 
         // Target search terms
         foreach ($targets as $currentProgramId => $config) {
-            if (($savedCount + $updatedCount) >= $limit) {
+            if (($savedCount + $updatedCount) >= $limit || $isOverTime()) {
                 break;
             }
 
@@ -373,14 +391,14 @@ class AcademicLibraryService
             }
 
             foreach ($searchTerms as $term) {
-                if (($savedCount + $updatedCount) >= $limit) {
+                if (($savedCount + $updatedCount) >= $limit || $isOverTime()) {
                     break;
                 }
 
                 // ── When specifically searching for Books ('Libro'), prioritize specialized book providers ──
                 if ($categoryFilter === 'Libro') {
                     // Open Library (Millions of verified digitized books & manuals)
-                    if (in_array('open_library', $sources)) {
+                    if (in_array('open_library', $sources) && ! $isOverTime()) {
                         try {
                             $olResults = $this->queryOpenLibrary(
                                 $term,
@@ -396,12 +414,12 @@ class AcademicLibraryService
                         }
                     }
 
-                    if (($savedCount + $updatedCount) >= $limit) {
+                    if (($savedCount + $updatedCount) >= $limit || $isOverTime()) {
                         break;
                     }
 
                     // OpenAlex (DOAB, Book Chapters, Open Access Books)
-                    if (in_array('openalex', $sources) || in_array('scielo', $sources) || in_array('redalyc', $sources) || in_array('scopus', $sources)) {
+                    if ((in_array('openalex', $sources) || in_array('scielo', $sources) || in_array('redalyc', $sources) || in_array('scopus', $sources)) && ! $isOverTime()) {
                         try {
                             $oaResults = $this->queryOpenAlex(
                                 $term,
@@ -418,12 +436,12 @@ class AcademicLibraryService
                         }
                     }
 
-                    if (($savedCount + $updatedCount) >= $limit) {
+                    if (($savedCount + $updatedCount) >= $limit || $isOverTime()) {
                         break;
                     }
 
                     // Google Scholar with Book modifiers
-                    if (in_array('google_scholar', $sources)) {
+                    if (in_array('google_scholar', $sources) && ! $isOverTime()) {
                         try {
                             $scholarResults = $this->queryGoogleScholar(
                                 $term,
@@ -439,12 +457,12 @@ class AcademicLibraryService
                         }
                     }
 
-                    if (($savedCount + $updatedCount) >= $limit) {
+                    if (($savedCount + $updatedCount) >= $limit || $isOverTime()) {
                         break;
                     }
 
                     // Crossref with book works
-                    if (in_array('crossref', $sources)) {
+                    if (in_array('crossref', $sources) && ! $isOverTime()) {
                         try {
                             $crossrefResults = $this->queryCrossref(
                                 $term,
@@ -460,7 +478,7 @@ class AcademicLibraryService
                         }
                     }
 
-                    usleep(150000);
+                    usleep(50000);
 
                     continue;
                 }
@@ -468,7 +486,7 @@ class AcademicLibraryService
                 // ── Standard Multi-Source Strategy (Journals, Papers, Theses, Articles) ──
 
                 // 1. Google Scholar (Direct PDF badges & peer-reviewed citations)
-                if (in_array('google_scholar', $sources)) {
+                if (in_array('google_scholar', $sources) && ! $isOverTime()) {
                     try {
                         $scholarResults = $this->queryGoogleScholar(
                             $term,
@@ -484,12 +502,12 @@ class AcademicLibraryService
                     }
                 }
 
-                if (($savedCount + $updatedCount) >= $limit) {
+                if (($savedCount + $updatedCount) >= $limit || $isOverTime()) {
                     break;
                 }
 
                 // 2. DOAJ API (Directory of Open Access Journals)
-                if (in_array('doaj', $sources)) {
+                if (in_array('doaj', $sources) && ! $isOverTime()) {
                     try {
                         $doajResults = $this->queryDoaj(
                             $term,
@@ -505,12 +523,12 @@ class AcademicLibraryService
                     }
                 }
 
-                if (($savedCount + $updatedCount) >= $limit) {
+                if (($savedCount + $updatedCount) >= $limit || $isOverTime()) {
                     break;
                 }
 
                 // 3. Europe PMC API (Peer-reviewed life-sciences, veterinary, health & agricultural Open Access)
-                if (in_array('europe_pmc', $sources)) {
+                if (in_array('europe_pmc', $sources) && ! $isOverTime()) {
                     try {
                         $pmcResults = $this->queryEuropePmc(
                             $term,
@@ -526,16 +544,16 @@ class AcademicLibraryService
                     }
                 }
 
-                if (($savedCount + $updatedCount) >= $limit) {
+                if (($savedCount + $updatedCount) >= $limit || $isOverTime()) {
                     break;
                 }
 
                 // 4. OpenAlex API (SciELO, Redalyc, Scopus OA, Dialnet, University Repositories & Books)
                 if (
-                    in_array('scielo', $sources) ||
+                    (in_array('scielo', $sources) ||
                     in_array('redalyc', $sources) ||
                     in_array('openalex', $sources) ||
-                    in_array('scopus', $sources)
+                    in_array('scopus', $sources)) && ! $isOverTime()
                 ) {
                     try {
                         $openAlexResults = $this->queryOpenAlex(
@@ -553,12 +571,12 @@ class AcademicLibraryService
                     }
                 }
 
-                if (($savedCount + $updatedCount) >= $limit) {
+                if (($savedCount + $updatedCount) >= $limit || $isOverTime()) {
                     break;
                 }
 
                 // 5. Open Library (Digitized textbooks, manuals and complete books)
-                if (in_array('open_library', $sources)) {
+                if (in_array('open_library', $sources) && ! $isOverTime()) {
                     try {
                         $olResults = $this->queryOpenLibrary(
                             $term,
@@ -574,12 +592,12 @@ class AcademicLibraryService
                     }
                 }
 
-                if (($savedCount + $updatedCount) >= $limit) {
+                if (($savedCount + $updatedCount) >= $limit || $isOverTime()) {
                     break;
                 }
 
                 // 6. Semantic Scholar (AI-powered scholarly graph with verified open access PDFs)
-                if (in_array('semanticscholar', $sources)) {
+                if (in_array('semanticscholar', $sources) && ! $isOverTime()) {
                     try {
                         $semResults = $this->querySemanticScholar(
                             $term,
@@ -595,12 +613,12 @@ class AcademicLibraryService
                     }
                 }
 
-                if (($savedCount + $updatedCount) >= $limit) {
+                if (($savedCount + $updatedCount) >= $limit || $isOverTime()) {
                     break;
                 }
 
                 // 7. Crossref API (Official Scholarly DOI Registry + Unpaywall OA PDF)
-                if (in_array('crossref', $sources)) {
+                if (in_array('crossref', $sources) && ! $isOverTime()) {
                     try {
                         $crossrefResults = $this->queryCrossref(
                             $term,
@@ -617,14 +635,26 @@ class AcademicLibraryService
                 }
 
                 // Respectful pause between iterations to prevent rate limits
-                usleep(150000);
+                usleep(50000);
             }
         }
 
         $total = $savedCount + $updatedCount;
-        $message = $total > 0
-            ? "Búsqueda académica completada: {$savedCount} nuevos documentos PDF directos indexados y {$updatedCount} actualizados ({$skippedCount} omitidos o ya existentes en el repositorio)."
-            : 'Búsqueda completada. No se encontraron nuevos documentos con PDF directo bajo los criterios seleccionados o ya se encuentran registrados.';
+        $elapsed = round(microtime(true) - $startTime, 1);
+
+        if ($timeLimitReached) {
+            $log[] = "Límite de tiempo máximo de 3 minutos alcanzado ({$elapsed}s). Se conservaron con éxito los {$total} recursos obtenidos.";
+        }
+
+        if ($total > 0) {
+            $message = $timeLimitReached
+                ? "Búsqueda finalizada por tiempo máximo (3 min): {$savedCount} nuevos documentos guardados y {$updatedCount} actualizados ({$skippedCount} omitidos)."
+                : "Búsqueda académica completada: {$savedCount} nuevos documentos indexados y {$updatedCount} actualizados ({$skippedCount} omitidos).";
+        } else {
+            $message = $timeLimitReached
+                ? 'El tiempo límite de 3 minutos se alcanzó mientras se consultaban los repositorios externos. Intente acotar la búsqueda seleccionando un programa de estudio específico o término más puntual.'
+                : 'Búsqueda completada. No se encontraron nuevos documentos bajo los criterios seleccionados.';
+        }
 
         return [
             'success' => true,
@@ -635,6 +665,8 @@ class AcademicLibraryService
             'items' => $importedList,
             'log' => $log,
             'errors' => $errors,
+            'time_limit_reached' => $timeLimitReached,
+            'time_elapsed' => $elapsed,
             'message' => $message,
         ];
     }
@@ -665,9 +697,8 @@ class AcademicLibraryService
         $scholarQuery = $cleanTerm.$categoryModifier;
 
         try {
-            $response = Http::connectTimeout(4)
-                ->timeout(10)
-                ->retry(2, fn (int $attempt) => $attempt * 600, fn (\Throwable $e) => $e instanceof ConnectionException)
+            $response = Http::connectTimeout(3)
+                ->timeout(7)
                 ->withHeaders(array_merge(self::SCRAPE_HEADERS, [
                     'Referer' => self::SCRAPE_REFERERS[array_rand(self::SCRAPE_REFERERS)],
                 ]))
@@ -953,9 +984,8 @@ class AcademicLibraryService
         }
 
         try {
-            $response = Http::connectTimeout(4)
-                ->timeout(12)
-                ->retry(3, fn (int $attempt) => $attempt * 800, fn (\Throwable $e) => $e instanceof ConnectionException)
+            $response = Http::connectTimeout(3)
+                ->timeout(8)
                 ->withHeaders(self::API_HEADERS)
                 ->get('https://doaj.org/api/search/articles/'.rawurlencode($cleanTerm), [
                     'pageSize' => $pageSize,
@@ -1093,9 +1123,8 @@ class AcademicLibraryService
         }
 
         try {
-            $response = Http::connectTimeout(4)
-                ->timeout(14)
-                ->retry(3, fn (int $attempt) => $attempt * 1000, fn (\Throwable $e) => $e instanceof ConnectionException)
+            $response = Http::connectTimeout(3)
+                ->timeout(8)
                 ->withHeaders(self::API_HEADERS)
                 ->get('https://www.ebi.ac.uk/europepmc/webservices/rest/search', [
                     'query' => $query,
@@ -1216,9 +1245,8 @@ class AcademicLibraryService
         }
 
         try {
-            $response = Http::connectTimeout(4)
-                ->timeout(12)
-                ->retry(3, fn (int $attempt) => $attempt * 700, fn (\Throwable $e) => $e instanceof ConnectionException)
+            $response = Http::connectTimeout(3)
+                ->timeout(7)
                 ->withHeaders(self::API_HEADERS)
                 ->get('https://openlibrary.org/search.json', [
                     'q' => $cleanTerm,
@@ -1343,9 +1371,8 @@ class AcademicLibraryService
             $enhancedSearch .= ' scielo';
         }
 
-        $baseHttp = Http::connectTimeout(4)
-            ->timeout(14)
-            ->retry(3, fn (int $attempt) => $attempt * 900, fn (\Throwable $e) => $e instanceof ConnectionException)
+        $baseHttp = Http::connectTimeout(3)
+            ->timeout(8)
             ->withHeaders(self::API_HEADERS);
 
         $response = $baseHttp->get('https://api.openalex.org/works', [
@@ -1355,9 +1382,8 @@ class AcademicLibraryService
         ]);
 
         if (! $response->successful() && $categoryFilter === 'Libro') {
-            $response = Http::connectTimeout(4)
-                ->timeout(14)
-                ->retry(3, fn (int $attempt) => $attempt * 900, fn (\Throwable $e) => $e instanceof ConnectionException)
+            $response = Http::connectTimeout(3)
+                ->timeout(8)
                 ->withHeaders(self::API_HEADERS)
                 ->get('https://api.openalex.org/works', [
                     'search' => $enhancedSearch,
@@ -1496,9 +1522,8 @@ class AcademicLibraryService
         $cleanTerm = $this->sanitizeSearchTerm($term);
 
         try {
-            $response = Http::connectTimeout(4)
-                ->timeout(14)
-                ->retry(3, fn (int $attempt) => $attempt * 1000, fn (\Throwable $e) => $e instanceof ConnectionException)
+            $response = Http::connectTimeout(3)
+                ->timeout(8)
                 ->withHeaders(self::API_HEADERS)
                 ->get('https://api.crossref.org/works', [
                     'query' => $cleanTerm,
@@ -1621,9 +1646,8 @@ class AcademicLibraryService
         }
 
         try {
-            $response = Http::connectTimeout(4)
-                ->timeout(10)
-                ->retry(3, fn (int $attempt) => $attempt * 800, fn (\Throwable $e) => $e instanceof ConnectionException)
+            $response = Http::connectTimeout(3)
+                ->timeout(8)
                 ->withHeaders(self::API_HEADERS)
                 ->get('https://api.semanticscholar.org/graph/v1/paper/search', [
                     'query' => $cleanTerm,
@@ -1962,7 +1986,7 @@ class AcademicLibraryService
      *
      * @return array{file_path: string, file_size: int}|null
      */
-    public function downloadAndCachePdf(string $externalUrl, ?string $slugOrTitle = null): ?array
+    public function downloadAndCachePdf(string $externalUrl, ?string $slugOrTitle = null, int $timeout = 6): ?array
     {
         $targetUrl = $this->resolveDirectDocumentLink($externalUrl);
         if ($targetUrl === '' || str_starts_with($targetUrl, 'javascript:')) {
@@ -1974,14 +1998,14 @@ class AcademicLibraryService
             $parsedScheme = parse_url($targetUrl, PHP_URL_SCHEME) ?: 'https';
             $originReferer = $parsedHost ? "{$parsedScheme}://{$parsedHost}/" : self::SCRAPE_REFERERS[0];
 
-            $response = Http::connectTimeout(6)
-                ->timeout(25)
+            $response = Http::connectTimeout(3)
+                ->timeout($timeout)
                 ->withHeaders(array_merge(self::SCRAPE_HEADERS, [
                     'Accept' => 'application/pdf,application/octet-stream;q=0.9,*/*;q=0.8',
                     'Referer' => $originReferer,
                 ]))
                 ->withOptions([
-                    'allow_redirects' => ['max' => 8, 'referer' => true],
+                    'allow_redirects' => ['max' => 6, 'referer' => true],
                     'verify' => false, // Evita fallos con certificados SSL intermedios de universidades
                 ])
                 ->get($targetUrl);
@@ -1999,8 +2023,8 @@ class AcademicLibraryService
 
                 if ($innerPdfUrl && $innerPdfUrl !== $targetUrl) {
                     $innerPdfUrl = $this->normalizeOjsUrl($innerPdfUrl);
-                    $response = Http::connectTimeout(6)
-                        ->timeout(25)
+                    $response = Http::connectTimeout(3)
+                        ->timeout($timeout)
                         ->withHeaders(array_merge(self::SCRAPE_HEADERS, [
                             'Accept' => 'application/pdf,application/octet-stream;q=0.9,*/*;q=0.8',
                             'Referer' => $effectiveUri,
@@ -2102,9 +2126,11 @@ class AcademicLibraryService
             return $this->urlReachabilityCache[$url];
         }
 
-        // 2. Comprobación DNS básica
-        if (! checkdnsrr($host, 'A') && ! checkdnsrr($host, 'AAAA')) {
-            return $this->urlReachabilityCache[$url] = false;
+        // 2. Comprobación DNS básica (omitida en tests para permitir Http::fake con dominios simulados)
+        if (! app()->runningUnitTests()) {
+            if (! checkdnsrr($host, 'A') && ! checkdnsrr($host, 'AAAA')) {
+                return $this->urlReachabilityCache[$url] = false;
+            }
         }
 
         // 3. Sonda HTTP ligera para comprobar que el recurso existe en el servidor remoto
@@ -2113,8 +2139,8 @@ class AcademicLibraryService
             $parsedScheme = parse_url($url, PHP_URL_SCHEME) ?: 'https';
             $referer = $parsedHost ? "{$parsedScheme}://{$parsedHost}/" : self::SCRAPE_REFERERS[0];
 
-            $response = Http::connectTimeout(4)
-                ->timeout(8)
+            $response = Http::connectTimeout(2.5)
+                ->timeout(4)
                 ->withHeaders(array_merge(self::SCRAPE_HEADERS, [
                     'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,application/pdf;q=0.8,*/*;q=0.7',
                     'Referer' => $referer,
@@ -2122,7 +2148,7 @@ class AcademicLibraryService
                 ->withOptions([
                     'verify' => false,
                     'allow_redirects' => [
-                        'max' => 6,
+                        'max' => 4,
                         'strict' => false,
                         'referer' => true,
                         'track_redirects' => true,
@@ -2645,14 +2671,13 @@ class AcademicLibraryService
 
         // Lightweight Range probe (first 512 bytes) to verify if the URL streams a binary %PDF- file
         try {
-            $response = Http::connectTimeout(3)
-                ->timeout(6)
-                ->retry(2, fn (int $attempt) => $attempt * 300, fn (\Throwable $e) => $e instanceof ConnectionException)
+            $response = Http::connectTimeout(2.5)
+                ->timeout(4)
                 ->withHeaders(array_merge(self::SCRAPE_HEADERS, [
                     'Range' => 'bytes=0-512',
                     'Referer' => self::SCRAPE_REFERERS[array_rand(self::SCRAPE_REFERERS)],
                 ]))
-                ->withOptions(['allow_redirects' => ['max' => 5]])
+                ->withOptions(['allow_redirects' => ['max' => 4], 'verify' => false])
                 ->get($url);
 
             if ($response->successful() || $response->status() === 206) {
@@ -2863,6 +2888,23 @@ class AcademicLibraryService
 
         $existing = Book::where('external_url', $item['external_url'])->first();
 
+        if (! $existing && ! empty($item['study_program_id'])) {
+            $existing = Book::where('title', $item['title'])
+                ->where('study_program_id', $item['study_program_id'])
+                ->first();
+        }
+
+        if (! $existing) {
+            $existing = Book::where('title', $item['title'])->first();
+        }
+
+        if (! $existing && preg_match('#(/article/(?:view|download)/\d+)#i', $item['external_url'], $baseOjsMatch)) {
+            $baseOjs = $baseOjsMatch[1];
+            $existing = Book::where('external_url', 'like', '%'.$baseOjs)
+                ->orWhere('external_url', 'like', '%'.$baseOjs.'/%')
+                ->first();
+        }
+
         if ($existing) {
             $updates = [
                 'author' => $existing->author ?: ($item['author'] ?? null),
@@ -2879,7 +2921,7 @@ class AcademicLibraryService
 
             // Si el libro existente no tiene archivo PDF local, intentar cachearlo ahora
             if (empty($existing->file_path) || ! Storage::disk('public')->exists($existing->file_path)) {
-                $cached = $this->downloadAndCachePdf($updates['external_url'] ?? $existing->external_url, $existing->slug);
+                $cached = $this->downloadAndCachePdf($updates['external_url'] ?? $existing->external_url, $existing->slug, 5);
                 if ($cached) {
                     $updates['file_path'] = $cached['file_path'];
                     $updates['file_size'] = $cached['file_size'];
@@ -2904,7 +2946,7 @@ class AcademicLibraryService
         }
 
         // Descargar copia local del PDF durante la importación para lectura in-app instantánea
-        $cachedPdf = $this->downloadAndCachePdf($item['external_url'], $slug);
+        $cachedPdf = $this->downloadAndCachePdf($item['external_url'], $slug, 5);
 
         $bookData = [
             'title' => $item['title'],

@@ -90,7 +90,7 @@ class LibraryController extends Controller
             ], 403);
         }
 
-        set_time_limit(180);
+        set_time_limit(240);
 
         try {
             $defaultSources = ['scielo', 'google_scholar', 'redalyc', 'scopus', 'openalex', 'crossref', 'doaj', 'europe_pmc', 'open_library', 'semanticscholar'];
@@ -110,6 +110,7 @@ class LibraryController extends Controller
                 'limit' => (int) $request->input('limit', 10),
                 'created_by' => auth()->id(),
                 'strict_pdf_only' => true,
+                'max_execution_time' => 160,
             ];
 
             $result = $service->fetchAndImport($options);

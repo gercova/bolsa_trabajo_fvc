@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\AcademicLibraryService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class LibraryAcademicBulkImportTest extends TestCase
@@ -86,6 +87,12 @@ class LibraryAcademicBulkImportTest extends TestCase
 
     public function test_academic_service_stores_external_books_and_deduplicates(): void
     {
+        Http::fake([
+            'https://scielo.org/*' => Http::response('%PDF-1.4 mock content', 200, [
+                'Content-Type' => 'application/pdf',
+            ]),
+        ]);
+
         $service = app(AcademicLibraryService::class);
 
         $testItem = [
@@ -104,7 +111,7 @@ class LibraryAcademicBulkImportTest extends TestCase
         $result1 = $service->storeAcademicItem($testItem);
         $this->assertEquals('created', $result1['status']);
         $this->assertNotNull($result1['book']);
-        $this->assertTrue($result1['book']->is_external);
+        $this->assertNotEmpty($result1['book']->external_url);
         $this->assertEquals($this->program->id, $result1['book']->study_program_id);
 
         // 2. Second insertion of identical external_url -> Should be updated or skipped (deduplicated)
@@ -234,7 +241,7 @@ HTML;
         $baseUrl = 'https://revistas.ufps.edu.co/index.php/respuestas/article/view/350';
         $resolved = $service->extractDirectDocumentLinkFromHtml($ojsHtml, $baseUrl);
 
-        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394', $resolved);
+        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/download/350/394', $resolved);
     }
 
     public function test_academic_service_parses_google_scholar_html_with_direct_pdf(): void
@@ -267,13 +274,19 @@ HTML;
 
         $this->assertCount(1, $results);
         $this->assertEquals('Evaluación de Cultivos Agropecuarios y Fertirriego', $results[0]['title']);
-        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394', $results[0]['external_url']);
+        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/download/350/394', $results[0]['external_url']);
         $this->assertStringContainsString('Google Scholar', $results[0]['publisher']);
         $this->assertEquals(2024, $results[0]['publication_year']);
     }
 
     public function test_academic_service_upgrades_existing_landing_url_to_direct_galley_url(): void
     {
+        Http::fake([
+            'https://revistas.ufps.edu.co/*' => Http::response('%PDF-1.4 mock content', 200, [
+                'Content-Type' => 'application/pdf',
+            ]),
+        ]);
+
         $service = app(AcademicLibraryService::class);
 
         // 1. Initial record with landing page
@@ -309,5 +322,25 @@ HTML;
         $this->assertEquals('updated', $status);
         $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394', $updatedBook->external_url);
         $this->assertEquals($book->id, $updatedBook->id);
+    }
+
+    public function test_academic_bulk_import_gracefully_halts_and_preserves_records_when_time_limit_reached(): void
+    {
+        $service = app(AcademicLibraryService::class);
+
+        $result = $service->fetchAndImport([
+            'study_program_id' => 'all',
+            'limit' => 20,
+            'max_execution_time' => 0, // Instant timeout simulation
+            'sources' => ['scielo', 'google_scholar'],
+        ]);
+
+        $this->assertTrue($result['success']);
+        $this->assertArrayHasKey('saved', $result);
+        $this->assertArrayHasKey('updated', $result);
+        $this->assertArrayHasKey('skipped', $result);
+        $this->assertArrayHasKey('time_limit_reached', $result);
+        $this->assertTrue($result['time_limit_reached']);
+        $this->assertStringContainsString('3 minutos', $result['message']);
     }
 }

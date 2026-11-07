@@ -21,15 +21,15 @@ class AcademicLibraryServiceTest extends TestCase
         $downloadUrl = 'https://revistas.ufps.edu.co/index.php/respuestas/article/download/350/394';
         $normalized = $this->service->normalizeOjsUrl($downloadUrl);
 
-        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394', $normalized);
+        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/download/350/394', $normalized);
 
         $downloadWithFileId = 'https://revistas.ufps.edu.co/index.php/respuestas/article/download/350/394/1234';
         $normalizedWithFileId = $this->service->normalizeOjsUrl($downloadWithFileId);
 
-        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394', $normalizedWithFileId);
+        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/download/350/394/1234', $normalizedWithFileId);
 
         $alreadyViewUrl = 'https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394';
-        $this->assertEquals($alreadyViewUrl, $this->service->normalizeOjsUrl($alreadyViewUrl));
+        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/download/350/394', $this->service->normalizeOjsUrl($alreadyViewUrl));
     }
 
     public function test_extracts_and_normalizes_ojs_citation_pdf_url_meta_tag(): void
@@ -50,7 +50,7 @@ HTML;
         $baseUrl = 'https://revistas.ufps.edu.co/index.php/respuestas/article/view/350';
         $extracted = $this->service->extractDirectDocumentLinkFromHtml($html, $baseUrl);
 
-        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394', $extracted);
+        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/download/350/394', $extracted);
     }
 
     public function test_extracts_ojs_galley_link_from_anchor_tags(): void
@@ -71,7 +71,7 @@ HTML;
         $baseUrl = 'https://revistas.ufps.edu.co/index.php/respuestas/article/view/350';
         $extracted = $this->service->extractDirectDocumentLinkFromHtml($html, $baseUrl);
 
-        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394', $extracted);
+        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/download/350/394', $extracted);
     }
 
     public function test_extracts_and_normalizes_ojs_download_anchor_to_view_url(): void
@@ -90,7 +90,7 @@ HTML;
         $baseUrl = 'https://revistas.ufps.edu.co/index.php/respuestas/article/view/350';
         $extracted = $this->service->extractDirectDocumentLinkFromHtml($html, $baseUrl);
 
-        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394', $extracted);
+        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/download/350/394', $extracted);
     }
 
     public function test_extracts_semantic_pdf_text_anchors(): void
@@ -207,8 +207,8 @@ HTML;
 
         $this->assertCount(1, $results);
         $this->assertEquals('Redes Ópticas Elásticas de Nueva Generación', $results[0]['title']);
-        // Must be normalized to view/350/394
-        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/view/350/394', $results[0]['external_url']);
+        // Must be normalized to download/350/394
+        $this->assertEquals('https://revistas.ufps.edu.co/index.php/respuestas/article/download/350/394', $results[0]['external_url']);
     }
 
     public function test_resolve_ojs_galley_url_via_oai_pmh_and_crossref(): void

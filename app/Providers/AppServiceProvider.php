@@ -27,7 +27,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Inertia::setRootView('inertia-app');
-
         // Otorgar acceso implícito a todos los permisos para roles administrativos
         Gate::before(function ($user, $ability) {
             if ($user && (

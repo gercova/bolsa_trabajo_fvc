@@ -80,9 +80,7 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request, ?User $user = null): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
+        $request->validateWithBag('userDeletion', ['password' => ['required', 'current_password']]);
 
         $authUser = $request->user();
         $targetUser = ($user && $user->exists) ? $user : $authUser;

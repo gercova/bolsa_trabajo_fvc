@@ -54,7 +54,6 @@ class Enterprise extends Model
 
         if (! $enterprise) {
             $enterprise = new self;
-
             $enterprise->logo_path = 'enterprise/logo-iestpfvc.png';
             $enterprise->favicon_path = 'enterprise/favicon-iestpfvc.png';
             $enterprise->company_name = 'IESTP Francisco Vigo Caballero';

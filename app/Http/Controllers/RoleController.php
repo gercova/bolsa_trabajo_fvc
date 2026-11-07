@@ -193,12 +193,12 @@ class RoleController extends Controller
                 ], 200);
             }
 
-            return redirect()->route('admin.roles.index')
+            return redirect()
+                ->route('admin.roles.index')
                 ->with('success', "El rol '{$roleName}' ha sido eliminado correctamente.");
 
         } catch (\Exception $e) {
             Log::error('Error eliminando rol: '.$e->getMessage());
-
             if ($this->wantsJson()) {
                 return response()->json([
                     'success' => false,
